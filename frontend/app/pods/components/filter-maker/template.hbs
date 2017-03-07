@@ -1,0 +1,43 @@
+{{#if filter.raw}}
+    <div class="switch" data-tooltip="Switch to Builder"  {{action 'switchToBuilder' 'filters' filter false}}><i class="list layout icon" ></i></div>
+    <div class="ui form margin-top-10">
+        <div class="field">
+            {{input value=filter.value class="ui" placeholder="joining_table.column = 'something'" }}
+        </div>
+    </div>
+{{else}}
+    <div class="switch" data-tooltip="Switch to Raw" {{action 'switchToRaw' 'filters' filter}}><i class="code icon" ></i></div>
+    <div class="ui form margin-top-10">
+        <div class="field">
+            {{#ui-dropdown class="search selection" selected=filter.column onChange=(action (mut filter.column)) as |execute mapper|}}
+                <div class="default text">Column</div>
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    {{#each columns as |column|}}
+                        <div class="item" data-value="{{map-value mapper column}}">
+                            {{column.human_name}}
+                        </div>
+                    {{/each}}
+                </div>
+            {{/ui-dropdown}}
+        </div>
+        <div class="field">
+
+            {{#ui-dropdown class="search selection" selected=filter.operator onChange=(action (mut filter.operator)) as |execute mapper|}}
+                <div class="default text">Operator</div>
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    {{#each operators as |operator|}}
+                        <div class="item" data-value="{{map-value mapper operator}}">
+                            {{operator.name}}
+                        </div>
+                    {{/each}}
+                </div>
+            {{/ui-dropdown}}
+        </div>
+        <div class="field">
+            {{input value=filter.value class="ui"}}
+            
+        </div>
+    </div>
+{{/if}}

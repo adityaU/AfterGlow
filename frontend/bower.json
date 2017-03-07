@@ -1,0 +1,9 @@
+{
+  "name": "frontend",
+  "dependencies": {
+    "semantic-ui": "^2.2.7",
+    "plotlyjs": "plotly#^1.18.1",
+    "chartjs": "2.1.6",
+    "ace-builds": "^1.2.6"
+  }
+}

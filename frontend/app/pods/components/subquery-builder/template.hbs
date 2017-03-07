@@ -1,0 +1,233 @@
+<div class="title">
+    <i class="dropdown icon"></i>
+    Table
+</div>
+<div class="content">
+    {{#ui-dropdown class="search search selection" selected=queryObject.table onChange=(action (mut queryObject.table)) as |execute mapper|}}
+        <div class="default text">Table</div>
+        <i class="dropdown icon"></i>
+        <div class="menu">
+            {{#each tables as |table|}}
+                <div class="item" data-value="{{map-value mapper table}}">
+                    {{table.human_name}}
+                </div>
+            {{/each}}
+        </div>
+    {{/ui-dropdown}}
+</div>
+{{#if queryObject.table.readable_table_name }}
+    <div class="tags content active">
+        <div class="full right"><a href="#" class="ui violet basic label"> {{queryObject.table.human_name}}</a></div>
+    </div>
+{{/if}}
+
+<div class="title">
+    <i class="dropdown icon"></i>
+    Filters 
+</div>
+<div class="content">
+    {{#each queryObject.filters as |filter|}}
+        <div class=" ui segment">    
+                {{filter-maker filter=filter columns=columns queryObject=queryObject switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
+        </div>
+    {{/each}}
+    <button class="ui violet button full" {{action 'addFilter'}}>
+        <i class="icon add"></i>
+        Add More
+    </button>
+</div>
+
+{{#if filtersTagsShow }}
+    <div class="tags content active">
+        {{#each queryObject.filters as |filter|}}
+            {{#if filter.label}}
+                <a href="#" class="ui violet basic label">{{filter.label}}</a>
+            {{/if}}
+        {{/each}}
+    </div>
+{{/if}}
+
+<div class="title">
+    <i class="dropdown icon"></i>
+    View
+</div>
+<div class="content">
+    {{#each queryObject.views as |selectView|}}
+
+        <div class=" ui segment">    
+
+            {{#if selectView.selected.raw}}
+                <div class="right" data-tooltip="Switch to Builder" {{action 'switchToBuilder' 'views' selectView true}}><i class="list layout icon" ></i></div>
+                <div class="ui form margin-top-10">
+                    <div class="field">
+                        {{input value=selectView.selected.value class="ui" placeholder="COUNT(column) As Metric" }}
+                    </div>
+                </div>
+            {{else}}
+                <div class="right" data-tooltip="Switch to Raw" {{action 'switchToRaw' 'views' selectView true}}><i class="code icon" ></i></div>
+                {{#ui-dropdown class="search selection" selected=selectedView onChange=(action (mut selectView.selected))  as |execute mapper|}} 
+                    <div class="default text">Table</div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        {{#each viewOptions as |viewOption|}}
+                            <div class="item" data-value="{{map-value mapper viewOption}}">
+                                {{viewOption.name}}
+                            </div>
+                        {{/each}}
+                    </div>
+                {{/ui-dropdown}}
+            {{/if}}
+        </div>
+    {{/each}}
+    <button class="ui violet button full" {{action 'addView'}}>
+        <i class="icon add"></i>
+        Add More
+    </button>
+</div>
+
+{{#if queryObject.views }}
+    <div class="tags content active">
+        {{#each queryObject.views as |view|}}
+            {{#if view.label}}
+                <a href="#" class="ui violet basic label">{{view.label}}</a>
+            {{/if}}
+        {{/each}}
+    </div>
+{{/if}}
+
+<div class="title">
+    <i class="dropdown icon"></i>
+    Group By
+</div>
+<div class="content">
+    {{#each queryObject.groupBys as |groupBy|}}
+
+        <div class=" ui segment">    
+
+            {{#if groupBy.selected.raw}}
+                <div class="right" data-tooltip="Switch to Builder" {{action 'switchToBuilder' 'groupBys' groupBy true}}><i class="list layout icon" ></i></div>
+                <div class="ui form margin-top-10">
+                    <div class="field">
+                        {{input value=groupBy.selected.value class="ui" placeholder="Something complex" }}
+                    </div>
+                </div>
+            {{else}}
+                <div class="right" data-tooltip="Switch to Raw" {{action 'switchToRaw' 'groupBys' groupBy true}}><i class="code icon" ></i></div>
+                {{#ui-dropdown class="search selection" selected=groupBy.selected onChange=(action (mut groupBy.selected))  as |execute mapper|}} 
+                    <div class="default text">Columns</div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        {{#each columns as |column|}}
+                            <div class="item" data-value="{{map-value mapper column}}">
+                                {{column.human_name}}
+                            </div>
+                        {{/each}}
+                    </div>
+                {{/ui-dropdown}}
+            {{/if}}
+        </div>
+    {{/each}}
+    <button class="ui violet button full" {{action 'addGroupBy'}}>
+        <i class="icon add"></i>
+        Add More
+    </button>
+</div>
+
+{{#if queryObject.groupBys }}
+    <div class="tags content active">
+        {{#each queryObject.groupBys as |groupBy|}}
+            
+            {{#if groupBy.label}}
+                <a href="#" class="ui violet basic label">{{groupBy.label}}</a>
+            {{/if}}
+        {{/each}}
+    </div>
+{{/if}}
+
+<div class="title">
+    <i class="dropdown icon"></i>
+    Order By
+</div>
+<div class="content">
+    {{#each queryObject.orderBys as |orderBy|}}
+
+        <div class=" ui segment">    
+            {{#ui-dropdown class="search selection" selected=orderBy.column onChange=(action (mut orderBy.column))  as |execute mapper|}} 
+                <div class="default text">Column</div>
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    {{#each columns as |column|}}
+                        <div class="item" data-value="{{map-value mapper column}}">
+                            {{column.human_name}}
+                        </div>
+                    {{/each}}
+                </div>
+            {{/ui-dropdown}}
+            {{#ui-dropdown class="search selection" selected=orderBy.order onChange=(action (mut orderBy.order))  as |execute mapper|}} 
+                <div class="default text">Column</div>
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    {{#each orders as |order|}}
+                        <div class="item" data-value="{{map-value mapper order}}">
+                            {{order.name}}
+                        </div>
+                    {{/each}}
+                </div>
+            {{/ui-dropdown}}
+        </div>
+    {{/each}}
+    <button class="ui violet button full" {{action 'addOrderBy'}}>
+        <i class="icon add"></i>
+        Add More
+    </button>
+</div>
+{{#if queryObject.orderBys }}
+    <div class="tags content active">
+        {{#each queryObject.orderBys as |orderBy|}}
+            {{#if orderBy.column.human_name}}
+                <a href="#" class="ui violet basic label">{{orderBy.column.human_name}} {{orderBy.order.name}}</a>
+            {{/if}}
+        {{/each}}
+    </div>
+{{/if}}
+<div class="title">
+    <i class="dropdown icon"></i>
+    No of Results
+</div>
+<div class="content">
+    <div class="ui form margin-top-10">
+        <div class="field">
+            {{input value=queryObject.limit class="ui" placeholder="limit"}}
+        </div>
+    </div>
+</div>
+
+{{#if queryObject.limit}}
+    <div class="tags content active">
+
+        {{#if queryObject.limit}}
+            <a href="#" class="ui violet basic label">{{queryObject.limit}}</a>
+        {{/if}}
+    </div>
+{{/if}}
+
+<div class="title">
+    <i class="dropdown icon"></i>
+    Search After (offset)
+</div>
+<div class="content">
+    <div class="ui form margin-top-10">
+        <div class="field">
+            {{input value=queryObject.offset class="ui" placeholder="Search after" }}
+        </div>
+    </div>
+</div>
+
+{{#if queryObject.offset}}
+    <div class="tags content active">
+
+        {{#if queryObject.offset}}
+            <a href="#" class="ui violet basic label">{{queryObject.offset}}</a>
+        {{/if}}
+    </div>
+{{/if}}

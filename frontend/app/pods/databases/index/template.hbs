@@ -1,0 +1,24 @@
+<div class="ui attached segment half">
+
+    {{#link-to 'databases.new'}}
+        <button class="ui basic button right">
+            <i class="icon add"></i>
+            Add New Database
+        </button>
+    {{/link-to}}
+
+    <div class="ui middle aligned divided list">
+        {{#each model as |database|}}
+            <div class="item padded">
+                <i class="database icon"></i>
+                <div class="content">
+                    <div class="dbname">{{database.name}} | {{database.db_type}}</div>
+                </div>
+                <div class="content">
+                    {{database.last_accessed_at}}
+                    </div>
+            </div>
+        {{/each}}
+
+    </div>
+</div>

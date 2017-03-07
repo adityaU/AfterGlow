@@ -1,0 +1,64 @@
+<div class="ui grid segment">
+    <div class="eight wide column">
+        <div class="ui form">
+            <div class="field">
+                <label>X1</label>
+                {{#ui-dropdown class="search selection" selected=x1 onChange=(action (mut resultsViewSettings.x1))  as |execute mapper|}} 
+                    <div class="default text">x1</div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        {{#each results.columns as |column|}}
+                            <div class="item" data-value="{{map-value mapper column}}">
+                                {{capitalize column}}
+                            </div>
+                        {{/each}}
+                    </div>
+                {{/ui-dropdown}}
+            </div>
+            <div class="field">
+                <label>X2</label>
+                {{#ui-dropdown class="search selection" selected=x2 onChange=(action (mut resultsViewSettings.x2))  as |execute mapper|}} 
+                    <div class="default text">x2</div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        {{#each results.columns as |column|}}
+                            <div class="item" data-value="{{map-value mapper column}}">
+                                {{capitalize column}}
+                            </div>
+                        {{/each}}
+                    </div>
+                {{/ui-dropdown}}
+            </div>
+            <div class="field">
+                <label>Y</label>
+                {{#ui-dropdown class="search selection" selected=y onChange=(action (mut resultsViewSettings.y))  as |execute mapper|}} 
+                    <div class="default text">y</div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        {{#each results.columns as |column|}}
+                            <div class="item" data-value="{{map-value mapper column}}">
+                                {{ capitalize column}}
+                            </div>
+                        {{/each}}
+                    </div>
+                {{/ui-dropdown}}
+            </div>
+        </div>
+    </div>
+    <div class="eight wide stretched column">
+        <div class="ui form">
+            <div class="field">
+                <label>X Label</label>
+                {{input value=xLabel class="ui" placeholder="X Lable" }}
+            </div>
+            <div class="field">
+                <label>Y Label</label>
+                {{input value=yLabel class="ui" placeholder="Y Label" }}
+            </div>
+            <div class="field">
+                <label>Title</label>
+                {{input value=title class="ui" placeholder="Y Label" }}
+            </div>
+        </div>
+    </div>
+</div>

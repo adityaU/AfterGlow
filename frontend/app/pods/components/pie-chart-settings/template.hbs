@@ -1,0 +1,42 @@
+<div class="ui grid">
+    <div class="eight wide column">
+        <div class="ui form">
+            <div class="field">
+                <label>Values</label>
+                {{#ui-dropdown class="search selection" selected=values onChange=(action (mut values))  as |execute mapper|}} 
+                    <div class="default text">Values</div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        {{#each results.columns as |column|}}
+                            <div class="item" data-value="{{map-value mapper column}}">
+                                {{capitalize column}}
+                            </div>
+                        {{/each}}
+                    </div>
+                {{/ui-dropdown}}
+            </div>
+            <div class="field">
+                <label>Y</label>
+                {{#ui-dropdown class="search selection" selected=labels onChange=(action (mut labels))  as |execute mapper|}} 
+                    <div class="default text">Lables</div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        {{#each results.columns as |column|}}
+                            <div class="item" data-value="{{map-value mapper column}}">
+                                {{ capitalize column}}
+                            </div>
+                        {{/each}}
+                    </div>
+                {{/ui-dropdown}}
+            </div>
+        </div>
+    </div>
+    <div class="eight wide stretched column">
+        <div class="ui form">
+            <div class="field">
+                <label>Title</label>
+                {{input value=title class="ui" placeholder="Y Label" }}
+            </div>
+        </div>
+    </div>
+</div>

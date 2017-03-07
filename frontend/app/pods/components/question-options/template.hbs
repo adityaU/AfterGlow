@@ -1,0 +1,18 @@
+<div class="ui segment">
+    <div class="ui grid">
+        <div class="twelve wide column ">
+    <div class="ui form">
+        <div class="field">
+            {{input value=questionName class="ui" placeholder=questionName }}
+        </div>
+    </div>
+        </div>
+        <div class="four wide column ">
+        {{#if validQuestion}}
+        <button class="ui violet button full" {{action 'saveQuestion'}}>
+              Save
+        </button>
+        {{/if}}
+        </div>
+    </div>
+</div>
