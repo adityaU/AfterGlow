@@ -2,24 +2,28 @@ defmodule SimpleBase.DashboardController do
   use SimpleBase.Web, :controller
 
   alias SimpleBase.Dashboard
+  alias SimpleBase.Question
   alias JaSerializer.Params
 
   plug :scrub_params, "data" when action in [:create, :update]
 
   def index(conn, _params) do
-    dashboards = Repo.all(Dashboard)
-    render(conn, "index.json-api", data: dashboards)
+    dashboards = Repo.all(Dashboard) |> Repo.preload(:questions)
+    render(conn, :index, data: dashboards)
   end
 
-  def create(conn, %{"data" => data = %{"type" => "dashboard", "attributes" => _dashboard_params}}) do
-    changeset = Dashboard.changeset(%Dashboard{}, Params.to_attributes(data))
-
-    case Repo.insert(changeset) do
+  def create(conn, %{"data" => data = %{"type" => "dashboards", "attributes" => _dashboard_params}}) do
+    prms =  Params.to_attributes(data)
+    changeset = Dashboard.changeset(%Dashboard{}, prms)
+    question_ids = prms["questions_ids"]
+    questions = if question_ids |> Enum.empty? , do: nil, else: Repo.all(from q in Question, where: q.id in ^question_ids )
+    case Dashboard.insert(changeset, questions) do
       {:ok, dashboard} ->
+        dashboard = dashboard |> Repo.preload(:questions)
         conn
         |> put_status(:created)
         |> put_resp_header("location", dashboard_path(conn, :show, dashboard))
-        |> render("show.json-api", data: dashboard)
+        |> render(:show, data: dashboard)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -28,17 +32,22 @@ defmodule SimpleBase.DashboardController do
   end
 
   def show(conn, %{"id" => id}) do
-    dashboard = Repo.get!(Dashboard, id)
-    render(conn, "show.json-api", data: dashboard)
+    dashboard = Repo.get!(Dashboard, id) |> Repo.preload(:questions)
+    render(conn, :show, data: dashboard)
+    
   end
 
-  def update(conn, %{"id" => id, "data" => data = %{"type" => "dashboard", "attributes" => _dashboard_params}}) do
-    dashboard = Repo.get!(Dashboard, id)
-    changeset = Dashboard.changeset(dashboard, Params.to_attributes(data))
+  def update(conn, %{"id" => id, "data" => data = %{"type" => "dashboards", "attributes" => _dashboard_params}}) do
+    prms =  Params.to_attributes(data)
+    dashboard = Repo.get!(Dashboard, id) |> Repo.preload(:questions)
+    changeset = Dashboard.changeset(dashboard, prms)
+    question_ids = prms["questions_ids"]
+    questions = if question_ids |> Enum.empty? , do: nil, else: Repo.all(from q in Question, where: q.id in ^question_ids )
 
-    case Repo.update(changeset) do
+    case Dashboard.update(changeset, questions) do
       {:ok, dashboard} ->
-        render(conn, "show.json-api", data: dashboard)
+        dashboard = dashboard |> Repo.preload(:questions)
+        render(conn, :show, data: dashboard)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)

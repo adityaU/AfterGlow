@@ -1,13 +1,14 @@
+require IEx
 defmodule SimpleBase.Sql.Adapters.Common do
   import SqlDust.Query
   def sql query_record, adapter do
     options = options(query_record, adapter)
     query = SqlDust.from(query_record[:table]["readable_table_name"], options) |> elem(0)
     if query_record[:limit] do
-      query = query <> " " <> "LIMIT #{query_record[:limit]}" |> IO.inspect
+      query = query <> " " <> "LIMIT #{query_record[:limit]}" 
     end
     if query_record[:offset] do
-      query = query <> " " <> "OFFSET #{query_record[:offset]}" |> IO.inspect
+      query = query <> " " <> "OFFSET #{query_record[:offset]}"
     end
     query
   end
@@ -15,15 +16,17 @@ defmodule SimpleBase.Sql.Adapters.Common do
   defp options query_record, adapter do
     group_bys = group_bys_maker(query_record[:group_bys])
     order_by_columns = order_by_columns(query_record[:order_bys])
+    order_bys = order_bys_maker(query_record[:order_bys])
+    order_bys_with_group_bys = (order_bys || [] ++ (group_bys |> Enum.map(fn x-> (x |> String.split("sep|rator") |> Enum.at(0))  <> " ASC" end))) |> Enum.uniq
     columns_required =
     %{
-      select: select_maker(query_record[:selects],  find_columns_required_for_select(group_bys, order_by_columns)),
-      group_by:  find_columns_required_for_group_by(group_bys, order_by_columns),
+      select: select_maker(query_record[:selects],  find_columns_required_for_select(group_bys, order_by_columns)) |> Enum.map(fn x ->  x |> String.split("sep|rator") |> Enum.join(" ")  end),
+      group_by:  find_columns_required_for_group_by(group_bys, order_by_columns) |> Enum.map(fn x-> x |> String.split("sep|rator") |> Enum.at(0) end),
       where:  where_maker(query_record[:filters]),
-      order_by:  order_bys_maker(query_record[:order_bys]),
+      order_by:  order_bys_with_group_bys ,
       adapter: adapter,
       limit: nil
-    } |> IO.inspect
+    }
   end
   
   defp find_columns_required_for_group_by(nil, _order_by), do: nil
@@ -96,16 +99,14 @@ defmodule SimpleBase.Sql.Adapters.Common do
   defp parse_group_bys(el) when is_list(el) do
     el
     |> Enum.map(fn x->
-      x["name"] || x["value"]
+      cast_group_by((x |> Enum.at(0))["name"] || (x |> Enum.at(0))["value"], x |> Enum.at(1))
     end)
     
   end
 
   defp parse_order_bys([]), do: nil
   defp parse_order_bys(el) when is_list(el) do
-    IO.inspect "==============================="
     el
-    |> IO.inspect
     |> Enum.map(fn x->
       x["column"]["name"] <> " " <> ((x["order"]["value"] |> IO.inspect |> parse_order_type) || "ASC")
     end)
@@ -122,7 +123,7 @@ defmodule SimpleBase.Sql.Adapters.Common do
   defp parse_filters(el) when is_list(el) do
     el
     |> Enum.map(fn x->
-      x |> IO.inspect
+      x 
       parse_filter(x)
     end)
     
@@ -146,6 +147,21 @@ defmodule SimpleBase.Sql.Adapters.Common do
     end)) ++ columns_required |> Enum.uniq
     
   end
+  def cast_group_by(el, nil),  do: el
+  def cast_group_by(el, "day"),  do: "CAST(#{el} AS date)  sep|rator as \"#{el} by Day\""
+  def cast_group_by(el, "minutes"),  do: "date_trunc('minute', #{el}) sep|rator as \"#{el} by Minute\""
+  def cast_group_by(el, "seconds"),  do: "date_trunc('second', #{el}) sep|rator as \"#{el} by Second\""
+  def cast_group_by(el, "hour"),  do: "date_trunc('hour', #{el}) sep|rator as \"#{el}  by Hour\""
+  def cast_group_by(el, "week"),  do: "(date_trunc('week', (#{el} + INTERVAL '1 day')) - INTERVAL '1 day') sep|rator as \"#{el}  by Week\""
+  def cast_group_by(el, "month"),  do: "date_trunc('month', #{el}) sep|rator as \"#{el}  by Month\""
+  def cast_group_by(el, "quarter"),  do: "date_trunc('quarter', #{el}) sep|rator as \"#{el}  by  Quarter\""
+  def cast_group_by(el, "year"),  do: "CAST(extract(year from #{el}) AS integer) sep|rator as \"#{el}  by Year\""
+  def cast_group_by(el, "hour_day"),  do: "CAST(extract(year from #{el}) AS integer) sep|rator as \"#{el}  by hour of the day\""
+  def cast_group_by(el, "day_week"),  do: "(CAST(extract(dow from #{el}) AS integer) + 1) sep|rator as \"#{el}  by Day of the Week\""
+  def cast_group_by(el, "day_month"),  do: "CAST(extract(day from #{el}) AS integer) sep|rator as \"#{el}  by By Day of the Month\""
+  def cast_group_by(el, "week_year"),  do: "CAST(extract(week from (#{el} + INTERVAL '1 day'))) sep|rator as \"#{el}  by Week of the Year\""
+  def cast_group_by(el, "month_year"),  do: "CAST(extract(month from #{el}) AS integer) sep|rator as \"#{el}  by Month of the Year\""
+  def cast_group_by(el, "quarter_year"),  do: "CAST(extract(quarter from #{el}) AS integer) sep|rator as \"#{el}  by Quarter of the Year\""
 
   defp stringify_select(%{"raw" => true, "value" => value}, columns_required), do: value
   defp stringify_select(%{"name" => _name, "value" => "raw_data"}, []), do: "*"

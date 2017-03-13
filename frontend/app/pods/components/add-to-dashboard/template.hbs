@@ -1,0 +1,28 @@
+<div class="ui modal add-to-dashboard">
+    <div class="header">
+        Add This Question to Dashboard
+    </div>
+    <div class="dashboard content">
+        Which dashboard do you want to add this question to?
+        <div class="ui grid">
+            <div class="ui row">
+                {{#each dashboards as |dashboard|}}
+                    <div class="eight wide column dashboard-select">
+                        <div class="dashboard-name margin-top" {{action 'addToDashboard' dashboard}}>
+                            {{dashboard.title}}
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+            <div class="ui horizontal divider">Or</div>
+            <div class="ui row">
+                <div class="four wide column "></div>
+                <div class="eight wide column text-align-center"{{action 'createDashboard'}}>
+                    <div class="dashboard-create">
+                        Create New Dashboard
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

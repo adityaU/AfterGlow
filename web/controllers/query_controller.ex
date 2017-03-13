@@ -28,7 +28,7 @@ defmodule SimpleBase.QueryController do
       database:  params["database"],
       table:     params["table"],
       selects:   params["views"]|> Enum.map(fn x-> x["selected"] end),
-      group_bys: params["groupBys"] |> Enum.map(fn x-> x["selected"] end),
+      group_bys: params["groupBys"] |> Enum.map(fn x-> [x["selected"], x["castType"]["value"]] end),
       filters:   params["filters"],
       order_bys: params["orderBys"],
       limit:     params["limit"],

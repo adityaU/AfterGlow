@@ -1,9 +1,16 @@
 $primaryColor   : #6435c9;
+$primaryColorShade2: #7962ab; 
 $errorColor: #DB2828 ;
+$errorColorShade2: #e05e5e ;
 $lightColor: gainsboro;
 $lightPrimaryColor: rgba(100, 53, 201, 0.2);
 $greyColor: #dededf;
+$textColor: #212133; 
+$tertiaryColor: #44b35e;
+$tertiaryColorShade2: #3c9651;
 $secondaryColor: whitesmoke;
+$lightTransparentColor: rgba(255, 255, 255, 0.85);
+$borderRadius: 0.28571429rem;
 
 .ui.form input:not([type]), .ui.form input[type="date"], .ui.form input[type="datetime-local"], .ui.form input[type="email"], .ui.form input[type="number"], .ui.form input[type="password"], .ui.form input[type="search"], .ui.form input[type="tel"], .ui.form input[type="time"], .ui.form input[type="text"], .ui.form input[type="file"], .ui.form input[type="url"] .ui.selection.dropdown{
     border: none;
@@ -19,8 +26,47 @@ $secondaryColor: whitesmoke;
     border-bottom: 1px solid $primaryColor;
     border-radius: 0px;
 }
+i{
+    color: $primaryColorShade2; 
+  &:hover{
+    color: $primaryColor;
+  }
+}
+.ui.dropdown.menu-item:not(.button) > .default.text, .ui.default.dropdown:not(.button) > .text{
+                                                         color: $textColor;
+                                                     }
+.ui.positive.buttons .button, .ui.positive.button{
+    background-color: $tertiaryColor;
+    & i{
+        color: white;
+    }
+}
+.ui.deny.button{
+    background-color: $errorColorShade2;
+    color: white;
+    &:hover{
+        background-color: $errorColor
+    }
+}
+.ui.dimmer{
+    background: $lightTransparentColor; 
+}
+.ui.modal{
+    box-shadow: none !important;
+    border: 1px solid $greyColor !important;
+}
+.ui.styled.accordion .title, .ui.styled.accordion .accordion .title{
+    color: $textColor;
+    font-weight: normal;
+}
+.ui.very.basic.button {
+    &:hover{
+    box-shadow: none !important;
+    }
+    box-shadow: none !important;
+}
 .ui.styled.accordion, .ui.styled.accordion .accordion {
-    border-radius: 0.28571429rem;
+    border-radius: $borderRadius ;
     background: #FFFFFF;
     box-shadow: none;
     border: 1px solid rgba(34, 36, 38, 0.15);
@@ -126,7 +172,33 @@ $secondaryColor: whitesmoke;
     color: $errorColor;
     text-align: center;
 }
+.dashboard-name {
+    padding: 5px 10px;
+    color: white;
+    background: $primaryColorShade2;
+    border-radius: $borderRadius;
+    border: 1px solid $primaryColor;
+    &:hover{
+        cursor: pointer;
+        background: white;
+        color: $textColor;
+    }
 
+}
+
+.dashboard-create {
+    padding: 5px 10px;
+    color: white;
+    background: $tertiaryColor;
+    border-radius: $borderRadius;
+    border: 1px solid $tertiaryColor;
+    &:hover{
+        cursor: pointer;
+        background: white;
+        color: $textColor;
+    }
+
+}
 .pagination{
     padding-left: 0px !important;
     li{
@@ -171,6 +243,78 @@ $secondaryColor: whitesmoke;
         }
     }
 }
+.pace.pace-active{
+    height: 2px;
+    width: 100%;
+}
+.pace .pace-progress {
+    background: $primaryColor;
+    position: relative !important;
+    width: 100%;
+}
+.grid-stack{
+    width: 100% !important;
+} 
+.grid-stack > .grid-stack-item > .ui-resizable-se{
+    right: 10px;
+    bottom: 10px;
+}
+.ui-resizable-resizing > .grid-stack-item-content{
+    box-shadow: none !important;
+}
+.ui-draggable-dragging > .grid-stack-item-content{
+    box-shadow: none !important;
+}
+.ui.grid > * {
+    padding-left: 0rem !important;
+    padding-right: 0rem !important;
+
+}
+.ui.grid{
+    margin-top: 0rem !important;
+    margin-bottom: 0rem !important;
+    margin-left: 0rem !important;
+    margin-right: 0rem !important;
+}
+.no-border-radius{
+    border-radius: 0px !important;
+}
+.no-border-top{
+    border-top: 0px !important;
+}
+.margin-bottom{
+    margin-bottom: 5px;
+}
+.margin-top{
+    margin-top: 5px;
+}
+.margined-content {
+    margin-left: 5px;
+    margin-right: 5px;
+
+}
+.ui.segment.padded-content{
+    padding-left: 22px !important;
+    padding-right: 22px !important;
+}
+.ui.grid > .column:not(.row){
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+}
+.grid-stack-item-content {
+    top: 10px !important;
+    bottom: 10px !important;
+    & .title {
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+}
+.full-height{
+    height: 100%;
+}
 .overflow-y-auto{
     overflow-y: auto
 }
@@ -181,14 +325,45 @@ $secondaryColor: whitesmoke;
     border-top: none !important;
 }
 .no-top-margin{
-    margin-top: 0 !important;
+    margin-top: 0px !important;
+}
+.no-bottom-margin{
+    margin-bottom: 0px !important;
 }
 .no-border{
     border: none !important;
 }
 .border{
     border: 1px solid $greyColor;
-    border-radius: 0.28571429rem;
+    border-radius: $borderRadius;
+}
+.wide.column .dashboard-title{
+    font-size: 1.2em;
+    font-weight: 400;
+    text-transform: capitalize;
+}
+.grid-stack > .grid-stack-item > .grid-stack-item-content{
+    overflow-y: hidden;
+}
+.wide.column .question-title{
+    font-size: 1em;
+    font-weight: 400;
+    text-transform: capitalize;
+}
+.options-dashboard{
+    margin-top: 50px;
+}
+.without-header{
+    background: $secondaryColor !important; 
+    &:fullscreen{
+        background: $secondaryColor !important; 
+    }
+    &:-webkit-full-screen {
+        background: $secondaryColor !important; 
+    }
+    &:-moz-full-screen {
+        background: $secondaryColor !important; 
+    }
 }
 .results {
     min-height: 100%;
@@ -205,7 +380,7 @@ $secondaryColor: whitesmoke;
 }
 body{
     font-family: 'Lato', sans-serif;
-    color: #5d5d5d !important;
+    color: $textColor !important;
     background-color: $secondaryColor;
 }
 .half {

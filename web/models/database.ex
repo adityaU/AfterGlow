@@ -1,4 +1,3 @@
-require IEx
 defmodule SimpleBase.Database do
   use SimpleBase.Web, :model
   alias SimpleBase.Sql.DbConnection

@@ -3,7 +3,14 @@
   "dependencies": {
     "semantic-ui": "^2.2.7",
     "plotlyjs": "plotly#^1.18.1",
-    "chartjs": "2.1.6",
-    "ace-builds": "^1.2.6"
+    "ace-builds": "^1.2.6",
+    "jquery-ui": "~1.11.4",
+    "lodash": "~4.17.4",
+    "gridstack": "~0.2.5",
+    "pace": "^1.0.2"
+  },
+  "resolutions": {
+    "jquery-ui": ">= 1.11.4",
+    "lodash": ">= 4.14.2"
   }
 }

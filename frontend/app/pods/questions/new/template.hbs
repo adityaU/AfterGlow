@@ -1,70 +1,94 @@
-<div class="ui grid full">
-      <div class="sixteen wide column">
-        {{question-options questionName=questionName saveQuestion='saveQuestion' validQuestion=validQuestion}}
-          </div>
-    <div class="{{if queryBuilderType 'four' 'sixteen'}} wide column">
+<div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
+    {{question-options
+      questionName=questionName
+      saveQuestion='saveQuestion'
+      validQuestion=validQuestion
+      enableAddToDashboard=enableAddToDashBoard
+      addToDashboard='addToDashboard'
+      showAddToDashboard='showAddToDashboard'
+      question=question
+      transitionToIndex="transitionToIndex"
+    }}
+</div>
+<div class="ui basic segment full padded-content no-top-margin">
+    <div class="ui grid full">
+        <div class="{{if queryBuilderType 'four' 'sixteen'}} wide column">
 
-        {{#if queryBuilderType}}
-            {{query-builder getResults='getResults' toggleSql='toggleSql' queryObject=queryObject showGetResults=showGetResults}}
-        {{/if}}
-    </div>
-    <div class="{{if queryBuilderType 'twelve' 'sixteen'}} wide column">
-        {{#if queryBuilderType}}
-        {{else}}
-            <div class="ui segment">
-                <div class="right" data-tooltip="Switch to Query Builder" {{action 'toggleSql'}}><i class="align justify icon"></i></div>
-                {{database-selector queryObject=queryObject showTags=false}}
-                {{ember-ace class="ui segment" lines=10 value=queryObject.rawQuery mode=aceMode theme=aceTheme update=(action (mut queryObject.rawQuery)) }}
-                {{#if showGetResults}}
-                    <div class="content active text-align-center">
-                        <button class="ui violet button" {{action 'getResults'}}>
-                            <i class="icon arrow right"></i>
-                            Get Results
-                        </button>
-                    </div>
-                {{/if}}
-                
-            </div>
-        {{/if}}
-        {{#if results}}
-            <div class="ui segment">
-                <div class="twelve wide column" bubbles=false>
-                    {{#ui-dropdown class="search selection" selected=resultsViewType onChange=(action (mut resultsViewType))  as |execute mapper|}} 
-                        <div class="default text">{{resultsViewType}}</div>
-                        <i class="dropdown icon"></i>
-                        <div class="menu">
-                            {{#each availableResultsTypes as |rv|}}
-                                <div class="item" data-value="{{map-value mapper rv}}">
-                                    {{rv}}
-                                </div>
-                            {{/each}}
-                        </div>
-                    {{/ui-dropdown}}
-                </div>
-                {{component resultsWidgetSettingsComponent resultsViewSettings=resultsViewSettings results=results}}
-                {{component resultsWidgetComponent results=results resultsViewSettings=resultsViewSettings}}
-            </div>
-        {{else}}
-            {{#if loading}}
-                <div class="ui segment results">
-                    <div class="ui active inverted dimmer">
-                        <div class="ui text massive loader">Fetching Results... </div>
-                    </div>
-                </div>
-            {{else}} 
-                <div class="ui segment results">
-                    {{#if errors}}
-                        <div class="query error section">
-                            <div class="ui big">
-                                <i class="ban icon red"></i>
-                            </div>
-                            {{errors.message}}</div>
-                    {{else}}
-                            <div class="section">Wanna see something cool? Run a Query!</div>
-                    {{/if}}
-                </div>
-
+            {{#if queryBuilderType}}
+                {{query-builder getResults='getResults' toggleSql='toggleSql' queryObject=queryObject showGetResults=showGetResults}}
             {{/if}}
-        {{/if}}
+        </div>
+        <div class="{{if queryBuilderType 'twelve' 'sixteen'}} wide column">
+            {{#if queryBuilderType}}
+            {{else}}
+                <div class="ui segment">
+                    <div class="right" data-tooltip="Switch to Query Builder" {{action 'toggleSql'}}><i class="align justify icon"></i></div>
+                    {{database-selector queryObject=queryObject showTags=false}}
+                    {{ember-ace class="ui segment" lines=10 value=queryObject.rawQuery mode=aceMode theme=aceTheme update=(action (mut queryObject.rawQuery)) }}
+                    {{#if showGetResults}}
+                        <div class="content active text-align-center">
+                            <button class="ui violet button" {{action 'getResults'}}>
+                                <i class="icon arrow right"></i>
+                                Get Results
+                            </button>
+                        </div>
+                    {{/if}}
+                    
+                </div>
+            {{/if}}
+            {{#if results}}
+                <div class="ui segment">
+                    <div class="ui grid">
+                        <div class="twelve wide column" bubbles=false>
+                            {{#ui-dropdown class="search selection" selected=resultsViewType onChange=(action (mut resultsViewType))  as |execute mapper|}} 
+                                <div class="default text">{{resultsViewType}}</div>
+                                <i class="dropdown icon"></i>
+                                <div class="menu">
+                                    {{#each availableResultsTypes as |rv|}}
+                                        <div class="item" data-value="{{map-value mapper rv}}">
+                                            {{rv}}
+                                        </div>
+                                    {{/each}}
+                                </div>
+                            {{/ui-dropdown}}
+                        </div>
+                        <div class="four wide column text-align-right">
+                            <span data-tooltip="Configure">  
+                                <i class="settings icon" {{action 'toggleSettings'}}></i>
+                            </span>
+                        </div>
+                    </div>
+                    {{#if showSettings}}
+                        {{component resultsWidgetSettingsComponent resultsViewSettings=resultsViewSettings results=results}}
+                    {{/if}}
+                    {{question-widget results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType }}
+                </div>
+        {{else}}
+                {{#if loading}}
+                    <div class="ui segment results">
+                        <div class="ui active inverted dimmer">
+                            <div class="ui text massive loader">Fetching Results... </div>
+                        </div>
+                    </div>
+                {{else}} 
+                    <div class="ui segment results">
+                        {{#if errors}}
+                            <div class="query error section">
+                                <div class="ui big">
+                                    <i class="ban icon red"></i>
+                                </div>
+                                {{errors.message}}</div>
+                        {{else}}
+                                <div class="section">Wanna see something cool? Run a Query!</div>
+                        {{/if}}
+                    </div>
+
+                {{/if}}
+            {{/if}}
+        </div>
     </div>
 </div>
+{{#if enableAddToDashBoard}}
+    {{create-dashboard question=question transitionToDashBoard='transitionToDashBoard'}}
+    {{add-to-dashboard dashboards=dashboards addToDashboard='addToDashboard'}}
+{{/if}}

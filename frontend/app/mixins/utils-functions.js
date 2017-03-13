@@ -31,18 +31,57 @@ export default Ember.Mixin.create({
         let date = Date.parse(params) 
         let dateMatch = (params && params.toString().match("-") != null)
         if (date.toString() != 'NaN' && dateMatch){
-            if ((date % 1000) == 0){
-                formattedString = moment(date).format('MMMM Do, YYYY')
-            }else{
-                formattedString = moment(date).format("llll")
-            }
+                formattedString = moment(date).format("YYYY-MM-DD HH:mm:ss.SSS")
         }
 
         return formattedString;
         
     },
+    margin: {
+        l: 80,
+        r: 10,
+        b: 30,
+        t: 10,
+        pad: 2
+        
+    },
+    downloadAsPNG(gd){
+        Plotly.toImage(gd,{height:1600,width:1600})
+            .then(
+                function(url)
+                {
+                    return Plotly.toImage(gd,{format:'png',height:1600,width:1600});
+                }
+            )
+    },
+    gridParent: Ember.computed(function(){
+        return this.$("#" + this.get('randomId')).parents('.grid-stack-item')
+    }),
+    dimensions(gridParent){
+        let dimensions = {}
+        if (gridParent[0]){
+            dimensions = {
+                height: gridParent.innerHeight() - 90,
+                width:  gridParent.innerWidth() - 80
+            }
+        }
+        return dimensions;
+    },
+    getNode(_this) {
+        var d3 = Plotly.d3
+        let gridParent = _this.get('gridParent')
+        if (!_this.get('chosenColor')){
+            _this.set('chosenColor', _this.get("randomColor")(_this))
+        }
+        let dimensions = _this.get('dimensions')(gridParent)
+        dimensions.height && (dimensions.height += "px")
+        dimensions.width && (dimensions.width += "px")
+        var gd3 = d3.select("#" + _this.get('randomId'))
+                .style(dimensions);
 
+        return gd3.node();
 
+    },
     groupBy(data, type) {
         var result = [];
 

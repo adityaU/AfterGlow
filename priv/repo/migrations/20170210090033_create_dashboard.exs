@@ -6,7 +6,6 @@ defmodule SimpleBase.Repo.Migrations.CreateDashboard do
       add :title, :string
       add :update_interval, :integer
       add :last_updated, :datetime
-
       timestamps()
     end
 

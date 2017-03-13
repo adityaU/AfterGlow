@@ -9,16 +9,25 @@ export default Ember.Component.extend({
     filters: [{column: "c1", operator: "Not In", value: 5}],
     selectViews: [{selected:{name: "Count", value: "count" }}],
 
-    groupBys: [
-        {selected: {name: "c1", id: 1}},
-        {selected: {name: "c1", id: 1}},
-        {selected: {name: "c1", id: 1}},
-        {selected: {name: "c1", id: 1}},
-        {selected: {name: "c1", id: 1}}
-    ],
     columns: Ember.computed('queryObject.table', function(){
         return this.get("queryObject.table.columns")
     }),
+    groupByDateTypes: [
+        {name: "As It is", value: null},
+        {name: "by Seconds", value: "seconds"},
+        {name: "by Minute", value: "minutes"},
+        {name: "by Day", value: "day"},
+        {name: "by Hour", value: "hour"},
+        {name: "by Week", value: "week"},
+        {name: "by Month", value: "month"},
+        {name: "by Quarter", value: "quarter"},
+        {name: "by year", value: "year"},
+        {name: "by Hour of the day", value: "hour_day"},
+        {name: "by Day of the week", value: "day_week"},
+        {name: "by week of year", value: "week_year"},
+        {name: "by month of year", value: "month_year"},
+        {name: "by quarter of year", value: "quarter_year"}
+    ],
     viewOptions: [
         {
             name: "Raw Data",
@@ -58,6 +67,7 @@ export default Ember.Component.extend({
     rawObjectWithSelected(_this){
         let selected = _this.get('rawObject').create()
         selected.set("selected", Ember.Object.create({raw: false, value: null}))
+        selected.set("castType", Ember.Object.create({}))
         return selected;
     },
 

@@ -1,18 +1,45 @@
-<div class="ui segment">
-    <div class="ui grid">
-        <div class="twelve wide column ">
-    <div class="ui form">
-        <div class="field">
-            {{input value=questionName class="ui" placeholder=questionName }}
+<div class="ui grid">
+    <div class="ten wide column ">
+        {{#if editing}}
+        <div class="ui form">
+            <div class="field">
+                {{input value=questionName class="ui" placeholder=questionName }}
+            </div>
         </div>
-    </div>
+        {{else}}
+        <div class="dashboard-title">
+            {{questionName}}
         </div>
-        <div class="four wide column ">
-        {{#if validQuestion}}
-        <button class="ui violet button full" {{action 'saveQuestion'}}>
-              Save
-        </button>
         {{/if}}
-        </div>
+    </div>
+    <div class="six wide column text-align-right ">
+        {{#if validQuestion}}
+            {{#if editing}}
+            <button data-tooltip="Save Question" class="ui very basic violet button" {{action 'saveQuestion'}}>
+                SAVE
+            </button>
+            <button data-tooltip="Cancel Editing Question" class="ui very basic grey button" {{action 'cancelEditingQuestion'}}>
+                CANCEL
+            </button>
+            <button data-tooltip="Delete Question" class="ui very basic red button" {{action 'showDeleteDialogue'}}>
+                DELETE
+            </button>
+            {{else}}
+            <span data-tooltip="Edit" >  
+                <i class="pencil icon" {{action 'editQuestion'}}></i>
+            </span>
+            {{/if}}
+        {{/if}}
+        {{#if validQuestion}}
+            <span data-tooltip="Share">  
+                <i class="square share icon" {{action 'shareQuestion'}}></i>
+            </span>
+        {{/if}}
+        {{#if enableAddToDashboard}}
+            <span data-tooltip="Add to Dashboard" {{action 'showAddToDashboard'}}>
+                <i class="block layout icon" ></i>
+            </span>
+        {{/if}}
     </div>
 </div>
+{{delete-dialogue entityName="question" entity=question delete="deleteQuestion"}}

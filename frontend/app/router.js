@@ -9,12 +9,17 @@ const Router = Ember.Router.extend({
 Router.map(function() {
   this.route('questions', function() {
     this.route('new');
-    this.route('show');
+      this.route('show', {path: '/:question_id'});
   });
   this.route('databases', function() {
       
       this.route('index', {path: '/'});
     this.route('new');
+  });
+
+
+  this.route('dashboards', function() {
+      this.route('show', {path: '/:dashboard_id'});
   });
 });
 

@@ -1,16 +1,9 @@
 import Ember from 'ember';
+import ChartSettings from 'frontend/mixins/chart-settings'
 
-export default Ember.Controller.extend({
+export default Ember.Controller.extend(ChartSettings,{
     ajax: Ember.inject.service(),
-    resultsViewType: 'Table',
-    resultsWidgets: {
-        "Table" : 'results-table',
-        "Line" : 'line-chart',
-        "Pie" : 'pie-chart',
-        "Bars" : 'bar-chart',
-        "Area" : 'area-chart',
-        "Bubble": 'bubble-chart'
-    },
+    
     question: Ember.computed(function(){
         return this.store.createRecord('question', {
             title: "New Question",
@@ -25,10 +18,10 @@ export default Ember.Controller.extend({
                 offset: null,
                 limit: 2000
             }),
-            results_view_settings: {},
+            results_view_settings: {resultsViewType: 'Table'},
         })
     }),
-
+    resultsViewType: Ember.computed.alias('question.results_view_settings.resultsViewType'),
     questionName: Ember.computed.alias('question.title'),
     resultsViewSettings: Ember.computed.alias('question.results_view_settings'),
     queryBuilderType: Ember.computed('queryObject.queryType', function(){
@@ -51,9 +44,6 @@ export default Ember.Controller.extend({
     apiHost: Ember.computed('store', function(){
         return this.get('store').adapterFor('application').host;
     }),
-    resultsWidgetComponent:  Ember.computed('resultsViewType', function() {
-        return this.get('resultsWidgets')[this.get('resultsViewType')]
-    }),
     showGetResults: Ember.computed('queryObject.database', 'queryObject.table', 'queryObject.queryType','queryObject.rawQuery', function(){
         return (this.get('queryObject.database') && (this.get('queryObject.table') || ((this.get('queryObject.queryType') == 'raw') && this.get('queryObject.rawQuery')) ))
     }),
@@ -63,6 +53,10 @@ export default Ember.Controller.extend({
     }),
     availableResultsTypes: Ember.computed('resultsWidgets', function(){
         return Object.keys(this.get('resultsWidgets'));
+    }),
+
+    dashboards: Ember.computed(function(){
+        return this.store.findAll('dashboard')
     }),
     actions: {
 
@@ -96,6 +90,9 @@ export default Ember.Controller.extend({
                 this.set("queryObject.rawQuery", error.query)
             });
         },
+        toggleSettings(){
+            this.toggleProperty('showSettings')
+        },
         saveQuestion(){
             let question = this.store.createRecord('question', {
                 title: this.get('question.title'),
@@ -104,8 +101,16 @@ export default Ember.Controller.extend({
                 query_type: this.get('question.human_sql.queryType') == 'raw' ? 'sql': 'human_sql',
                 results_view_settings: this.get('question.results_view_settings')
             })
-            question.save();
+            question.save().then((response)=> {
+                this.transitionToRoute('questions.show', response.id)
+            });
             
+        },
+        transitionToDashBoard(dashboard_id){
+            this.transitionToRoute('dashboards.show', {dashboard_id: dashboard_id})
+        },
+        transitionToIndex(){
+            this.transitionToRoute('index')
         }
     }
 });

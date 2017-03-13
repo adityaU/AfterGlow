@@ -1,7 +1,21 @@
-<div class="ui segment violet">
+<div class="ui segment violet no-border-radius">
         <div class="ui secondary menu violet">
             <a class="item">
-                Dashboards
+                {{#ui-dropdown class="ui dropdown menu-item"}}
+                    <div class="default text">Dashboards</div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        {{#each dashboards as |dashboard|}}
+                            <div class="item" {{action 'goToDashboard' dashboard}}>
+                                <span class="description">{{dashboard.questions.length}} questions</span>
+                                {{dashboard.title}}
+                            </div>
+                        {{/each}}
+                        <div class="item">
+                            Create New Dashboard
+                        </div>
+                    </div>
+                    {{/ui-dropdown}}
             </a>
             <a class="item">
                 Question Banks

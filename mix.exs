@@ -39,7 +39,8 @@ defmodule SimpleBase.Mixfile do
      {:gettext, "~> 0.11"},
      {:cors_plug, "~> 1.2"},
      {:ja_serializer, "~> 0.11.2"},
-     {:sql_dust, "~> 0.3.9"},
+     {:sql_dust, path: 'web/modules/sql_dust'},
+     {:ecto_enum, "~> 1.0"},
      {:cowboy, "~> 1.0"}]
   end
 

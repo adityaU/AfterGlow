@@ -29,6 +29,7 @@ defmodule SimpleBase.Router do
    resources "/tables", TableController, except: [:new, :edi]
    resources "/columns", ColumnController, except: [:new, :edit]
 
+   get "questions/:id/results", QuestionController, :results
   end
 
   # Other scopes may use custom stacks.

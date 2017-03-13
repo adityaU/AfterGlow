@@ -1,0 +1,38 @@
+{{#if dashboard}}
+    {{#grid-stack class="full"
+       options=(hash
+       animate=true
+       width=12
+       )
+       onChange=(action 'change')
+    }}
+        {{#each dashboard.questions as |question|}}
+            {{#grid-stack-item class="grid-segment" 
+               options=(get (get dashboard  "settings") (get question "id"))}}
+                <div class="ui segment full-height">
+                    <div class="ui grid question" id="{{question.id}}"> 
+                        <div class="twelve wide column">
+                            <div class="question-title">
+                                {{question.title}}
+                            </div>
+                        </div>
+                        <div class="four wide column text-align-right">
+                            <span data-tooltip="Edit this Question">
+                                {{#link-to 'questions.show' question.id}}<i class="edit icon"></i>{{/link-to}}
+                            </span>
+                        </div>
+
+                    </div>
+                    {{#if question.results}}
+                        {{question-widget
+                          results=question.results
+                          resultsViewSettings=question.results_view_settings
+                          resultsViewType=question.results_view_settings.resultsViewType }}
+                    {{else}}
+                    {{/if}}
+                </div>
+            {{/grid-stack-item}}
+        {{/each}}
+    {{/grid-stack}}
+{{/if}}
+

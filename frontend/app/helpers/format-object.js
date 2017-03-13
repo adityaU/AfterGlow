@@ -19,11 +19,7 @@ export function formatObject(params/*, hash*/) {
         let date = Date.parse(params) 
         let dateMatch = (params.toString().match("-") != null)
         if (date.toString() != 'NaN' && dateMatch){
-            if ((date % 1000) == 0){
-                formattedString = moment(date).format('MMMM Do, YYYY')
-            }else{
                 formattedString = moment(date).format("LLLL")
-            }
         }
 
         return formattedString;

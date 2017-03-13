@@ -1,0 +1,57 @@
+<div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
+    <div class="ui grid">
+        <div class="ten wide column">
+            {{#if editMode}}
+        <div class="ui form">
+            <div class="field">
+                {{input value=dashboard.title class="ui" placeholder="What are you calling it?"}}
+            </div>
+            <div class="field">
+                {{input value=dashboard.description class="ui" placeholder="what does it show?"}}
+            </div>
+        </div>
+
+            {{else}}
+                <div class="dashboard-title">
+                    {{dashboard.title}}
+                </div>
+            {{/if}}
+        </div>
+        <div class="six wide column text-align-right {{if editMode  "options-dashboard"}}">
+            {{#if editMode}}
+            <button data-tooltip="Save Dashboard" class="ui very basic violet button" {{action 'saveDashboard'}}>
+                SAVE
+            </button>
+
+            <button data-tooltip="Cancel Editing Dashboard" class="ui very basic grey button" {{action 'cancelEditingDashboard'}}>
+                CANCEL
+            </button>
+
+            <button data-tooltip="Delete Dashboard" class="ui very basic red button" {{action 'showDeleteDialogue'}}>
+                DELETE
+            </button>
+            {{else}}
+
+                <span data-tooltip="Edit Dashboard" >  
+                    <i class="pencil icon" {{action 'editDashboard'}}></i>
+                </span>
+            {{/if}}
+                <span data-tooltip="Share Dashboard" >  
+                    <i class="share icon" {{action 'shareDashboard'}}></i>
+                </span>
+            {{#if fullScreen}}
+                <span data-tooltip="Exit Fullscreen" >  
+                    <i class="compress icon" {{action 'toggleFullScreen'}}></i>
+                </span>
+                {{else}}
+                <span data-tooltip="Go Fullscreen" >  
+                    <i class="expand icon" {{action 'toggleFullScreen'}}></i>
+                </span>
+                {{/if}}
+        </div>
+    </div>
+</div>
+<div class="ui basic segment padded-content full no-top-margin">
+    {{dashboard-grid editing=editMode dashboard=dashboard }}
+</div>
+{{delete-dialogue entityName="dashboard" entity=dashboard delete="deleteDashboard"}}

@@ -28,7 +28,7 @@
 <div class="content">
     {{#each queryObject.filters as |filter|}}
         <div class=" ui segment">    
-                {{filter-maker filter=filter columns=columns queryObject=queryObject switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
+            {{filter-maker filter=filter columns=columns queryObject=queryObject switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
         </div>
     {{/each}}
     <button class="ui violet button full" {{action 'addFilter'}}>
@@ -124,6 +124,19 @@
                         {{/each}}
                     </div>
                 {{/ui-dropdown}}
+                {{#if groupBy.selected.isDateType}}
+                    {{#ui-dropdown class="search selection" selected=groupBy.castType onChange=(action (mut groupBy.castType))  as |execute mapper|}} 
+                        <div class="default text">By</div>
+                        <i class="dropdown icon"></i>
+                        <div class="menu">
+                            {{#each groupByDateTypes as |type|}}
+                                <div class="item" data-value="{{map-value mapper type}}">
+                                    {{type.name}}
+                                </div>
+                            {{/each}}
+                        </div>
+                    {{/ui-dropdown}}
+                {{/if}}
             {{/if}}
         </div>
     {{/each}}

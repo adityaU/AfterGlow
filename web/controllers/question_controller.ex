@@ -1,25 +1,31 @@
+require IEx
 defmodule SimpleBase.QuestionController do
   use SimpleBase.Web, :controller
 
   alias SimpleBase.Question
+  alias SimpleBase.Database
+  alias SimpleBase.QueryView
+  alias SimpleBase.Sql.DbConnection
   alias JaSerializer.Params
 
   plug :scrub_params, "data" when action in [:create, :update]
 
-  def index(conn, _params) do
-    questions = Repo.all(Question)
-    render(conn, "index.json-api", data: questions)
+  def index(conn, %{"filter" => %{"id" => ids}}) do
+    ids = ids |> String.split(",")
+    questions = Repo.all(from q in Question, where: q.id in ^ids) |> Repo.preload(:dashboards) 
+    render(conn, :index, data: questions)
   end
 
-  def create(conn, %{"data" => data = %{"type" => "question", "attributes" => _question_params}}) do
+  def create(conn, %{"data" => data = %{"type" => "questions", "attributes" => _question_params}}) do
     changeset = Question.changeset(%Question{}, Params.to_attributes(data))
 
     case Repo.insert(changeset) do
       {:ok, question} ->
+        question = question |> Repo.preload(:dashboards)
         conn
         |> put_status(:created)
         |> put_resp_header("location", question_path(conn, :show, question))
-        |> render("show.json-api", data: question)
+        |> render(:show, data: question)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -28,17 +34,18 @@ defmodule SimpleBase.QuestionController do
   end
 
   def show(conn, %{"id" => id}) do
-    question = Repo.get!(Question, id)
-    render(conn, "show.json-api", data: question)
+    question = Repo.get!(Question, id) |> Repo.preload(:dashboards)
+    render(conn, :show, data: question)
   end
 
-  def update(conn, %{"id" => id, "data" => data = %{"type" => "question", "attributes" => _question_params}}) do
+  def update(conn, %{"id" => id, "data" => data = %{"type" => "questions", "attributes" => _question_params}}) do
     question = Repo.get!(Question, id)
     changeset = Question.changeset(question, Params.to_attributes(data))
 
     case Repo.update(changeset) do
       {:ok, question} ->
-        render(conn, "show.json-api", data: question)
+        question = question |> Repo.preload(:dashboards)
+        render(conn, :show, data: question)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -54,6 +61,23 @@ defmodule SimpleBase.QuestionController do
     Repo.delete!(question)
 
     send_resp(conn, :no_content, "")
+  end
+
+  def results(conn, %{"id" => id}) do
+    question = Repo.one(from q in Question, where: q.id == ^id)
+    db_identifier = question.human_sql["database"]["unique_identifier"]
+    db_record = Repo.one(from d in Database, where: d.unique_identifier == ^db_identifier) 
+    results = DbConnection.execute(db_record |> Map.from_struct, question.sql)
+
+    case results do
+      {:ok, results} ->
+        conn
+        |> render QueryView, "execute.json", data: results, query: question.sql
+      {:error, error} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render QueryView, "execute.json", error: error, query: question.sql
+    end
   end
 
 end

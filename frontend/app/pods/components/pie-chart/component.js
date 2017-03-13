@@ -12,6 +12,8 @@ export default Ember.Component.extend(UtilsFunctions, {
     }),
 
     getData(_this){
+        let gd = _this.get('getNode')(_this)
+        let gridParent = _this.get('gridParent')
         var data =  _this.get('jsonData'), layout;
         data = data && data.map((item)=>{
             return  {
@@ -25,8 +27,7 @@ export default Ember.Component.extend(UtilsFunctions, {
         });
         layout = data &&  {
             title: _this.get('title'),
-            xaxis: {title: Ember.String.capitalize(_this.get('xLabel') || _this.get('x1')) , showline: true, ticks: 'inside'},
-            yaxis: {title: Ember.String.capitalize(_this.get('yLabel') || _this.get('y')), showline: true, ticks: 'inside'},
+            margin: _this.get('margin'),
             calendar: 'gregorian',
             font: {
                 family: 'Lato',
@@ -36,6 +37,10 @@ export default Ember.Component.extend(UtilsFunctions, {
             }
 
         }
-        data && Plotly.newPlot(document.getElementById(_this.get('randomId')), data, layout, {showLink: false});
+        data && Plotly.newPlot(gd, data, layout, {showLink: false});
+        data && gridParent [0] && gridParent[0].addEventListener('plotlyResize', function() {
+            let dimensions = _this.get('dimensions')(gridParent) 
+            Plotly.relayout(_this.get("randomId"), dimensions)
+        });
     }
 });
