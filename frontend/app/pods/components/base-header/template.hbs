@@ -1,38 +1,50 @@
-<div class="ui segment violet no-border-radius">
+{{#if sessionService.authenticated}}
+    <div class="ui segment violet no-border-radius">
         <div class="ui secondary menu violet">
-            <a class="item">
-                {{#ui-dropdown class="ui dropdown menu-item"}}
-                    <div class="default text">Dashboards</div>
-                    <i class="dropdown icon"></i>
-                    <div class="menu">
-                        {{#each dashboards as |dashboard|}}
-                            <div class="item" {{action 'goToDashboard' dashboard}}>
-                                <span class="description">{{dashboard.questions.length}} questions</span>
-                                {{dashboard.title}}
-                            </div>
-                        {{/each}}
-                        <div class="item">
-                            Create New Dashboard
+            {{#if (can "show Dashboard")}}
+                <a class="item">
+                    {{#ui-dropdown class="ui dropdown menu-item"}}
+                        {{dropdown-default  default="Dashboards" icon="dropdown"}}
+                        <div class="menu">
+                            {{#each dashboards as |dashboard|}}
+                                <div class="item" {{action 'goToDashboard' dashboard}}>
+                                    <span class="description">{{dashboard.question_count}}</span>
+                                    {{dashboard.title}}
+                                </div>
+                            {{/each}}
                         </div>
-                    </div>
                     {{/ui-dropdown}}
-            </a>
-            <a class="item">
-                Question Banks
-            </a>
-            {{#link-to "questions.new" class="item"}}
-                New Question
-            {{/link-to}}
+                </a>
+            {{/if}}
+            {{#if (can "show question")}}
+                {{#link-to "questions.all" class="item"}}
+                    Questions
+                {{/link-to}}
+            {{/if}}
+            {{#if (can "create question")}}
+                {{#link-to "questions.new" class="item"}}
+                    New Question
+                {{/link-to}}
+            {{/if}}
             <div class="right menu">
-                <a class="item">Aditya</a>
-                <div class="ui right aligned category search item">
-                    <div class="ui transparent icon input">
-                        <input class="prompt" type="text" placeholder="Search
-                                                                       animals...">
-                        <i class="search link icon"></i>
+                <a class="item">
+
+                    <div class="item pp">
+                        <img class="profile_pic" src="{{sessionService.user.profile_pic}}"/>
                     </div>
-                    <div class="results"></div>
-                </div>
+                    {{#ui-dropdown class="ui dropdown menu-item"}}
+                        {{dropdown-default  default=sessionService.user.full_name icon="dropdown"}}
+                        <div class="menu">
+
+                            {{#if (can "show settings")}}
+                                
+                                {{#link-to 'settings' class="item" }}Settings{{/link-to}}
+                            {{/if}}
+                            <div class="item" {{action 'invalidateSession'}}>Logout</div>
+                        </div>
+                    {{/ui-dropdown}}
+                </a>
             </div>
         </div>
-</div>
+    </div>
+{{/if}}

@@ -1,0 +1,23 @@
+{{#each users as |user|}}
+    <div class="ui segment full">
+        <div class="ui grid">
+            <div class="eight wide column">
+                <div class="queston-title">
+                <img class="profile_pic ui avatar image" src="{{user.profile_pic}}"/>
+                <span >
+                    {{user.full_name}}
+                </span>
+                <span class="question-subtitle">
+                {{user.email}}
+                    </span>
+                </div>
+            </div>
+            <div class="eight wide column text-align-right">
+                <button data-tooltip="Change User permissions" class="ui very basic violet button" {{action 'showChangePermissionDialogue' user}}>
+                    EDIT PERMISSIONS
+                </button>
+            </div>
+        </div>
+    </div>
+{{/each}}
+{{change-user-permissions-dialogue user=toBeChangedUser permissionSets=permissionSets saveUserPermissions='saveUser'}}

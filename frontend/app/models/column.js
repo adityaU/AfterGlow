@@ -5,6 +5,10 @@ export default DS.Model.extend({
     data_type: DS.attr('string'),
     human_name: DS.attr('string'),
     table: DS.belongsTo('table'),
+    column_values: DS.hasMany('column_value'),
+    toJSON: function() {
+      return this._super({ includeId: true });
+    },
 
     isDateType: Ember.computed('data_type', function(){
         let dataType = this.get('data_type')

@@ -6,7 +6,12 @@ export default DS.Model.extend({
     config: DS.attr(),
     last_accessed_at: DS.attr('date'),
     unique_identifier: DS.attr('string'),
-    tables: DS.hasMany('table')
+    tables: DS.hasMany('table'),
 
+    inserted_at: DS.attr('date'),
+    updated_at: DS.attr('date'),
+    toJSON: function() {
+        return this._super({ includeId: true });
+    }
 
 });

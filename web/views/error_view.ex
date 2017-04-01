@@ -1,8 +1,8 @@
 defmodule SimpleBase.ErrorView do
   use SimpleBase.Web, :view
 
-  def render("404.html", _assigns) do
-    "Page not found"
+  def render("403.json", message) do
+   %{error: message} 
   end
 
   def render("500.html", _assigns) do

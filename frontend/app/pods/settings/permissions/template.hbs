@@ -1,0 +1,18 @@
+{{#each permissionSets as |permissionSet|}}
+    <div class="ui segment full">
+        <div class="ui grid">
+            <div class="sixteen wide column">
+                <div class="queston-title">
+                    {{permissionSet.name}}
+                </div>
+                <div class="question-subtitle">
+                    
+                   {{permissionSet.displayPermissions}}
+                    </div>
+            </div>
+            <div class="eight wide column text-align-right">
+            </div>
+        </div>
+    </div>
+{{/each}}
+{{delete-dialogue entityName="database" entity=databaseToBeDeleted delete="deleteDatabase"}}

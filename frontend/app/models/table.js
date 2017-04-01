@@ -5,5 +5,9 @@ export default DS.Model.extend({
     readable_table_name: DS.attr('string'),
     database: DS.belongsTo('database'),
     human_name: DS.attr('string'),
-    columns: DS.hasMany('column', {async: true})
+    columns: DS.hasMany('column', {async: true}),
+
+  toJSON: function() {
+    return this._super({ includeId: true });
+  }
 });

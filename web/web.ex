@@ -33,7 +33,7 @@ defmodule SimpleBase.Web do
       alias SimpleBase.Repo
       import Ecto
       import Ecto.Query
-
+      import Bodyguard.Controller
       import SimpleBase.Router.Helpers
       import SimpleBase.Gettext
     end

@@ -25,6 +25,18 @@ config :logger, :console,
 
 config :ja_serializer,
   key_format: :underscored
+
+config :oauth2,
+  serializers: %{
+    "application/vnd.api+json" => Poison,
+    "application/json" => Poison,
+    "application/xml" => MyApp.XmlParser,
+  }
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
+
+config :flasked,
+  otp_app: :simplebase,
+  map_file: "priv/env.exs"
+
 import_config "#{Mix.env}.exs"

@@ -10,7 +10,7 @@
     <div class="ui form margin-top-10">
         <div class="field">
             {{#ui-dropdown class="search selection" selected=filter.column onChange=(action (mut filter.column)) as |execute mapper|}}
-                <div class="default text">Column</div>
+                {{dropdown-default object=filter.column.human_name default="Column"}}
                 <i class="dropdown icon"></i>
                 <div class="menu">
                     {{#each columns as |column|}}
@@ -24,7 +24,7 @@
         <div class="field">
 
             {{#ui-dropdown class="search selection" selected=filter.operator onChange=(action (mut filter.operator)) as |execute mapper|}}
-                <div class="default text">Operator</div>
+                {{dropdown-default object=filter.operator.name default="operator"}}
                 <i class="dropdown icon"></i>
                 <div class="menu">
                     {{#each operators as |operator|}}
@@ -35,9 +35,6 @@
                 </div>
             {{/ui-dropdown}}
         </div>
-        <div class="field">
-            {{input value=filter.value class="ui"}}
-            
-        </div>
+        {{filter-value-selector filter=filter}}
     </div>
 {{/if}}

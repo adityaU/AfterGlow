@@ -1,0 +1,37 @@
+<div class="ui modal change-user-permissions">
+    <div class="header">
+        Change User Permissions of {{user.full_name}}
+    </div>
+    <div class=" content">
+        Select multiple permissions you want to give to this user.
+        <div class="ui grid">
+            <div class="ui row">
+                <div class="ui horizontal divider">Selected</div>
+                {{#each permissionSetsSelected as |permissionSet|}}
+                    <div class="four wide column">
+                        <div class="selected permission-select  margin-top" {{action 'toggleSelectedPermissions' permissionSet}}>
+                            {{permissionSet.name}}
+                        </div>
+                    </div>
+                {{/each}}
+
+                <div class="ui horizontal divider">Can be Selected</div>
+                {{#each permissionSetsRemaining as |permissionSet|}}
+                    <div class="four wide column">
+                        <div class="permission-select margin-top" {{action 'toggleSelectedPermissions' permissionSet}}>
+                            {{permissionSet.name}}
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+    <div class="actions">
+        <div class="ui very basic red deny button">
+            Cancel
+        </div>
+            <div class="ui very basic positive violet right button " {{action "saveUserPermissions"}} >
+                Save
+            </div>
+    </div>
+</div>

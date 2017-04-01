@@ -7,11 +7,11 @@
 </div>
 <div class="content">
     {{#ui-dropdown class="search selection" selected=queryObject.database onChange=(action (mut queryObject.database)) as |execute mapper|}}
-        <div class="default text">Database</div>
+      {{dropdown-default object=queryObject.database.name default="Database"}}
         <i class="dropdown icon"></i>
         <div class="menu">
             {{#each databases as |database|}}
-                <div class="item" data-value="{{map-value mapper database}}">
+              <div class="item"  data-value="{{map-value mapper database}}">
                     {{database.name}}
                 </div>
             {{/each}}

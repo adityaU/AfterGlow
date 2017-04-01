@@ -13,7 +13,7 @@ module.exports = function(defaults) {
       }
     // Add options here
   });
-  app.import('./bower_components/ace-builds/src-noconflict/theme-tomorrow_night.js')
+  app.import('./bower_components/ace-builds/src-noconflict/theme-chrome.js')
   app.import('./bower_components/ace-builds/src-noconflict/mode-sql.js')
   app.import('./bower_components/ace-builds/src-noconflict/ext-beautify.js')
   app.import('./bower_components/ace-builds/src-noconflict/ext-language_tools.js')

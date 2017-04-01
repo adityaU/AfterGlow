@@ -8,11 +8,19 @@ defmodule SimpleBase.QuestionController do
   alias SimpleBase.Sql.DbConnection
   alias JaSerializer.Params
 
+  alias SimpleBase.Plugs.Authorization
+  plug Authorization
+  plug :authorize!, Question
   plug :scrub_params, "data" when action in [:create, :update]
+  plug :verify_authorized
 
   def index(conn, %{"filter" => %{"id" => ids}}) do
     ids = ids |> String.split(",")
     questions = Repo.all(from q in Question, where: q.id in ^ids) |> Repo.preload(:dashboards) 
+    render(conn, :index, data: questions)
+  end
+  def index(conn, _params) do
+    questions = Repo.all(Question)|> Repo.preload(:dashboards) 
     render(conn, :index, data: questions)
   end
 
@@ -71,6 +79,7 @@ defmodule SimpleBase.QuestionController do
 
     case results do
       {:ok, results} ->
+        question |> Question.update_columns(results.columns)
         conn
         |> render QueryView, "execute.json", data: results, query: question.sql
       {:error, error} ->

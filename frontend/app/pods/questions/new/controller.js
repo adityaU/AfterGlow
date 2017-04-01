@@ -21,6 +21,39 @@ export default Ember.Controller.extend(ChartSettings,{
             results_view_settings: {resultsViewType: 'Table'},
         })
     }),
+    questionNameObserver: Ember.observer("question.title",
+                                         "queryObject.table.human_name",
+                                         "queryObject.filters.@each.label",
+                                         "queryObject.views.@each.label",
+                                         "queryObject.groupBys.@each.label",
+                                         function(){
+                                             if (this.get('queryObject.table.human_name') && !this.get('questionNameIsSet')){
+                                                 let title = ""
+                                                 let filterlabels = "" 
+                                                 let viewlabels = "" 
+                                                 let groupBylabels = "" 
+                                                 if (this.get('queryObject.views.length')){
+                                                     viewlabels = this.get('queryObject.views').map((item)=> {return item.get('label')}).join(" , ")
+                                                 }
+                                                 if (viewlabels != ""){
+                                                     title = `${viewlabels} of `
+                                                 }
+                                                 title = title + `${this.get('queryObject.table.human_name')}`
+                                                 if (this.get('queryObject.filters.length')){
+                                                     filterlabels = this.get('queryObject.filters').map((item)=> {return item.get('label')}).join(" , ")
+                                                 }
+                                                 if (filterlabels != ""){
+                                                     title = `${title} where ${filterlabels}`
+                                                 }
+                                                 if (this.get('queryObject.groupBys.length')){
+                                                     groupBylabels = this.get('queryObject.groupBys').map((item)=> {return item.get('label')}).join(" , ")
+                                                 }
+                                                 if (groupBylabels != ""){
+                                                     title = `${title}, grouped by ${groupBylabels}`
+                                                 }
+                                                 this.set('question.title', title )
+                                             }
+                                         }),
     resultsViewType: Ember.computed.alias('question.results_view_settings.resultsViewType'),
     questionName: Ember.computed.alias('question.title'),
     resultsViewSettings: Ember.computed.alias('question.results_view_settings'),
@@ -32,7 +65,10 @@ export default Ember.Controller.extend(ChartSettings,{
             return false;
         }
     }),
-    aceTheme: "ace/theme/tomorrow_night",
+    changeSQL: Ember.observer('queryObject.rawQuery', function(){
+      this.set('question.sql', this.get('queryObject.rawQuery'))
+    }),
+    aceTheme: "ace/theme/chrome",
     aceMode: "ace/mode/sql",
 
     queryObject: Ember.computed.alias('question.human_sql'),

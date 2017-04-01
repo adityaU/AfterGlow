@@ -20,7 +20,6 @@ export default Ember.Component.extend({
                 description: this.get('dashboard.description'),
                 settings: object
             })
-            debugger
             dashboard.get('questions').addObject(this.get('question'))
             dashboard.save().then((response)=> {
                 this.sendAction('transitionToDashBoard', response.id)

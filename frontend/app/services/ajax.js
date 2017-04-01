@@ -1,11 +1,26 @@
 import Ember from 'ember';
 
 export default Ember.Service.extend({
+    store: Ember.inject.service(),
+    sessionService: Ember.inject.service(),
+    
+    apiNamespace: Ember.computed('store', function(){
+        return this.get('store').adapterFor('application').namespace;
+    }),
+
+    apiHost: Ember.computed('store', function(){
+        return this.get('store').adapterFor('application').host;
+    }),
+
+    apiPath: Ember.computed(function(){
+        return this.get('apiHost') + this.get('apiNamespace') ;
+    }),
 
     apiCall(options,successCb,failureCb) {
         options && options.data && (options.data = JSON.stringify(options.data))
-        options.beforeSend= function(request) {
+        options.beforeSend= (request) =>{
             request.setRequestHeader("Content-type", 'application/json');
+            request.setRequestHeader("Authorization", this.get('sessionService.token'));
               
         }
         Ember.$.ajax(options)
@@ -15,9 +30,6 @@ export default Ember.Service.extend({
                 }
             })
             .catch((error,status)=>{
-                if((error.status && error.status == 401)) {
-                    window.location.href = "/logout";
-                }
                 if(failureCb) {
                     failureCb(error.responseJSON,status);
                 }

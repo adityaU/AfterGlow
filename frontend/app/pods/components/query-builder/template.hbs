@@ -1,6 +1,6 @@
 {{#ui-accordion class="styled"}}
-    {{database-selector queryObject=queryObject toggleSql='toggleSql'}}
-    {{subquery-builder queryObject=queryObject}}
+    {{database-selector queryObject=queryObject toggleSql='toggleSql' databases=databases}}
+    {{subquery-builder queryObject=queryObject databases=databases}}
     {{#if showGetResults}}
     <div class="content active">
         <button class="ui violet button full" {{action 'getResults'}}>

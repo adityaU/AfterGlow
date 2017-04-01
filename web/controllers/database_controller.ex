@@ -4,7 +4,11 @@ defmodule SimpleBase.DatabaseController do
   alias SimpleBase.Database
   alias JaSerializer.Params
 
+  alias SimpleBase.Plugs.Authorization
+  plug Authorization
+  plug :authorize!, Database
   plug :scrub_params, "data" when action in [:create, :update]
+  plug :verify_authorized
 
   def index(conn, _params) do
     databases = Repo.all(Database) |> Repo.preload(:tables)

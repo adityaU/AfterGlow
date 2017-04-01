@@ -3,8 +3,12 @@ defmodule SimpleBase.TableController do
 
   alias SimpleBase.Table
   alias JaSerializer.Params
+  alias SimpleBase.Plugs.Authorization
 
+  plug Authorization
+  plug :authorize!, Table
   plug :scrub_params, "data" when action in [:create, :update]
+  plug :verify_authorized
 
   def index(conn, %{"filter" => %{"id" =>ids}}) do
     ids = ids |> String.split(",")

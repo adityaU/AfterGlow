@@ -3,55 +3,41 @@ import Ember from 'ember';
 export default Ember.Component.extend({
 
     selectedTable: null,
-    tables: Ember.computed('queryObject.database', function(){
-        return this.get("queryObject.database.tables")
+    unsortedTables: Ember.computed('queryObject.database','databases.content.isLoaded', 'queryObject.database.id', 'database.tables.content.isLoaded',  function(){
+        if (this.get('queryObject.database') && this.get('databases.length') &&  this.get('queryObject.database.id')){
+          let store = this.get('store')
+          let database = store.peekRecord('database', this.get('queryObject.database.id')) ||  store.findRecord('database', this.get('queryObject.database.id'))
+            return database.get('tables')
+        }
+    }),
+
+    tables: Ember.computed("unsortedTables", "unsortedTables.content.isLoaded", function(){
+        return this.get("unsortedTables") && this.get("unsortedTables").sortBy('human_name')
+    }),
+    databaseObserver:  Ember.observer('queryObject.database', function(){
+        this.set('queryObject.table', null); 
+        this.set('queryObject.filters', []); 
+        this.set('queryObject.groupBys', []); 
+        this.set('queryObject.orderBys', []); 
+    }),
+    databaseObserver:  Ember.observer('queryObject.table', function(){
+        this.set('queryObject.filters', []); 
+        this.set('queryObject.groupBys', []); 
+        this.set('queryObject.orderBys', []); 
     }),
     filters: [{column: "c1", operator: "Not In", value: 5}],
     selectViews: [{selected:{name: "Count", value: "count" }}],
-
-    columns: Ember.computed('queryObject.table', function(){
-        return this.get("queryObject.table.columns")
-    }),
-    groupByDateTypes: [
-        {name: "As It is", value: null},
-        {name: "by Seconds", value: "seconds"},
-        {name: "by Minute", value: "minutes"},
-        {name: "by Day", value: "day"},
-        {name: "by Hour", value: "hour"},
-        {name: "by Week", value: "week"},
-        {name: "by Month", value: "month"},
-        {name: "by Quarter", value: "quarter"},
-        {name: "by year", value: "year"},
-        {name: "by Hour of the day", value: "hour_day"},
-        {name: "by Day of the week", value: "day_week"},
-        {name: "by week of year", value: "week_year"},
-        {name: "by month of year", value: "month_year"},
-        {name: "by quarter of year", value: "quarter_year"}
-    ],
-    viewOptions: [
-        {
-            name: "Raw Data",
-            value: "raw_data"
-        },
-        {
-            name: "count",
-            value: "count"
+    unsortedColumns: Ember.computed('queryObject.table','tables.content.isLoaded', function(){
+        if (this.get('queryObject.table') && this.get('tables.length') && this.get('queryObject.table.id')){
+          let store = this.get('store')
+          let table = this.get('tables').findBy('id', this.get('queryObject.table.id'))
+            return table.get('columns')
         }
-    ],
-    orders:[
-        {
-            
-            name: "Asending",
-            value: "ASC"
-        },
-        {
-            
-            name: "Desending",
-            value: "DESC"
-        },
+    }),
 
-    ],
-
+    columns: Ember.computed("unsortedColumns", "unsortedColumns.content.isLoaded", function(){
+        return this.get("unsortedColumns") && this.get("unsortedColumns").sortBy('name')
+    }),
     rawObject: Ember.computed(function(){
         return  Ember.Object.extend({
            selected: null,
@@ -83,7 +69,7 @@ export default Ember.Component.extend({
     }),
     actions :{
         addFilter(){
-            this.get("queryObject.filters").pushObject(Ember.Object.create({column: null, operator: null, value: null}))
+            this.get("queryObject.filters").pushObject(Ember.Object.create({column: null, operator: null, value: null, valueDateObj: {}}))
         },
 
         addView(){
@@ -94,12 +80,13 @@ export default Ember.Component.extend({
             this.get("queryObject.groupBys").pushObject(this.get('rawObjectWithSelected')(this));
         },
         addOrderBy(){
-            this.get("queryObject.orderBys").pushObject({});
+            this.get("queryObject.orderBys").pushObject(Ember.Object.create({}));
         },
         switchToBuilder(type, el, handleSelected){
             var items = this.get('queryObject').get(type) 
             if (handleSelected){
-                el.set('selected.raw', false)
+                el.set('selected', Ember.Object.create({}))
+                el.set('castType', null)
             }else{
                 el.set('raw', false)
             }
@@ -108,9 +95,14 @@ export default Ember.Component.extend({
             var items = this.get('queryObject').get(type) 
             if (handleSelected){
                 el.set('selected', Ember.Object.create({raw: true}))
+                el.set('castType', null)
             }else{
                 el.set('raw', true)
             }
+        },
+        remove(type, el){
+            let arr = this.get("queryObject").get(type);
+            arr.removeObject(el)
         }
     }
 });

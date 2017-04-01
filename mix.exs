@@ -19,7 +19,7 @@ defmodule SimpleBase.Mixfile do
   def application do
     [mod: {SimpleBase, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex]]
+                    :phoenix_ecto, :postgrex, :oauth2, :flasked]]
   end
 
   # Specifies which paths to compile per environment.
@@ -41,7 +41,15 @@ defmodule SimpleBase.Mixfile do
      {:ja_serializer, "~> 0.11.2"},
      {:sql_dust, path: 'web/modules/sql_dust'},
      {:ecto_enum, "~> 1.0"},
-     {:cowboy, "~> 1.0"}]
+     {:cowboy, "~> 1.0"},
+     {:oauth2, "~> 0.9"},
+     {:joken, "~> 1.1"},
+     {:libsodium, "~> 0.0.3"},
+     {:keccakf1600, "~> 0.0.1"},
+     {:libdecaf, "~> 0.0.1"},
+     {:flasked, "~> 0.4"},
+     {:bodyguard, "~> 1.0.0"}
+    ]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

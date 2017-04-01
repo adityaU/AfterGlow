@@ -6,6 +6,7 @@ $lightColor: gainsboro;
 $lightPrimaryColor: rgba(100, 53, 201, 0.2);
 $greyColor: #dededf;
 $textColor: #212133; 
+$secondaryTextColor: #7b7b7b;
 $tertiaryColor: #44b35e;
 $tertiaryColorShade2: #3c9651;
 $secondaryColor: whitesmoke;
@@ -13,418 +14,527 @@ $lightTransparentColor: rgba(255, 255, 255, 0.85);
 $borderRadius: 0.28571429rem;
 
 .ui.form input:not([type]), .ui.form input[type="date"], .ui.form input[type="datetime-local"], .ui.form input[type="email"], .ui.form input[type="number"], .ui.form input[type="password"], .ui.form input[type="search"], .ui.form input[type="tel"], .ui.form input[type="time"], .ui.form input[type="text"], .ui.form input[type="file"], .ui.form input[type="url"] .ui.selection.dropdown{
-    border: none;
-    box-shadow: none;
-    padding-left: 0px;
-    border-bottom: 1px solid $greyColor;
-    border-radius: 0px;
+  border: none;
+  box-shadow: none;
+  padding-left: 0px;
+  border-bottom: 1px solid $greyColor;
+  border-radius: 0px;
 }
 .ui.form input:not([type]):focus, .ui.form input[type="date"]:focus, .ui.form input[type="datetime-local"]:focus, .ui.form input[type="email"]:focus, .ui.form input[type="number"]:focus, .ui.form input[type="password"]:focus, .ui.form input[type="search"]:focus, .ui.form input[type="tel"]:focus, .ui.form input[type="time"]:focus, .ui.form input[type="text"]:focus, .ui.form input[type="file"]:focus, .ui.form input[type="url"]:focus{
-    border: none;
-    box-shadow: none;
-    padding-left: 0px;
-    border-bottom: 1px solid $primaryColor;
-    border-radius: 0px;
+  border: none;
+  box-shadow: none;
+  padding-left: 0px;
+  border-bottom: 1px solid $primaryColor;
+  border-radius: 0px;
 }
 i{
-    color: $primaryColorShade2; 
+  color: $primaryColorShade2; 
   &:hover{
     color: $primaryColor;
   }
 }
 .ui.dropdown.menu-item:not(.button) > .default.text, .ui.default.dropdown:not(.button) > .text{
-                                                         color: $textColor;
-                                                     }
+  color: $textColor;
+}
 .ui.positive.buttons .button, .ui.positive.button{
-    background-color: $tertiaryColor;
-    & i{
-        color: white;
-    }
+  background-color: $tertiaryColor;
+  & i{
+    color: white;
+  }
 }
 .ui.deny.button{
-    background-color: $errorColorShade2;
-    color: white;
-    &:hover{
-        background-color: $errorColor
-    }
+  background-color: $errorColorShade2;
+  color: white;
+  &:hover{
+    background-color: $errorColor
+  }
+}
+input{
+height: 30px;
+}
+.ui.button.alert-state{
+  padding: 5px 10px;
+  font-size: 0.8em;
+  &.yellow{
+    border: 1px solid #a07c16;
+  }
+  &.red{
+    border: 1px solid #943030;
+  }
 }
 .ui.dimmer{
-    background: $lightTransparentColor; 
+  background: $lightTransparentColor; 
 }
 .ui.modal{
-    box-shadow: none !important;
-    border: 1px solid $greyColor !important;
+  box-shadow: none !important;
+  border: 1px solid $greyColor !important;
 }
 .ui.styled.accordion .title, .ui.styled.accordion .accordion .title{
-    color: $textColor;
-    font-weight: normal;
+  color: $textColor;
+  font-weight: normal;
 }
 .ui.very.basic.button {
-    &:hover{
+  &:hover{
     box-shadow: none !important;
-    }
-    box-shadow: none !important;
+  }
+  box-shadow: none !important;
 }
 .ui.styled.accordion, .ui.styled.accordion .accordion {
-    border-radius: $borderRadius ;
-    background: #FFFFFF;
-    box-shadow: none;
-    border: 1px solid rgba(34, 36, 38, 0.15);
+  border-radius: $borderRadius ;
+  background: #FFFFFF;
+  box-shadow: none;
+  border: 1px solid rgba(34, 36, 38, 0.15);
 
 }
 .ui.search.selection.dropdown{
-    border: none;
-    box-shadow: none;
-    padding-left: 0px;
-    border-bottom: 1px solid $greyColor;
-    border-radius: 0px;
+  border: none;
+  box-shadow: none;
+  padding-left: 0px;
+  border-bottom: 1px solid $greyColor;
+  border-radius: 0px;
 }
 .ui.search.selection.dropdown:focus{
-    border: none;
-    box-shadow: none;
-    padding-left: 0px;
-    border-bottom: 1px solid $greyColor;
-    border-radius: 0px;
+  border: none;
+  box-shadow: none;
+  padding-left: 0px;
+  border-bottom: 1px solid $greyColor;
+  border-radius: 0px;
 }
 .ui.search.selection.active.dropdown .menu {
-    border-color: $primaryColor;
-    border-top-width: 1px !important;
-    box-shadow: 0px 2px 3px 0px rgba(34, 36, 38, 0.15);
+  border-color: $primaryColor;
+  border-top-width: 1px !important;
+  box-shadow: 0px 2px 3px 0px rgba(34, 36, 38, 0.15);
 
 }
 
 .ui.search.selection.active.dropdown:hover .menu {
-    border-color: $primaryColor;
-    border-top-width: 1px !important;
-    box-shadow: 0px 2px 3px 0px rgba(34, 36, 38, 0.15);
+  border-color: $primaryColor;
+  border-top-width: 1px !important;
+  box-shadow: 0px 2px 3px 0px rgba(34, 36, 38, 0.15);
 
 }
 .ui.search.selection.active.dropdown .menu:hover {
-    border-color: $primaryColor;
-    border-top-width: 1px !important;
-    box-shadow: 0px 2px 3px 0px rgba(34, 36, 38, 0.15);
+  border-color: $primaryColor;
+  border-top-width: 1px !important;
+  box-shadow: 0px 2px 3px 0px rgba(34, 36, 38, 0.15);
 
 }
 .ui.search.selection.active.dropdown:focus {
-    border-color: $primaryColor;
-    border-top-width: 1px !important;
-    box-shadow: 0px 2px 3px 0px rgba(34, 36, 38, 0.15);
+  border-color: $primaryColor;
+  border-top-width: 1px !important;
+  box-shadow: 0px 2px 3px 0px rgba(34, 36, 38, 0.15);
 
 }
 .ui.inverted.dimmer .ui.loader:after {
-    border-color: $primaryColor transparent transparent;
+  border-color: $primaryColor transparent transparent;
 }
 
 .ui.inverted.dimmer .ui.loader:before {
-    border-color: $lightPrimaryColor;
+  border-color: $lightPrimaryColor;
 }
 .ui.inverted.dimmer .ui.loader {
-    color: $primaryColor;
+  color: $primaryColor;
 }
 [data-tooltip]:after{
-    box-shadow: none !important;
+  box-shadow: none !important;
 }
 .ui.segment{
-    box-shadow: none !important;
+  box-shadow: none !important;
 }
 .ui.grid.container{
-    width: calc( 1127px + 8% ) !important;
-    margin: 1%;
+  width: calc( 1127px + 8% ) !important;
+  margin: 1%;
 }
 .ui.label{
-    border-radius: 1rem;
+  border-radius: 1rem;
 }
 .arrow.prev{
-    
+
 } .arrow.next {
-    
+
 }
 .switch{
-    margin-left: 92%;
-    width: 14px;
+  margin-left: 92%;
+  width: 14px;
 }
 .text-align-right {
-    text-align: right;
+  text-align: right;
 }
 .text-align-center {
-    text-align: center;
+  text-align: center;
 }
 .margin-top-10{
-    margin-top: 10px;
+  margin-top: 10px;
 }
 [data-ember-action] {
-    cursor: pointer;
+  cursor: pointer;
 
 }
 .centered{
-    text-align: center;
+  text-align: center;
 }
 .truncate {
-    max-width: 250px;
-    white-space: nowrap;
-    overflow: auto;
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: auto;
 
 }
 .hidden{
-    display: none;
+  display: none;
 }
 .query.error {
-    color: $errorColor;
-    text-align: center;
+  color: $errorColor;
+  text-align: center;
 }
 .dashboard-name {
-    padding: 5px 10px;
-    color: white;
-    background: $primaryColorShade2;
-    border-radius: $borderRadius;
-    border: 1px solid $primaryColor;
-    &:hover{
-        cursor: pointer;
-        background: white;
-        color: $textColor;
-    }
+  padding: 5px 10px;
+  color: white;
+  background: $primaryColorShade2;
+  border-radius: $borderRadius;
+  border: 1px solid $primaryColor;
+  &:hover{
+    cursor: pointer;
+    background: white;
+    color: $textColor;
+  }
 
 }
 
 .dashboard-create {
-    padding: 5px 10px;
-    color: white;
-    background: $tertiaryColor;
+  padding: 5px 10px;
+  color: white;
+  background: $tertiaryColor;
+  border-radius: $borderRadius;
+  border: 1px solid $tertiaryColor;
+  &:hover{
+    cursor: pointer;
+    background: white;
+    color: $textColor;
+  }
+
+}
+.item.pp{
+    padding: 0px !important;
+    margin: -6px 5px -5px -5px !important;
+}
+.profile_pic{
+    border-radius: 50em;
+    width: 30px;
+}
+.login {
+    height: 100vh;
+    width: 100vw;
+}
+.queston-title {
+    color: $primaryColor;
+    font-size: 1.2em;
+    text-transform: capitalize;
+    margin-bottom: 5px;
+}
+
+.page-title{
+    font-size: 1.2em;
+}
+a {
+    color: $primaryColor;
+}
+.ui.dropdown .menu {
+    left: -10px;
+    top: 30px;
+}
+.ui.very.basic.button {
+    text-transform: uppercase;
+
+}
+#toast-container > div{
+    box-shadow: none;
+    -webkit-box-shadow: none;
     border-radius: $borderRadius;
-    border: 1px solid $tertiaryColor;
+    background: white;
+    color: $textColor;
+    border: 1px solid $greyColor ;
+    opacity: 1;
     &:hover{
-        cursor: pointer;
-        background: white;
-        color: $textColor;
+        box-shadow: none;
+        -webkit-box-shadow: none;
+    }
+    
+}
+.toast-error{
+    border-left: 5px solid $errorColor !important;
+}
+button.toast-close-button{
+    color: $textColor
+}
+.question-subtitle {
+    font-size: 0.9em;
+    font-style: italic;
+    color: $secondaryTextColor;
+}
+.permission-select {
+    border: 1px solid $primaryColorShade2;
+    padding: 5px;
+    text-align: center;
+    border-radius: $borderRadius;
+    &.selected{
+        background-color: $primaryColorShade2;
+        color: white;
     }
 
 }
 .pagination{
-    padding-left: 0px !important;
-    li{
-        &.disabled{
-            &:hover{
+  padding-left: 0px !important;
+  li{
+    &.disabled{
+      &:hover{
 
-                a{
-                    border: 1px solid $greyColor;
-                    background-color: $secondaryColor;
-                    color: $primaryColor;
-                }
-
-            }
-            & a{
-                border: 1px solid $greyColor;
-                background-color: $secondaryColor
-            }
+        a{
+          border: 1px solid $greyColor;
+          background-color: $secondaryColor;
+          color: $primaryColor;
         }
 
-        display: inline;
-        & a {
-            padding: 10px 15px;
-            border: 1px solid $primaryColor;
-            margin: 5px;
-            /* color: violet; */
-            border-radius: 0.2rem;
-            color: $primaryColor;
-        }
-        &.active{
-            a{
-                background-color: $primaryColor;
-                color: white;
-            }
-        }
-        &:hover{
-
-            a{
-                background-color: $primaryColor;
-                color: white;
-            }
-
-        }
+      }
+      & a{
+        border: 1px solid $greyColor;
+        background-color: $secondaryColor
+      }
     }
+
+    display: inline;
+    & a {
+      padding: 10px 15px;
+      border: 1px solid $primaryColor;
+      margin: 5px;
+      /* color: violet; */
+      border-radius: 0.2rem;
+      color: $primaryColor;
+    }
+    &.active{
+      a{
+        background-color: $primaryColor;
+        color: white;
+      }
+    }
+    &:hover{
+
+      a{
+        background-color: $primaryColor;
+        color: white;
+      }
+
+    }
+  }
 }
 .pace.pace-active{
-    height: 2px;
-    width: 100%;
+  height: 2px;
+  width: 100%;
 }
+.empty-space{
+  width: 15px;
+  height: 20px;
+  display: inline-table;
+}
+.display-inline-block{
+  display: inline-block;
+}
+
+.ui.vertical.menu {
+    width: 15rem;
+    box-shadow: none;
+
+}
+.ui.circular.button{
+  padding: 8px 11px;
+}
+
 .pace .pace-progress {
-    background: $primaryColor;
-    position: relative !important;
-    width: 100%;
+  background: $primaryColor;
+  position: relative !important;
+  width: 100%;
 }
 .grid-stack{
-    width: 100% !important;
+  width: 100% !important;
 } 
 .grid-stack > .grid-stack-item > .ui-resizable-se{
-    right: 10px;
-    bottom: 10px;
+  right: 10px;
+  bottom: 10px;
+}
+.ui.label > .icon {
+    color: $primaryColor;
+    margin: 0em 0em 0em 0.7em;
 }
 .ui-resizable-resizing > .grid-stack-item-content{
-    box-shadow: none !important;
+  box-shadow: none !important;
 }
 .ui-draggable-dragging > .grid-stack-item-content{
-    box-shadow: none !important;
+  box-shadow: none !important;
 }
 .ui.grid > * {
-    padding-left: 0rem !important;
-    padding-right: 0rem !important;
+  padding-left: 0rem !important;
+  padding-right: 0rem !important;
+
+}
+.ui.label.square {
+    border-radius: $borderRadius;
+    margin: 0.5em;
 
 }
 .ui.grid{
-    margin-top: 0rem !important;
-    margin-bottom: 0rem !important;
-    margin-left: 0rem !important;
-    margin-right: 0rem !important;
+  margin-top: 0rem !important;
+  margin-bottom: 0rem !important;
+  margin-left: 0rem !important;
+  margin-right: 0rem !important;
 }
 .no-border-radius{
-    border-radius: 0px !important;
+  border-radius: 0px !important;
 }
 .no-border-top{
-    border-top: 0px !important;
+  border-top: 0px !important;
 }
 .margin-bottom{
-    margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 .margin-top{
-    margin-top: 5px;
+  margin-top: 5px;
 }
 .margined-content {
-    margin-left: 5px;
-    margin-right: 5px;
+  margin-left: 5px;
+  margin-right: 5px;
 
 }
 .ui.segment.padded-content{
-    padding-left: 22px !important;
-    padding-right: 22px !important;
+  padding-left: 22px !important;
+  padding-right: 22px !important;
 }
 .ui.grid > .column:not(.row){
-    padding-top: 5px !important;
-    padding-bottom: 5px !important;
-    padding-left: 5px !important;
-    padding-right: 5px !important;
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+  padding-left: 5px !important;
+  padding-right: 5px !important;
 }
 .grid-stack-item-content {
-    top: 10px !important;
-    bottom: 10px !important;
-    & .title {
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
+  top: 10px !important;
+  bottom: 10px !important;
+  & .title {
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
 
 }
 .full-height{
-    height: 100%;
+  height: 100%;
 }
 .overflow-y-auto{
-    overflow-y: auto
+  overflow-y: auto
 }
 .full{
-    width: 100% !important;
+  width: 100% !important;
 }
 .no-top-border{
-    border-top: none !important;
+  border-top: none !important;
 }
 .no-top-margin{
-    margin-top: 0px !important;
+  margin-top: 0px !important;
 }
 .no-bottom-margin{
-    margin-bottom: 0px !important;
+  margin-bottom: 0px !important;
 }
 .no-border{
-    border: none !important;
+  border: none !important;
 }
 .border{
-    border: 1px solid $greyColor;
-    border-radius: $borderRadius;
+  border: 1px solid $greyColor;
+  border-radius: $borderRadius;
 }
 .wide.column .dashboard-title{
-    font-size: 1.2em;
-    font-weight: 400;
-    text-transform: capitalize;
+  font-size: 1.2em;
+  font-weight: 400;
+  text-transform: capitalize;
 }
 .grid-stack > .grid-stack-item > .grid-stack-item-content{
-    overflow-y: hidden;
+  overflow-y: hidden;
 }
 .wide.column .question-title{
-    font-size: 1em;
-    font-weight: 400;
-    text-transform: capitalize;
+  font-size: 1em;
+  font-weight: 400;
+  text-transform: capitalize;
 }
 .options-dashboard{
-    margin-top: 50px;
+  margin-top: 50px;
 }
 .without-header{
+  background: $secondaryColor !important; 
+  &:fullscreen{
     background: $secondaryColor !important; 
-    &:fullscreen{
-        background: $secondaryColor !important; 
-    }
-    &:-webkit-full-screen {
-        background: $secondaryColor !important; 
-    }
-    &:-moz-full-screen {
-        background: $secondaryColor !important; 
-    }
+  }
+  &:-webkit-full-screen {
+    background: $secondaryColor !important; 
+  }
+  &:-moz-full-screen {
+    background: $secondaryColor !important; 
+  }
 }
 .results {
-    min-height: 100%;
-    width: 100%;
-    & .section{
-        text-align: center;
-        margin-top: 18%;
-        font-size: x-large;
-        color: $lightColor;
-        & i{
-            font-size: 5em;
-        }
+  min-height: 100%;
+  width: 100%;
+  & .section{
+    text-align: center;
+    margin-top: 18%;
+    font-size: x-large;
+    color: $lightColor;
+    & i{
+      font-size: 5em;
     }
+  }
 }
 body{
-    font-family: 'Lato', sans-serif;
-    color: $textColor !important;
-    background-color: $secondaryColor;
+  font-family: 'Lato', sans-serif;
+  color: $textColor !important;
+  background-color: $secondaryColor;
 }
 .half {
-    width: 50%;
-    margin: auto !important;
+  width: 50%;
+  margin: auto !important;
 }
 .item.padded{
-    padding: 3% 1% !important;
+  padding: 3% 1% !important;
 }
 .right{
-    float: right;
+  float: right;
 }
 
 
 .tags {
-    list-style: none;
-    margin: 0;
-    overflow: hidden;
-    padding: 0;
+  list-style: none;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
 }
 
 
 .tag {
-    background: #eee;
-    border-radius: 30px;
-    color: #999;
-    display: inline-block;
-    height: 26px;
-    line-height: 26px;
-    padding: 0 20px 0 23px;
-    margin: 0 10px 10px 0;
-    text-decoration: none;
-    -webkit-transition: color 0.2s;
+  background: #eee;
+  border-radius: 30px;
+  color: #999;
+  display: inline-block;
+  height: 26px;
+  line-height: 26px;
+  padding: 0 20px 0 23px;
+  margin: 0 10px 10px 0;
+  text-decoration: none;
+  -webkit-transition: color 0.2s;
 
 }
 
 
 .tag:hover {
-    background-color: crimson;
-    color: white;
+  background-color: crimson;
+  color: white;
 
 }
 
 .tag:hover::after {
-    border-left-color: crimson;
+  border-left-color: crimson;
 
 }

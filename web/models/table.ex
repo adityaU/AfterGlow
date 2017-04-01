@@ -16,6 +16,6 @@ defmodule SimpleBase.Table do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:name, :readable_table_name, :database_id])
-    |> validate_required([:name, :readable_table_name])
+    |> validate_required([:name, :readable_table_name, :database_id])
   end
 end

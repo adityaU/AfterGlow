@@ -4,12 +4,16 @@ defmodule SimpleBase.DashboardController do
   alias SimpleBase.Dashboard
   alias SimpleBase.Question
   alias JaSerializer.Params
-
+  alias SimpleBase.Plugs.Authorization
+  plug Authorization
+  plug :authorize!, Dashboard
   plug :scrub_params, "data" when action in [:create, :update]
+  plug :verify_authorized
 
   def index(conn, _params) do
     dashboards = Repo.all(Dashboard) |> Repo.preload(:questions)
-    render(conn, :index, data: dashboards)
+    conn
+    |> render(:index, data: dashboards)
   end
 
   def create(conn, %{"data" => data = %{"type" => "dashboards", "attributes" => _dashboard_params}}) do

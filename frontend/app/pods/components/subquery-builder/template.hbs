@@ -4,7 +4,7 @@
 </div>
 <div class="content">
     {{#ui-dropdown class="search search selection" selected=queryObject.table onChange=(action (mut queryObject.table)) as |execute mapper|}}
-        <div class="default text">Table</div>
+      {{dropdown-default object=queryObject.table.human_name default="Table"}}
         <i class="dropdown icon"></i>
         <div class="menu">
             {{#each tables as |table|}}
@@ -41,7 +41,7 @@
     <div class="tags content active">
         {{#each queryObject.filters as |filter|}}
             {{#if filter.label}}
-                <a href="#" class="ui violet basic label">{{filter.label}}</a>
+                <a href="#" class="ui violet basic label">{{filter.label}}<i class="remove icon"{{action 'remove' 'filters' filter}}></i></a>
             {{/if}}
         {{/each}}
     </div>
@@ -53,31 +53,8 @@
 </div>
 <div class="content">
     {{#each queryObject.views as |selectView|}}
-
-        <div class=" ui segment">    
-
-            {{#if selectView.selected.raw}}
-                <div class="right" data-tooltip="Switch to Builder" {{action 'switchToBuilder' 'views' selectView true}}><i class="list layout icon" ></i></div>
-                <div class="ui form margin-top-10">
-                    <div class="field">
-                        {{input value=selectView.selected.value class="ui" placeholder="COUNT(column) As Metric" }}
-                    </div>
-                </div>
-            {{else}}
-                <div class="right" data-tooltip="Switch to Raw" {{action 'switchToRaw' 'views' selectView true}}><i class="code icon" ></i></div>
-                {{#ui-dropdown class="search selection" selected=selectedView onChange=(action (mut selectView.selected))  as |execute mapper|}} 
-                    <div class="default text">Table</div>
-                    <i class="dropdown icon"></i>
-                    <div class="menu">
-                        {{#each viewOptions as |viewOption|}}
-                            <div class="item" data-value="{{map-value mapper viewOption}}">
-                                {{viewOption.name}}
-                            </div>
-                        {{/each}}
-                    </div>
-                {{/ui-dropdown}}
-            {{/if}}
-        </div>
+        {{selectView.select.name}}
+        {{view-maker selectView=selectView switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
     {{/each}}
     <button class="ui violet button full" {{action 'addView'}}>
         <i class="icon add"></i>
@@ -86,10 +63,10 @@
 </div>
 
 {{#if queryObject.views }}
-    <div class="tags content active">
+    <div class="ui labels tags content active">
         {{#each queryObject.views as |view|}}
             {{#if view.label}}
-                <a href="#" class="ui violet basic label">{{view.label}}</a>
+                <a href="#" class="ui violet basic label">{{view.label}}<i class="remove icon"{{action 'remove' 'views' view}}></i></a>
             {{/if}}
         {{/each}}
     </div>
@@ -101,44 +78,7 @@
 </div>
 <div class="content">
     {{#each queryObject.groupBys as |groupBy|}}
-
-        <div class=" ui segment">    
-
-            {{#if groupBy.selected.raw}}
-                <div class="right" data-tooltip="Switch to Builder" {{action 'switchToBuilder' 'groupBys' groupBy true}}><i class="list layout icon" ></i></div>
-                <div class="ui form margin-top-10">
-                    <div class="field">
-                        {{input value=groupBy.selected.value class="ui" placeholder="Something complex" }}
-                    </div>
-                </div>
-            {{else}}
-                <div class="right" data-tooltip="Switch to Raw" {{action 'switchToRaw' 'groupBys' groupBy true}}><i class="code icon" ></i></div>
-                {{#ui-dropdown class="search selection" selected=groupBy.selected onChange=(action (mut groupBy.selected))  as |execute mapper|}} 
-                    <div class="default text">Columns</div>
-                    <i class="dropdown icon"></i>
-                    <div class="menu">
-                        {{#each columns as |column|}}
-                            <div class="item" data-value="{{map-value mapper column}}">
-                                {{column.human_name}}
-                            </div>
-                        {{/each}}
-                    </div>
-                {{/ui-dropdown}}
-                {{#if groupBy.selected.isDateType}}
-                    {{#ui-dropdown class="search selection" selected=groupBy.castType onChange=(action (mut groupBy.castType))  as |execute mapper|}} 
-                        <div class="default text">By</div>
-                        <i class="dropdown icon"></i>
-                        <div class="menu">
-                            {{#each groupByDateTypes as |type|}}
-                                <div class="item" data-value="{{map-value mapper type}}">
-                                    {{type.name}}
-                                </div>
-                            {{/each}}
-                        </div>
-                    {{/ui-dropdown}}
-                {{/if}}
-            {{/if}}
-        </div>
+        {{group-by-maker columns=columns groupBy=groupBy switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
     {{/each}}
     <button class="ui violet button full" {{action 'addGroupBy'}}>
         <i class="icon add"></i>
@@ -149,9 +89,8 @@
 {{#if queryObject.groupBys }}
     <div class="tags content active">
         {{#each queryObject.groupBys as |groupBy|}}
-            
             {{#if groupBy.label}}
-                <a href="#" class="ui violet basic label">{{groupBy.label}}</a>
+                <a href="#" class="ui violet basic label">{{groupBy.label}}<i class="remove icon"{{action 'remove' 'groupBys' groupBy}}></i></a>
             {{/if}}
         {{/each}}
     </div>
@@ -163,31 +102,7 @@
 </div>
 <div class="content">
     {{#each queryObject.orderBys as |orderBy|}}
-
-        <div class=" ui segment">    
-            {{#ui-dropdown class="search selection" selected=orderBy.column onChange=(action (mut orderBy.column))  as |execute mapper|}} 
-                <div class="default text">Column</div>
-                <i class="dropdown icon"></i>
-                <div class="menu">
-                    {{#each columns as |column|}}
-                        <div class="item" data-value="{{map-value mapper column}}">
-                            {{column.human_name}}
-                        </div>
-                    {{/each}}
-                </div>
-            {{/ui-dropdown}}
-            {{#ui-dropdown class="search selection" selected=orderBy.order onChange=(action (mut orderBy.order))  as |execute mapper|}} 
-                <div class="default text">Column</div>
-                <i class="dropdown icon"></i>
-                <div class="menu">
-                    {{#each orders as |order|}}
-                        <div class="item" data-value="{{map-value mapper order}}">
-                            {{order.name}}
-                        </div>
-                    {{/each}}
-                </div>
-            {{/ui-dropdown}}
-        </div>
+        {{order-by-maker columns=columns orderBy=orderBy}}
     {{/each}}
     <button class="ui violet button full" {{action 'addOrderBy'}}>
         <i class="icon add"></i>
@@ -198,7 +113,7 @@
     <div class="tags content active">
         {{#each queryObject.orderBys as |orderBy|}}
             {{#if orderBy.column.human_name}}
-                <a href="#" class="ui violet basic label">{{orderBy.column.human_name}} {{orderBy.order.name}}</a>
+                <a href="#" class="ui violet basic label">{{orderBy.label}}<i class="remove icon"{{action 'remove' 'orderBys' orderBy}}></i></a>
             {{/if}}
         {{/each}}
     </div>

@@ -4,7 +4,11 @@ defmodule SimpleBase.QuestionBankController do
   alias SimpleBase.QuestionBank
   alias JaSerializer.Params
 
+  alias SimpleBase.Plugs.Authorization
+  plug Authorization
+  plug :authorize!, QuestionBank
   plug :scrub_params, "data" when action in [:create, :update]
+  plug :verify_authorized
 
   def index(conn, _params) do
     question_banks = Repo.all(QuestionBank)

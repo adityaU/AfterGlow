@@ -1,0 +1,20 @@
+{{#each databases as |database|}}
+    <div class="ui segment full">
+        <div class="ui grid">
+            <div class="eight wide column">
+                <div class="queston-title">
+                    {{database.name}}
+                </div>
+                <div class="question-subtitle">
+                type: {{database.db_type}}
+                    </div>
+            </div>
+            <div class="eight wide column text-align-right">
+                <button data-tooltip="Delete Question" class="ui very basic red button" {{action 'showDeleteDialogue' database}}>
+                    DELETE
+                </button>
+            </div>
+        </div>
+    </div>
+{{/each}}
+{{delete-dialogue entityName="database" entity=databaseToBeDeleted delete="deleteDatabase"}}

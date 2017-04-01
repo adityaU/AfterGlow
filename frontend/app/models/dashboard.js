@@ -7,5 +7,6 @@ export default DS.Model.extend({
     shareable_link: DS.attr('string'),
     is_shareable_link_public: DS.attr('boolean'),
     settings: DS.attr('object'),
+    question_count: DS.attr('string'),
     questions: DS.hasMany("questions")
 });

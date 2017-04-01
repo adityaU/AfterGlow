@@ -17,7 +17,7 @@ module.exports = function(environment) {
                 Date: false
             }
         },
-        pace: {
+        /* pace: {
 
             // addon-specific options to configure theme
             theme: 'minimal',
@@ -52,7 +52,8 @@ module.exports = function(environment) {
                 trackWebSockets: true,
                 ignoreURLs: []
             }
-        },
+            },*/
+            
         APP: {
             // Here you can pass flags/options to your application instance
             // when it is created

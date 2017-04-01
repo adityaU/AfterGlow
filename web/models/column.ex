@@ -5,6 +5,7 @@ defmodule SimpleBase.Column do
     field :name, :string
     field :data_type, :string
     belongs_to :table, SimpleBase.Table
+    has_many :column_values, SimpleBase.ColumnValue
 
     timestamps()
   end

@@ -9,6 +9,11 @@ defmodule SimpleBase.ColumnView do
     field: :table_id,
     type: "table"
 
+
+  has_many :column_values,
+    field: :column_values,
+    type: "column_value"
+
   def human_name(table, _conn) do
     table.name |> Naming.humanize 
   end

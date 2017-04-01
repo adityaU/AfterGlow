@@ -1,12 +1,16 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
+  databasesLength:  Ember.computed("databases.@each", function(){
+    if (this.get('databases.length')){
+      return true
+    }
+  }),
     
-    selectedDatabase: null,
-    showTags: true,
-    databases: Ember.computed(function(){
-        return this.get('store').findAll('database')
+    selectedDatabase: Ember.computed("queryObject.database","databases.@each", function(){
+      return this.get('store').peekRecord('database', this.get('queryObject.database.id'))
     }),
+    showTags: true,
 
     actions: {
         toggleSql(){

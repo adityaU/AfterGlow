@@ -17,18 +17,28 @@ defmodule SimpleBase.Sql.Adapters.Common do
     group_bys = group_bys_maker(query_record[:group_bys])
     order_by_columns = order_by_columns(query_record[:order_bys])
     order_bys = order_bys_maker(query_record[:order_bys])
-    order_bys_with_group_bys = (order_bys || [] ++ (group_bys |> Enum.map(fn x-> (x |> String.split("sep|rator") |> Enum.at(0))  <> " ASC" end))) |> Enum.uniq
+    order_bys_with_group_bys = sanitize_order_by(group_bys, order_bys)
+
     columns_required =
     %{
-      select: select_maker(query_record[:selects],  find_columns_required_for_select(group_bys, order_by_columns)) |> Enum.map(fn x ->  x |> String.split("sep|rator") |> Enum.join(" ")  end),
-      group_by:  find_columns_required_for_group_by(group_bys, order_by_columns) |> Enum.map(fn x-> x |> String.split("sep|rator") |> Enum.at(0) end),
-      where:  where_maker(query_record[:filters]),
+      select: select_maker(query_record[:selects] ,  find_columns_required_for_select(group_bys, order_by_columns)) |> IO.inspect|> Enum.map(fn x ->  x |> IO.inspect |> String.split("sep|rator") |> Enum.join(" ")  end),
+      group_by: sanitize_group_by(group_bys, order_by_columns),
+      where:  where_maker(query_record[:filters]) || [],
       order_by:  order_bys_with_group_bys ,
       adapter: adapter,
       limit: nil
-    }
+    } |> IO.inspect
   end
-  
+  defp sanitize_order_by(group_bys, order_bys) do
+  (order_bys || [] ++ ((group_bys ||[]) |> Enum.map(fn x-> (x |> String.split("sep|rator") |> Enum.at(0))  <> " ASC" end))) |> Enum.uniq
+  |> cleanup_list
+  end
+  defp sanitize_group_by(group_bys, order_by_columns) do
+    (find_columns_required_for_group_by(group_bys, order_by_columns) || []) |> Enum.map(fn x-> x |> String.split("sep|rator") |> Enum.at(0) end)
+    |> cleanup_list
+  end
+  defp cleanup_list([]), do: nil
+  defp cleanup_list(el), do: el
   defp find_columns_required_for_group_by(nil, _order_by), do: nil
   defp find_columns_required_for_group_by([], _order_by), do: []
   defp find_columns_required_for_group_by(group_by, order_by) do
@@ -60,7 +70,9 @@ defmodule SimpleBase.Sql.Adapters.Common do
   defp select_maker(nil, columns_required) when length(columns_required) == 0, do: ["*"]
   defp select_maker(nil, columns_required) when length(columns_required) != 0, do: columns_required
   defp select_maker([], columns_required) when length(columns_required) != 0, do: columns_required
+  defp select_maker(nil, []), do: ["*"]
   defp select_maker([], nil), do: ["*"]
+  defp select_maker([], []), do: ["*"]
   defp select_maker options, columns_required do
     options
     |> cleanup
@@ -108,11 +120,10 @@ defmodule SimpleBase.Sql.Adapters.Common do
   defp parse_order_bys(el) when is_list(el) do
     el
     |> Enum.map(fn x->
-      x["column"]["name"] <> " " <> ((x["order"]["value"] |> IO.inspect |> parse_order_type) || "ASC")
+      x["column"]["name"] <> " " <> ((x["order"]["value"] |> parse_order_type) || "ASC")
     end)
-    |> Enum.join(" , ") |> IO.inspect
-    
   end
+  
   defp parse_order_type(""), do: nil
   defp parse_order_type(nil), do: "ASC"
   defp parse_order_type("ASC"), do: "ASC"
@@ -126,17 +137,62 @@ defmodule SimpleBase.Sql.Adapters.Common do
       x 
       parse_filter(x)
     end)
-    
   end
   defp parse_filter(%{"raw" => true, "value" => value}), do: value
-  defp parse_filter(%{"column" => nil, "operator" => nil, "value" => nil}), do: nil
-  defp parse_filter(%{"column" => nil, "operator" => _op, "value" => _val}), do: nil
-  defp parse_filter(%{"column" => _col, "operator" => nil, "value" => _val}), do: nil
-  defp parse_filter(%{"column" => nil, "operator" => op, "value" => nil}), do: nil
-  defp parse_filter(%{"column" => col, "operator" => %{"value" => op_value, "name" => _name}, "value" => val}) do
-    col["name"] <> " " <> op_value <> " " <> (val |> parse_filter_value)
+  defp parse_filter(%{"column" => nil, "operator" => nil, "value" => nil, "valueDateObj" => _valdate}), do: nil
+  defp parse_filter(%{"column" => nil, "operator" => _op, "value" => _val,  "valueDateObj" => _valdate}), do: nil
+  defp parse_filter(%{"column" => _col, "operator" => nil, "value" => _val,  "valueDateObj" => _valdate}), do: nil
+  defp parse_filter(%{"column" => nil, "operator" => op, "value" => nil,  "valueDateObj" => _valdate}), do: nil
+  defp parse_filter(%{"column" => col, "operator" => %{"value" => op_value, "name" => _name}, "value" => val,  "valueDateObj" => valdate}) do
+    valdate = %{
+      "date" => valdate["date"],
+      "value" => valdate["value"] ||  "30",
+      "dtt" => valdate["dtt"] ||  %{"value" => "ago", "name" => "Ago"},
+      "duration" => valdate["duration"] ||  %{"value" => "days", "name" =>  "Days" }
+    }
+    col["name"] <> " " <> op_value <> " " <> (val |> parse_filter_value(valdate))
   end
-  defp parse_filter_value(v), do: "'#{v}'"
+  defp parse_filter_value(v, %{"date" => false}), do: "'#{v}'"
+  defp parse_filter_value(v, %{"date" => false,  "value" =>  _val, "dtt" => _dtt, "duration" => _dur}), do: "'#{v}'"
+
+  defp parse_filter_value(_v, %{"date" => true, "value" => val, "dtt" => dtt, "duration" => dur}) do
+    IO.inspect "Reached HERE"
+    parse_filter_date_obj_value(val, dtt, dur)
+  end
+  defp parse_filter_date_obj_value(val, dtt, dur) do
+    {val, duration} = case dur["value"] do
+                 "quarters" ->
+                          { (val |> String.to_integer)*3, "months"}
+                 _ ->
+                   {val , dur["value"]} 
+               end
+    op = case dtt["value"] do
+           "ago" -> "-"
+           _ -> "+"
+         end
+    "(now() #{op} INTERVAL '#{val} #{duration}')"
+  end
+  # defp parse_filter_value(v, %{date: true, value: val, dtt: nil, duration: nil}) do
+  #   parse_filter_value(v, %{date: true, value: val, dtt: %{"value" :"ago", "name": _name}, duration: %{"value":"days", "name" : _name }}  )
+  # end
+  # defp parse_filter_value(v, %{date: true, value: nil, dtt: dtt, duration: nil}) do
+  #   parse_filter_value(v, %{date: true, value: 30, dtt: dtt,  duration: %{"value":"days", "name" : _name }} )
+  # end
+  # defp parse_filter_value(v, %{date: true, value: nil, dtt: nil, duration: dur}) do
+  #   parse_filter_value(v, %{date: true, value: 30, dtt: %{"value" :"ago", "name": _name}, duration: dur}  )
+  # end
+  # defp parse_filter_value(v, %{date: true, value: val, dtt: nil, duration: dur}) do
+  #   parse_filter_value(v, %{date: true, value: val, dtt: %{"value" :"ago", "name": _name}, duration: dur } )
+  # end
+  # defp parse_filter_value(v, %{date: true, value: nil, dtt: dtt, duration: dur}) do
+  #   parse_filter_value(v, %{date: true, value: 30, dtt: dtt, duration: dur } )
+  # end
+  # defp parse_filter_value(v, %{date: true, value: val, dtt: nil, duration: dur}) do
+  #   parse_filter_value(v, %{date: true, value: val, dtt: %{"value" :"ago", "name": _name}, duration: dur}  )
+  # end
+  # defp parse_filter_value(v, %{date: true, value: val, dtt: dtt, duration: nil}) do
+  #   parse_filter_value(v, %{date: true, value: val, dtt: dtt, duration: %{"value":"days", "name" : _name }}  )
+  # end
   
   defp parse_select([], columns_required) when length(columns_required) == 0, do: "*"
   defp parse_select([], columns_required) when length(columns_required) != 0, do: columns_required
@@ -165,6 +221,6 @@ defmodule SimpleBase.Sql.Adapters.Common do
 
   defp stringify_select(%{"raw" => true, "value" => value}, columns_required), do: value
   defp stringify_select(%{"name" => _name, "value" => "raw_data"}, []), do: "*"
-  defp stringify_select(%{"name" => _name, "value" => "raw_data"}, columns_required), do: []
+  defp stringify_select(%{"name" => _name, "value" => "raw_data"}, columns_required), do: "*"
   defp stringify_select(%{"name" => _name, "value" => "count"}, columns_required), do: "count"
 end

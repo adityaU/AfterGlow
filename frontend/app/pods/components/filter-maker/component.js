@@ -1,12 +1,15 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-    filterObserver: Ember.observer('filter.column', 'filter.operator', 'filter.value', function(){
+    filterObserver: Ember.observer('filter.column', 'filter.operator', 'filter.value','filter.valueDateObj.dtt',  'filter.valueDateObj.value', 'filter.valueDateObj.duration', function(){
 
         if (this.get('filter.raw') && this.get('filter.value')){
             this.set('filter.column', null)
             this.set('filter.operator', null)
             this.set("filter.label", this.get('filter.value'))
+        }else if (this.get('filter.column') && this.get('filter.operator') && this.get('filter.valueDateObj') && !this.get('filter.value') ){
+            let selectorsLabel = `${ this.get('filter.valueDateObj.value') || '30' } ${ this.get('filter.valueDateObj.duration.name') || 'Days'} ${ this.get('filter.valueDateObj.dtt.name') || 'Ago' }`
+            this.set("filter.label", this.get('filter.column.human_name') + " " +  this.get('filter.operator.name') + " " + selectorsLabel)
         }else if (this.get('filter.column') && this.get('filter.operator') && this.get('filter.value')){
             this.set("filter.label", this.get('filter.column.human_name') + " " +  this.get('filter.operator.name') + " " +this.get('filter.value'))
         }else{

@@ -2,6 +2,14 @@ defmodule SimpleBase.QueryController do
   use SimpleBase.Web, :controller
   alias SimpleBase.Database
   alias SimpleBase.Sql.DbConnection
+  alias SimpleBase.Async
+  alias SimpleBase.ColumnValuesTasks
+  
+  alias SimpleBase.Plugs.Authorization
+  plug Authorization
+  plug :authorize!, SimpleBase.Query
+  plug :verify_authorized
+
 
   def execute conn, params do
     db_identifier = params["database"]["unique_identifier"]
@@ -33,12 +41,14 @@ defmodule SimpleBase.QueryController do
       order_bys: params["orderBys"],
       limit:     params["limit"],
       offset:    params["offset"]
-    } |> IO.inspect
+    }
   end
 
   defp run_query_from_object db_record, params do
-    query = DbConnection.query_string(db_record |> Map.from_struct, permit_params(params) )
-    results = DbConnection.execute(db_record |> Map.from_struct, permit_params(params) )
+    permit_prms = permit_params(params) 
+    query = DbConnection.query_string(db_record |> Map.from_struct, permit_prms )
+    results = DbConnection.execute(db_record |> Map.from_struct, permit_prms )
+    save_column_values results, permit_prms
     {query, results}
   end
 
@@ -46,5 +56,13 @@ defmodule SimpleBase.QueryController do
     query = params["rawQuery"]
     results = DbConnection.execute(db_record |> Map.from_struct, query) 
     {query, results}
+  end
+  defp save_column_values results, permit_prms do
+    case results do
+      {:ok, valid_results} ->
+        Async.perform(&ColumnValuesTasks.save/2, [permit_prms[:table]["id"], valid_results])
+      _ ->
+        "pass"
+    end
   end
 end
