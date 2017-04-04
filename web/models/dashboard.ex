@@ -1,8 +1,8 @@
-defmodule SimpleBase.Dashboard do
-  use SimpleBase.Web, :model
-  alias SimpleBase.Question
-  alias SimpleBase.DashboardQuestion
-  alias SimpleBase.Repo
+defmodule AfterGlow.Dashboard do
+  use AfterGlow.Web, :model
+  alias AfterGlow.Question
+  alias AfterGlow.DashboardQuestion
+  alias AfterGlow.Repo
 
   schema "dashboards" do
     field :title, :string

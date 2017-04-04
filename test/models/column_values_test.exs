@@ -1,7 +1,7 @@
-defmodule SimpleBase.ColumnValuesTest do
-  use SimpleBase.ModelCase
+defmodule AfterGlow.ColumnValuesTest do
+  use AfterGlow.ModelCase
 
-  alias SimpleBase.ColumnValues
+  alias AfterGlow.ColumnValues
 
   @valid_attrs %{name: "some content", value: "some content"}
   @invalid_attrs %{}

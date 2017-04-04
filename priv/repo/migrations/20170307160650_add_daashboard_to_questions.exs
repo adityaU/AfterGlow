@@ -1,4 +1,4 @@
-defmodule SimpleBase.Repo.Migrations.AddDaashboardToQuestions do
+defmodule AfterGlow.Repo.Migrations.AddDaashboardToQuestions do
   use Ecto.Migration
 
   def change do

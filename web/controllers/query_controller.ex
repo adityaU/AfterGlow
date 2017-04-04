@@ -1,13 +1,13 @@
-defmodule SimpleBase.QueryController do
-  use SimpleBase.Web, :controller
-  alias SimpleBase.Database
-  alias SimpleBase.Sql.DbConnection
-  alias SimpleBase.Async
-  alias SimpleBase.ColumnValuesTasks
+defmodule AfterGlow.QueryController do
+  use AfterGlow.Web, :controller
+  alias AfterGlow.Database
+  alias AfterGlow.Sql.DbConnection
+  alias AfterGlow.Async
+  alias AfterGlow.ColumnValuesTasks
   
-  alias SimpleBase.Plugs.Authorization
+  alias AfterGlow.Plugs.Authorization
   plug Authorization
-  plug :authorize!, SimpleBase.Query
+  plug :authorize!, AfterGlow.Query
   plug :verify_authorized
 
 

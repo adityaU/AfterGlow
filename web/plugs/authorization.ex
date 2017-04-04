@@ -1,10 +1,10 @@
 require IEx
-defmodule SimpleBase.Plugs.Authorization do
+defmodule AfterGlow.Plugs.Authorization do
   import Joken
   @behaviour Plug
   import Plug.Conn
-  alias SimpleBase.Repo
-  alias SimpleBase.User
+  alias AfterGlow.Repo
+  alias AfterGlow.User
 
   def init(opts) do
     %{}

@@ -1,5 +1,5 @@
 %{
-  simplebase: %{
+  afterglow: %{
     admin_email: {:flasked, :ADMIN_EMAIL}
   }
 }

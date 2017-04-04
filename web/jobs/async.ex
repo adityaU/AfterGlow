@@ -1,14 +1,14 @@
-defmodule SimpleBase.Async do
+defmodule AfterGlow.Async do
   use GenServer
 
   #client methods
   def start_link do
-    GenServer.start_link(__MODULE__, nil , name: SimpleBase.AsyncTasks)
+    GenServer.start_link(__MODULE__, nil , name: AfterGlow.AsyncTasks)
   end
   
 
   def perform(function, args) do
-    GenServer.cast( SimpleBase.AsyncTasks, {:perform,function , args})
+    GenServer.cast( AfterGlow.AsyncTasks, {:perform,function , args})
   end
 
   

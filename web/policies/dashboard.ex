@@ -1,5 +1,5 @@
-defmodule SimpleBase.Dashboard.Policy do
-  import SimpleBase.Policy.Helpers
+defmodule AfterGlow.Dashboard.Policy do
+  import AfterGlow.Policy.Helpers
   def can?(nil, _action, _dashboard), do: false
   def can?(user, :index, _dashboard), do: has_permission(user, "Dashboard.show")
   def can?(user, :show, _dashboard), do: has_permission(user, "Dashboard.show")

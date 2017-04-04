@@ -17,6 +17,9 @@ export default Ember.Component.extend({
     valueObserver:  Ember.observer('filter.value', function(){
         this.set('filter.valueDateObj', {date: false});
     }),
+    valueDateObjObserver: Ember.observer('filter.valueDateObj.value', 'filter.valueDateObj.duration', 'filter.valueDateObj.dtt', function(){
+        this.set('filter.value', null);
+    }),
     sortedColumnValues: Ember.computed("filter.column", "filter.column.column_values.content.isLoaded", function(){
         let columnValues = this.get('filter.column.column_values')
         return columnValues && columnValues.sortBy('displayName');

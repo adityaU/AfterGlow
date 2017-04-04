@@ -1,5 +1,5 @@
 require IEx
-defmodule SimpleBase.Oauth.Google do
+defmodule AfterGlow.Oauth.Google do
   use OAuth2.Strategy
 
   alias OAuth2.Strategy.AuthCode

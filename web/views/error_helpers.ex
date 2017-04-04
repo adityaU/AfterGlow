@@ -1,4 +1,4 @@
-defmodule SimpleBase.ErrorHelpers do
+defmodule AfterGlow.ErrorHelpers do
   @moduledoc """
   Conveniences for translating and building error messages.
   """
@@ -32,9 +32,9 @@ defmodule SimpleBase.ErrorHelpers do
     #     dgettext "errors", "is invalid"
     #
     if count = opts[:count] do
-      Gettext.dngettext(SimpleBase.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AfterGlow.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(SimpleBase.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AfterGlow.Gettext, "errors", msg, opts)
     end
   end
 end

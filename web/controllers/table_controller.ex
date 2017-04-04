@@ -1,9 +1,9 @@
-defmodule SimpleBase.TableController do
-  use SimpleBase.Web, :controller
+defmodule AfterGlow.TableController do
+  use AfterGlow.Web, :controller
 
-  alias SimpleBase.Table
+  alias AfterGlow.Table
   alias JaSerializer.Params
-  alias SimpleBase.Plugs.Authorization
+  alias AfterGlow.Plugs.Authorization
 
   plug Authorization
   plug :authorize!, Table

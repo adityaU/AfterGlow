@@ -1,7 +1,7 @@
-defmodule SimpleBase.PermissionSetTest do
-  use SimpleBase.ModelCase
+defmodule AfterGlow.PermissionSetTest do
+  use AfterGlow.ModelCase
 
-  alias SimpleBase.PermissionSet
+  alias AfterGlow.PermissionSet
 
   @valid_attrs %{name: "some content"}
   @invalid_attrs %{}

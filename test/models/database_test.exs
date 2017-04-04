@@ -1,7 +1,7 @@
-defmodule SimpleBase.DatabaseTest do
-  use SimpleBase.ModelCase
+defmodule AfterGlow.DatabaseTest do
+  use AfterGlow.ModelCase
 
-  alias SimpleBase.Database
+  alias AfterGlow.Database
 
   @valid_attrs %{config: %{}, name: "some content", type: "some content"}
   @invalid_attrs %{}

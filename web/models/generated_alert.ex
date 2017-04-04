@@ -1,6 +1,6 @@
-defmodule SimpleBase.GeneratedAlert do
-  use SimpleBase.Web, :model
-  alias SimpleBase.Alert
+defmodule AfterGlow.GeneratedAlert do
+  use AfterGlow.Web, :model
+  alias AfterGlow.Alert
   import EctoEnum, only: [defenum: 2]
   
   defenum StatusEnum, recovered: 0, warning: 1, critical: 2

@@ -1,11 +1,11 @@
 require IEx
-defmodule SimpleBase.UserController do
-  use SimpleBase.Web, :controller
-  alias SimpleBase.Repo
-  alias SimpleBase.User
-  alias SimpleBase.PermissionSet
+defmodule AfterGlow.UserController do
+  use AfterGlow.Web, :controller
+  alias AfterGlow.Repo
+  alias AfterGlow.User
+  alias AfterGlow.PermissionSet
   alias JaSerializer.Params
-  alias SimpleBase.Plugs.Authorization
+  alias AfterGlow.Plugs.Authorization
 
   plug Authorization
   plug :authorize!, User

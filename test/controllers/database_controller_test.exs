@@ -1,8 +1,8 @@
-defmodule SimpleBase.DatabaseControllerTest do
-  use SimpleBase.ConnCase
+defmodule AfterGlow.DatabaseControllerTest do
+  use AfterGlow.ConnCase
 
-  alias SimpleBase.Database
-  alias SimpleBase.Repo
+  alias AfterGlow.Database
+  alias AfterGlow.Repo
 
   @valid_attrs %{config: %{}, name: "some content", type: "some content"}
   @invalid_attrs %{}

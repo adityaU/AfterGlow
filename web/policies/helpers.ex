@@ -1,4 +1,4 @@
-defmodule SimpleBase.Policy.Helpers do
+defmodule AfterGlow.Policy.Helpers do
   def permissions(user) do
     user.permission_sets
     |> Enum.map(fn x ->

@@ -1,14 +1,14 @@
-defmodule SimpleBase.Endpoint do
-  use Phoenix.Endpoint, otp_app: :simplebase
+defmodule AfterGlow.Endpoint do
+  use Phoenix.Endpoint, otp_app: :afterglow
 
-  socket "/socket", SimpleBase.UserSocket
+  socket "/socket", AfterGlow.UserSocket
 
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phoenix.digest
   # when deploying your static files in production.
   plug Plug.Static,
-    at: "/", from: :simplebase, gzip: false,
+    at: "/", from: :afterglow, gzip: false,
     only: ~w(css fonts images js favicon.ico robots.txt)
 
   # Code reloading can be explicitly enabled under the
@@ -35,10 +35,10 @@ defmodule SimpleBase.Endpoint do
   # Set :encryption_salt if you would also like to encrypt it.
   plug Plug.Session,
     store: :cookie,
-    key: "_simplebase_key",
+    key: "_afterglow_key",
     signing_salt: "SKbD17ZH"
   
   plug CORSPlug
 
-  plug SimpleBase.Router
+  plug AfterGlow.Router
 end

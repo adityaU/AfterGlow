@@ -1,9 +1,9 @@
-defmodule SimpleBase.PermissionSet do
-  use SimpleBase.Web, :model
+defmodule AfterGlow.PermissionSet do
+  use AfterGlow.Web, :model
 
   schema "permission_sets" do
     field :name, :string
-    has_many :permissions, SimpleBase.Permission
+    has_many :permissions, AfterGlow.Permission
     timestamps()
   end
 

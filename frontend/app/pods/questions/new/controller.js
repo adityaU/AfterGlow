@@ -4,6 +4,9 @@ import ChartSettings from 'frontend/mixins/chart-settings'
 export default Ember.Controller.extend(ChartSettings,{
     ajax: Ember.inject.service(),
     
+    databases: Ember.computed(function(){
+        return this.get('store').findAll('database')
+    }),
     question: Ember.computed(function(){
         return this.store.createRecord('question', {
             title: "New Question",
@@ -81,7 +84,8 @@ export default Ember.Controller.extend(ChartSettings,{
         return this.get('store').adapterFor('application').host;
     }),
     showGetResults: Ember.computed('queryObject.database', 'queryObject.table', 'queryObject.queryType','queryObject.rawQuery', function(){
-        return (this.get('queryObject.database') && (this.get('queryObject.table') || ((this.get('queryObject.queryType') == 'raw') && this.get('queryObject.rawQuery')) ))
+        return ((this.get('queryObject.database') && this.get('queryObject.table')) ||
+                 ((this.get('queryObject.queryType') == 'raw') && this.get('queryObject.rawQuery')) )
     }),
     resultsWidgetSettingsComponent: Ember.computed('resultsViewType', function(){
         this.set('results', this.get('results'));
@@ -143,7 +147,7 @@ export default Ember.Controller.extend(ChartSettings,{
             
         },
         transitionToDashBoard(dashboard_id){
-            this.transitionToRoute('dashboards.show', {dashboard_id: dashboard_id})
+            this.transitionToRoute('dashboards.show', dashboard_id)
         },
         transitionToIndex(){
             this.transitionToRoute('index')

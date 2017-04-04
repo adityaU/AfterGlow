@@ -1,4 +1,4 @@
-defmodule SimpleBase.Repo.Migrations.AddMoreFieldsToDashboard do
+defmodule AfterGlow.Repo.Migrations.AddMoreFieldsToDashboard do
   use Ecto.Migration
 
   def change do

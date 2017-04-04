@@ -1,8 +1,8 @@
-defmodule SimpleBase.Mixfile do
+defmodule AfterGlow.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :simplebase,
+    [app: :afterglow,
      version: "0.0.1",
      elixir: "~> 1.4.0",
      elixirc_paths: elixirc_paths(Mix.env),
@@ -17,9 +17,9 @@ defmodule SimpleBase.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {SimpleBase, []},
+    [mod: {AfterGlow, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :oauth2, :flasked]]
+                    :phoenix_ecto, :postgrex, :oauth2, :flasked, :db_connection, :poolboy]]
   end
 
   # Specifies which paths to compile per environment.
@@ -48,7 +48,8 @@ defmodule SimpleBase.Mixfile do
      {:keccakf1600, "~> 0.0.1"},
      {:libdecaf, "~> 0.0.1"},
      {:flasked, "~> 0.4"},
-     {:bodyguard, "~> 1.0.0"}
+     {:bodyguard, "~> 1.0.0"},
+     {:httpoison, "~> 0.11.1"}
     ]
   end
 

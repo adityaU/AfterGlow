@@ -1,5 +1,5 @@
-defmodule SimpleBase.PageControllerTest do
-  use SimpleBase.ConnCase
+defmodule AfterGlow.PageControllerTest do
+  use AfterGlow.ConnCase
 
   test "GET /", %{conn: conn} do
     conn = get conn, "/"

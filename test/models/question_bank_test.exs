@@ -1,7 +1,7 @@
-defmodule SimpleBase.QuestionBankTest do
-  use SimpleBase.ModelCase
+defmodule AfterGlow.QuestionBankTest do
+  use AfterGlow.ModelCase
 
-  alias SimpleBase.QuestionBank
+  alias AfterGlow.QuestionBank
 
   @valid_attrs %{questions: [], title: "some content"}
   @invalid_attrs %{}

@@ -1,10 +1,10 @@
-defmodule SimpleBase.QuestionBankController do
-  use SimpleBase.Web, :controller
+defmodule AfterGlow.QuestionBankController do
+  use AfterGlow.Web, :controller
 
-  alias SimpleBase.QuestionBank
+  alias AfterGlow.QuestionBank
   alias JaSerializer.Params
 
-  alias SimpleBase.Plugs.Authorization
+  alias AfterGlow.Plugs.Authorization
   plug Authorization
   plug :authorize!, QuestionBank
   plug :scrub_params, "data" when action in [:create, :update]

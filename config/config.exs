@@ -6,16 +6,16 @@
 use Mix.Config
 
 # General application configuration
-config :simplebase,
-  namespace: SimpleBase,
-  ecto_repos: [SimpleBase.Repo]
+config :afterglow,
+  namespace: AfterGlow,
+  ecto_repos: [AfterGlow.Repo]
 
 # Configures the endpoint
-config :simplebase, SimpleBase.Endpoint,
+config :afterglow, AfterGlow.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "Tn3BxHU8EtAfwHsjDlEk91rjB9OdR3gXZfzOhO4vfK1XbU14yZPNfWsZjaoUvCTD",
-  render_errors: [view: SimpleBase.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: SimpleBase.PubSub,
+  render_errors: [view: AfterGlow.ErrorView, accepts: ~w(html json)],
+  pubsub: [name: AfterGlow.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
@@ -36,7 +36,7 @@ config :oauth2,
 # of this file so it overrides the configuration defined above.
 
 config :flasked,
-  otp_app: :simplebase,
+  otp_app: :afterglow,
   map_file: "priv/env.exs"
 
 import_config "#{Mix.env}.exs"

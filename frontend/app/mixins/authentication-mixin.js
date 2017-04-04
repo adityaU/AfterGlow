@@ -11,7 +11,6 @@ export default Ember.Mixin.create({
                 this.get('sessionService').verifyToken((response, status)=>{
                     resolve(response)
                 }, (error, status)=>{
-                    debugger
                     this.transitionTo('login')
                     reject(error)
                 })

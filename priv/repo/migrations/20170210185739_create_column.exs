@@ -1,4 +1,4 @@
-defmodule SimpleBase.Repo.Migrations.CreateColumn do
+defmodule AfterGlow.Repo.Migrations.CreateColumn do
   use Ecto.Migration
 
   def change do

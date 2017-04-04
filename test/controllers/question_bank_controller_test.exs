@@ -1,8 +1,8 @@
-defmodule SimpleBase.QuestionBankControllerTest do
-  use SimpleBase.ConnCase
+defmodule AfterGlow.QuestionBankControllerTest do
+  use AfterGlow.ConnCase
 
-  alias SimpleBase.QuestionBank
-  alias SimpleBase.Repo
+  alias AfterGlow.QuestionBank
+  alias AfterGlow.Repo
 
   @valid_attrs %{questions: [], title: "some content"}
   @invalid_attrs %{}
@@ -16,7 +16,7 @@ defmodule SimpleBase.QuestionBankControllerTest do
   end
   
   defp relationships do 
-    questions = Repo.insert!(%SimpleBase.Questions{})
+    questions = Repo.insert!(%AfterGlow.Questions{})
 
     %{
       "questions" => %{

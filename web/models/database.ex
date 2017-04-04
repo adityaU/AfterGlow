@@ -1,16 +1,16 @@
-defmodule SimpleBase.Database do
-  use SimpleBase.Web, :model
-  alias SimpleBase.Sql.DbConnection
-  alias SimpleBase.Async
-  alias SimpleBase.SchemaTasks
-  alias SimpleBase.Repo
+defmodule AfterGlow.Database do
+  use AfterGlow.Web, :model
+  alias AfterGlow.Sql.DbConnection
+  alias AfterGlow.Async
+  alias AfterGlow.SchemaTasks
+  alias AfterGlow.Repo
   schema "databases" do
     field :name, :string
     field :db_type, :string
     field :config, :map
     field :last_accessed_at, Ecto.DateTime
     field :unique_identifier, Ecto.UUID
-    has_many :tables, SimpleBase.Table
+    has_many :tables, AfterGlow.Table
 
     timestamps()
   end

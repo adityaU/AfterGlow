@@ -1,11 +1,11 @@
 require IEx
-defmodule SimpleBase.User do
-  use SimpleBase.Web, :model
+defmodule AfterGlow.User do
+  use AfterGlow.Web, :model
 
-  alias SimpleBase.PermissionSet
-  alias SimpleBase.Permission
-  alias SimpleBase.UserPermissionSet
-  alias SimpleBase.Repo
+  alias AfterGlow.PermissionSet
+  alias AfterGlow.Permission
+  alias AfterGlow.UserPermissionSet
+  alias AfterGlow.Repo
 
   schema "users" do
     field :first_name, :string

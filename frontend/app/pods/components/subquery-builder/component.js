@@ -7,7 +7,7 @@ export default Ember.Component.extend({
         if (this.get('queryObject.database') && this.get('databases.length') &&  this.get('queryObject.database.id')){
           let store = this.get('store')
           let database = store.peekRecord('database', this.get('queryObject.database.id')) ||  store.findRecord('database', this.get('queryObject.database.id'))
-            return database.get('tables')
+            return database && database.get('tables')
         }
     }),
 
@@ -19,8 +19,10 @@ export default Ember.Component.extend({
         this.set('queryObject.filters', []); 
         this.set('queryObject.groupBys', []); 
         this.set('queryObject.orderBys', []); 
+        this.set('queryObject.rawQuery', null); 
+        
     }),
-    databaseObserver:  Ember.observer('queryObject.table', function(){
+    tableObserver:  Ember.observer('queryObject.table', function(){
         this.set('queryObject.filters', []); 
         this.set('queryObject.groupBys', []); 
         this.set('queryObject.orderBys', []); 
@@ -31,7 +33,7 @@ export default Ember.Component.extend({
         if (this.get('queryObject.table') && this.get('tables.length') && this.get('queryObject.table.id')){
           let store = this.get('store')
           let table = this.get('tables').findBy('id', this.get('queryObject.table.id'))
-            return table.get('columns')
+            return table && table.get('columns')
         }
     }),
 

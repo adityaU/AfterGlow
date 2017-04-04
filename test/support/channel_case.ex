@@ -1,4 +1,4 @@
-defmodule SimpleBase.ChannelCase do
+defmodule AfterGlow.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by
   channel tests.
@@ -20,22 +20,22 @@ defmodule SimpleBase.ChannelCase do
       # Import conveniences for testing with channels
       use Phoenix.ChannelTest
 
-      alias SimpleBase.Repo
+      alias AfterGlow.Repo
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
 
 
       # The default endpoint for testing
-      @endpoint SimpleBase.Endpoint
+      @endpoint AfterGlow.Endpoint
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(SimpleBase.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(AfterGlow.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(SimpleBase.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(AfterGlow.Repo, {:shared, self()})
     end
 
     :ok

@@ -1,5 +1,5 @@
-defmodule SimpleBase.PageController do
-  use SimpleBase.Web, :controller
+defmodule AfterGlow.PageController do
+  use AfterGlow.Web, :controller
 
   def index(conn, _params) do
     render conn, "index.html"

@@ -1,5 +1,5 @@
-defmodule SimpleBase.ErrorView do
-  use SimpleBase.Web, :view
+defmodule AfterGlow.ErrorView do
+  use AfterGlow.Web, :view
 
   def render("403.json", message) do
    %{error: message} 

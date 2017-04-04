@@ -1,6 +1,6 @@
-defmodule SimpleBase.Alert do
-  use SimpleBase.Web, :model
-  alias SimpleBase.Question
+defmodule AfterGlow.Alert do
+  use AfterGlow.Web, :model
+  alias AfterGlow.Question
   import EctoEnum, only: [defenum: 2]
 
 

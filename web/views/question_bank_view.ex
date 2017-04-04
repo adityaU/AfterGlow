@@ -1,5 +1,5 @@
-defmodule SimpleBase.QuestionBankView do
-  use SimpleBase.Web, :view
+defmodule AfterGlow.QuestionBankView do
+  use AfterGlow.Web, :view
   use JaSerializer.PhoenixView
 
   attributes [:title, :inserted_at, :updated_at]

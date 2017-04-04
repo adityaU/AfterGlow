@@ -1,14 +1,14 @@
 require IEx
-defmodule SimpleBase.QuestionController do
-  use SimpleBase.Web, :controller
+defmodule AfterGlow.QuestionController do
+  use AfterGlow.Web, :controller
 
-  alias SimpleBase.Question
-  alias SimpleBase.Database
-  alias SimpleBase.QueryView
-  alias SimpleBase.Sql.DbConnection
+  alias AfterGlow.Question
+  alias AfterGlow.Database
+  alias AfterGlow.QueryView
+  alias AfterGlow.Sql.DbConnection
   alias JaSerializer.Params
 
-  alias SimpleBase.Plugs.Authorization
+  alias AfterGlow.Plugs.Authorization
   plug Authorization
   plug :authorize!, Question
   plug :scrub_params, "data" when action in [:create, :update]

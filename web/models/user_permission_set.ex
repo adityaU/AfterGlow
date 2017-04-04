@@ -1,9 +1,9 @@
-defmodule SimpleBase.UserPermissionSet do
-  use SimpleBase.Web, :model
+defmodule AfterGlow.UserPermissionSet do
+  use AfterGlow.Web, :model
 
   schema "user_permission_sets" do
-    belongs_to :user, SimpleBase.User
-    belongs_to :permission_set, SimpleBase.PermissionSet
+    belongs_to :user, AfterGlow.User
+    belongs_to :permission_set, AfterGlow.PermissionSet
     timestamps()
   end
 

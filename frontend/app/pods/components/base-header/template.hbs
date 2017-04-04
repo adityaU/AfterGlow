@@ -1,6 +1,7 @@
 {{#if sessionService.authenticated}}
     <div class="ui segment violet no-border-radius">
         <div class="ui secondary menu violet">
+            {{#link-to "index" class="item"}}{{app-logo logoSize="small"}}{{/link-to}}
             {{#if (can "show Dashboard")}}
                 <a class="item">
                     {{#ui-dropdown class="ui dropdown menu-item"}}

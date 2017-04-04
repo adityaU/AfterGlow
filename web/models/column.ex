@@ -1,11 +1,11 @@
-defmodule SimpleBase.Column do
-  use SimpleBase.Web, :model
+defmodule AfterGlow.Column do
+  use AfterGlow.Web, :model
 
   schema "columns" do
     field :name, :string
     field :data_type, :string
-    belongs_to :table, SimpleBase.Table
-    has_many :column_values, SimpleBase.ColumnValue
+    belongs_to :table, AfterGlow.Table
+    has_many :column_values, AfterGlow.ColumnValue
 
     timestamps()
   end

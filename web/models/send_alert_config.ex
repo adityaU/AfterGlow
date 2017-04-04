@@ -1,6 +1,6 @@
-defmodule SimpleBase.SendAlertConfig do
-  use SimpleBase.Web, :model
-  alias SimpleBase.Alert
+defmodule AfterGlow.SendAlertConfig do
+  use AfterGlow.Web, :model
+  alias AfterGlow.Alert
   import EctoEnum, only: [defenum: 2]
   
   defenum CommTypeEnum, email: 0, sms: 1, call: 2

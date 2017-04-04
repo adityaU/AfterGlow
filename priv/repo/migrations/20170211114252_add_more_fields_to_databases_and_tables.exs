@@ -1,4 +1,4 @@
-defmodule SimpleBase.Repo.Migrations.AddMoreFieldsToDatabasesAndTables do
+defmodule AfterGlow.Repo.Migrations.AddMoreFieldsToDatabasesAndTables do
   use Ecto.Migration
 
   def change do

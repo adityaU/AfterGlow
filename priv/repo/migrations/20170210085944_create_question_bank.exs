@@ -1,4 +1,4 @@
-defmodule SimpleBase.Repo.Migrations.CreateQuestionBank do
+defmodule AfterGlow.Repo.Migrations.CreateQuestionBank do
   use Ecto.Migration
 
   def change do

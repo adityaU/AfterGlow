@@ -1,4 +1,4 @@
-defmodule SimpleBase.Repo.Migrations.FixResultsViewSettingsInQuestion do
+defmodule AfterGlow.Repo.Migrations.FixResultsViewSettingsInQuestion do
   use Ecto.Migration
 
   def change do

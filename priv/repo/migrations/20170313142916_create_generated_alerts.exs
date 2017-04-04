@@ -1,4 +1,4 @@
-defmodule SimpleBase.Repo.Migrations.CreateGeneratedAlerts do
+defmodule AfterGlow.Repo.Migrations.CreateGeneratedAlerts do
   use Ecto.Migration
 
   def change do

@@ -1,3 +1,3 @@
-defmodule SimpleBase.LayoutViewTest do
-  use SimpleBase.ConnCase, async: true
+defmodule AfterGlow.LayoutViewTest do
+  use AfterGlow.ConnCase, async: true
 end

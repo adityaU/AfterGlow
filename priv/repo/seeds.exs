@@ -5,16 +5,16 @@
 # Inside the script, you can read and write to any of your
 # repositories directly:
 #
-#     SimpleBase.Repo.insert!(%SimpleBase.SomeModel{})
+#     AfterGlow.Repo.insert!(%AfterGlow.SomeModel{})
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias SimpleBase.Repo
-alias SimpleBase.PermissionSet
-alias SimpleBase.UserPermissionSet
-alias SimpleBase.Permission
-alias SimpleBase.User
+alias AfterGlow.Repo
+alias AfterGlow.PermissionSet
+alias AfterGlow.UserPermissionSet
+alias AfterGlow.Permission
+alias AfterGlow.User
 import Ecto.Query
 
 
@@ -54,9 +54,9 @@ end)
 end)
 
 
-admin_user = Repo.one(from u in User, where: u.email ==  ^Application.get_env(:simplebase, :admin_email) )
+admin_user = Repo.one(from u in User, where: u.email ==  ^Application.get_env(:afterglow, :admin_email) )
 unless admin_user do
-  Repo.insert(User, %{email:  Application.get_env(:simplebase, :ADMIN_EMAIL) })
+  Repo.insert(User, %{email:  Application.get_env(:afterglow, :ADMIN_EMAIL) })
 end
 Repo.insert(UserPermissionSet.changeset(%UserPermissionSet{}, %{user_id: admin_user.id, permission_set_id: admin.id}))
 

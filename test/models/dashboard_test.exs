@@ -1,7 +1,7 @@
-defmodule SimpleBase.DashboardTest do
-  use SimpleBase.ModelCase
+defmodule AfterGlow.DashboardTest do
+  use AfterGlow.ModelCase
 
-  alias SimpleBase.Dashboard
+  alias AfterGlow.Dashboard
 
   @valid_attrs %{last_updated: %{day: 17, hour: 14, min: 0, month: 4, sec: 0, year: 2010}, title: "some content", update_interval: 42}
   @invalid_attrs %{}

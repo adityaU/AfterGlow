@@ -1,8 +1,8 @@
-defmodule SimpleBase.ColumnControllerTest do
-  use SimpleBase.ConnCase
+defmodule AfterGlow.ColumnControllerTest do
+  use AfterGlow.ConnCase
 
-  alias SimpleBase.Column
-  alias SimpleBase.Repo
+  alias AfterGlow.Column
+  alias AfterGlow.Repo
 
   @valid_attrs %{name: "some content", type: "some content"}
   @invalid_attrs %{}
@@ -16,7 +16,7 @@ defmodule SimpleBase.ColumnControllerTest do
   end
   
   defp relationships do 
-    table = Repo.insert!(%SimpleBase.Table{})
+    table = Repo.insert!(%AfterGlow.Table{})
 
     %{
       "table" => %{

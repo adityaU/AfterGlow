@@ -1,4 +1,4 @@
-defmodule SimpleBase.Repo.Migrations.AddUniquenessCheck do
+defmodule AfterGlow.Repo.Migrations.AddUniquenessCheck do
   use Ecto.Migration
 
   def change do

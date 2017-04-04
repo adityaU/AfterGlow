@@ -15,7 +15,7 @@
         <div class="{{if queryBuilderType 'four' 'sixteen'}} wide column">
 
             {{#if queryBuilderType}}
-                {{query-builder getResults='getResults' toggleSql='toggleSql' queryObject=queryObject showGetResults=showGetResults}}
+                {{query-builder getResults='getResults' toggleSql='toggleSql' queryObject=queryObject showGetResults=showGetResults databases=databases}}
             {{/if}}
         </div>
         <div class="{{if queryBuilderType 'twelve' 'sixteen'}} wide column">
@@ -23,8 +23,14 @@
             {{else}}
                 <div class="ui segment">
                     <div class="right" data-tooltip="Switch to Query Builder" {{action 'toggleSql'}}><i class="align justify icon"></i></div>
-                    {{database-selector queryObject=queryObject showTags=false}}
-                    {{ember-ace class="ui segment" lines=10 value=queryObject.rawQuery mode=aceMode theme=aceTheme update=(action (mut queryObject.rawQuery)) }}
+                    {{database-selector queryObject=queryObject showTags=false databases=databases}}
+                    {{ember-ace class="ui segment"
+                      lines=10
+                      value=queryObject.rawQuery
+                      mode=aceMode
+                      enableSnippets=true
+                      enableLiveAutocompletion=true
+                      enableBasicAutocompletion=true theme=aceTheme update=(action (mut queryObject.rawQuery)) }}
                     {{#if showGetResults}}
                         <div class="content active text-align-center">
                             <button class="ui violet button" {{action 'getResults'}}>
@@ -33,7 +39,6 @@
                             </button>
                         </div>
                     {{/if}}
-                    
                 </div>
             {{/if}}
             {{#if results}}
@@ -41,7 +46,7 @@
                     <div class="ui grid">
                         <div class="twelve wide column" bubbles=false>
                             {{#ui-dropdown class="search selection" selected=resultsViewType onChange=(action (mut resultsViewType))  as |execute mapper|}} 
-                                <div class="default text">{{resultsViewType}}</div>
+                                {{dropdown-default  default=resultsViewType}}
                                 <i class="dropdown icon"></i>
                                 <div class="menu">
                                     {{#each availableResultsTypes as |rv|}}

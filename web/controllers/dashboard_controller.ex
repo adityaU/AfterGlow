@@ -1,10 +1,10 @@
-defmodule SimpleBase.DashboardController do
-  use SimpleBase.Web, :controller
+defmodule AfterGlow.DashboardController do
+  use AfterGlow.Web, :controller
 
-  alias SimpleBase.Dashboard
-  alias SimpleBase.Question
+  alias AfterGlow.Dashboard
+  alias AfterGlow.Question
   alias JaSerializer.Params
-  alias SimpleBase.Plugs.Authorization
+  alias AfterGlow.Plugs.Authorization
   plug Authorization
   plug :authorize!, Dashboard
   plug :scrub_params, "data" when action in [:create, :update]

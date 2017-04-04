@@ -1,3 +1,3 @@
-defmodule SimpleBase.PageView do
-  use SimpleBase.Web, :view
+defmodule AfterGlow.PageView do
+  use AfterGlow.Web, :view
 end

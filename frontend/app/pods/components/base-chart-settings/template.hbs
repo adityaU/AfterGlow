@@ -4,7 +4,7 @@
             <div class="field">
                 <label>X1</label>
                 {{#ui-dropdown class="search selection" selected=x1 onChange=(action (mut resultsViewSettings.x1))  as |execute mapper|}} 
-                    <div class="default text">x1</div>
+                    {{dropdown-default object=x1 default='x1'}}
                     <i class="dropdown icon"></i>
                     <div class="menu">
                         {{#each results.columns as |column|}}
@@ -18,7 +18,7 @@
             <div class="field">
                 <label>X2</label>
                 {{#ui-dropdown class="search selection" selected=x2 onChange=(action (mut resultsViewSettings.x2))  as |execute mapper|}} 
-                    <div class="default text">x2</div>
+                    {{dropdown-default object=x2 default='x2'}}
                     <i class="dropdown icon"></i>
                     <div class="menu">
                         {{#each results.columns as |column|}}
@@ -32,7 +32,7 @@
             <div class="field">
                 <label>Y</label>
                 {{#ui-dropdown class="search selection" selected=y onChange=(action (mut resultsViewSettings.y))  as |execute mapper|}} 
-                    <div class="default text">y</div>
+                    {{dropdown-default object=y default='y'}}
                     <i class="dropdown icon"></i>
                     <div class="menu">
                         {{#each results.columns as |column|}}

@@ -1,3 +1,3 @@
-defmodule SimpleBase.Repo do
-  use Ecto.Repo, otp_app: :simplebase
+defmodule AfterGlow.Repo do
+  use Ecto.Repo, otp_app: :afterglow
 end

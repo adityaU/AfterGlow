@@ -1,10 +1,10 @@
 require IEx
-defmodule SimpleBase.Question do
-  use SimpleBase.Web, :model
+defmodule AfterGlow.Question do
+  use AfterGlow.Web, :model
   import EctoEnum, only: [defenum: 2]
-  alias SimpleBase.Dashboard
-  alias SimpleBase.DbConnection
-  alias SimpleBase.Repo
+  alias AfterGlow.Dashboard
+  alias AfterGlow.DbConnection
+  alias AfterGlow.Repo
   defenum QueryTypeEnum, human_sql: 0, sql: 1
   
   schema "questions" do

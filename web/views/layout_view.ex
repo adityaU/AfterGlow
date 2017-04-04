@@ -1,3 +1,3 @@
-defmodule SimpleBase.LayoutView do
-  use SimpleBase.Web, :view
+defmodule AfterGlow.LayoutView do
+  use AfterGlow.Web, :view
 end

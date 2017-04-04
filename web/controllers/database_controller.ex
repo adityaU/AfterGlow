@@ -1,10 +1,10 @@
-defmodule SimpleBase.DatabaseController do
-  use SimpleBase.Web, :controller
+defmodule AfterGlow.DatabaseController do
+  use AfterGlow.Web, :controller
 
-  alias SimpleBase.Database
+  alias AfterGlow.Database
   alias JaSerializer.Params
 
-  alias SimpleBase.Plugs.Authorization
+  alias AfterGlow.Plugs.Authorization
   plug Authorization
   plug :authorize!, Database
   plug :scrub_params, "data" when action in [:create, :update]
@@ -19,6 +19,7 @@ defmodule SimpleBase.DatabaseController do
     changeset = Database.changeset(%Database{}, Params.to_attributes(data))
     case Database.insert(changeset) do
       {:ok, database} ->
+        database = database |> Repo.preload(:tables)
         conn
         |> put_status(:created)
         |> put_resp_header("location", database_path(conn, :show, database))

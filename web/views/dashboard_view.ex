@@ -1,6 +1,6 @@
 require IEx
-defmodule SimpleBase.DashboardView do
-  use SimpleBase.Web, :view
+defmodule AfterGlow.DashboardView do
+  use AfterGlow.Web, :view
   use JaSerializer.PhoenixView
 
   attributes [:title, :description, :settings, :update_interval, :last_updated, :inserted_at, :updated_at, :question_count]

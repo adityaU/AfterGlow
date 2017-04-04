@@ -1,5 +1,5 @@
-defmodule SimpleBase.PermissionView do
-  use SimpleBase.Web, :view
+defmodule AfterGlow.PermissionView do
+  use AfterGlow.Web, :view
   use JaSerializer.PhoenixView
 
   attributes [:name, :inserted_at, :updated_at, :permission_set_id]

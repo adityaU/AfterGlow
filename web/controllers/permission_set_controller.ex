@@ -1,10 +1,10 @@
-defmodule SimpleBase.PermissionSetController do
-  use SimpleBase.Web, :controller
+defmodule AfterGlow.PermissionSetController do
+  use AfterGlow.Web, :controller
 
-  alias SimpleBase.PermissionSet
+  alias AfterGlow.PermissionSet
   alias JaSerializer.Params
 
-  alias SimpleBase.Plugs.Authorization
+  alias AfterGlow.Plugs.Authorization
   plug Authorization
   plug :authorize!, PermissionSet
   plug :scrub_params, "data" when action in [:create, :update]

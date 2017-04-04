@@ -1,7 +1,7 @@
-defmodule SimpleBase.TableTest do
-  use SimpleBase.ModelCase
+defmodule AfterGlow.TableTest do
+  use AfterGlow.ModelCase
 
-  alias SimpleBase.Table
+  alias AfterGlow.Table
 
   @valid_attrs %{name: "some content"}
   @invalid_attrs %{}

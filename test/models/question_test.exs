@@ -1,7 +1,7 @@
-defmodule SimpleBase.QuestionTest do
-  use SimpleBase.ModelCase
+defmodule AfterGlow.QuestionTest do
+  use AfterGlow.ModelCase
 
-  alias SimpleBase.Question
+  alias AfterGlow.Question
 
   @valid_attrs %{human_sql: %{}, last_updated: %{day: 17, hour: 14, min: 0, month: 4, sec: 0, year: 2010}, sql: "some content", title: "some content", update_interval: 42}
   @invalid_attrs %{}

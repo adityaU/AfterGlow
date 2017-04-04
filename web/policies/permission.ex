@@ -1,5 +1,5 @@
-defmodule SimpleBase.Permission.Policy do
-  import SimpleBase.Policy.Helpers
+defmodule AfterGlow.Permission.Policy do
+  import AfterGlow.Policy.Helpers
   def can?(nil, _action, _permission), do: false
   def can?(user, :index, _permission), do: has_permission(user, "Settings.all")
   def can?(user, :show, _permission), do: has_permission(user, "Settings.all")

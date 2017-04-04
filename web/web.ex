@@ -1,12 +1,12 @@
-defmodule SimpleBase.Web do
+defmodule AfterGlow.Web do
   @moduledoc """
   A module that keeps using definitions for controllers,
   views and so on.
 
   This can be used in your application as:
 
-      use SimpleBase.Web, :controller
-      use SimpleBase.Web, :view
+      use AfterGlow.Web, :controller
+      use AfterGlow.Web, :view
 
   The definitions below will be executed for every view,
   controller, etc, so keep them short and clean, focused
@@ -28,20 +28,20 @@ defmodule SimpleBase.Web do
 
   def controller do
     quote do
-      use Phoenix.Controller, namespace: SimpleBase
+      use Phoenix.Controller, namespace: AfterGlow
 
-      alias SimpleBase.Repo
+      alias AfterGlow.Repo
       import Ecto
       import Ecto.Query
       import Bodyguard.Controller
-      import SimpleBase.Router.Helpers
-      import SimpleBase.Gettext
+      import AfterGlow.Router.Helpers
+      import AfterGlow.Gettext
     end
   end
 
   def view do
     quote do
-      use Phoenix.View, root: "web/templates", namespace: SimpleBase
+      use Phoenix.View, root: "web/templates", namespace: AfterGlow
 
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_csrf_token: 0, get_flash: 2, view_module: 1]
@@ -49,9 +49,9 @@ defmodule SimpleBase.Web do
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
 
-      import SimpleBase.Router.Helpers
-      import SimpleBase.ErrorHelpers
-      import SimpleBase.Gettext
+      import AfterGlow.Router.Helpers
+      import AfterGlow.ErrorHelpers
+      import AfterGlow.Gettext
     end
   end
 
@@ -65,10 +65,10 @@ defmodule SimpleBase.Web do
     quote do
       use Phoenix.Channel
 
-      alias SimpleBase.Repo
+      alias AfterGlow.Repo
       import Ecto
       import Ecto.Query
-      import SimpleBase.Gettext
+      import AfterGlow.Gettext
     end
   end
 

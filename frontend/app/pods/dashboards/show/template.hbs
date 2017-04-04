@@ -39,12 +39,26 @@
                 <span data-tooltip="Share Dashboard" >  
                     <i class="share icon" {{action 'shareDashboard'}}></i>
                 </span>
+
+                <span data-tooltip="Refresh Interval: {{refreshInterval.name}}" data-position="top right">  
+
+                    {{#ui-dropdown class="ui dropdown menu-item"}}
+                        {{dropdown-default  default=null icon="refresh"}}
+                        <div class="menu left">
+                            {{#each refreshIntervals as |refreshInterval|}}
+                                <div class="item" {{action 'setRefreshInterval' refreshInterval}}>
+                                    {{refreshInterval.name}}
+                                </div>
+                            {{/each}}
+                        </div>
+                    {{/ui-dropdown}}
+                </span>
             {{#if fullScreen}}
-                <span data-tooltip="Exit Fullscreen" >  
+                <span data-tooltip="Exit Fullscreen" data-position="top right">
                     <i class="compress icon" {{action 'toggleFullScreen'}}></i>
                 </span>
                 {{else}}
-                <span data-tooltip="Go Fullscreen" >  
+                <span data-tooltip="Go Fullscreen" data-position="top right">
                     <i class="expand icon" {{action 'toggleFullScreen'}}></i>
                 </span>
                 {{/if}}

@@ -1,3 +1,3 @@
-defmodule SimpleBase.PageViewTest do
-  use SimpleBase.ConnCase, async: true
+defmodule AfterGlow.PageViewTest do
+  use AfterGlow.ConnCase, async: true
 end

@@ -1,5 +1,5 @@
-defmodule SimpleBase.UserView do
-  use SimpleBase.Web, :view
+defmodule AfterGlow.UserView do
+  use AfterGlow.Web, :view
   use JaSerializer.PhoenixView
   attributes [:first_name, :last_name, :full_name, :email, :metadata, :profile_pic]
 

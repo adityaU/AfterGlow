@@ -1,4 +1,4 @@
 ExUnit.start
 
-Ecto.Adapters.SQL.Sandbox.mode(SimpleBase.Repo, :manual)
+Ecto.Adapters.SQL.Sandbox.mode(AfterGlow.Repo, :manual)
 

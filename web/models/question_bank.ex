@@ -1,5 +1,5 @@
-defmodule SimpleBase.QuestionBank do
-  use SimpleBase.Web, :model
+defmodule AfterGlow.QuestionBank do
+  use AfterGlow.Web, :model
 
   schema "question_banks" do
     field :title, :string

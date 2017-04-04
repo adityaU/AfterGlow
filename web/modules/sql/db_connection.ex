@@ -1,8 +1,10 @@
-defmodule SimpleBase.Sql.DbConnection do
+require IEx
+defmodule AfterGlow.Sql.DbConnection do
   use GenServer
 
   @adapter_modules %{
-    postgres: SimpleBase.Sql.Adapters.Postgres
+    postgres: AfterGlow.Sql.Adapters.Postgres,
+    influxdb: AfterGlow.Sql.Adapters.InfluxDb
   }
 
   #client methods
@@ -37,12 +39,12 @@ defmodule SimpleBase.Sql.DbConnection do
   
   def handle_call({:connection, db_record}, _from, _) do
     key = db_record[:unique_identifier]
-    stored_value = Registry.lookup(SimpleBase.DbConnectionStore, key ) |> Enum.at(0)
+    stored_value = Registry.lookup(AfterGlow.DbConnectionStore, key ) |> Enum.at(0)
     pid = case stored_value do
-       nil -> 
+       nil ->
         case @adapter_modules[db_record[:db_type] |> String.to_atom].create_pool(db_record[:config]) do
           {:ok, pid} ->
-            Registry.register(SimpleBase.DbConnectionStore,key, pid) |> IO.inspect
+            Registry.register(AfterGlow.DbConnectionStore,key, pid) |> IO.inspect
             {:ok, pid}
           {:error, error} ->
             {:error, error}

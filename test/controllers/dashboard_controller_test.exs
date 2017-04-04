@@ -1,8 +1,8 @@
-defmodule SimpleBase.DashboardControllerTest do
-  use SimpleBase.ConnCase
+defmodule AfterGlow.DashboardControllerTest do
+  use AfterGlow.ConnCase
 
-  alias SimpleBase.Dashboard
-  alias SimpleBase.Repo
+  alias AfterGlow.Dashboard
+  alias AfterGlow.Repo
 
   @valid_attrs %{last_updated: %{day: 17, hour: 14, min: 0, month: 4, sec: 0, year: 2010}, title: "some content", update_interval: 42}
   @invalid_attrs %{}

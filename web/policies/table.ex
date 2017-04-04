@@ -1,5 +1,5 @@
-defmodule SimpleBase.Table.Policy do
-  import SimpleBase.Policy.Helpers
+defmodule AfterGlow.Table.Policy do
+  import AfterGlow.Policy.Helpers
   def can?(nil, _action, _table), do: false
   def can?(user, :index, _table), do: has_permission(user, "Question.show")
   def can?(user, :show, _table), do: has_permission(user, "Question.show")

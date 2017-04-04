@@ -13,6 +13,11 @@ export default Ember.Controller.extend({
         }
     },
 
+    dbTypes: [
+        'postgres',
+        'influxdb'
+    ],
+
     actions:{
         saveDatabase(){
             this.store.createRecord('database',this.get('db')).save()

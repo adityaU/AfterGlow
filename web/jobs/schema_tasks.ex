@@ -1,10 +1,10 @@
 require IEx
-defmodule SimpleBase.SchemaTasks do
-  alias SimpleBase.Sql.DbConnection
-  alias SimpleBase.Repo
-  alias SimpleBase.Database
-  alias SimpleBase.Table
-  alias SimpleBase.Column
+defmodule AfterGlow.SchemaTasks do
+  alias AfterGlow.Sql.DbConnection
+  alias AfterGlow.Repo
+  alias AfterGlow.Database
+  alias AfterGlow.Table
+  alias AfterGlow.Column
 
   import Ecto.Query, only: [from: 2]
   
@@ -18,8 +18,8 @@ defmodule SimpleBase.SchemaTasks do
 
   defp save schema, db_id do
     tables = Repo.all(from t in Table, where: t.database_id == ^db_id, select: t.name)
-    |> Enum.map(fn x -> x.name end)
     schema
+    |> IO.inspect
     |> Enum.map(fn record->
       save_table_and_columns(record, db_id, tables)
     end)
@@ -33,9 +33,7 @@ defmodule SimpleBase.SchemaTasks do
 
         # Build a comment from the post struct
         columns = record["columns"]
-        |> IO.inspect
         |> Enum.map(fn x->
-          x |> IO.inspect
           Column.changeset(%Column{}, %{name: x["name"], data_type: x["data_type"] , table_id: table.id}).changes
           |> Map.merge(%{inserted_at: Ecto.DateTime.utc, updated_at:   Ecto.DateTime.utc})
         end)

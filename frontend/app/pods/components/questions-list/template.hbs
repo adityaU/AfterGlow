@@ -1,4 +1,5 @@
 {{#each questions as |question|}}
+    {{#if question.id }}
     <div class="ui segment full">
         <div class="ui grid">
             <div class="eight wide column">
@@ -18,5 +19,6 @@
             </div>
         </div>
     </div>
+    {{/if}}
 {{/each}}
 {{delete-dialogue entityName="question" entity=questionToBeDeleted delete="deleteQuestion"}}

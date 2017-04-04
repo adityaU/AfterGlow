@@ -1,8 +1,8 @@
-defmodule SimpleBase.PermissionControllerTest do
-  use SimpleBase.ConnCase
+defmodule AfterGlow.PermissionControllerTest do
+  use AfterGlow.ConnCase
 
-  alias SimpleBase.Permission
-  alias SimpleBase.Repo
+  alias AfterGlow.Permission
+  alias AfterGlow.Repo
 
   @valid_attrs %{name: "some content"}
   @invalid_attrs %{}

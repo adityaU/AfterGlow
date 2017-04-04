@@ -1,5 +1,5 @@
-defmodule SimpleBase.ColumnView do
-  use SimpleBase.Web, :view
+defmodule AfterGlow.ColumnView do
+  use AfterGlow.Web, :view
   use JaSerializer.PhoenixView
 
   alias Phoenix.Naming  

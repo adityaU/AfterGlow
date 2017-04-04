@@ -1,9 +1,9 @@
 require IEx
-defmodule SimpleBase.ColumnValuesTasks do
-  alias SimpleBase.Repo
-  alias SimpleBase.Table
-  alias SimpleBase.Column
-  alias SimpleBase.ColumnValue
+defmodule AfterGlow.ColumnValuesTasks do
+  alias AfterGlow.Repo
+  alias AfterGlow.Table
+  alias AfterGlow.Column
+  alias AfterGlow.ColumnValue
 
   import Ecto.Query, only: [from: 2]
   

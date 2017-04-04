@@ -1,4 +1,4 @@
-# SimpleBase
+# AfterGlow
 
 To start your Phoenix app:
 

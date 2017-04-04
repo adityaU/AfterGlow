@@ -12,6 +12,9 @@ $tertiaryColorShade2: #3c9651;
 $secondaryColor: whitesmoke;
 $lightTransparentColor: rgba(255, 255, 255, 0.85);
 $borderRadius: 0.28571429rem;
+@function box-shadow($color){
+  @return 0px 3px 1px -2px $color !important ;   
+}
 
 .ui.form input:not([type]), .ui.form input[type="date"], .ui.form input[type="datetime-local"], .ui.form input[type="email"], .ui.form input[type="number"], .ui.form input[type="password"], .ui.form input[type="search"], .ui.form input[type="tel"], .ui.form input[type="time"], .ui.form input[type="text"], .ui.form input[type="file"], .ui.form input[type="url"] .ui.selection.dropdown{
   border: none;
@@ -52,6 +55,9 @@ i{
 input{
 height: 30px;
 }
+.ui.button{
+    box-shadow: box-shadow($primaryColorShade2);
+}
 .ui.button.alert-state{
   padding: 5px 10px;
   font-size: 0.8em;
@@ -82,7 +88,7 @@ height: 30px;
 .ui.styled.accordion, .ui.styled.accordion .accordion {
   border-radius: $borderRadius ;
   background: #FFFFFF;
-  box-shadow: none;
+  box-shadow: box-shadow($greyColor);
   border: 1px solid rgba(34, 36, 38, 0.15);
 
 }
@@ -138,8 +144,12 @@ height: 30px;
 [data-tooltip]:after{
   box-shadow: none !important;
 }
-.ui.segment{
+
+.ui.basic.segment{
   box-shadow: none !important;
+}
+.ui.segment{
+  box-shadow: box-shadow($greyColor);
 }
 .ui.grid.container{
   width: calc( 1127px + 8% ) !important;
@@ -222,8 +232,25 @@ height: 30px;
     width: 30px;
 }
 .login {
-    height: 100vh;
-    width: 100vw;
+    height: 150px;
+    width: 500px;
+    margin: auto !important;
+    text-align: center;
+    background: white !important;
+    border: 1px solid $greyColor !important;
+    border-radius: $borderRadius !important;
+    margin-top: 100px !important;
+
+}
+.big.logo {
+    img{
+        width: 100px;
+    }
+}
+.small.logo {
+    img{
+        width: 50px;
+    }
 }
 .queston-title {
     color: $primaryColor;
@@ -239,12 +266,14 @@ a {
     color: $primaryColor;
 }
 .ui.dropdown .menu {
-    left: -10px;
     top: 30px;
 }
 .ui.very.basic.button {
     text-transform: uppercase;
 
+}
+.ui.dropdown .menu.left {
+    left: -50px;
 }
 #toast-container > div{
     box-shadow: none;
@@ -339,10 +368,13 @@ button.toast-close-button{
   display: inline-block;
 }
 
+.ui.modal.visible.active{
+    box-shadow: box-shadow($greyColor)
+}
+
 .ui.vertical.menu {
     width: 15rem;
-    box-shadow: none;
-
+    box-shadow: box-shadow($greyColor)
 }
 .ui.circular.button{
   padding: 8px 11px;

@@ -1,4 +1,4 @@
-defmodule SimpleBase.Repo.Migrations.CreateSettings do
+defmodule AfterGlow.Repo.Migrations.CreateSettings do
   use Ecto.Migration
 
   def change do

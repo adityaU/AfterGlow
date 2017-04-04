@@ -1,5 +1,5 @@
-defmodule SimpleBase.DatabaseView do
-  use SimpleBase.Web, :view
+defmodule AfterGlow.DatabaseView do
+  use AfterGlow.Web, :view
   use JaSerializer.PhoenixView
 
   attributes [:name, :db_type, :unique_identifier, :config, :inserted_at, :updated_at, :last_accessed_at]

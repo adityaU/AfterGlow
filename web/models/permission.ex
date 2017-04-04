@@ -1,5 +1,5 @@
-defmodule SimpleBase.Permission do
-  use SimpleBase.Web, :model
+defmodule AfterGlow.Permission do
+  use AfterGlow.Web, :model
 
   schema "permissions" do
     field :name, :string

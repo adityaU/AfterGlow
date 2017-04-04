@@ -1,12 +1,12 @@
 require IEx
-defmodule SimpleBase.AuthController do
-  use SimpleBase.Web, :controller
-  alias SimpleBase.Oauth.Google
-  alias SimpleBase.User
-  alias SimpleBase.Permission
-  alias SimpleBase.UserPermissionSet
-  alias SimpleBase.PermissionSet
-  alias SimpleBase.Plugs.Authorization
+defmodule AfterGlow.AuthController do
+  use AfterGlow.Web, :controller
+  alias AfterGlow.Oauth.Google
+  alias AfterGlow.User
+  alias AfterGlow.Permission
+  alias AfterGlow.UserPermissionSet
+  alias AfterGlow.PermissionSet
+  alias AfterGlow.Plugs.Authorization
   
 
   def google_auth_path(conn, _params) do

@@ -1,5 +1,5 @@
-defmodule SimpleBase.ColumnValue.Policy do
-  import SimpleBase.Policy.Helpers
+defmodule AfterGlow.ColumnValue.Policy do
+  import AfterGlow.Policy.Helpers
   def can?(nil, _action, _column_value), do: false
   def can?(user, :index, _column_value), do: has_permission(user, "Question.show")
   def can?(user, :show, _column_value), do: has_permission(user, "Question.show")

@@ -1,13 +1,13 @@
 require IEx
-defmodule SimpleBase.Repo.Migrations.InitialPermissions do
+defmodule AfterGlow.Repo.Migrations.InitialPermissions do
   use Ecto.Migration
 
   def up do
-    alias SimpleBase.Repo
-    alias SimpleBase.PermissionSet
-    alias SimpleBase.UserPermissionSet
-    alias SimpleBase.Permission
-    alias SimpleBase.User
+    alias AfterGlow.Repo
+    alias AfterGlow.PermissionSet
+    alias AfterGlow.UserPermissionSet
+    alias AfterGlow.Permission
+    alias AfterGlow.User
     import Ecto.Query
 
 

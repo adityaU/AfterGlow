@@ -1,5 +1,5 @@
-defmodule SimpleBase.Router do
-  use SimpleBase.Web, :router
+defmodule AfterGlow.Router do
+  use AfterGlow.Web, :router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -14,7 +14,7 @@ defmodule SimpleBase.Router do
     plug JaSerializer.Deserializer
   end
 
-  scope "/api/v1", SimpleBase do
+  scope "/api/v1", AfterGlow do
     pipe_through :api 
     
     # scope "/auth", MyApp do
@@ -40,7 +40,7 @@ defmodule SimpleBase.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", SimpleBase do
+  # scope "/api", AfterGlow do
   #   pipe_through :api
   # end
 end

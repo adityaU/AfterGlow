@@ -5,7 +5,15 @@ import { CanMixin } from 'ember-can';
 
 export default Ember.Route.extend(AuthenticationMixin, CanMixin, {
     toast: Ember.inject.service(),
-    afterModel(){
+    beforeModel() {
+        this._super(...arguments)
+        this.set('modelHookRun', false)
+    },
+    model(params){
+        this.set('modelHookRun', true)
+        return this.store.findRecord('dashboard', params.dashboard_id)
+    },
+    afterModel(model){
         if (!this.can('show dashboard')) {
             this.get('toast').error(
                 "You are not authorized to perform this action",
@@ -13,10 +21,11 @@ export default Ember.Route.extend(AuthenticationMixin, CanMixin, {
                 {closeButton: true, timeout: 1500, progressBar:false}
             );
 
-            this.transitionTo('index');
+            return this.transitionTo('index');
         }
-    },
-    model(params){
-        return this.store.peekRecord('dashboard', +params.dashboard_id) || this.store.findRecord('dashboard', params.dashboard_id)
+        if ( ! this.get('modelHookRun')) {
+            return model.reload();
+        }
+        this.set('modelHookRun', false)
     }
 });

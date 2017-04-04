@@ -1,6 +1,6 @@
-defmodule SimpleBase.Repo.Migrations.CreatePermissionSet do
+defmodule AfterGlow.Repo.Migrations.CreatePermissionSet do
   use Ecto.Migration
-  alias SimpleBase.Repo
+  alias AfterGlow.Repo
 
   def change do
     create table(:permission_sets) do

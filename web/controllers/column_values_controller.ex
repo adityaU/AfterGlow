@@ -1,9 +1,9 @@
-defmodule SimpleBase.ColumnValueController do
-  use SimpleBase.Web, :controller
+defmodule AfterGlow.ColumnValueController do
+  use AfterGlow.Web, :controller
 
-  alias SimpleBase.ColumnValue
+  alias AfterGlow.ColumnValue
   alias JaSerializer.Params
-  alias SimpleBase.Plugs.Authorization
+  alias AfterGlow.Plugs.Authorization
 
   plug Authorization
   plug :authorize!, ColumnValue
