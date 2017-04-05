@@ -2,35 +2,38 @@ import Ember from 'ember';
 
 
 export default Ember.Mixin.create({
-    shuffle(array) {
-        var currentIndex = array.length, temporaryValue, randomIndex;
+    classNames: ["height-90"],
+    
+    // shuffle(array) {
+    //     var currentIndex = array.length, temporaryValue, randomIndex;
 
-        // While there remain elements to shuffle...
-        while (0 !== currentIndex) {
+    //     // While there remain elements to shuffle...
+    //     while (0 !== currentIndex) {
 
-            // Pick a remaining element...
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex -= 1;
+    //         // Pick a remaining element...
+    //         randomIndex = Math.floor(Math.random() * currentIndex);
+    //         currentIndex -= 1;
 
-            // And swap it with the current element.
-            temporaryValue = array[currentIndex];
-            array[currentIndex] = array[randomIndex];
-            array[randomIndex] = temporaryValue;
+    //         // And swap it with the current element.
+    //         temporaryValue = array[currentIndex];
+    //         array[currentIndex] = array[randomIndex];
+    //         array[randomIndex] = temporaryValue;
               
-        }
+    //     }
 
-        return array;
+    //     return array;
 
-    },
+    // },
 
-    colors: Ember.computed(function(){
-        return  this.shuffle(["#69d2e7", "#e94c6f", "#db3340", "#df514c", "#ffc33c", "#ff4c65",
-         "#59c4c5", "#53bbf4", "#354458", "#ffa200", "#24a8ac", "#bff073",
-         "#20457c", "#5e3448", "#9f92aa", "#e45f56", "#dc2742", "#c91b26",
-         "#17a697", "#0f5959", "#3a0256", "#737495", "#5c2d50", "#5c2d50"
-                             ])
-    }),
-
+    colors:[
+        "#1C9363", "#FF715B", "#E6AF2E", "#2B59C3", "#215B56",
+        "#301966", "#D36582", "#820646", "#649BC1", "#4B3F72",
+        "#db3340", "#df514c", "#5c2d50", "#5e3448", "#53bbf4",
+        "#59c4c5", "#bff073", "#e45f56", "#c91b26", "#737495",
+        "#5c2d50", "#20457c", "#0f5959", "#9f92aa", "#ffa200",
+        "#24a8ac", "#ff4c65", "#e94c6f", "#354458", "#69d2e7",
+        "#dc2742", "#3a0256", "#17a697", "#064789", "#ffc33c"
+    ] ,
     randomColor(_this){
         let arr = _this.get("colors");
         return arr[Math.floor(Math.random() * arr.length)]
@@ -49,11 +52,10 @@ export default Ember.Mixin.create({
                     return params;
                 }
             })
-        }
-        let date = Date.parse(params) 
-        let dateMatch = (params && params.toString().match("-") != null)
-        if (date.toString() != 'NaN' && dateMatch){
-                formattedString = moment(date).format("YYYY-MM-DD HH:mm:ss.SSS")
+        }else if(this.findIfDate(params)){
+            formattedString = moment(params).format('llll')
+        }else if(this.findIfNumber(params)){
+            formattedString = params.toLocaleString()
         }
 
         return formattedString;
@@ -135,11 +137,11 @@ export default Ember.Mixin.create({
             data = data.rows.map((item)=>{
                 return Ember.Object.create({
                     x1: item[x1],
-                    displayX1: this.get('display')(item[x1]),
+                    displayX1: this.display(item[x1]),
                     x2: item[x2],
-                    displayX2: this.get('display')(item[x2]),
+                    displayX2: this.display(item[x2]),
                     y: item[y],
-                    displayY: this.get('display')(item[y]),
+                    displayY: this.display(item[y]),
                 })
             });
             return this.get('groupBy')(data, 'x2');
@@ -151,7 +153,16 @@ export default Ember.Mixin.create({
         return (date.toString() != 'NaN' && dateMatch)
     },
     findIfNumber(el){
-        return (parseFloat(el) != NaN)
+        return (el && parseFloat(el) != NaN)
+    },
+    selectScale(el){
+        if(this.findIfDate(el)){
+            return 'time'
+        }else if(this.findIfNumber(el)){
+            return 'linear'
+        }else{
+            return 'category'
+        }
     },
     x1: Ember.computed('results', 'resultsViewSettings.x1', function(){
         let x1 = this.get('resultsViewSettings.x1')
@@ -175,6 +186,16 @@ export default Ember.Mixin.create({
             }
         }
     }),
+    opacity(hex, opacity) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        result = result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16),
+            a: opacity    
+        } : null;
+        return `rgba(${result.r},${result.g}, ${result.b}, ${result.a} )`
+    },
     x2: Ember.computed.alias('resultsViewSettings.x2'),
     y: Ember.computed('results', 'resultsViewSettings.y', function(){
         let y = this.get('resultsViewSettings.y')
@@ -198,6 +219,152 @@ export default Ember.Mixin.create({
     randomId: Ember.computed(function(){
         
         return  'chart-' + Math.floor((Math.random() * 100000000000000) + 1);
+    }),
+
+    data: Ember.computed('jsonData', 'type', 'xLabel', 'yLable', 'title', function(){
+        return this.getData()
+    }),
+
+    fill: false,
+    lineTension: 0,
+    backgroundColor(i){return this.opacity(this.get('colors')[i], 0.7)},
+    borderColor(i){return this.get('colors')[i]},
+    borderCapStyle: 'butt',
+    borderDash: [],
+    borderDashOffset: 0.0,
+    borderJoinStyle: 'miter',
+    pointBorderColor(i){ return this.get('colors')[i]}, 
+    hoverBackgroundColor(i){ return this.get('colors')[i]}, 
+    pointBackgroundColor: "#fff",
+    pointBorderWidth: 1,
+    pointHoverRadius(item){return (30/(item.get('contents.length') + 1)) + 3},
+    pointHoverBackgroundColor: "#fff",
+    pointHoverBorderColor(i){return this.get('colors')[i]},
+    pointHoverBorderWidth: 2,
+    pointRadius(item){ return (20/(item.get('contents.length') + 1)) + 2},
+    pointHitRadius: 10,
+    calculateXScale(item){
+        return this.set('xScale', this.selectScale(item.get('contents').objectAt(0).x1))
+    },
+    calculateYScale(item){
+        return this.set('yScale', this.selectScale(item.get('contents').objectAt(0).y))
+    },
+    labels(data){
+      return data.map((item, i)=>{return  Ember.String.capitalize( item.get('type') || this.get('y')) })
+    },
+    chartData(item){
+        return item.get('contents').sortBy('x1').map((el, j)=> {
+        return {
+            x: el.x1,
+            y: el.y,
+            r: (el.y/this.get('maxY')+0.1)*15
+        }
+    })}, 
+    getData(){
+        
+        // let gd = _this.get('getNode')(_this)
+        // let gridParent = _this.get("gridParent")
+        var data =  this.get('jsonData'), layout;
+        return  data && {
+            labels: this.labels(data), 
+            datasets: data.map((item, i)=>{
+                this.calculateXScale(item);
+                this.calculateYScale(item);
+
+                this.set('maxY', Math.max.apply(this,item.get('contents').map((el)=>{return +el.y})))
+                return {
+                    label: Ember.String.capitalize( item.get('type') || this.get('y')) ,
+                    data: this.chartData(item),
+                    fill: this.get('fill'),
+                    lineTension: this.get('lineTension'),
+                    backgroundColor: this.backgroundColor(i),
+                    borderColor:  this.borderColor(i),
+                    borderCapStyle:  this.get('borderCapStyle'),
+                    borderDash: this.get('borderDash'),
+                    borderDashOffset: this.get('borderDashOffset'),
+                    borderJoinStyle: this.get('borderJoinStyle'),
+                    pointBorderColor: this.pointBorderColor(i), 
+                    pointBackgroundColor: this.get('pointBackgroundColor'),
+                    pointBorderWidth: this.get('pointBorderWidth'),
+                    pointHoverRadius:  this.pointHoverRadius(item),
+                    pointHoverBackgroundColor: this.get('pointHoverBackgroundColor'),
+                    pointHoverBorderColor: this.pointHoverBorderColor(i),
+                    pointHoverBorderWidth: this.get('pointBorderWidth'),
+                    pointRadius: this.pointRadius(item),
+                    pointHitRadius: this.get('pointHitRadius'),
+                    hoverBackgroundColor: this.hoverBackgroundColor(i)
+                }
+            })
+        };
+        // layout = data &&  {
+        //     legend: {orientation: "h", x:0, y:1},
+        //     title: _this.get('title'),
+        //     margin: _this.get('margin'),
+        //     xaxis: {title: Ember.String.capitalize(_this.get('xLabel') || _this.get('x1')) , autorange: true, showLine: false },
+        //     yaxis: {title: Ember.String.capitalize(_this.get('yLabel') || _this.get('y')), autorange: true, showLine: false},
+        //     font: {
+        //         family: 'Lato',
+        //         size: '1em',
+        //         color: '#7f7f7f'
+        //     }
+
+        // }
+        // data && Plotly.newPlot(gd, data, layout, {showLine: false})
+        //     .then(_this.get('downloadAsPNG')); 
+        // data && gridParent[0] && gridParent[0].addEventListener('plotlyResize', function() {
+        //     let dimensions = _this.get('dimensions')(gridParent) 
+        //     Plotly.relayout(_this.get("randomId"), dimensions)
+        // });
+    },
+    chartScales: Ember.computed(function(){
+        return {
+            xAxes: [{
+                type: this.get('xScale'),
+                position: 'bottom',
+            }],
+            yAxes: [{
+                stacked: this.get('stacked'),
+                type: this.get('yScale')
+            }]
+        } 
+    }),
+    stacked: false,
+    legendPosition: 'top',
+    chartOptions: Ember.computed('xScale', 'yScale', function(){
+        let _this = this 
+        return {
+            responsive: true,
+            legend: {position: this.get('legendPosition')},
+            maintainAspectRatio: false,
+            title:  this.get('title'),
+            scales: this.get('chartScales'),
+            tooltips: {
+                callbacks: {
+                    title: function(tooltipItems, data){
+                        return null
+                    },
+                    beforeLabel: function(tooltipItem, data) {
+                        return "Y : "  + _this.display(tooltipItem.yLabel)
+                    },
+                    label: function(tooltipItem, data) {
+                        return "X: " + _this.display(tooltipItem.xLabel)
+                    }
+                },
+                custom: function (tooltip) {
+
+                    if (!tooltip) {
+                        tooltipEl.css({
+                            opacity: 0
+                        });
+                        return;
+                    }
+                    tooltip.backgroundColor = "rgb(0, 0, 0, 0.7)"
+                    tooltip.bodyFontColor = "#fff"
+                    tooltip.footerFontColor = "#fff"
+                    tooltip.titleFontColor = "#fff"
+                }
+            }
+        }
     })
     
 });

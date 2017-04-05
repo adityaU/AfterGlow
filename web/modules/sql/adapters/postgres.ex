@@ -16,7 +16,7 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
       ownership_timeout: 120000,
       pool_timeout: 120000,
       pool: DBConnection.Poolboy,
-      pool_size: 100,
+      pool_size: 10,
       types: AfterGlow.PostgrexTypes
     )
   end
@@ -33,7 +33,7 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
       table_schema,
       json_agg((select x from (select cast(column_name as text) as "name", cast(data_type as text) as "data_type") x)) as columns
       from information_schema.columns where table_schema = \'public'
-        group by table_catalog,table_schema, table_name/,[])
+        group by table_catalog,table_schema, table_name/,[], opts)
 
     {:ok, data.rows
     |> Enum.map(fn row ->

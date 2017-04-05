@@ -43,7 +43,7 @@
             {{/if}}
             {{#if results}}
                 <div class="ui segment">
-                    <div class="ui grid">
+                    <div class="ui grid ">
                         <div class="twelve wide column" bubbles=false>
                             {{#ui-dropdown class="search selection" selected=resultsViewType onChange=(action (mut resultsViewType))  as |execute mapper|}} 
                                 {{dropdown-default  default=resultsViewType}}

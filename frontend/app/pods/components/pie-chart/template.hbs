@@ -1,4 +1,6 @@
 <div class="hidden">
     {{jsonData}}
 </div>
-<div id={{randomId}}></div>
+{{#if data}}
+    {{ember-chart class="full-height" type='doughnut' data=data options=chartOptions}}
+{{/if}}

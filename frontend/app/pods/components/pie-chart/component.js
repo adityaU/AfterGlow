@@ -1,47 +1,66 @@
 import Ember from 'ember';
 import UtilsFunctions from "frontend/mixins/utils-functions";
+
 var get = Ember.get,
     arrayComputed = Ember.arrayComputed;
-export default Ember.Component.extend(UtilsFunctions, {
-
-    didInsertElement(){
-        this.get('getData')(this)
+export default Ember.Component.extend( UtilsFunctions, {
+    chartData(item){
+        return item.get('contents').map((el, j)=> {
+            return el.x1
+        })
     },
-    data: Ember.observer('jsonData', 'type', 'xLabel', 'yLable', 'title', function(){
-        this.get('getData')(this)
-    }),
+    chartOptions: Ember.computed(function(){
+        let _this = this;
+        return {
+            legend: {
+                position: 'left'
+            },
+            maintainAspectRatio: false,
+            responsive: true,
+            tooltips: {
+                custom: function (tooltip) {
 
-    getData(_this){
-        let gd = _this.get('getNode')(_this)
-        let gridParent = _this.get('gridParent')
-        var data =  _this.get('jsonData'), layout;
-        data = data && data.map((item)=>{
-            return  {
-                values: item.get('contents').map((el)=>{ return el.get('x1')}),
-                labels: item.get('contents').map((el)=>{ return el.get('y')}),
-                type: 'pie',
-                hole: .4,
-                marker: {line: {width: 3, color: 'white'}, colors: _this.get("colors")},
-                textfont: {color: 'white'},
-                name: _this.get('x2') + " - " + item.get('type')
+                    if (!tooltip) {
+                        tooltipEl.css({
+                            opacity: 0
+                        });
+                        return;
+                    }
+                    tooltip.backgroundColor = "rgb(0, 0, 0, 0.7)"
+                    tooltip.bodyFontColor = "#fff"
+                    tooltip.footerFontColor = "#fff"
+                    tooltip.titleFontColor = "#fff"
+                }
             }
-        });
-        layout = data &&  {
-            title: _this.get('title'),
-            margin: _this.get('margin'),
-            calendar: 'gregorian',
-            font: {
-                family: 'Lato',
-                size: '1em',
-                color: '#7f7f7f'
-                
-            }
-
         }
-        data && Plotly.newPlot(gd, data, layout, {showLink: false});
-        data && gridParent [0] && gridParent[0].addEventListener('plotlyResize', function() {
-            let dimensions = _this.get('dimensions')(gridParent) 
-            Plotly.relayout(_this.get("randomId"), dimensions)
-        });
+    }),
+    chartScales: null,
+    legendPosition: 'left',
+    fill: null,
+    lineTension: null,
+    backgroundColor(i){return this.get('colors')},
+    borderColor(i){return "#fff"},
+    borderCapStyle: null,
+    borderDash: null,
+    borderDashOffset: null,
+    borderJoinStyle: null,
+    pointBorderColor(i){ return this.get('colors')}, 
+    hoverBackgroundColor(i){ return this.get('colors')}, 
+    pointBackgroundColor: null,
+    pointBorderWidth: null,
+    pointHoverRadius(item){return (30/(item.get('contents.length') + 1)) + 3},
+    pointHoverBackgroundColor: null,
+    pointHoverBorderColor(i){return this.get('colors')},
+    pointHoverBorderWidth: null,
+    pointRadius(item){ return (20/(item.get('contents.length') + 1)) + 2},
+    pointHitRadius: null,
+    // calculateXScale(item){
+    //     return;
+    // },
+    labels(data){
+        let total = data[0].get('contents').map((item)=>{return item.x1}).reduce((a, b) => a + b, 0)
+        return data[0].get('contents').map((item)=>{
+            return `${item.y} - ${Math.round((item.x1/total)*100)}%`
+        })
     }
 });
