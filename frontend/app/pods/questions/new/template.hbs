@@ -64,9 +64,9 @@
                         </div>
                     </div>
                     {{#if showSettings}}
-                        {{component resultsWidgetSettingsComponent resultsViewSettings=resultsViewSettings results=results}}
+                        {{component resultsWidgetSettingsComponent resultsViewSettings=resultsViewSettings results=results }}
                     {{/if}}
-                    {{question-widget results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType }}
+                    {{question-widget results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName}}
                 </div>
         {{else}}
                 {{#if loading}}

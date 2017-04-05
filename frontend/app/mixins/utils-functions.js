@@ -2,12 +2,34 @@ import Ember from 'ember';
 
 
 export default Ember.Mixin.create({
+    shuffle(array) {
+        var currentIndex = array.length, temporaryValue, randomIndex;
 
-    colors: ["#69d2e7", "#e94c6f", "#db3340", "#df514c", "#ffc33c", "#ff4c65",
-                 "#59c4c5", "#53bbf4", "#354458", "#ffa200", "#24a8ac", "#bff073",
-                 "#20457c", "#5e3448", "#9f92aa", "#e45f56", "#dc2742", "#c91b26",
-                 "#17a697", "#0f5959", "#3a0256", "#737495", "#5c2d50", "#5c2d50"
-            ],
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+              
+        }
+
+        return array;
+
+    },
+
+    colors: Ember.computed(function(){
+        return  this.shuffle(["#69d2e7", "#e94c6f", "#db3340", "#df514c", "#ffc33c", "#ff4c65",
+         "#59c4c5", "#53bbf4", "#354458", "#ffa200", "#24a8ac", "#bff073",
+         "#20457c", "#5e3448", "#9f92aa", "#e45f56", "#dc2742", "#c91b26",
+         "#17a697", "#0f5959", "#3a0256", "#737495", "#5c2d50", "#5c2d50"
+                             ])
+    }),
 
     randomColor(_this){
         let arr = _this.get("colors");
@@ -38,11 +60,11 @@ export default Ember.Mixin.create({
         
     },
     margin: {
-        l: 80,
+        // l: 80,
         r: 10,
-        b: 30,
-        t: 10,
-        pad: 2
+        // b: 30,
+        t: 30,
+        pad: 0
         
     },
     downloadAsPNG(gd){
@@ -125,7 +147,7 @@ export default Ember.Mixin.create({
     }),
     findIfDate(el){
         let date = Date.parse(el) 
-        let dateMatch = (el.toString().match("-") != null)
+        let dateMatch = el && (el.toString().match("-") != null)
         return (date.toString() != 'NaN' && dateMatch)
     },
     findIfNumber(el){

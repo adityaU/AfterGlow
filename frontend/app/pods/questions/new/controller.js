@@ -85,7 +85,7 @@ export default Ember.Controller.extend(ChartSettings,{
     }),
     showGetResults: Ember.computed('queryObject.database', 'queryObject.table', 'queryObject.queryType','queryObject.rawQuery', function(){
         return ((this.get('queryObject.database') && this.get('queryObject.table')) ||
-                 ((this.get('queryObject.queryType') == 'raw') && this.get('queryObject.rawQuery')) )
+                (this.get('queryObject.database') && (this.get('queryObject.queryType') == 'raw') && this.get('queryObject.rawQuery')) )
     }),
     resultsWidgetSettingsComponent: Ember.computed('resultsViewType', function(){
         this.set('results', this.get('results'));

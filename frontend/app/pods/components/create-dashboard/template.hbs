@@ -7,11 +7,13 @@
             <div class="ui form full">
                 <div class="sixteen wide column">
                     <div class="field">
+                    <label>Title</label>
                         {{input value=dashboard.title class="ui" placeholder="What are you calling it?" }}
                     </div>
                 </div>
                 <div class="sixteen wide column">
                     <div class="field">
+                    <label>Description</label>
                         {{input value=dashboard.description class="ui" placeholder="What does it show?" }}
                     </div>
                 </div>
@@ -20,16 +22,16 @@
         
     </div>
     <div class="actions">
-        <div class="ui basic red deny button">
+        <div class="ui red deny button">
             Cancel
         </div>
         {{#if onlyCreate}}
-            <div class="ui basic violet positive right labeled icon button" {{action "createDashboard"}}>
+            <div class="ui positive right button" {{action "createDashboard"}}>
                 Create and Add Question to Dashboard
                 <i class="checkmark icon"></i>
             </div>
         {{else}}
-            <div class="ui basic positive violet right labeled icon button " {{action "createAndAddToDashboard"}} >
+            <div class="ui positive violet right button " {{action "createAndAddToDashboard"}} >
                 Create and Add Question to Dashboard
             </div>
         {{/if}}

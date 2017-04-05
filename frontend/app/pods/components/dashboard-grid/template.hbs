@@ -29,6 +29,11 @@
                           resultsViewSettings=question.results_view_settings
                           resultsViewType=question.results_view_settings.resultsViewType }}
                     {{else}}
+                        {{#if question.loading}}
+                                <div class="ui active inverted dimmer">
+                                    <div class="ui text massive loader"></div>
+                                </div>
+                        {{/if}}
                     {{/if}}
                 </div>
             {{/grid-stack-item}}

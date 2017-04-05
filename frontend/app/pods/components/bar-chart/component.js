@@ -21,7 +21,7 @@ export default Ember.Component.extend( UtilsFunctions, {
                 y: item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayY')}),
                 type: 'bar',
                 marker: {
-                    color: _this.get('randomColor')(_this) 
+                    color: _this.get('randomColor') 
                 },
                 name: _this.get('x2') + " - " + item.get('type')
             }

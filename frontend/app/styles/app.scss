@@ -9,11 +9,16 @@ $textColor: #212133;
 $secondaryTextColor: #7b7b7b;
 $tertiaryColor: #44b35e;
 $tertiaryColorShade2: #3c9651;
-$secondaryColor: whitesmoke;
+$secondaryColor: #f9fbfc;
 $lightTransparentColor: rgba(255, 255, 255, 0.85);
 $borderRadius: 0.28571429rem;
 @function box-shadow($color){
-  @return 0px 3px 1px -2px $color !important ;   
+  @return 0px 2px 6px -2px $color !important ;   
+}
+
+// plotly css
+g.slicetext{
+    font-weight: bold;
 }
 
 .ui.form input:not([type]), .ui.form input[type="date"], .ui.form input[type="datetime-local"], .ui.form input[type="email"], .ui.form input[type="number"], .ui.form input[type="password"], .ui.form input[type="search"], .ui.form input[type="tel"], .ui.form input[type="time"], .ui.form input[type="text"], .ui.form input[type="file"], .ui.form input[type="url"] .ui.selection.dropdown{
@@ -56,7 +61,29 @@ input{
 height: 30px;
 }
 .ui.button{
+    padding: 15px 30px !important;
+    font-family: 'Lato', sans-serif;
+    font-weight: bold;
+    text-transform: uppercase !important;
+    &.violet{
     box-shadow: box-shadow($primaryColorShade2);
+    }
+    &.red{
+      box-shadow: box-shadow($errorColor);
+    }
+    &.green{
+      box-shadow: box-shadow($tertiaryColor);
+    }
+    &.positive{
+      box-shadow: box-shadow($tertiaryColor);
+    }
+    
+    & i{
+        color: white;
+    }
+}
+label {
+    margin-top: 30px !important;
 }
 .ui.button.alert-state{
   padding: 5px 10px;
@@ -107,28 +134,32 @@ height: 30px;
   border-radius: 0px;
 }
 .ui.search.selection.active.dropdown .menu {
-  border-color: $primaryColor;
+  border-color: $greyColor;
   border-top-width: 1px !important;
-  box-shadow: 0px 2px 3px 0px rgba(34, 36, 38, 0.15);
+  box-shadow: box-shadow($greyColor);
 
 }
 
 .ui.search.selection.active.dropdown:hover .menu {
-  border-color: $primaryColor;
+  border-color: $greyColor;
   border-top-width: 1px !important;
-  box-shadow: 0px 2px 3px 0px rgba(34, 36, 38, 0.15);
+  box-shadow: box-shadow($greyColor);
+  & .item:hover{
+     background: $secondaryColor;
+      
+  }
 
 }
 .ui.search.selection.active.dropdown .menu:hover {
-  border-color: $primaryColor;
+  border-color: $greyColor;
   border-top-width: 1px !important;
-  box-shadow: 0px 2px 3px 0px rgba(34, 36, 38, 0.15);
+  box-shadow: box-shadow($greyColor);
 
 }
 .ui.search.selection.active.dropdown:focus {
-  border-color: $primaryColor;
+  border-color: $greyColor;
   border-top-width: 1px !important;
-  box-shadow: 0px 2px 3px 0px rgba(34, 36, 38, 0.15);
+  box-shadow: box-shadow($greyColor);
 
 }
 .ui.inverted.dimmer .ui.loader:after {
@@ -180,6 +211,17 @@ height: 30px;
   cursor: pointer;
 
 }
+.number-chart {
+    margin: 10% 1%;
+    & .number {
+        font-size: 400%;
+    }
+    .text {
+        font-size: 150%;
+        margin-top: 30px;
+        color: $secondaryTextColor;
+    }
+}
 .centered{
   text-align: center;
 }
@@ -187,7 +229,6 @@ height: 30px;
   max-width: 250px;
   white-space: nowrap;
   overflow: auto;
-
 }
 .hidden{
   display: none;
@@ -197,11 +238,13 @@ height: 30px;
   text-align: center;
 }
 .dashboard-name {
-  padding: 5px 10px;
   color: white;
   background: $primaryColorShade2;
   border-radius: $borderRadius;
   border: 1px solid $primaryColor;
+  padding: 15px 10px;
+  box-shadow: box-shadow($primaryColorShade2);
+  text-align: center;
   &:hover{
     cursor: pointer;
     background: white;
@@ -211,11 +254,13 @@ height: 30px;
 }
 
 .dashboard-create {
-  padding: 5px 10px;
+  padding: 15px 10px;
   color: white;
   background: $tertiaryColor;
   border-radius: $borderRadius;
   border: 1px solid $tertiaryColor;
+  text-align: center;
+  box-shadow: box-shadow($tertiaryColor);
   &:hover{
     cursor: pointer;
     background: white;
@@ -265,6 +310,21 @@ height: 30px;
 a {
     color: $primaryColor;
 }
+
+.ui.menu .item{
+    &:hover{
+       background: $secondaryColor !important;
+    }
+    &.active{
+       background: $secondaryColor !important;
+        
+    }
+}
+.ui.violet.menu .active.item{
+    background: $primaryColor !important;
+    box-shadow: box-shadow($primaryColor);
+    color: white !important;
+}
 .ui.dropdown .menu {
     top: 30px;
 }
@@ -302,9 +362,10 @@ button.toast-close-button{
 }
 .permission-select {
     border: 1px solid $primaryColorShade2;
-    padding: 5px;
     text-align: center;
     border-radius: $borderRadius;
+    padding: 15px 10px;
+    box-shadow: box-shadow($primaryColorShade2);
     &.selected{
         background-color: $primaryColorShade2;
         color: white;
@@ -374,7 +435,19 @@ button.toast-close-button{
 
 .ui.vertical.menu {
     width: 15rem;
-    box-shadow: box-shadow($greyColor)
+    box-shadow: box-shadow($greyColor);
+    & .item{
+        &:hover{
+          background: $secondaryColor !important;
+        }
+        & .active{
+        background: $secondaryColor;
+        }
+    }
+                          
+}
+.ui.menu .ui.dropdown .menu > .item:hover{
+       background: $secondaryColor !important;
 }
 .ui.circular.button{
   padding: 8px 11px;
@@ -396,11 +469,15 @@ button.toast-close-button{
     color: $primaryColor;
     margin: 0em 0em 0em 0.7em;
 }
+.grid-stack-item-content{
+  box-shadow: box-shadow($greyColor);
+}
+
 .ui-resizable-resizing > .grid-stack-item-content{
-  box-shadow: none !important;
+  box-shadow: box-shadow($greyColor);
 }
 .ui-draggable-dragging > .grid-stack-item-content{
-  box-shadow: none !important;
+  box-shadow: box-shadow($greyColor);
 }
 .ui.grid > * {
   padding-left: 0rem !important;
@@ -498,12 +575,15 @@ button.toast-close-button{
 .without-header{
   background: $secondaryColor !important; 
   &:fullscreen{
+      overflow: auto;
     background: $secondaryColor !important; 
   }
   &:-webkit-full-screen {
+      overflow: auto;
     background: $secondaryColor !important; 
   }
   &:-moz-full-screen {
+      overflow: auto;
     background: $secondaryColor !important; 
   }
 }

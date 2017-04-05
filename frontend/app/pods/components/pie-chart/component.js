@@ -20,7 +20,7 @@ export default Ember.Component.extend(UtilsFunctions, {
                 values: item.get('contents').map((el)=>{ return el.get('x1')}),
                 labels: item.get('contents').map((el)=>{ return el.get('y')}),
                 type: 'pie',
-                hole: .6,
+                hole: .4,
                 marker: {line: {width: 3, color: 'white'}, colors: _this.get("colors")},
                 textfont: {color: 'white'},
                 name: _this.get('x2') + " - " + item.get('type')
