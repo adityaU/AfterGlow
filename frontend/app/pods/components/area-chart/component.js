@@ -31,8 +31,8 @@ export default Ember.Component.extend(UtilsFunctions, {
             return  {
                 x: item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayX1')}),
                 y: item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayY')}),
-                type: 'scatter',
-                fill: 'tozeroy',
+                // type: 'scatter',
+                fill: 'tonexty',
                 name: item.get('type')
             }
         });

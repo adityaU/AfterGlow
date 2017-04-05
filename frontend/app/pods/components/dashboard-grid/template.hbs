@@ -17,8 +17,11 @@
                             </div>
                         </div>
                         <div class="four wide column text-align-right">
-                            <span data-tooltip="Edit this Question">
+                            <span data-tooltip="edit this question">
                                 {{#link-to 'questions.show' question.id}}<i class="edit icon"></i>{{/link-to}}
+                            </span>
+                            <span data-tooltip="delete" {{action 'showDeleteFromDashboardDialogue' question}}>
+                                <i class="remove icon"></i>
                             </span>
                         </div>
 
@@ -41,3 +44,4 @@
     {{/grid-stack}}
 {{/if}}
 
+{{delete-dialogue entityName="question from Dashboard" entity=toBeDeleted delete="deleteFromDashboard" className="delete-from-dashboard"}}

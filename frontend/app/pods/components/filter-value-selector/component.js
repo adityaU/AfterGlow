@@ -5,6 +5,7 @@ export default Ember.Component.extend({
         this.setAllOtherFalse(this)
         let cv = this.get('sortedColumnValues').findBy("value", this.get('filter.value'))
         cv && cv.set('selected', true);
+        this.set('filter.valueDateObj', {date: false});
     }),
     columnObserver:  Ember.observer('filter.column', function(){
         this.set('filter.value', null);
@@ -14,11 +15,10 @@ export default Ember.Component.extend({
             this.set('filter.valueDateObj', {date: false});
         }
     }),
-    valueObserver:  Ember.observer('filter.value', function(){
-        this.set('filter.valueDateObj', {date: false});
-    }),
     valueDateObjObserver: Ember.observer('filter.valueDateObj.value', 'filter.valueDateObj.duration', 'filter.valueDateObj.dtt', function(){
-        this.set('filter.value', null);
+        if (this.get('filter.valueDateObj.date')){
+            this.set('filter.value', null);
+        }
     }),
     sortedColumnValues: Ember.computed("filter.column", "filter.column.column_values.content.isLoaded", function(){
         let columnValues = this.get('filter.column.column_values')

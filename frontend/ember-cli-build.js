@@ -17,6 +17,8 @@ module.exports = function(defaults) {
   app.import('./bower_components/ace-builds/src-noconflict/mode-sql.js')
   app.import('./bower_components/ace-builds/src-noconflict/ext-beautify.js')
   app.import('./bower_components/ace-builds/src-noconflict/ext-language_tools.js')
+  app.import('./bower_components/ace-builds/src-noconflict/snippets/text.js')
+  app.import('./bower_components/ace-builds/src-noconflict/snippets/sql.js')
   // Use `app.import` to add additional libraries to the generated
   // output files.
   //

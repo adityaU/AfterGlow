@@ -9,6 +9,7 @@ export default Ember.Mixin.create({
         if (!this.get('sessionService.authenticated')){
             return new Ember.RSVP.Promise((resolve, reject)=>{
                 this.get('sessionService').verifyToken((response, status)=>{
+                    this.set('sessionService.permissions', response.permissions)
                     resolve(response)
                 }, (error, status)=>{
                     this.transitionTo('login')

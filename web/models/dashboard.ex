@@ -12,7 +12,7 @@ defmodule AfterGlow.Dashboard do
     field :shareable_link, Ecto.UUID
     field :is_shareable_link_public, :boolean
     field :settings, :map
-    many_to_many :questions, Question, join_through: "dashboard_questions", on_delete: :delete_all
+    many_to_many :questions, Question, join_through: "dashboard_questions", on_delete: :delete_all, on_replace: :delete
     timestamps()
   end
 

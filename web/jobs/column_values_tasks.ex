@@ -24,6 +24,7 @@ defmodule AfterGlow.ColumnValuesTasks do
     |> Enum.map(fn column ->
       index = results.columns |> Enum.find_index(fn el -> el == column.name end)
       if index >= 0 do
+        IO.inspect column.name
         values = results.rows |> Enum.map(fn row ->
           value =  row |> List.to_tuple |> elem(index)
           if saving_allowed(value) and can_be_a_string(Kernel.to_string(value)) do

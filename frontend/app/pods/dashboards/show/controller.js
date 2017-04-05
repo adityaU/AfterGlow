@@ -51,6 +51,19 @@ export default Ember.Controller.extend({
         },
         saveDashboard(){
             let dashboard = this.get('dashboard')
+            let settings = {}
+            dashboard.get('questions').forEach((item)=>{
+                let el = $("#" + item.get('id')).parents('.grid-stack-item')
+                settings[item.get('id')] = {
+                    x: el.data('gs-x'),
+                    y: el.data('gs-y'),
+                    width: el.data('gs-width'),
+                    height: el.data('gs-height')
+                    // noMove: this.get('nonEditable'),
+                    // noResize: this.get('nonEditable')
+                }
+            })
+            dashboard.set('settings', Ember.Object.create(settings))
             dashboard.save().then((response)=> {
                 this.set('nonEditable', "yes")
                 this.set('editMode', false)

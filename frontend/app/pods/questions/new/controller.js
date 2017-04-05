@@ -21,7 +21,7 @@ export default Ember.Controller.extend(ChartSettings,{
                 offset: null,
                 limit: 2000
             }),
-            results_view_settings: {resultsViewType: 'Table'},
+            results_view_settings: {resultsViewType: 'Table', numbers: []},
         })
     }),
     questionNameObserver: Ember.observer("question.title",

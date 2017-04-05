@@ -40,7 +40,7 @@
     <div class="field">
         {{ui-calendar date=filter.value onChange=(action (mut filter.value)) placeholder="Pick a date and time"}}
     </div>
-                    {{else}}
+{{else}}
     <div class="field">
         {{input value=filter.value class="ui"}}
     </div>

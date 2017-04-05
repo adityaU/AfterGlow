@@ -22,15 +22,15 @@ export default Ember.Mixin.create({
         return array;
 
     },
-
-    colors: Ember.computed(function(){
-        return  this.shuffle(["#69d2e7", "#e94c6f", "#db3340", "#df514c", "#ffc33c", "#ff4c65",
-         "#59c4c5", "#53bbf4", "#354458", "#ffa200", "#24a8ac", "#bff073",
-         "#20457c", "#5e3448", "#9f92aa", "#e45f56", "#dc2742", "#c91b26",
-         "#17a697", "#0f5959", "#3a0256", "#737495", "#5c2d50", "#5c2d50"
-                             ])
-    }),
-
+    colors:[
+               "#1C9363", "#FF715B",  "#2B59C3", "#215B56",
+                "#301966", "#D36582", "#820646", "#649BC1", "#4B3F72",
+                "#db3340", "#df514c", "#5c2d50", "#5e3448", "#53bbf4",
+                "#59c4c5", "#bff073", "#e45f56", "#c91b26", "#737495",
+                "#5c2d50", "#20457c", "#0f5959", "#9f92aa", "#ffa200",
+                "#24a8ac", "#ff4c65", "#e94c6f", "#354458", "#69d2e7",
+                "#dc2742", "#3a0256", "#17a697", "#064789", "#ffc33c"
+    ] ,
     randomColor(_this){
         let arr = _this.get("colors");
         return arr[Math.floor(Math.random() * arr.length)]

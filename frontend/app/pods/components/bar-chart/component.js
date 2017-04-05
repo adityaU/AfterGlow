@@ -15,15 +15,15 @@ export default Ember.Component.extend( UtilsFunctions, {
         let gridParent = _this.get('gridParent')
         let gd = _this.get('getNode')(_this)
         var data =  _this.get('jsonData'), layout;
-        data = data && data.map((item)=>{
+        data = data && data.map((item, i)=>{
             return  {
                 x: item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayX1')}),
                 y: item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayY')}),
                 type: 'bar',
                 marker: {
-                    color: _this.get('randomColor') 
+                    color: _this.get('colors')[i] 
                 },
-                name: _this.get('x2') + " - " + item.get('type')
+                name: item.get('type')
             }
         });
         layout = data &&  {
