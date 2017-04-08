@@ -2,7 +2,7 @@
     {{#if question.id }}
     <div class="ui segment full">
         <div class="ui grid">
-            <div class="eight wide column">
+            <div class="six wide column">
                 {{#link-to 'questions.show' question.id}}
                 <div class="queston-title">
                     {{question.title}}
@@ -12,7 +12,26 @@
                 from <span class="table-name">{{question.human_sql.table.human_name}}</span> in <span class="database-name">{{question.human_sql.database.name}}</span>
                     </div>
             </div>
-            <div class="eight wide column text-align-right">
+            <div class="six wide column">
+                {{#each question.tags as |tag|}}
+                    {{#link-to 'tags.show' tag.id}} 
+                        <div class="ui dashboard square label" style="background: {{tag.color}}; color: white;">
+                            {{tag.name}}
+                        </div>
+                    {{/link-to}}
+                {{/each}}
+                {{#each question.dashboards as |dashboard|}}
+                    {{#link-to 'dashboards.show' dashboard.id}} 
+                        <div class="ui dashboard violet square label">
+                            {{dashboard.title}}
+                        </div>
+                    {{/link-to}}
+                {{/each}}
+            </div>
+            <div class="four wide column text-align-right">
+                <span data-tooltip="Edit Tags" class="" {{action 'addTag' question}}>
+                    <i class="edit icon"></i>
+                </span>
                 <button data-tooltip="Delete Question" class="ui very basic red button" {{action 'showDeleteDialogue' question}}>
                     DELETE
                 </button>
@@ -22,3 +41,5 @@
     {{/if}}
 {{/each}}
 {{delete-dialogue entityName="question" entity=questionToBeDeleted delete="deleteQuestion"}}
+{{add-tag entityName="Question" tags=tags entity=addTagToQuestion}}
+{{create-tag entityName="questions" entity=addTagToQuestion getData='getData'}}

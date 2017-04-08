@@ -8,6 +8,9 @@ export default QuestionNewController.extend({
     loading: Ember.computed.alias('question.loading'),
     validQuestion: true,
     questionNameIsSet: true, 
+    setResultsCanBeLoaded: Ember.observer('question', 'question.isLoaded', function(){
+        this.set('question.resultsCanBeLoaded', true) 
+    }),
     actions: {
         showAddToDashboard(){
             $('.ui.modal.add-to-dashboard').modal('show')

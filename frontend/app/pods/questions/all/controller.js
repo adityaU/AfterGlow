@@ -13,5 +13,11 @@ export default Ember.Controller.extend({
             })
         }
     }),
-    questions: Ember.computed.alias("model")
+    questions: Ember.computed.alias("model"),
+    setResultsCanBeLoaded: Ember.on('init', Ember.observer('questions', 'dashboard.isLoaded', function(){
+        let questions = this.get('questions')
+        questions && questions.forEach((item)=>{
+            item.set('resultsCanBeLoaded', false) 
+        })
+    })),
 });

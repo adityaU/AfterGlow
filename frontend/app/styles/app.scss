@@ -20,6 +20,9 @@ $borderRadius: 0.28571429rem;
 g.slicetext{
     font-weight: bold;
 }
+.loading-height{
+    height: 100vh;
+}
 
 .ui.form input:not([type]), .ui.form input[type="date"], .ui.form input[type="datetime-local"], .ui.form input[type="email"], .ui.form input[type="number"], .ui.form input[type="password"], .ui.form input[type="search"], .ui.form input[type="tel"], .ui.form input[type="time"], .ui.form input[type="text"], .ui.form input[type="file"], .ui.form input[type="url"] .ui.selection.dropdown{
   border: none;

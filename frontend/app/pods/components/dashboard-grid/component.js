@@ -1,7 +1,8 @@
 import Ember from 'ember';
 import CustomEvents from 'frontend/mixins/custom-events'
+import LoadingMessages from "frontend/mixins/loading-messages"
 
-export default Ember.Component.extend(CustomEvents,{
+export default Ember.Component.extend(LoadingMessages, CustomEvents,{
     classNames: ["full"],
     didInsertElement(){
         Ember.run.next(() => {  // begin loop

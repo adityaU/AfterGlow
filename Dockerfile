@@ -1,4 +1,4 @@
-FROM elixir:1.3.1
+FROM elixir:1.4.0
 MAINTAINER Aditya Upadhyay <aditya.upadhyay@oyorooms.com>
 
 
@@ -17,7 +17,8 @@ RUN apt-get install -qq -y build-essential libpq-dev git
 # install node
 
 ENV HOME /src/node/
-ENV NODE_VER v0.12.7
+ENV NODE_VER v4.4.7
+ENV ADMIN_EMAIL im.adityau@gmail.com
 
 # setup the nvm environment
 
@@ -36,8 +37,17 @@ COPY ./ /var/app/
 
 ENV MIX_ENV=prod
 RUN mix local.hex --force
+RUN mix local.rebar --force
 RUN mix deps.get
 RUN mix compile
+
+WORKDIR /var/app/frontend/
+
+
+RUN npm install -g ember-cli@2.9.1
+RUN npm install
+RUN bower install
+RUN ember build --prod
 
 
 #RUN bundle exec rake assets:precompile

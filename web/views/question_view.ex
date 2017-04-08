@@ -9,4 +9,8 @@ defmodule AfterGlow.QuestionView do
     type: "dashboards",
     include: false
   
+  has_many :tags,
+    field: :tags,
+    type: "tags",
+    include: false
 end

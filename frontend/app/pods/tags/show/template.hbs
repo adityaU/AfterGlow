@@ -1,0 +1,16 @@
+<div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
+<div class="ui form">
+    <div class="field">
+        {{input value=query class="ui" placeholder="Search Question" }}
+    </div>
+</div>
+</div>
+<div class="ui basic segment full padded-content no-top-margin">
+    <div class="ui grid full">
+    {{#if query}}
+        {{questions-list questions=searchedQuestions}}
+    {{else}}
+        {{questions-list questions=questions}}
+    {{/if}}
+</div>
+</div>

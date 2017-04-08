@@ -1,9 +1,10 @@
 import DS from 'ember-data';
 const { String: { pluralize, underscore } } = Ember;
+import ENV from "../../config/environment";
 
 export default DS.JSONAPIAdapter.extend({
     namespace: '/api/v1',
-    host: 'http://localhost:4000',
+    host: ENV.host,
     toast: Ember.inject.service(),
     sessionService: Ember.inject.service(),
     headers: Ember.computed('sessionService.token', function(){

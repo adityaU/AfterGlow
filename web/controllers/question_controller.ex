@@ -1,9 +1,9 @@
-require IEx
 defmodule AfterGlow.QuestionController do
   use AfterGlow.Web, :controller
 
   alias AfterGlow.Question
   alias AfterGlow.Database
+  alias AfterGlow.Tag
   alias AfterGlow.QueryView
   alias AfterGlow.Sql.DbConnection
   alias JaSerializer.Params
@@ -16,11 +16,11 @@ defmodule AfterGlow.QuestionController do
 
   def index(conn, %{"filter" => %{"id" => ids}}) do
     ids = ids |> String.split(",")
-    questions = Repo.all(from q in Question, where: q.id in ^ids) |> Repo.preload(:dashboards) 
+    questions = Repo.all(from q in Question, where: q.id in ^ids) |> Repo.preload(:dashboards) |> Repo.preload(:tags)
     render(conn, :index, data: questions)
   end
   def index(conn, _params) do
-    questions = Repo.all(Question)|> Repo.preload(:dashboards) 
+    questions = Repo.all(Question)|> Repo.preload(:dashboards) |> Repo.preload(:tags)
     render(conn, :index, data: questions)
   end
 
@@ -29,7 +29,7 @@ defmodule AfterGlow.QuestionController do
 
     case Repo.insert(changeset) do
       {:ok, question} ->
-        question = question |> Repo.preload(:dashboards)
+        question = question |> Repo.preload(:dashboards) |> Repo.preload(:tags)
         conn
         |> put_status(:created)
         |> put_resp_header("location", question_path(conn, :show, question))
@@ -42,17 +42,20 @@ defmodule AfterGlow.QuestionController do
   end
 
   def show(conn, %{"id" => id}) do
-    question = Repo.get!(Question, id) |> Repo.preload(:dashboards)
+    question = Repo.get!(Question, id) |> Repo.preload(:dashboards) |> Repo.preload(:tags)
     render(conn, :show, data: question)
   end
 
   def update(conn, %{"id" => id, "data" => data = %{"type" => "questions", "attributes" => _question_params}}) do
-    question = Repo.get!(Question, id)
-    changeset = Question.changeset(question, Params.to_attributes(data))
+    prms = Params.to_attributes(data)
+    question = Repo.get!(Question, id)|> Repo.preload(:tags)
+    changeset = Question.changeset(question, prms)
 
-    case Repo.update(changeset) do
+    tag_ids = prms["tags_ids"]
+    tags = if tag_ids |> Enum.empty? , do: nil, else: Repo.all(from q in Tag, where: q.id in ^tag_ids )
+    case Question.update(changeset, tags) do
       {:ok, question} ->
-        question = question |> Repo.preload(:dashboards)
+        question = question |> Repo.preload(:dashboards) |> Repo.preload(:tags)
         render(conn, :show, data: question)
       {:error, changeset} ->
         conn

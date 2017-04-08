@@ -32,6 +32,7 @@ defmodule AfterGlow.Router do
    resources "/column_values", ColumnValueController, except: [:new, :edit]
    resources "/permission_sets", PermissionSetController, except: [:new, :edit]
    resources "/permissions", PermissionController, except: [:new, :edit]
+   resources "/tags", TagController, except: [:new, :edit]
 
    get "questions/:id/results", QuestionController, :results
    get "auth/google", AuthController, :google_auth_path

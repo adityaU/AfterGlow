@@ -3,6 +3,7 @@
        options=(hash
        animate=true
        width=12
+       verticalMargin=10
        )
        onChange=(action 'change')
     }}
@@ -33,8 +34,8 @@
                           resultsViewType=question.results_view_settings.resultsViewType }}
                     {{else}}
                         {{#if question.loading}}
-                                <div class="ui active inverted dimmer">
-                                    <div class="ui text massive loader"></div>
+                            <div class="ui active inverted dimmer">
+                                <div class="ui text massive loader">{{loadingMessage}}</div>
                                 </div>
                         {{/if}}
                     {{/if}}

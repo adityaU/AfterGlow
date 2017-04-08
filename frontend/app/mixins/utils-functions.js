@@ -1,41 +1,7 @@
 import Ember from 'ember';
+import ColorMixin from 'frontend/mixins/colors-mixin'
 
-
-export default Ember.Mixin.create({
-    shuffle(array) {
-        var currentIndex = array.length, temporaryValue, randomIndex;
-
-        // While there remain elements to shuffle...
-        while (0 !== currentIndex) {
-
-            // Pick a remaining element...
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex -= 1;
-
-            // And swap it with the current element.
-            temporaryValue = array[currentIndex];
-            array[currentIndex] = array[randomIndex];
-            array[randomIndex] = temporaryValue;
-              
-        }
-
-        return array;
-
-    },
-    colors:[
-               "#1C9363", "#FF715B",  "#2B59C3", "#215B56",
-                "#301966", "#D36582", "#820646", "#649BC1", "#4B3F72",
-                "#db3340", "#df514c", "#5c2d50", "#5e3448", "#53bbf4",
-                "#59c4c5", "#bff073", "#e45f56", "#c91b26", "#737495",
-                "#5c2d50", "#20457c", "#0f5959", "#9f92aa", "#ffa200",
-                "#24a8ac", "#ff4c65", "#e94c6f", "#354458", "#69d2e7",
-                "#dc2742", "#3a0256", "#17a697", "#064789", "#ffc33c"
-    ] ,
-    randomColor(_this){
-        let arr = _this.get("colors");
-        return arr[Math.floor(Math.random() * arr.length)]
-    },
-
+export default Ember.Mixin.create(ColorMixin, {
     display(params){
         var formattedString = params;
         var objType = (Object.prototype.toString.call(params).replace(/\[object|\]/g, "").trim())
@@ -61,8 +27,8 @@ export default Ember.Mixin.create({
     },
     margin: {
         // l: 80,
-        r: 10,
-        // b: 30,
+        r: 5,
+        b: 30,
         t: 30,
         pad: 0
         
@@ -93,7 +59,7 @@ export default Ember.Mixin.create({
         var d3 = Plotly.d3
         let gridParent = _this.get('gridParent')
         if (!_this.get('chosenColor')){
-            _this.set('chosenColor', _this.get("randomColor")(_this))
+            _this.set('chosenColor', _this.randomColor())
         }
         let dimensions = _this.get('dimensions')(gridParent)
         dimensions.height && (dimensions.height += "px")

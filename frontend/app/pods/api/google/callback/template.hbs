@@ -1,17 +1,19 @@
 {{#if loading}}
-    <div class="ui segment results full">
+    <div class="ui segment results full loading-height">
         <div class="ui active inverted dimmer">
             <div class="ui text massive loader">Logging You in... </div>
         </div>
     </div>
 {{else}}
     {{#if error}}
-    <div class="ui segment results full">
+    <div class="ui segment results full loading-height">
         <div class="ui active inverted dimmer">
             <div> Sorry! We could not log you in.</div>
+            {{#link-to 'login'}}
             <button class="ui very basic violet button">
                 Please try again
             </button>
+            {{/link-to}}
         </div>
     </div>
     {{/if}}

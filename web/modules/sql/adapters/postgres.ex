@@ -16,7 +16,7 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
       ownership_timeout: 120000,
       pool_timeout: 120000,
       pool: DBConnection.Poolboy,
-      pool_size: 100,
+      pool_size: 10,
       types: AfterGlow.PostgrexTypes
     )
   end

@@ -2,6 +2,13 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
     dashboard: Ember.computed.alias('model'),
+
+    setResultsCanBeLoaded: Ember.observer('dashboard', 'dashboard.questions', 'dashboard.questions.content.isLoaded', function(){
+        let questions = this.get('dashboard.questions')
+        questions && questions.forEach((item)=>{
+            item.set('resultsCanBeLoaded', true) 
+        })
+    }),
     nonEditable: "yes",
     fullScreen: false,
     refreshIntervals: [

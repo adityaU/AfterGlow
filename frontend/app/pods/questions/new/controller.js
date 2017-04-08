@@ -1,7 +1,8 @@
 import Ember from 'ember';
 import ChartSettings from 'frontend/mixins/chart-settings'
+import LoadingMessages from "frontend/mixins/loading-messages"
 
-export default Ember.Controller.extend(ChartSettings,{
+export default Ember.Controller.extend(LoadingMessages, ChartSettings,{
     ajax: Ember.inject.service(),
     
     databases: Ember.computed(function(){

@@ -7,39 +7,44 @@ const Router = Ember.Router.extend({
 });
 
 Router.map(function() {
-    this.route('questions', function() {
-        this.route('new');
-        this.route('show', {path: '/:question_id'});
-        this.route('all');
-    });
+  this.route('questions', function() {
+      this.route('new');
+      this.route('show', {path: '/:question_id'});
+      this.route('all');
+  });
 
-    this.route('dashboards', function() {
-        this.route('show', {path: '/:dashboard_id'});
-    });
+  this.route('dashboards', function() {
+      this.route('show', {path: '/:dashboard_id'});
+  });
 
-    this.route('alerts', function() {
-        this.route('new');
-        this.route('show');
-    });
-    this.route('login');
+  this.route('alerts', function() {
+      this.route('new');
+      this.route('show');
+  });
+  this.route('login');
 
-    this.route('api', function() {
-        this.route('google', function() {
-            this.route('callback');
-        });
-    });
-    this.route('settings', function() {
-        this.route('databases', function() {
-            this.route('index', {path: '/'});
-            this.route('new');
-        });
+  this.route('api', function() {
+      this.route('google', function() {
+          this.route('callback');
+      });
+  });
+  this.route('settings', function() {
+      this.route('databases', function() {
+          this.route('index', {path: '/'});
+          this.route('new');
+      });
 
-        this.route('email');
-        this.route('sms');
-        this.route('pagerduty');
-        this.route('users');
-        this.route('permissions');
-    });
+      this.route('email');
+      this.route('sms');
+      this.route('pagerduty');
+      this.route('users');
+      this.route('permissions');
+  });
+
+  this.route('tags', function() {
+      this.route('show', {path: '/:tag_id'});
+  });
+  this.route('loading');
 });
 
 export default Router;

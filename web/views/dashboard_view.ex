@@ -10,6 +10,10 @@ defmodule AfterGlow.DashboardView do
     type: "questions",
     include: false
 
+  has_many :tags,
+    field: :tags,
+    type: "tags",
+    include: false
   def settings(dashboard, _conn) do
     dashboard.settings || %{gridSettings: %{}}
   end

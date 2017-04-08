@@ -1,0 +1,56 @@
+<div class="ui modal add-to-tag">
+    <div class="header">
+        Edit Tags of  This {{entityName}}
+    </div>
+    <div class="dashboard content">
+        Which tag do you want to add to this question?
+        <div class="ui grid">
+            <div class="ui row">
+                <div class="ui horizontal divider">Selected Tags</div>
+                {{#each entity.tags as |tag|}}
+                    <div class="four wide column tag-select">
+                        <div class=" margin-top" {{action 'removeTag' tag}} style="background: {{tag.color}}; color: white;
+                                 border-radius: 0.28571rem;
+                                 border: 1px solid {{tag.color}};
+                                 padding: 10px 10px;
+                                 box-shadow: 0px 2px 6px -2px {{tag.color}} !important;
+                                 text-align: center;">
+                            {{tag.name}}
+                        </div>
+                    </div>
+                {{/each}}
+                <div class="ui horizontal divider">Available Tags</div>
+                {{#each availableTags as |tag|}}
+                    <div class="four wide column tag-select">
+                        <div class=" margin-top" {{action 'addTag' tag}} style="background: {{tag.color}}; color: white;
+                                 border-radius: 0.28571rem;
+                                 border: 1px solid {{tag.color}};
+                                 padding: 10px 10px;
+                                 box-shadow: 0px 2px 6px -2px {{tag.color}} !important;
+                                 text-align: center;">
+                            {{tag.name}}
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+            <div class="ui horizontal divider">Or</div>
+            <div class="ui row">
+                <div class="four wide column "></div>
+                <div class="eight wide column text-align-center"{{action 'createTag'}}>
+                    <div class="dashboard-create">
+                        Create New Tag
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="actions">
+        <div class="ui red deny button">
+            Cancel
+        </div>
+        <div class="ui positive violet right button " {{action "saveEntity" entity}} >
+            Save {{entityName}}
+        </div>
+    </div>
+
+</div>
