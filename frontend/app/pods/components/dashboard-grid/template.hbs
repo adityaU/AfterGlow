@@ -11,6 +11,14 @@
             {{#grid-stack-item class="grid-segment" 
                options=(get (get dashboard  "settings") (get question "id"))}}
                 <div class="ui segment full-height">
+
+                    {{#if question.updated_at}}
+                        <div class="text-align-center updated-ago-div {{question.updatedAgoColor}}">
+                            <div class="updated-ago">
+                                Updated: {{moment-from-now question.updated_at interval=1000}}
+                            </div>
+                        </div>
+                    {{/if}}
                     <div class="ui grid question" id="{{question.id}}"> 
                         <div class="twelve wide column">
                             <div class="question-title">
@@ -29,6 +37,7 @@
                     </div>
                     {{#if question.results}}
                         {{question-widget
+                          question=question
                           results=question.results
                           resultsViewSettings=question.results_view_settings
                           resultsViewType=question.results_view_settings.resultsViewType }}
@@ -36,7 +45,7 @@
                         {{#if question.loading}}
                             <div class="ui active inverted dimmer">
                                 <div class="ui text massive loader">{{loadingMessage}}</div>
-                                </div>
+                            </div>
                         {{/if}}
                     {{/if}}
                 </div>

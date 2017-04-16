@@ -4,6 +4,7 @@ defmodule AfterGlow.QuestionController do
   alias AfterGlow.Question
   alias AfterGlow.Database
   alias AfterGlow.Tag
+  alias AfterGlow.Variable
   alias AfterGlow.QueryView
   alias AfterGlow.Sql.DbConnection
   alias JaSerializer.Params
@@ -16,11 +17,11 @@ defmodule AfterGlow.QuestionController do
 
   def index(conn, %{"filter" => %{"id" => ids}}) do
     ids = ids |> String.split(",")
-    questions = Repo.all(from q in Question, where: q.id in ^ids) |> Repo.preload(:dashboards) |> Repo.preload(:tags)
+    questions = Repo.all(from q in Question, where: q.id in ^ids) |> Repo.preload(:dashboards) |> Repo.preload(:tags) |> Repo.preload(:variables)
     render(conn, :index, data: questions)
   end
   def index(conn, _params) do
-    questions = Repo.all(Question)|> Repo.preload(:dashboards) |> Repo.preload(:tags)
+    questions = Repo.all(Question)|> Repo.preload(:dashboards) |> Repo.preload(:tags) |> Repo.preload(:variables)
     render(conn, :index, data: questions)
   end
 
@@ -29,7 +30,7 @@ defmodule AfterGlow.QuestionController do
 
     case Repo.insert(changeset) do
       {:ok, question} ->
-        question = question |> Repo.preload(:dashboards) |> Repo.preload(:tags)
+        question = question |> Repo.preload(:dashboards) |> Repo.preload(:tags) |> Repo.preload(:variables)
         conn
         |> put_status(:created)
         |> put_resp_header("location", question_path(conn, :show, question))
@@ -42,20 +43,23 @@ defmodule AfterGlow.QuestionController do
   end
 
   def show(conn, %{"id" => id}) do
-    question = Repo.get!(Question, id) |> Repo.preload(:dashboards) |> Repo.preload(:tags)
+    question = Repo.get!(Question, id) |> Repo.preload(:dashboards) |> Repo.preload(:tags)|> Repo.preload(:variables)
     render(conn, :show, data: question)
   end
 
   def update(conn, %{"id" => id, "data" => data = %{"type" => "questions", "attributes" => _question_params}}) do
     prms = Params.to_attributes(data)
-    question = Repo.get!(Question, id)|> Repo.preload(:tags)
+    question = Repo.get!(Question, id)|> Repo.preload(:tags) |> Repo.preload(:variables)
     changeset = Question.changeset(question, prms)
 
     tag_ids = prms["tags_ids"]
     tags = if tag_ids |> Enum.empty? , do: nil, else: Repo.all(from q in Tag, where: q.id in ^tag_ids )
-    case Question.update(changeset, tags) do
+
+    variable_ids = prms["variables_ids"]
+    variables = if variable_ids |> Enum.empty? , do: nil, else: Repo.all(from v in Variable, where: v.id in ^variable_ids )
+    case Question.update(changeset, tags, variables) do
       {:ok, question} ->
-        question = question |> Repo.preload(:dashboards) |> Repo.preload(:tags)
+        question = question |> Repo.preload(:dashboards) |> Repo.preload(:tags) |> Repo.preload(:variables)
         render(conn, :show, data: question)
       {:error, changeset} ->
         conn
@@ -82,7 +86,7 @@ defmodule AfterGlow.QuestionController do
 
     case results do
       {:ok, results} ->
-        question |> Question.update_columns(results.columns)
+        question |> Question.update_columns(results.columns, results)
         conn
         |> render QueryView, "execute.json", data: results, query: question.sql
       {:error, error} ->

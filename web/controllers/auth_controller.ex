@@ -1,4 +1,3 @@
-require IEx
 defmodule AfterGlow.AuthController do
   use AfterGlow.Web, :controller
   alias AfterGlow.Oauth.Google
@@ -36,15 +35,28 @@ defmodule AfterGlow.AuthController do
   def callback(conn, %{"provider" => provider, "code" => code}) do
     token = get_token!(provider, code)
     user = get_user!(provider, token)
-    {:ok, user} = save_or_update_user(user)
-    auth_token = create_jwt(user)
-    perm = user |> Repo.preload([permission_sets: :permissions]) |> permissions
-    conn
-    |> json %{token: auth_token, permissions: perm, user:  %{id: user.id, email: user.email, full_name: user.full_name, profile_pic: user.profile_pic}}
+    case user |> validate_email do
+      true ->
+        {:ok, user} = save_or_update_user(user)
+        auth_token = create_jwt(user)
+        perm = user |> Repo.preload([permission_sets: :permissions]) |> permissions
+        conn
+        |> put_status(:created)
+        |> put_resp_header("content-type", "application/json")
+        |> json %{token: auth_token, permissions: perm, user:  %{id: user.id, email: user.email, full_name: user.full_name, profile_pic: user.profile_pic}}
+      false ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json %{error: "Only #{Application.get_env(:afterglow, :allowed_google_domain)} users are allowed "}
+    end
+  end
+
+  defp validate_email(user) do
+    Regex.match?(~r/#{Application.get_env(:afterglow, :allowed_google_domain)}/, user["email"])
   end
 
   defp authorize_url!("google") do
-    Google.authorize_url!(scope: "email profile")
+    Google.authorize_url!(scope: "email")
   end
 
 

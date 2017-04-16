@@ -9,7 +9,6 @@ export default QuestionNewController.extend({
     validQuestion: true,
     questionNameIsSet: true, 
     setResultsCanBeLoaded: Ember.observer('question', 'question.isLoaded', function(){
-        this.set('question.resultsCanBeLoaded', true) 
     }),
     actions: {
         showAddToDashboard(){
@@ -22,6 +21,11 @@ export default QuestionNewController.extend({
                 this.transitionToRoute('questions.show', response.id)
             });
             
+        },
+        refreshNow(){
+            let question = this.get('question')
+            question.set('resultsCanBeLoaded', true) 
+            question.set('updated_at', new Date())
         },
         addToDashboard(dashboard){
             dashboard.get('questions').addObject(this.get('question'))

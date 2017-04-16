@@ -4,6 +4,8 @@ defmodule AfterGlow.DashboardController do
   alias AfterGlow.Dashboard
   alias AfterGlow.Question
   alias AfterGlow.Tag
+
+  alias AfterGlow.Variable
   alias JaSerializer.Params
   alias AfterGlow.Plugs.Authorization
   plug Authorization

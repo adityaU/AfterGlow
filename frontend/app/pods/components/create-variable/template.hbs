@@ -1,0 +1,39 @@
+<div class="create-variable content">
+    <div class="ui grid">
+        <div class="ui form full">
+            <div class="sixteen wide column">
+                <div class="field">
+                    <label>Name (mendatory)</label>
+                    {{input value=variable.name class="ui" placeholder="Variable name" }}
+                </div>
+            </div>
+            <div class="sixteen wide column">
+                <div class="field">
+                    <label>Type</label>
+                    {{#ui-dropdown class="search selection" selected=variable.var_type onChange=(action (mut variable.var_type)) as |execute mapper|}}
+                        {{dropdown-default object=variable.var_type default="normal"}}
+                        <i class="dropdown icon"></i>
+                        <div class="menu">
+                            {{#each variableTypes as |variableType|}}
+                                <div class="item" data-value={{variableType}}>
+                                    {{variableType}}
+                                </div>
+                            {{/each}}
+                        </div>
+                    {{/ui-dropdown}}
+                </div>
+            </div>
+            <div class="sixteen wide column">
+                <div class="field">
+                    <label>Default (mendatory)</label>
+                    {{input value=variable.default class="ui" placeholder="default" }}
+                </div>
+            </div>
+            <div class="sixteen wide column">
+                <div class="ui {{if variableSaved "positive" "grey"}} button full" {{action "saveVariable"}} >
+                    Save
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

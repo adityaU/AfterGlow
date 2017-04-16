@@ -19,25 +19,15 @@ export default Ember.Component.extend( UtilsFunctions,{
                 x: item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayX1')}),
                 y:  item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayY')}),
                 type: 'scatter',
+                mode: 'lines+markers',
                 line: {
+                    width: 1.3,
                     color: _this.get('colors')[i]
                 },
                 name:  item.get('type')
             }
         });
-        layout = data &&  {
-            legend: {orientation: "h", x:0, y:1},
-            title: _this.get('title'),
-            margin: _this.get('margin'),
-            xaxis: {title: Ember.String.capitalize(_this.get('xLabel') || _this.get('x1')) , autorange: true, showLine: false },
-            yaxis: {title: Ember.String.capitalize(_this.get('yLabel') || _this.get('y')), autorange: true, showLine: false},
-            font: {
-                family: 'Lato',
-                size: '1em',
-                color: '#7f7f7f'
-            }
-
-        }
+        layout = data && _this.get('layout')
         data && Plotly.newPlot(gd, data, layout, {showLine: false})
             .then(_this.get('downloadAsPNG')); 
         data && gridParent[0] && gridParent[0].addEventListener('plotlyResize', function() {

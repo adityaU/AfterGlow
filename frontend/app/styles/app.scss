@@ -1,6 +1,6 @@
 $primaryColor   : #6435c9;
 $primaryColorShade2: #7962ab; 
-$errorColor: #DB2828 ;
+$errorColor: #f44336 ;
 $errorColorShade2: #e05e5e ;
 $lightColor: gainsboro;
 $lightPrimaryColor: rgba(100, 53, 201, 0.2);
@@ -26,6 +26,111 @@ g.slicetext{
 
 .number-block{
     margin-bottom: 50px;
+}
+.ace_layer.ace_gutter-layer{
+    background: white;
+    border-right: 1px solid $greyColor;
+}
+.ace-editor{
+    margin-left: -14px !important;
+    margin-right: -14px !important;
+    border-bottom: 1px solid $greyColor !important;
+    border-top: 1px solid $greyColor !important;
+}
+.ace_layer.ace_gutter-layer{
+    width: 40px !important;
+}
+.calander-data {
+    border-radius: 0;
+    padding: 5%;
+    text-align: center;
+    border-color: $secondaryColor;
+
+}
+.fc-toolbar.fc-header-toolbar {
+    background: $secondaryColor;
+    margin-bottom: 0px;
+    padding: 10px;
+    border: 1px solid $greyColor;
+    border-bottom: none;
+    color: $textColor;
+    borderColor: $secondaryColor;
+}
+button.fc-button.fc-state-default {
+    background: white;
+    border-radius: $borderRadius;
+    border: 1px solid $greyColor;
+    color: $textColor;
+
+}
+button.fc-prev-button.fc-button.fc-state-default.fc-corner-left {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+button.fc-next-button.fc-button.fc-state-default.fc-corner-right{
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+th.fc-day-header.fc-widget-header {
+    background: $secondaryColor;
+    borderColor: $secondaryColor;
+    border-top: none;
+    padding: 1%;
+    color: $textColor;
+}
+.fc-widget-content .th{
+    border-color: $secondaryColor !important;
+}
+.color-box {
+    width: 15px;
+    height: 15px;
+    border: 3px solid #dededf;
+    display: inline-flex;
+}
+.colors {
+    text-align: center;
+    padding: 10px;
+
+}
+span.data-name {
+    margin: 0px 15px 0px 10px;
+}
+.add-text {
+    color: #6435c9;
+    font-style: italic;
+    text-decoration: underline;
+
+}
+.ui.violet.text{
+    color: $primaryColor;
+}
+.ui.grid.question{
+    visibility: hidden;
+}
+.grid-segment:hover .ui.grid.question{
+    visibility: initial;
+}
+.grid-segment:hover .updated-ago-div{
+    display: none;
+    transition: opacity 1s ease-out;
+    opacity: 0;
+}
+.updated-ago-div{
+    margin: -1em -1em;
+    width: calc(100% + 2em) !important;
+    padding: 0.5em;
+    color: white;
+    border-top-left-radius: $borderRadius;
+    border-top-right-radius: $borderRadius;
+    &.red{
+      background: $errorColor;
+    }
+    &.green{
+      background: $tertiaryColor;
+    }
+}
+.ui.grid.results-view-selector{
+    margin-top: 1em !important;
 }
 
 .ui.form input:not([type]), .ui.form input[type="date"], .ui.form input[type="datetime-local"], .ui.form input[type="email"], .ui.form input[type="number"], .ui.form input[type="password"], .ui.form input[type="search"], .ui.form input[type="tel"], .ui.form input[type="time"], .ui.form input[type="text"], .ui.form input[type="file"], .ui.form input[type="url"] .ui.selection.dropdown{

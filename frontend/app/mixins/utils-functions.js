@@ -164,6 +164,23 @@ export default Ember.Mixin.create(ColorMixin, {
     randomId: Ember.computed(function(){
         
         return  'chart-' + Math.floor((Math.random() * 100000000000000) + 1);
+    }),
+
+    layout: Ember.computed(function(){
+       return  {
+            legend: {orientation: "h", x:0, y:1},
+            title: this.get('title'),
+            margin: this.get('margin'),
+            xaxis: {showgrid: false, zeroline: false, title: Ember.String.capitalize(this.get('xLabel') || this.get('x1')) , autorange: true, showLine: false },
+            yaxis: {showgrid: true, zeroline: false, gridcolor: "#f1f1f1", title: Ember.String.capitalize(this.get('yLabel') || this.get('y')), autorange: true, showLine: false},
+            font: {
+                family: 'Lato',
+                size: '1em',
+                color: '#212133'
+            }
+
+        }
+
     })
     
 });

@@ -26,20 +26,8 @@ export default Ember.Component.extend( UtilsFunctions, {
                 name: item.get('type')
             }
         });
-        layout = data &&  {
-            title: _this.get('title'),
-            margin: _this.get('margin'),
-            xaxis: {title: Ember.String.capitalize(_this.get('xLabel') || _this.get('x1')) },
-            yaxis: {title: Ember.String.capitalize(_this.get('yLabel') || _this.get('y')) },
-            barmode: 'group',
-            font: {
-                family: 'Lato',
-                size: '1em',
-                color: '#7f7f7f'
-                
-            }
-
-        }
+        layout = data && _this.get('layout')
+        layout["barmode"]= "group"
         data && Plotly.newPlot(gd, data, layout, {showLink: false})
             .then(_this.get('downloadAsPNG')); 
         data && gridParent [0] && gridParent[0].addEventListener('plotlyResize', function() {

@@ -1,0 +1,46 @@
+<div class="ui form full">
+    <div class="ui grid">
+        <div class="eight wide column">
+            <div class="ui grid">
+            {{#each dataColumns as |data|}}
+        <div class="fourteen wide column">
+                <div class="field">
+                    <label>Data Column</label>
+                    {{#ui-dropdown class="search selection" selected=data.columnName onChange=(action (mut data.columnName))  as |execute mapper|}} 
+                        <div class="default text">Data Column</div>
+                        <i class="dropdown icon"></i>
+                        <div class="menu">
+                            {{#each results.columns as |column|}}
+                                <div class="item" data-value="{{map-value mapper column}}">
+                                    {{capitalize column}}
+                                </div>
+                            {{/each}}
+                        </div>
+                    {{/ui-dropdown}}
+                </div>
+        </div>
+        <div class="two wide Column">
+            <i class="remove icon" {{action 'removeColumn' data}}></i>
+        </div>
+            {{/each}}
+            </div>
+            <div class="add-text" {{action 'addDataColumn'}}>Add another data column</div>
+        </div>
+        <div class="eight wide column">
+            <div class="field">
+                <label>Date Column</label>
+                {{#ui-dropdown class="search selection" selected=date onChange=(action (mut date))  as |execute mapper|}} 
+                    <div class="default text">Date Column</div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        {{#each results.columns as |column|}}
+                            <div class="item" data-value="{{map-value mapper column}}">
+                                {{ capitalize column}}
+                            </div>
+                        {{/each}}
+                    </div>
+                {{/ui-dropdown}}
+            </div>
+        </div>
+    </div>
+</div>

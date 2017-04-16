@@ -1,4 +1,3 @@
-require IEx
 defmodule AfterGlow.Oauth.Google do
   use OAuth2.Strategy
 
@@ -7,9 +6,9 @@ defmodule AfterGlow.Oauth.Google do
   def client do
     OAuth2.Client.new([
       strategy: __MODULE__,
-      client_id: "465172773669-el4rr6ooqlqp13tls1tfhsjf6692u6ie.apps.googleusercontent.com",
-      client_secret: "3M2xRds0hx0yFN1OW__4odJs",
-      redirect_uri: "http://localhost:4200/api/google/callback",
+      client_id: Application.get_env(:afterglow, :google_client_id),
+      client_secret: Application.get_env(:afterglow, :google_client_secret),
+      redirect_uri: "#{Application.get_env(:afterglow, :app_root)}api/google/callback",
       site: "https://accounts.google.com",
       authorize_url: "https://accounts.google.com/o/oauth2/auth",
       token_url: "https://accounts.google.com/o/oauth2/token"

@@ -12,7 +12,7 @@ export default Ember.Route.extend(CanMixin, {
                 {closeButton: true, timeout: 1500, progressBar:false}
             );
 
-            this.transitionTo('index');
+            this.transitionTo('dashboard', 0);
         }
     }
 });

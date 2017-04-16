@@ -1,4 +1,3 @@
-require IEx
 defmodule AfterGlow.Plugs.Authorization do
   import Joken
   @behaviour Plug

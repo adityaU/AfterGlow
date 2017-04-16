@@ -1,6 +1,6 @@
 <div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
     <div class="ui grid">
-        <div class="ten wide column">
+        <div class="six wide column">
             {{#if editMode}}
         <div class="ui form">
             <div class="field">
@@ -14,6 +14,14 @@
             {{else}}
                 <div class="dashboard-title">
                     {{dashboard.title}}
+                </div>
+            {{/if}}
+        </div>
+        <div class="four wide column text-align-center">
+            {{#if editMode}}
+            {{else}}
+                <div data-tooltip="Refresh Now" class="ui violet text" {{action 'refreshNow'}}>
+                    REFRESH
                 </div>
             {{/if}}
         </div>

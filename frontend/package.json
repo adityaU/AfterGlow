@@ -1,4 +1,4 @@
- {
+{
   "name": "frontend",
   "version": "0.0.0",
   "description": "Small description for frontend goes here",
@@ -42,9 +42,11 @@
     "ember-cookies": "0.0.13",
     "ember-data": "^2.11.0",
     "ember-export-application-global": "^1.0.5",
-    "ember-gridstack": "1.0.0",
+    "ember-fullcalendar": "^1.7.0",
+    "ember-gridstack": "1.0.1",
     "ember-light-table": "1.8.3",
     "ember-load-initializers": "^0.6.0",
+    "ember-lodash": "^4.17.2",
     "ember-moment": "7.3.0",
     "ember-resolver": "^2.0.3",
     "ember-responsive": "2.0.1",

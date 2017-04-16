@@ -2,13 +2,6 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
     dashboard: Ember.computed.alias('model'),
-
-    setResultsCanBeLoaded: Ember.observer('dashboard', 'dashboard.questions', 'dashboard.questions.content.isLoaded', function(){
-        let questions = this.get('dashboard.questions')
-        questions && questions.forEach((item)=>{
-            item.set('resultsCanBeLoaded', true) 
-        })
-    }),
     nonEditable: "yes",
     fullScreen: false,
     refreshIntervals: [
@@ -34,6 +27,10 @@ export default Ember.Controller.extend({
     },
 
     startTimer: function() {
+        let questions = this.get('dashboard.questions')
+        questions && questions.forEach((item)=>{
+            item.set('resultsCanBeLoaded', true) 
+        })
         this.set('timer', this.schedule(this.get('onPoll')));
     },
 
@@ -90,6 +87,13 @@ export default Ember.Controller.extend({
         },
         setRefreshInterval(interval){
             this.set('refreshInterval', interval); 
+        },
+        refreshNow(){
+            let questions = this.get('dashboard.questions')
+            questions && questions.forEach((item)=>{
+                item.set('resultsCanBeLoaded', true) 
+                item.set('updated_at', new Date())
+            })
         },
         toggleFullScreen(){
             if (

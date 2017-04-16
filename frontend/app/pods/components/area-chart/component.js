@@ -27,28 +27,21 @@ export default Ember.Component.extend(UtilsFunctions, {
         let gd = _this.get('getNode')(_this)
         let gridParent = _this.get('gridParent')
         var data =  _this.get('jsonData'), layout;
-        data = data && data.map((item)=>{
+        data = data && data.map((item, i)=>{
             return  {
                 x: item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayX1')}),
                 y: item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayY')}),
                 // type: 'scatter',
                 fill: 'tonexty',
+
+                line: {
+                    width: 1,
+                    color: _this.get('colors')[i]
+                },
                 name: item.get('type')
             }
         });
-        layout = data &&  {
-            title: _this.get('title'),
-            margin: _this.get('margin'),
-            xaxis: {title: Ember.String.capitalize(_this.get('xLabel') || _this.get('x1')) , autorange: true},
-            yaxis: {title: Ember.String.capitalize(_this.get('yLabel') || _this.get('y')), autorange: true},
-            barmode: 'group',
-            font: {
-                family: 'Lato',
-                size: '1em',
-                color: '#7f7f7f'
-                
-            }
-        }
+        layout = data && _this.get('layout')
         data = data && _this.get('stackedArea')(data);
         data && Plotly.newPlot(gd, data, layout, {showLink: false})
             .then(_this.get('downloadAsPNG')); 

@@ -18,7 +18,7 @@ RUN apt-get install -qq -y build-essential libpq-dev git
 
 ENV HOME /src/node/
 ENV NVM_DIR /src/node/.nvm
-ENV NODE_VER v4.4.7
+ENV NODE_VER v6.5.0
 ENV ADMIN_EMAIL im.adityau@gmail.com
 
 # setup the nvm environment
@@ -58,12 +58,12 @@ RUN npm install
 RUN bower install --allow-root
 
 WORKDIR /var/app
-COPY ./app/ /var/app/app/
 COPY ./web/ /var/app/web/
 COPY ./config/ /var/app/config/
 COPY ./lib/ /var/app/lib/
 COPY ./priv/ /var/app/priv/
 COPY ./start.sh /var/app/start.sh
+RUN mix deps.clean ja_serializer && mix deps.get
 RUN mix compile
 
 

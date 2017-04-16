@@ -19,31 +19,62 @@
             {{/if}}
         </div>
         <div class="{{if queryBuilderType 'twelve' 'sixteen'}} wide column">
+
             {{#if queryBuilderType}}
             {{else}}
-                <div class="ui segment">
-                    <div class="right" data-tooltip="Switch to Query Builder" {{action 'toggleSql'}}><i class="align justify icon"></i></div>
-                    {{database-selector queryObject=queryObject showTags=false databases=databases}}
-                    {{ember-ace class="ui segment"
-                      lines=10
-                      value=queryObject.rawQuery
-                      mode=aceMode
-                      enableSnippets=true
-                      enableLiveAutocompletion=true
-                      enableBasicAutocompletion=true theme=aceTheme update=(action (mut queryObject.rawQuery)) }}
-                    {{#if showGetResults}}
-                        <div class="content active text-align-center">
-                            <button class="ui violet button" {{action 'getResults'}}>
-                                <i class="icon arrow right"></i>
-                                Get Results
-                            </button>
+                <div class="ui grid">
+                    <div class="{{if showVariables "twelve" "sixteen"}} wide column">
+                        <div class="ui segment">
+                            <div class="ui grid">
+                                <div class="fourteen wide column">
+                                    {{database-selector queryObject=queryObject showTags=false databases=databases}}
+                                </div>
+                                <div class="two wide column">
+                                    <div class="right" data-tooltip="Switch to Query Builder" {{action 'toggleSql'}}><i class="align justify icon"></i></div>
+                                </div>
+                            </div>
+                            {{ember-ace
+                              lines=10
+                              value=queryObject.rawQuery
+                              mode=aceMode
+                              enableSnippets=true
+                              enableLiveAutocompletion=true
+                              enableBasicAutocompletion=true theme=aceTheme update=(action (mut queryObject.rawQuery)) }}
+                            {{#if showGetResults}}
+                                <div class="content active text-align-center">
+                                    <button class="ui violet button" {{action 'getResults'}}>
+                                        <i class="icon arrow right"></i>
+                                        Get Results
+                                    </button>
+                                </div>
+                            {{/if}}
+                        </div>
+                    </div>
+                    {{#if showVariables}}
+                        <div class="four wide column">
+                            <div class="ui grid segment">
+                                {{#each question.variables as |var|}}
+                                    <div class="sixteen wide column">
+                                        <div class="ui segment">
+                                            {{create-variable entity=question variable=var}}
+                                        </div>
+                                    </div>
+                                {{/each}}
+                            </div>
                         </div>
                     {{/if}}
                 </div>
             {{/if}}
             {{#if results}}
                 <div class="ui segment">
-                    <div class="ui grid">
+                    {{#if question.updated_at}}
+                        <div class="text-align-center updated-ago-div {{question.updatedAgoColor}}">
+                            <div class="updated-ago">
+                                Updated: {{moment-from-now question.updated_at interval=1000}}
+                            </div>
+                        </div>
+                    {{/if}}
+                    <div class="ui grid results-view-selector">
                         <div class="twelve wide column" bubbles=false>
                             {{#ui-dropdown class="search selection" selected=resultsViewType onChange=(action (mut resultsViewType))  as |execute mapper|}} 
                                 {{dropdown-default  default=resultsViewType}}
@@ -66,9 +97,9 @@
                     {{#if showSettings}}
                         {{component resultsWidgetSettingsComponent resultsViewSettings=resultsViewSettings results=results }}
                     {{/if}}
-                    {{question-widget results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName}}
+                    {{question-widget results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName question=question}}
                 </div>
-        {{else}}
+            {{else}}
                 {{#if loading}}
                     <div class="ui segment results">
                         <div class="ui active inverted dimmer">

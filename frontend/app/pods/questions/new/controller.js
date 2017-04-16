@@ -8,6 +8,30 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings,{
     databases: Ember.computed(function(){
         return this.get('store').findAll('database')
     }),
+    // variableObserver: Ember.observer('queryObject.queryType','queryObject.rawQuery' ,function(){
+    //     let query = this.get('queryObject.rawQuery')
+    //     let queryType = this.get('queryObject.queryType')
+    //     let entity = this.get('question')
+    //     let possibleVariables = query && query.match(/{{(.+?)}}/g)
+    //     possibleVariables = possibleVariables && possibleVariables.map((item)=> {return item.replace("{{", "").replace("}}", "")})
+    //     let savedVariables = entity && entity.get('variables').map((item)=> {return item.get('name')})
+    //     let newVariables = possibleVariables && possibleVariables.filter((v)=>{
+    //         return (savedVariables.indexOf(v) < 0)
+    //     })
+    //     let toBedeletedVariables = savedVariables && savedVariables.filter((item)=>{
+    //         return (possibleVariables.indexOf(item) < 0)
+    //     })
+    //     newVariables =  newVariables.map((item)=>{
+    //         this.store.createRecord('variable', {name: item, var_type: "Normal"})
+    //     })
+    //     if (entity.get('variables.isFulfilled')){
+    //         entity.get('variables').removeObjects(toBedeletedVariables)
+    //         entity.get('variables').pushObjects(newVariables)
+    //     }
+    // }),
+    showVariables: Ember.computed('question', 'question.variables', function(){
+        return this.get('question.variables.length') > 0
+    }),
     question: Ember.computed(function(){
         return this.store.createRecord('question', {
             title: "New Question",
@@ -22,9 +46,10 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings,{
                 offset: null,
                 limit: 2000
             }),
-            results_view_settings: {resultsViewType: 'Table', numbers: []},
+            results_view_settings: {resultsViewType: 'Table', numbers: [], dataColumns: [{}]},
         })
     }),
+    
     questionNameObserver: Ember.observer("question.title",
                                          "queryObject.table.human_name",
                                          "queryObject.filters.@each.label",
@@ -110,26 +135,34 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings,{
             }
         },
         getResults(queryObject){
-            queryObject = queryObject || this.get('queryObject');
-            this.set('loading', true);
-            this.set('results', null)
-            this.get('ajax').apiCall({
-                url: this.get('apiHost') + this.get('apiNamespace') + '/query_results',
-                type: 'POST',
-                data: queryObject
-            },(response, status)=>{
-                this.set('loading', false);
-                this.set('errors', null)
-                this.set('results', response.data)
-                this.set('validQuestion', true)
-                this.set("queryObject.rawQuery", response.query)
-            },(error, status)=>{
-                this.set('loading', false);
-                this.set('errors', error.error)
+            let question = this.get('question')
+            if (question.id && Object.keys(question.changedAttributes()) == 0){
+                question.set("updated_at", new Date())
+                question.set('resultsCanBeLoaded', true) 
+            }else{
+                question.set("updated_at", new Date())
+                queryObject = queryObject || this.get('queryObject');
+                this.set('loading', true);
                 this.set('results', null)
-                this.set('validQuestion', false)
-                this.set("queryObject.rawQuery", error.query)
-            });
+                this.get('ajax').apiCall({
+                    url: this.get('apiHost') + this.get('apiNamespace') + '/query_results',
+                    type: 'POST',
+                    data: queryObject
+                },(response, status)=>{
+                    this.set('loading', false);
+                    this.set('errors', null)
+                    this.set('results', response.data)
+                    this.set('validQuestion', true)
+                    this.set("queryObject.rawQuery", response.query)
+                    
+                },(error, status)=>{
+                    this.set('loading', false);
+                    this.set('errors', error.error)
+                    this.set('results', null)
+                    this.set('validQuestion', false)
+                    this.set("queryObject.rawQuery", error.query)
+                });
+            }
         },
         toggleSettings(){
             this.toggleProperty('showSettings')
@@ -143,6 +176,8 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings,{
                 results_view_settings: this.get('question.results_view_settings')
             })
             question.save().then((response)=> {
+
+                question.set('resultsCanBeLoaded', true) 
                 this.transitionToRoute('questions.show', response.id)
             });
             

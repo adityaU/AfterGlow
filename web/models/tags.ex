@@ -1,4 +1,3 @@
-require IEx
 defmodule AfterGlow.Tag do
   use AfterGlow.Web, :model
   alias AfterGlow.Question

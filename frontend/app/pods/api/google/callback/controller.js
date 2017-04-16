@@ -20,6 +20,7 @@ export default Ember.Controller.extend({
             this.transitionToRoute('index')
         },(error, status)=>{
             this.set('loading', false);
+            this.set('errors', error.error)
             this.set('error', true)
         });
     }
