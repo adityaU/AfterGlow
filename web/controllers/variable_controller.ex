@@ -6,9 +6,10 @@ defmodule AfterGlow.VariableController do
 
   plug :scrub_params, "data" when action in [:create, :update]
 
-  def index(conn, _params) do
-    variables = Repo.all(Variable)
-    render(conn, "index.json-api", data: variables)
+  def index(conn, %{"filter" => %{"id" => ids}}) do
+    ids = ids |> String.split(",")
+    variables = (from v in Variable, where: v.id in ^ids) |> Repo.all() 
+    render(conn, :index, data: variables)
   end
 
   def create(conn, %{"data" => data = %{"type" => "variables", "attributes" => _variable_params}}) do
@@ -32,13 +33,13 @@ defmodule AfterGlow.VariableController do
     render(conn, :show, data: variable)
   end
 
-  def update(conn, %{"id" => id, "data" => data = %{"type" => "variable", "attributes" => _variable_params}}) do
+  def update(conn, %{"id" => id, "data" => data = %{"type" => "variables", "attributes" => _variable_params}}) do
     variable = Repo.get!(Variable, id)
     changeset = Variable.changeset(variable, Params.to_attributes(data))
 
     case Repo.update(changeset) do
       {:ok, variable} ->
-        render(conn, "show.json-api", data: variable)
+        render(conn, :show, data: variable)
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)

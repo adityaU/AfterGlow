@@ -1,0 +1,35 @@
+<div class="ui fullscreen modal select-dashboard-variables">
+    <div class="header">
+        Select Variables for this dashboard
+    </div>
+    <div class=" content">
+        <div class="ui grid">
+            <div class="ui horizontal divider">Selected</div>
+                {{#each variablesSelected as |variable|}}
+                    <div class="four wide column margin-bottom">
+                        <div class="ui segment margin-bottom">
+                            <i class="remove icon right" {{action "removeVariable" variable}}></i>
+                            {{create-dashboard-variable variable=variable}}
+                        </div>
+                    </div>
+                {{/each}}
+
+            <div class="ui horizontal divider">Can be Selected</div>
+            {{#each variablesRemaining as |variable|}}
+                <div class="four wide column">
+                    <div class="permission-select margin-top" {{action 'selectVariable' variable}}>
+                        {{variable.name}}
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+    </div>
+    <div class="actions">
+        <div class="ui red cancel button">
+            Cancel
+        </div>
+        <div class="ui positive right button" >
+            Done
+        </div>
+    </div>
+</div>

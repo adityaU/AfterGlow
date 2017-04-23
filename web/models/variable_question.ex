@@ -3,8 +3,8 @@ defmodule AfterGlow.VariableQuestion do
 
   schema "variable_questions" do
     belongs_to :question, AfterGlow.Question
-    belongs_to :variable, AfterGlow.Variable
-
+    field :name, :string
+    field :default, :string
     timestamps()
   end
 

@@ -4,6 +4,8 @@ defmodule AfterGlow.Dashboard do
   alias AfterGlow.Tag
   alias AfterGlow.DashboardQuestion
   alias AfterGlow.Repo
+  alias AfterGlow.Variable
+  alias AfterGlow.User
 
   schema "dashboards" do
     field :title, :string
@@ -11,10 +13,13 @@ defmodule AfterGlow.Dashboard do
     field :last_updated, Ecto.DateTime
     field :description, :string
     field :shareable_link, Ecto.UUID
+    field :shared_to, {:array, :string}
     field :is_shareable_link_public, :boolean
     field :settings, :map
+    belongs_to :owner, User, foreign_key: :owner_id
     many_to_many :questions, Question, join_through: "dashboard_questions", on_delete: :delete_all, on_replace: :delete
     many_to_many :tags, Tag, join_through: "tag_dashboards", on_delete: :delete_all, on_replace: :delete
+    has_many :variables, Variable, on_delete: :delete_all, on_replace: :delete
     timestamps()
   end
 
@@ -23,8 +28,8 @@ defmodule AfterGlow.Dashboard do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:id, :title, :last_updated, :description, :is_shareable_link_public, :settings])
-    |> validate_required([:title])
+    |> cast(params, [:id, :title, :last_updated, :description, :is_shareable_link_public, :settings, :shared_to, :owner_id])
+    |> validate_required([:title, :owner_id])
   end
 
   def insert(changeset, nil), do: Repo.insert(changeset)

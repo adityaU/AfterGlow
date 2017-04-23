@@ -14,19 +14,20 @@ defmodule AfterGlow.DashboardController do
   plug :verify_authorized
 
   def index(conn, _params) do
-    dashboards = Repo.all(Dashboard) |> Repo.preload(:questions) |> Repo.preload(:tags)
+    dashboards = scope(conn, Dashboard) |> Repo.all() |> Repo.preload(:questions) |> Repo.preload(:tags) |> Repo.preload(:variables)
     conn
     |> render(:index, data: dashboards)
   end
 
   def create(conn, %{"data" => data = %{"type" => "dashboards", "attributes" => _dashboard_params}}) do
     prms =  Params.to_attributes(data)
+    prms = prms |> Map.merge(%{"owner_id" => conn.assigns.current_user.id})
     changeset = Dashboard.changeset(%Dashboard{}, prms) 
     question_ids = prms["questions_ids"]
     questions = if question_ids |> Enum.empty? , do: nil, else: Repo.all(from q in Question, where: q.id in ^question_ids )
     case Dashboard.insert(changeset, questions) do
       {:ok, dashboard} ->
-        dashboard = dashboard |> Repo.preload(:questions) |> Repo.preload(:tags)
+        dashboard = dashboard |> Repo.preload(:questions) |> Repo.preload(:tags) |> Repo.preload(:variables)
         conn
         |> put_status(:created)
         |> put_resp_header("location", dashboard_path(conn, :show, dashboard))
@@ -39,14 +40,13 @@ defmodule AfterGlow.DashboardController do
   end
 
   def show(conn, %{"id" => id}) do
-    dashboard = Repo.get!(Dashboard, id) |> Repo.preload(:questions)|> Repo.preload(:tags)
+    dashboard = scope(conn, Dashboard) |> Repo.get!(id) |> Repo.preload(:questions)|> Repo.preload(:tags) |> Repo.preload(:variables)
     render(conn, :show, data: dashboard)
-    
   end
 
   def update(conn, %{"id" => id, "data" => data = %{"type" => "dashboards", "attributes" => _dashboard_params}}) do
     prms =  Params.to_attributes(data)
-    dashboard = Repo.get!(Dashboard, id) |> Repo.preload(:questions)|> Repo.preload(:tags)
+    dashboard =  scope(conn, Dashboard) |> Repo.get!(id) |> Repo.preload(:questions)|> Repo.preload(:tags)
     changeset = Dashboard.changeset(dashboard, prms)
     question_ids = prms["questions_ids"]
     questions = if question_ids |> Enum.empty? , do: nil, else: Repo.all(from q in Question, where: q.id in ^question_ids )
@@ -54,7 +54,7 @@ defmodule AfterGlow.DashboardController do
     tags = if tag_ids |> Enum.empty? , do: nil, else: Repo.all(from t in Tag, where: t.id in ^tag_ids )
     case Dashboard.update(changeset, questions, tags) do
       {:ok, dashboard} ->
-        dashboard = dashboard |> Repo.preload(:questions)|> Repo.preload(:tags)
+        dashboard = dashboard |> Repo.preload(:questions)|> Repo.preload(:tags) |> Repo.preload(:variables)
         render(conn, :show, data: dashboard)
       {:error, changeset} ->
         conn
@@ -64,12 +64,10 @@ defmodule AfterGlow.DashboardController do
   end
 
   def delete(conn, %{"id" => id}) do
-    dashboard = Repo.get!(Dashboard, id)
-
+    dashboard = scope(conn, Dashboard) |> Repo.get!(Dashboard, id)
     # Here we use delete! (with a bang) because we expect
     # it to always work (and if it does not, it will raise).
     Repo.delete!(dashboard)
-
     send_resp(conn, :no_content, "")
   end
 

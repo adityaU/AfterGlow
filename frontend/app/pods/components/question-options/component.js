@@ -19,11 +19,17 @@ export default Ember.Component.extend({
         showDeleteDialogue(){
             $('.ui.modal.delete-dialogue').modal('show')
         },
+        showShareDialogue(){
+            $('.ui.modal.share-entity').modal('show')
+        },
         deleteQuestion(question){
             question.destroyRecord().then((response)=>{
                 this.sendAction('transitionToIndex')
             })
         },
+        toggleVariableWindow(){
+            this.toggleProperty('showVariables')
+        }
     }
 
 });

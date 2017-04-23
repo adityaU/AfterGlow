@@ -1,8 +1,11 @@
+/* global pushObject */
+
 import Ember from 'ember';
 import ChartSettings from 'frontend/mixins/chart-settings'
 import LoadingMessages from "frontend/mixins/loading-messages"
+import ResultViewMixin from "frontend/mixins/result-view-mixin"
 
-export default Ember.Controller.extend(LoadingMessages, ChartSettings,{
+export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultViewMixin,{
     ajax: Ember.inject.service(),
     
     databases: Ember.computed(function(){
@@ -13,7 +16,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings,{
     //     let queryType = this.get('queryObject.queryType')
     //     let entity = this.get('question')
     //     let possibleVariables = query && query.match(/{{(.+?)}}/g)
-    //     possibleVariables = possibleVariables && possibleVariables.map((item)=> {return item.replace("{{", "").replace("}}", "")})
+    //     possibleVariables = possibleVariables && possibleVariables.slice(0).map((item)=> {return item.replace("{{", "").replace("}}", "")})
     //     let savedVariables = entity && entity.get('variables').map((item)=> {return item.get('name')})
     //     let newVariables = possibleVariables && possibleVariables.filter((v)=>{
     //         return (savedVariables.indexOf(v) < 0)
@@ -24,15 +27,15 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings,{
     //     newVariables =  newVariables.map((item)=>{
     //         this.store.createRecord('variable', {name: item, var_type: "Normal"})
     //     })
-    //     if (entity.get('variables.isFulfilled')){
-    //         entity.get('variables').removeObjects(toBedeletedVariables)
-    //         entity.get('variables').pushObjects(newVariables)
-    //     }
+    //     // if (entity.get('variables.isFulfilled')){
+    //     //     entity.get('variables').removeObjects(toBedeletedVariables)
+    //     //     entity.get('variables').pushObjects(newVariables)
+    //     // }
     // }),
     showVariables: Ember.computed('question', 'question.variables', function(){
         return this.get('question.variables.length') > 0
     }),
-    question: Ember.computed(function(){
+    question: Ember.computed( "recalculate", function(){
         return this.store.createRecord('question', {
             title: "New Question",
             human_sql:  Ember.Object.create({
@@ -46,7 +49,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings,{
                 offset: null,
                 limit: 2000
             }),
-            results_view_settings: {resultsViewType: 'Table', numbers: [], dataColumns: [{}]},
+            results_view_settings: {resultsViewType: null, numbers: [], dataColumns: [{}]},
         })
     }),
     
@@ -97,7 +100,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings,{
     changeSQL: Ember.observer('queryObject.rawQuery', function(){
       this.set('question.sql', this.get('queryObject.rawQuery'))
     }),
-    aceTheme: "ace/theme/chrome",
+    aceTheme: "ace/theme/ambiance",
     aceMode: "ace/mode/sql",
 
     queryObject: Ember.computed.alias('question.human_sql'),
@@ -124,7 +127,15 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings,{
     dashboards: Ember.computed(function(){
         return this.store.findAll('dashboard')
     }),
+    // queryObserver: Ember.observer('queryObject.rawQuery', function(){
+    //     this.set('queryChanged', true)
+    // }),
     actions: {
+        removeVariable(variable){
+            this.get('question.variables').removeObject(variable)
+            this.set('variablesChanged', true)
+            variable.destroyRecord()
+        },
 
         toggleSql(){
             let queryType = this.get('queryObject.queryType');
@@ -136,12 +147,18 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings,{
         },
         getResults(queryObject){
             let question = this.get('question')
-            if (question.id && Object.keys(question.changedAttributes()) == 0){
+            let query_variables = question.get('query_variables')
+            let changedAttributes = Object.keys(question.changedAttributes()).filter((item)=>{ item != "updated_at"})
+            if (question.id && ( changedAttributes == 0) && !this.get('variablesChanged')){
                 question.set("updated_at", new Date())
                 question.set('resultsCanBeLoaded', true) 
+                this.set('queryChanged', false)
             }else{
                 question.set("updated_at", new Date())
                 queryObject = queryObject || this.get('queryObject');
+                queryObject.set('variables' , query_variables && query_variables.map((item)=>{
+                    return {name: item.get('name'), value: item.get('value') || item.get('default'), var_type: item.get('var_type')}
+                }))
                 this.set('loading', true);
                 this.set('results', null)
                 this.get('ajax').apiCall({
@@ -152,12 +169,14 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings,{
                     this.set('loading', false);
                     this.set('errors', null)
                     this.set('results', response.data)
+                    if (!this.get('resultsViewType')){
+                        this.set('resultsViewType', this.autoDetect(response.data.rows))
+                    }
                     this.set('validQuestion', true)
                     this.set("queryObject.rawQuery", response.query)
-                    
                 },(error, status)=>{
                     this.set('loading', false);
-                    this.set('errors', error.error)
+                    error.error ?  this.set('errors', error.error) : this.set('errors', {message: "Something isn't right. Your Query Probably timed out."})
                     this.set('results', null)
                     this.set('validQuestion', false)
                     this.set("queryObject.rawQuery", error.query)
@@ -168,25 +187,27 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings,{
             this.toggleProperty('showSettings')
         },
         saveQuestion(){
-            let question = this.store.createRecord('question', {
-                title: this.get('question.title'),
-                human_sql: this.get('question.human_sql'),
-                sql: this.get('question.sql') || this.get('question.human_sql.rawQuery'),
-                query_type: this.get('question.human_sql.queryType') == 'raw' ? 'sql': 'human_sql',
-                results_view_settings: this.get('question.results_view_settings')
-            })
+            let question = this.get('question')
+            question.set('sql',  question.get('sql') || question.get('human_sql.rawQuery'))
+            question.set('cached_results',  null)
+            question.set('query_type', question.get('human_sql.queryType') == 'raw' ? 'sql': 'human_sql')
             question.save().then((response)=> {
-
-                question.set('resultsCanBeLoaded', true) 
+                question.get('variables').invoke('save')
                 this.transitionToRoute('questions.show', response.id)
+            }).then((variable)=>{
+                question.set('resultsCanBeLoaded', true) 
             });
-            
         },
         transitionToDashBoard(dashboard_id){
             this.transitionToRoute('dashboards.show', dashboard_id)
         },
         transitionToIndex(){
             this.transitionToRoute('index')
+        },
+        addVariable(){
+            let variable = this.store.createRecord('variable', {name: "New Variable", var_type: "String", default: "value"})
+            this.get('question.variables').pushObject(variable)
+            this.set('variablesChanged', true)
         }
     }
 });

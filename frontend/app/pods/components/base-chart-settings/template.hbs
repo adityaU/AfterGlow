@@ -3,9 +3,9 @@
     <div class="eight wide column">
         <div class="ui form">
             <div class="field">
-                <label>X1</label>
+                <label>{{x1Name}}</label>
                 {{#ui-dropdown class="search selection" selected=x1 onChange=(action (mut resultsViewSettings.x1))  as |execute mapper|}} 
-                    {{dropdown-default object=x1 default='x1'}}
+                    {{dropdown-default object=x1 default=x1Name}}
                     <i class="dropdown icon"></i>
                     <div class="menu">
                         {{#each results.columns as |column|}}
@@ -16,33 +16,52 @@
                     </div>
                 {{/ui-dropdown}}
             </div>
-            <div class="field">
-                <label>X2</label>
-                {{#ui-dropdown class="search selection" selected=x2 onChange=(action (mut resultsViewSettings.x2))  as |execute mapper|}} 
-                    {{dropdown-default object=x2 default='x2'}}
-                    <i class="dropdown icon"></i>
-                    <div class="menu">
-                        {{#each results.columns as |column|}}
-                            <div class="item" data-value="{{map-value mapper column}}">
-                                {{capitalize column}}
+            <div class="ui grid">
+                <div class="fourteen wide column">
+                    <div class="field">
+                        <label>{{x2Name}}</label>
+                        {{#ui-dropdown class="search selection" selected=x2 onChange=(action (mut resultsViewSettings.x2))  as |execute mapper|}} 
+                            {{dropdown-default object=x2 default=x2Name}}
+                            <i class="dropdown icon"></i>
+                            <div class="menu">
+                                {{#each results.columns as |column|}}
+                                    <div class="item" data-value="{{map-value mapper column}}">
+                                        {{capitalize column}}
+                                    </div>
+                                {{/each}}
                             </div>
-                        {{/each}}
+                        {{/ui-dropdown}}
                     </div>
-                {{/ui-dropdown}}
+                </div>
+                <div class="two wide Column">
+                    <i class="remove icon" {{action 'clearx2'}}></i>
+                </div>
             </div>
-            <div class="field">
-                <label>Y</label>
-                {{#ui-dropdown class="search selection" selected=y onChange=(action (mut resultsViewSettings.y))  as |execute mapper|}} 
-                    {{dropdown-default object=y default='y'}}
-                    <i class="dropdown icon"></i>
-                    <div class="menu">
-                        {{#each results.columns as |column|}}
-                            <div class="item" data-value="{{map-value mapper column}}">
-                                {{ capitalize column}}
-                            </div>
-                        {{/each}}
+            <div class="ui grid">
+                {{#each multipleYs as |y|}}
+                    <div class="fourteen wide column">
+                        <div class="field">
+                            <label>{{yName}}</label>
+                            {{#ui-dropdown class="search selection" selected=y.columnName onChange=(action (mut y.columnName))  as |execute mapper|}} 
+                                {{dropdown-default object=y.columnName default=yName}}
+                                <i class="dropdown icon"></i>
+                                <div class="menu">
+                                    {{#each results.columns as |column|}}
+                                        <div class="item" data-value="{{map-value mapper column}}">
+                                            {{ capitalize column}}
+                                        </div>
+                                    {{/each}}
+                                </div>
+                            {{/ui-dropdown}}
+                        </div>
                     </div>
-                {{/ui-dropdown}}
+
+                    <div class="two wide Column">
+
+                        <i class="remove icon" {{action 'removeColumn' y}}></i>
+                    </div>
+                {{/each}}
+                <div class="add-text" {{action 'addYColumn'}}>Add another {{yName}} column</div>
             </div>
         </div>
     </div>
@@ -58,7 +77,7 @@
             </div>
             <div class="field">
                 <label>Title</label>
-                {{input value=title class="ui" placeholder="Y Label" }}
+                {{input value=title class="ui" placeholder="Title" }}
             </div>
         </div>
     </div>

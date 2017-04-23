@@ -21,9 +21,11 @@ defmodule AfterGlow.Question do
     field :shareable_link, Ecto.UUID
     field :is_shareable_link_public, :boolean
     field :columns, {:array, :string}
+    field :shared_to, {:array, :string}
+    belongs_to :owner, User, foreign_key: :owner_id
     many_to_many :dashboards, Dashboard, join_through: "dashboard_questions",  on_delete: :delete_all
     many_to_many :tags, Tag, join_through: TagQuestion, on_delete: :delete_all, on_replace: :delete
-    many_to_many :variables, Variable, join_through: VariableQuestion, on_delete: :delete_all, on_replace: :delete
+    has_many :variables, Variable, on_delete: :delete_all, on_replace: :delete
 
     timestamps()
   end
@@ -32,8 +34,9 @@ defmodule AfterGlow.Question do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:title, :sql, :human_sql, :query_type, :cached_results, :last_updated, :shareable_link, :is_shareable_link_public, :results_view_settings, :columns])
-    |> validate_required([:title, :sql, :human_sql, :query_type, :results_view_settings])
+    |> cast(params, [:title, :sql, :human_sql, :query_type, :cached_results, :last_updated, :shareable_link, :is_shareable_link_public, :results_view_settings, :columns, :shared_to, :owner_id])
+    |> cast_assoc(:variables)
+    |> validate_required([:title, :sql, :human_sql, :query_type, :results_view_settings, :owner_id])
     |> add_shareable_link
     |> save_sql_from_human_sql
     |> Ecto.Changeset.put_change(:last_updated, Ecto.DateTime.utc )
@@ -73,7 +76,6 @@ defmodule AfterGlow.Question do
         db_record = Repo.one(from d in Database, where: d.unique_identifier == ^db_identifier)
         sql = DbConnection.query_string(db_record |> Map.from_struct, parsed_human_sql )
         changeset = changeset |> Ecto.Changeset.change(:sql, sql)
-
        _ -> 
          "pass"
     end
@@ -88,19 +90,14 @@ defmodule AfterGlow.Question do
     changeset
   end
 
-  def update(changeset, tags, variables) do
+  def update(changeset, tags) do
     tags = if(tags == nil,  do: [], else: tags)
-    variables = if(variables == nil,  do: [], else: variables)
     changeset = changeset
     |> add_tags(tags)
-    |> add_variables(variables)
     Repo.update(changeset)
   end
 
   defp add_tags(changeset, tags) do
       changeset |> Ecto.Changeset.put_assoc(:tags, tags)
-  end
-  defp add_variables(changeset, variables) do
-    changeset |> Ecto.Changeset.put_assoc(:variables, variables)
   end
 end

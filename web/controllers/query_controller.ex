@@ -1,10 +1,11 @@
+require IEx
 defmodule AfterGlow.QueryController do
   use AfterGlow.Web, :controller
   alias AfterGlow.Database
   alias AfterGlow.Sql.DbConnection
   alias AfterGlow.Async
   alias AfterGlow.ColumnValuesTasks
-  
+  alias AfterGlow.Variable
   alias AfterGlow.Plugs.Authorization
   plug Authorization
   plug :authorize!, AfterGlow.Query
@@ -53,9 +54,9 @@ defmodule AfterGlow.QueryController do
   end
 
   defp run_raw_query db_record, params do
-    query = params["rawQuery"]
+    query = replace_variables(params["rawQuery"], params["variables"])
     results = DbConnection.execute(db_record |> Map.from_struct, query) 
-    {query, results}
+    {params["rawQuery"], results}
   end
   defp save_column_values results, permit_prms do
     case results do
@@ -64,5 +65,16 @@ defmodule AfterGlow.QueryController do
       _ ->
         "pass"
     end
+  end
+  defp replace_variables(query, variables) do
+    variables
+    |> Enum.reduce(query, fn variable, query ->
+      variable_name = variable["name"] |> String.strip()
+      value = variable["value"] || ""
+      variable = for {key, val} <- variable, into: %{}, do: {String.to_atom(key), val}
+      value = Variable.format_value(struct(Variable, variable), value)
+      query
+      |> String.replace(~r({{.*#{variable_name}.*}}), value)
+    end)
   end
 end

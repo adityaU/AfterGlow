@@ -2,14 +2,14 @@
     <div class="ui grid">
         <div class="six wide column">
             {{#if editMode}}
-        <div class="ui form">
-            <div class="field">
-                {{input value=dashboard.title class="ui" placeholder="What are you calling it?"}}
-            </div>
-            <div class="field">
-                {{input value=dashboard.description class="ui" placeholder="what does it show?"}}
-            </div>
-        </div>
+                <div class="ui form">
+                    <div class="field">
+                        {{input value=dashboard.title class="ui" placeholder="What are you calling it?"}}
+                    </div>
+                    <div class="field">
+                        {{input value=dashboard.description class="ui" placeholder="what does it show?"}}
+                    </div>
+                </div>
 
             {{else}}
                 <div class="dashboard-title">
@@ -20,35 +20,36 @@
         <div class="four wide column text-align-center">
             {{#if editMode}}
             {{else}}
-                <div data-tooltip="Refresh Now" class="ui violet text" {{action 'refreshNow'}}>
+                <div data-tooltip="Refresh Now" data-inverted=""  class="ui violet text" {{action 'refreshNow'}}>
                     REFRESH
                 </div>
             {{/if}}
         </div>
         <div class="six wide column text-align-right {{if editMode  "options-dashboard"}}">
-            {{#if editMode}}
-            <button data-tooltip="Save Dashboard" class="ui very basic violet button" {{action 'saveDashboard'}}>
-                SAVE
-            </button>
+            {{#if (can "edit dashboard")}}
+                {{#if editMode}}
+                    <button data-tooltip="Save Dashboard" data-inverted=""  class="ui very basic violet button" {{action 'saveDashboard'}}>
+                        SAVE
+                    </button>
 
-            <button data-tooltip="Cancel Editing Dashboard" class="ui very basic grey button" {{action 'cancelEditingDashboard'}}>
-                CANCEL
-            </button>
+                    <button data-tooltip="Cancel Editing Dashboard" data-inverted=""  class="ui very basic grey button" {{action 'cancelEditingDashboard'}}>
+                        CANCEL
+                    </button>
 
-            <button data-tooltip="Delete Dashboard" class="ui very basic red button" {{action 'showDeleteDialogue'}}>
-                DELETE
-            </button>
-            {{else}}
+                    <button data-tooltip="Delete Dashboard" data-inverted=""  class="ui very basic red button" {{action 'showDeleteDialogue'}}>
+                        DELETE
+                    </button>
+                {{else}}
 
-                <span data-tooltip="Edit Dashboard" >  
-                    <i class="pencil icon" {{action 'editDashboard'}}></i>
+                    <span data-tooltip="Edit Dashboard" data-inverted=""  >  
+                        <i class="pencil icon" {{action 'editDashboard'}}></i>
+                    </span>
+                {{/if}}
+                <span data-tooltip="Share Dashboard" data-inverted=""  >  
+                    <i class="share icon" {{action 'showShareDialogue'}}></i>
                 </span>
-            {{/if}}
-                <span data-tooltip="Share Dashboard" >  
-                    <i class="share icon" {{action 'shareDashboard'}}></i>
-                </span>
 
-                <span data-tooltip="Refresh Interval: {{refreshInterval.name}}" data-position="top right">  
+                <span data-tooltip="Refresh Interval: {{refreshInterval.name}}" data-inverted=""  data-position="top right">  
 
                     {{#ui-dropdown class="ui dropdown menu-item"}}
                         {{dropdown-default  default=null icon="refresh"}}
@@ -61,19 +62,26 @@
                         </div>
                     {{/ui-dropdown}}
                 </span>
+                <span data-tooltip="Variables" data-inverted=""  data-position="top right">
+                    <i class="superscript icon" {{action 'showVariablesDialogue'}}></i>
+                </span>
+            {{/if}}
             {{#if fullScreen}}
-                <span data-tooltip="Exit Fullscreen" data-position="top right">
+                <span data-tooltip="Exit Fullscreen" data-inverted=""  data-position="top right">
                     <i class="compress icon" {{action 'toggleFullScreen'}}></i>
                 </span>
-                {{else}}
-                <span data-tooltip="Go Fullscreen" data-position="top right">
+            {{else}}
+                <span data-tooltip="Go Fullscreen" data-inverted=""  data-position="top right">
                     <i class="expand icon" {{action 'toggleFullScreen'}}></i>
                 </span>
-                {{/if}}
+            {{/if}}
         </div>
     </div>
 </div>
 <div class="ui basic segment padded-content full no-top-margin">
+    {{variables-layer variables=dashboard.variables}}
     {{dashboard-grid editing=editMode dashboard=dashboard }}
 </div>
 {{delete-dialogue entityName="dashboard" entity=dashboard delete="deleteDashboard"}}
+{{share-entity entityName="Dashboard" entity=dashboard}}
+{{dashboard-select-variables dashboard=dashboard isEditing=editMode}}

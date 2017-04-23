@@ -11,14 +11,14 @@
                 <div class="field">
                     <label>Type</label>
                     {{#ui-dropdown class="search selection" selected=variable.var_type onChange=(action (mut variable.var_type)) as |execute mapper|}}
-                        {{dropdown-default object=variable.var_type default="normal"}}
+                        {{dropdown-default object=variable.var_type default="string"}}
                         <i class="dropdown icon"></i>
                         <div class="menu">
                             {{#each variableTypes as |variableType|}}
                                 <div class="item" data-value={{variableType}}>
                                     {{variableType}}
                                 </div>
-                            {{/each}}
+                                <!-- {{/each}} -->
                         </div>
                     {{/ui-dropdown}}
                 </div>
@@ -26,12 +26,13 @@
             <div class="sixteen wide column">
                 <div class="field">
                     <label>Default (mendatory)</label>
+                    {{#if showDatePicker}}
+                        {{ui-calendar date=default_date onChange=(action (mut default_date)) placeholder="current_date" }}
+                        <div class="ui horizontal divider">or</div>
+                        {{input value=variable.default class="ui" placeholder="current_date" }}
+                    {{else}}
                     {{input value=variable.default class="ui" placeholder="default" }}
-                </div>
-            </div>
-            <div class="sixteen wide column">
-                <div class="ui {{if variableSaved "positive" "grey"}} button full" {{action "saveVariable"}} >
-                    Save
+                    {{/if}}
                 </div>
             </div>
         </div>

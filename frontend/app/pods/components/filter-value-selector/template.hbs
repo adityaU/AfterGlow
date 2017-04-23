@@ -15,6 +15,10 @@
             {{dropdown-default object=filter.valueDateObj.duration.name default="Days"}}
             <i class="dropdown icon"></i>
             <div class="menu">
+                <div class="ui icon search input">
+                    <i class="search icon"></i>
+                    <input type="text" placeholder="Search">
+                </div>
                 {{#each durations as |dur|}}
                     <div class="item" data-value="{{map-value mapper dur}}">
                         {{dur.name}}
@@ -28,6 +32,11 @@
             {{dropdown-default object=filter.valueDateObj.dtt.name default="Ago"}}
             <i class="dropdown icon"></i>
             <div class="menu">
+
+                <div class="ui icon search input">
+                    <i class="search icon"></i>
+                    <input type="text" placeholder="Search">
+                </div>
                 {{#each dateTimeTypes as |dtt|}}
                     <div class="item" data-value="{{map-value mapper dtt}}">
                         {{dtt.name}}

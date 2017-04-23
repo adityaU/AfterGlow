@@ -12,6 +12,7 @@ defmodule AfterGlow.ColumnValuesTasks do
     columns = table.columns
     column_ids = columns |> Enum.map(fn column -> column.id end)
     values = format(columns, results)
+    |> Enum.reject(fn x -> is_nil(x) end)
     |> Enum.map(fn v ->
       v
       |> Map.merge(%{inserted_at: Ecto.DateTime.utc , updated_at: Ecto.DateTime.utc })
@@ -43,6 +44,7 @@ defmodule AfterGlow.ColumnValuesTasks do
 
   defp saving_allowed(value)  when is_binary(value), do: true 
   defp saving_allowed(value)  when is_integer(value), do: true 
+  defp saving_allowed(value)  when is_boolean(value), do: true 
   defp saving_allowed(value), do: false 
 
   defp can_be_a_string(value), do: String.length(value) < 255 

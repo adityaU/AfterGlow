@@ -95,6 +95,29 @@ th.fc-day-header.fc-widget-header {
 span.data-name {
     margin: 0px 15px 0px 10px;
 }
+.grid-stack-item-content .question-title {
+    visibility: hidden;
+}
+
+.grid-stack-item-content:hover .question-title {
+    visibility: initial;
+}
+
+.grid-stack-item-content i.remove {
+    display: none;
+}
+
+.grid-stack-item-content:hover i.remove {
+    display: initial;
+}
+
+.grid-stack-item-content i.edit {
+    display: none;
+}
+
+.grid-stack-item-content:hover i.edit {
+    display: initial;
+}
 .add-text {
     color: #6435c9;
     font-style: italic;
@@ -103,31 +126,6 @@ span.data-name {
 }
 .ui.violet.text{
     color: $primaryColor;
-}
-.ui.grid.question{
-    visibility: hidden;
-}
-.grid-segment:hover .ui.grid.question{
-    visibility: initial;
-}
-.grid-segment:hover .updated-ago-div{
-    display: none;
-    transition: opacity 1s ease-out;
-    opacity: 0;
-}
-.updated-ago-div{
-    margin: -1em -1em;
-    width: calc(100% + 2em) !important;
-    padding: 0.5em;
-    color: white;
-    border-top-left-radius: $borderRadius;
-    border-top-right-radius: $borderRadius;
-    &.red{
-      background: $errorColor;
-    }
-    &.green{
-      background: $tertiaryColor;
-    }
 }
 .ui.grid.results-view-selector{
     margin-top: 1em !important;
@@ -388,7 +386,7 @@ label {
     border-radius: 50em;
     width: 30px;
 }
-.login {
+.ui.basic.segment.login {
     height: 150px;
     width: 500px;
     margin: auto !important;
@@ -397,6 +395,7 @@ label {
     border: 1px solid $greyColor !important;
     border-radius: $borderRadius !important;
     margin-top: 100px !important;
+    box-shadow: box-shadow($greyColor);
 
 }
 .big.logo {
@@ -613,8 +612,11 @@ button.toast-close-button{
 .no-border-top{
   border-top: 0px !important;
 }
+.no-padding{
+    padding: 0px !important;
+}
 .margin-bottom{
-  margin-bottom: 5px;
+  margin-bottom: 5px !important;
 }
 .margin-top{
   margin-top: 5px;
@@ -628,6 +630,21 @@ button.toast-close-button{
   padding-left: 22px !important;
   padding-right: 22px !important;
 }
+.ui.icon.search.input {
+    width: 90% !important;
+
+}
+.ui.labeled{
+    margin-bottom: 5px !important;
+  & input{
+    height: 2.56em;
+    border-top-left-radius: 0px !important;
+    border-bottom-left-radius: 0px !important;
+    &:focus{
+        border-color: $primaryColor;
+    }
+  }
+}
 .ui.grid > .column:not(.row){
   padding-top: 5px !important;
   padding-bottom: 5px !important;
@@ -635,12 +652,15 @@ button.toast-close-button{
   padding-right: 5px !important;
 }
 .grid-stack-item-content {
-  top: 10px !important;
-  bottom: 10px !important;
-  & .title {
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
+    top: 2px !important;
+    bottom: 2px !important;
+    left: 2px !important;
+    right: 2px !important;
+
+    & .title {
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
 
 }
 .full-height{

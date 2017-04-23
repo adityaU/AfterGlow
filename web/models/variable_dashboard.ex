@@ -3,7 +3,8 @@ defmodule AfterGlow.VariableDashboard do
 
   schema "variable_dashboards" do
     belongs_to :dashboard, AfterGlow.Dashboard
-    belongs_to :variable, AfterGlow.Variable
+    field :name, :string
+    field :default, :string
 
     timestamps()
   end

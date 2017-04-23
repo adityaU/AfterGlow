@@ -5,7 +5,7 @@ var EmberApp = require('ember-cli/lib/broccoli/ember-app');
 module.exports = function(defaults) {
     var app = new EmberApp(defaults, {
         ace: {
-            themes: ['chrome'],
+            themes: ['chrome', 'ambiance'],
             modes: ['pgsql', 'mysql', 'sql'],
             workers: ['pgsql', 'mysql', 'sql'],
             basePath: "/ace/"
@@ -14,7 +14,7 @@ module.exports = function(defaults) {
         // Add options here
     });
     app.import('./bower_components/lodash/dist/lodash.min.js')
-    app.import('./bower_components/ace-builds/src-noconflict/theme-chrome.js')
+    app.import('./bower_components/ace-builds/src-noconflict/theme-ambiance.js')
     app.import('./bower_components/ace-builds/src-noconflict/mode-sql.js')
     app.import('./bower_components/ace-builds/src-noconflict/ext-beautify.js')
     app.import('./bower_components/ace-builds/src-noconflict/ext-language_tools.js')

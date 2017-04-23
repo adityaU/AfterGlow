@@ -69,6 +69,8 @@ export default Ember.Controller.extend({
             })
             dashboard.set('settings', Ember.Object.create(settings))
             dashboard.save().then((response)=> {
+                dashboard.get('variables').invoke('save')
+            }).then((variables)=>{
                 this.set('nonEditable', "yes")
                 this.set('editMode', false)
             })
@@ -76,6 +78,9 @@ export default Ember.Controller.extend({
         cancelEditingDashboard(){
             this.set('nonEditable', "yes")
             this.set('editMode', false)
+        },
+        showShareDialogue(){
+            $('.ui.modal.share-entity').modal('show')
         },
         showDeleteDialogue(){
             $('.ui.modal.delete-dialogue').modal('show')
@@ -94,6 +99,9 @@ export default Ember.Controller.extend({
                 item.set('resultsCanBeLoaded', true) 
                 item.set('updated_at', new Date())
             })
+        },
+        showVariablesDialogue(){
+            $(".ui.modal.select-dashboard-variables").modal('show')
         },
         toggleFullScreen(){
             if (

@@ -1,0 +1,18 @@
+        <div class="ui grid no-margin no-padding">
+            <div class="{{if showVariables "three" "four"}} column row no-margin no-padding">
+            {{#each variables as |variable|}}
+                <div class="column">
+                    <div class="ui labeled input">
+                        <div class="ui violet label square">
+                            {{capitalize variable.name}}
+                        </div>
+                        {{#if variable.showDatePicker}}
+                            {{ui-calendar date=variable.date_value onChange=(action (mut variable.date_value)) placeholder=variable.default_date  }}
+                        {{else}}
+                            {{input type="text" value=variable.value placeholder=variable.default}}
+                        {{/if}}
+                    </div>
+                </div>
+            {{/each}}
+            </div>
+        </div>

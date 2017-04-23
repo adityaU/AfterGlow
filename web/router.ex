@@ -35,7 +35,7 @@ defmodule AfterGlow.Router do
    resources "/tags", TagController, except: [:new, :edit]
    resources "/variables", VariableController, except: [:new, :edit]
 
-   get "questions/:id/results", QuestionController, :results
+   post "questions/:id/results", QuestionController, :results
    get "auth/google", AuthController, :google_auth_path
    post "callback/google", AuthController, :callback
    post "verify-token", AuthController, :verify_token

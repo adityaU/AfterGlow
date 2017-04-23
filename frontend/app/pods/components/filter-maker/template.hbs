@@ -1,18 +1,22 @@
 {{#if filter.raw}}
-    <div class="switch" data-tooltip="Switch to Builder"  {{action 'switchToBuilder' 'filters' filter false}}><i class="list layout icon" ></i></div>
+    <div class="switch" data-tooltip="Switch to Builder" data-inverted=""  data-variation="inverted"  {{action 'switchToBuilder' 'filters' filter false}}><i class="list layout icon" ></i></div>
     <div class="ui form margin-top-10">
         <div class="field">
             {{input value=filter.value class="ui" placeholder="joining_table.column = 'something'" }}
         </div>
     </div>
 {{else}}
-    <div class="switch" data-tooltip="Switch to Raw" {{action 'switchToRaw' 'filters' filter}}><i class="code icon" ></i></div>
+    <div class="switch" data-tooltip="Switch to Raw" data-inverted=""  data-variation="inverted" {{action 'switchToRaw' 'filters' filter}}><i class="code icon" ></i></div>
     <div class="ui form margin-top-10">
         <div class="field">
             {{#ui-dropdown class="search selection" selected=filter.column onChange=(action (mut filter.column)) as |execute mapper|}}
                 {{dropdown-default object=filter.column.human_name default="Column"}}
                 <i class="dropdown icon"></i>
                 <div class="menu">
+                    <div class="ui icon search input">
+                        <i class="search icon"></i>
+                        <input type="text" placeholder="Search">
+                    </div>
                     {{#each columns as |column|}}
                         <div class="item" data-value="{{map-value mapper column}}">
                             {{column.human_name}}
@@ -27,6 +31,11 @@
                 {{dropdown-default object=filter.operator.name default="operator"}}
                 <i class="dropdown icon"></i>
                 <div class="menu">
+
+                    <div class="ui icon search input">
+                        <i class="search icon"></i>
+                        <input type="text" placeholder="Search">
+                    </div>
                     {{#each operators as |operator|}}
                         <div class="item" data-value="{{map-value mapper operator}}">
                             {{operator.name}}

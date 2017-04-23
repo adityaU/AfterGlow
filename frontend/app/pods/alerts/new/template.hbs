@@ -15,17 +15,17 @@
     </div>
     <div class="six wide column text-align-right">
       {{#if editing}}
-        <button data-tooltip="Save Alert" class="ui very basic violet button" {{action 'saveAlert'}}>
+        <button data-tooltip="Save Alert" data-inverted=""  data-variation="inverted" class="ui very basic violet button" {{action 'saveAlert'}}>
           SAVE
         </button>
-        <button data-tooltip="Cancel Editing Alert" class="ui very basic grey button" {{action 'cancelEditingAlert'}}>
+        <button data-tooltip="Cancel Editing Alert" data-inverted=""  data-variation="inverted" class="ui very basic grey button" {{action 'cancelEditingAlert'}}>
           CANCEL
         </button>
-        <button data-tooltip="Delete Alert" class="ui very basic red button" {{action 'showDeleteDialogue'}}>
+        <button data-tooltip="Delete Alert" data-inverted=""  data-variation="inverted" class="ui very basic red button" {{action 'showDeleteDialogue'}}>
           DELETE
         </button>
       {{else}}
-        <span data-tooltip="Edit" >  
+        <span data-tooltip="Edit" data-inverted=""  data-variation="inverted">  
           <i class="pencil icon" {{action 'editAlert'}}></i>
         </span>
       {{/if}}

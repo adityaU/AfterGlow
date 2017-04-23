@@ -21,4 +21,7 @@ defmodule AfterGlow.Policy.Helpers do
     end)
     |> Enum.any?(fn x -> x end)
   end
+  def is_admin?(user) do
+    has_permission(user, "Settings.all")
+  end
 end

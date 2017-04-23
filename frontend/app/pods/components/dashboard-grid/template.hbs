@@ -3,7 +3,7 @@
        options=(hash
        animate=true
        width=12
-       verticalMargin=10
+       verticalMargin="0em"
        )
        onChange=(action 'change')
     }}
@@ -12,26 +12,28 @@
                options=(get (get dashboard  "settings") (get question "id"))}}
                 <div class="ui segment full-height">
 
-                    {{#if question.updated_at}}
-                        <div class="text-align-center updated-ago-div {{question.updatedAgoColor}}">
-                            <div class="updated-ago">
-                                Updated: {{moment-from-now question.updated_at interval=1000}}
-                            </div>
-                        </div>
-                    {{/if}}
                     <div class="ui grid question" id="{{question.id}}"> 
-                        <div class="twelve wide column">
+                        <div class="ten wide column">
                             <div class="question-title">
                                 {{question.title}}
                             </div>
                         </div>
-                        <div class="four wide column text-align-right">
-                            <span data-tooltip="edit this question">
-                                {{#link-to 'questions.show' question.id}}<i class="edit icon"></i>{{/link-to}}
-                            </span>
-                            <span data-tooltip="delete" {{action 'showDeleteFromDashboardDialogue' question}}>
+                        <div class="six wide column text-align-right">
+                            {{#if question.updated_at}}
+                                <span data-tooltip=" Updated {{moment-from-now question.updated_at interval=1000}}" data-inverted="" data-position="left center">
+                                    <i class="time icon {{question.updatedAgoColor}}"></i>
+                                </span>
+                            {{/if}}
+                            {{#if question.has_permission}}
+                                <span data-tooltip="edit this question" data-inverted="" data-position="left center">
+                                    {{#link-to 'questions.show' question.id}}<i class="edit icon"></i>{{/link-to}}
+                                </span>
+                            {{/if}}
+                            {{#if (and dashboard.has_permission (can "edit dashboard"))}}
+                            <span data-tooltip="Remove From Dashboard" data-inverted="" data-position="left center" {{action 'showDeleteFromDashboardDialogue' question}}>
                                 <i class="remove icon"></i>
                             </span>
+                            {{/if}}
                         </div>
 
                     </div>
@@ -42,7 +44,7 @@
                           resultsViewSettings=question.results_view_settings
                           resultsViewType=question.results_view_settings.resultsViewType }}
                     {{else}}
-                        {{#if question.loading}}
+                        {{#if (or question.loading (not question.content.isLoaded))}}
                             <div class="ui active inverted dimmer">
                                 <div class="ui text massive loader">{{loadingMessage}}</div>
                             </div>

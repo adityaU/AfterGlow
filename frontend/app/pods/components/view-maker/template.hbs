@@ -1,13 +1,13 @@
 <div class=" ui segment">    
     {{#if selectView.selected.raw}}
-        <div class="right" data-tooltip="Switch to Builder" {{action 'switchToBuilder' 'views' selectView true}}><i class="list layout icon" ></i></div>
+        <div class="right" data-tooltip="Switch to Builder" data-inverted=""  {{action 'switchToBuilder' 'views' selectView true}}><i class="list layout icon" ></i></div>
         <div class="ui form margin-top-10">
             <div class="field">
                 {{input value=selectView.selected.value class="ui" placeholder="COUNT(column) As Metric" }}
             </div>
         </div>
     {{else}}
-        <div class="right" data-tooltip="Switch to Raw" {{action 'switchToRaw' 'views' selectView true}}><i class="code icon" ></i></div>
+        <div class="right" data-tooltip="Switch to Raw" data-inverted=""  {{action 'switchToRaw' 'views' selectView true}}><i class="code icon" ></i></div>
         {{#ui-dropdown class="search selection" selected=selectView.selected onChange=(action (mut selectView.selected))  as |execute mapper|}} 
             {{dropdown-default object=selectView.selected.name default="View"}}
             <i class="dropdown icon"></i>

@@ -1,7 +1,8 @@
 import Ember from 'ember';
 import QuestionNewController from '../new/controller'
+import ResultViewMixin from 'frontend/mixins/result-view-mixin'
 
-export default QuestionNewController.extend({
+export default QuestionNewController.extend( ResultViewMixin, {
     question: Ember.computed.alias('model'),
     enableAddToDashBoard: true ,
     results: Ember.computed.alias('question.results'),
@@ -15,13 +16,6 @@ export default QuestionNewController.extend({
             $('.ui.modal.add-to-dashboard').modal('show')
         },
 
-        saveQuestion(){
-            let question = this.get('question');
-            question.save().then((response)=> {
-                this.transitionToRoute('questions.show', response.id)
-            });
-            
-        },
         refreshNow(){
             let question = this.get('question')
             question.set('resultsCanBeLoaded', true) 
@@ -32,7 +26,9 @@ export default QuestionNewController.extend({
             let settings = dashboard.get('settings')
             !settings && dashboard.set('settings', {})
             settings = dashboard.get('settings')
-            settings[this.get('question.id')] = {width:6, height: 6}
+            let dimensions = this.get('resultViewDashboardDefaultDimensions')[this.get('question.results_view_settings.resultsViewType')] ||
+                    {width: 6 , height: 6}
+            settings[this.get('question.id')] = dimensions
             dashboard.save().then((response)=> {
                 this.transitionToRoute('dashboards.show', response.id)
                 $('.ui.modal.add-to-dashboard').modal('hide')

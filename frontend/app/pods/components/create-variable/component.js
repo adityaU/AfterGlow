@@ -1,17 +1,18 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-    variableTypes: ['normal', 'filter'],
-    variableSaved: Ember.computed('variable', function(){
-        return this.get('variable.id') == null
-    }),
-
-    actions:{
-        saveVariable(){
-            // this.set('query', this.get('query').replace(`{{${this.get('variableName')}}}`, `{{${this.get('variable.name')}}}`))
-            this.get('variable').save().then((response)=>{
-                this.get('entity.variables').pushObject(response);
-            })
+    variableTypes: ['String', "Integer", "Date"],
+    showDatePicker: Ember.computed('variable.var_type', function(){
+        if (this.get('variable.var_type') == "Date"){
+            return true
+        }else{
+            return false
         }
-    }
+    }),
+    variableTypeObserver: Ember.observer('variable.var_type', function(){
+        if (this.get('variable.var_type') == "Date"){
+            this.set('default_date', new Date())
+            this.set('variable.default', "current_date")
+        }
+    })
 });

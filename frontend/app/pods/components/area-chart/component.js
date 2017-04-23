@@ -27,7 +27,8 @@ export default Ember.Component.extend(UtilsFunctions, {
         let gd = _this.get('getNode')(_this)
         let gridParent = _this.get('gridParent')
         var data =  _this.get('jsonData'), layout;
-        data = data && data.map((item, i)=>{
+        data = data && data.length > 0 && [].concat.apply([], data.map((series, i)=>{
+            return series.map((item, j)=>{
             return  {
                 x: item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayX1')}),
                 y: item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayY')}),
@@ -36,11 +37,12 @@ export default Ember.Component.extend(UtilsFunctions, {
 
                 line: {
                     width: 1,
-                    color: _this.get('colors')[i]
+                    color: _this.get('colors')[i+j]
                 },
-                name: item.get('type')
+                name: _this.legendName(item, i)
             }
-        });
+            })
+        }));
         layout = data && _this.get('layout')
         data = data && _this.get('stackedArea')(data);
         data && Plotly.newPlot(gd, data, layout, {showLink: false})

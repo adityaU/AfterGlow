@@ -15,17 +15,19 @@ export default Ember.Component.extend( UtilsFunctions, {
         let gridParent = _this.get('gridParent')
         let gd = _this.get('getNode')(_this)
         var data =  _this.get('jsonData'), layout;
-        data = data && data.map((item, i)=>{
-            return  {
-                x: item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayX1')}),
-                y: item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayY')}),
-                type: 'bar',
-                marker: {
-                    color: _this.get('colors')[i] 
-                },
-                name: item.get('type')
-            }
-        });
+        data = data && data.length > 0 && [].concat.apply([], data.map((series, i)=>{
+            return series.map((item, j)=>{
+                return  {
+                    x: item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayX1')}),
+                    y: item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayY')}),
+                    type: 'bar',
+                    marker: {
+                        color: _this.get('colors')[i + j] 
+                    },
+                    name: _this.legendName(item, i)
+                }
+            })
+        }));
         layout = data && _this.get('layout')
         layout["barmode"]= "group"
         data && Plotly.newPlot(gd, data, layout, {showLink: false})

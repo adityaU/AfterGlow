@@ -1,10 +1,11 @@
 {{#each questions as |question|}}
-    {{#if question.id }}
+    {{#if (and question.id question.has_permission) }}
     <div class="ui segment full">
         <div class="ui grid">
             <div class="six wide column">
                 {{#link-to 'questions.show' question.id}}
                 <div class="queston-title">
+                    <i class="{{question.icon}} icon"></i>
                     {{question.title}}
                 </div>
                 {{/link-to}}
@@ -15,24 +16,24 @@
             <div class="six wide column">
                 {{#each question.tags as |tag|}}
                     {{#link-to 'tags.show' tag.id}} 
-                        <div class="ui dashboard square label" style="background: {{tag.color}}; color: white;">
+                        <div class="ui basic dashboard label" style="background: {{tag.color}}; color: white;">
                             {{tag.name}}
                         </div>
                     {{/link-to}}
                 {{/each}}
                 {{#each question.dashboards as |dashboard|}}
                     {{#link-to 'dashboards.show' dashboard.id}} 
-                        <div class="ui dashboard violet square label">
+                        <div class="ui basic dashboard violet label">
                             {{dashboard.title}}
                         </div>
                     {{/link-to}}
                 {{/each}}
             </div>
             <div class="four wide column text-align-right">
-                <span data-tooltip="Edit Tags" class="" {{action 'addTag' question}}>
+                <span data-tooltip="Edit Tags" data-inverted=""  class="" {{action 'addTag' question}}>
                     <i class="edit icon"></i>
                 </span>
-                <button data-tooltip="Delete Question" class="ui very basic red button" {{action 'showDeleteDialogue' question}}>
+                <button data-tooltip="Delete Question" data-inverted=""  class="ui very basic red button" {{action 'showDeleteDialogue' question}}>
                     DELETE
                 </button>
             </div>

@@ -1,18 +1,23 @@
 <div class=" ui segment">    
 
     {{#if groupBy.selected.raw}}
-        <div class="right" data-tooltip="Switch to Builder" {{action 'switchToBuilder' 'groupBys' groupBy true}}><i class="list layout icon" ></i></div>
+        <div class="right" data-tooltip="Switch to Builder" data-inverted=""  {{action 'switchToBuilder' 'groupBys' groupBy true}}><i class="list layout icon" ></i></div>
         <div class="ui form margin-top-10">
             <div class="field">
                 {{input value=groupBy.selected.value class="ui" placeholder="Something complex" }}
             </div>
         </div>
     {{else}}
-        <div class="right" data-tooltip="Switch to Raw" {{action 'switchToRaw' 'groupBys' groupBy true}}><i class="code icon" ></i></div>
+        <div class="right" data-tooltip="Switch to Raw" data-inverted=""  {{action 'switchToRaw' 'groupBys' groupBy true}}><i class="code icon" ></i></div>
         {{#ui-dropdown class="search selection" selected=groupBy.selected onChange=(action (mut groupBy.selected))  as |execute mapper|}} 
             {{dropdown-default object=groupBy.selected.human_name default="Column"}}
             <i class="dropdown icon"></i>
             <div class="menu">
+
+                <div class="ui icon search input">
+                    <i class="search icon"></i>
+                    <input type="text" placeholder="Search">
+                </div>
                 {{#each columns as |column|}}
                     <div class="item" data-value="{{map-value mapper column}}">
                         {{column.human_name}}
@@ -25,6 +30,11 @@
                 {{dropdown-default object=groupBy.castType.name default="By"}}
                 <i class="dropdown icon"></i>
                 <div class="menu">
+
+                    <div class="ui icon search input">
+                        <i class="search icon"></i>
+                        <input type="text" placeholder="Search">
+                    </div>
                     {{#each groupByDateTypes as |type|}}
                         <div class="item" data-value="{{map-value mapper type}}">
                             {{type.name}}

@@ -1,0 +1,28 @@
+<div class="ui modal share-entity">
+    <div class="header">
+        Share {{entityName}}
+    </div>
+    <div class="create-dashboard content">
+        Enter email ids of people, you want to share this {{entityName}} with:
+        {{#ui-dropdown allowAdditions=true class="fluid multiple selection search" selected=entity.shared_to onChange=(action (mut entity.shared_to)) as |execute mapper|}}
+            <i class="dropdown icon"></i>
+            <div class="default text">Enter EmailIds</div>
+            <div class="ui menu">
+                {{#each sortedUsers as |user|}}
+                    <div class="item" data-value="{{user.email}}">
+                        <i class="user icon"></i>
+                        {{user.full_name}} - {{user.email}}
+                    </div>
+                {{/each}}
+            </div>
+        {{/ui-dropdown}}
+    </div>
+    <div class="actions">
+        <div class="ui red deny button" {{action 'clearSharedTo'}}>
+            Cancel
+        </div>
+        <div class="ui positive violet right button " {{action "saveSharedTo"}} >
+            Share
+        </div>
+    </div>
+</div>

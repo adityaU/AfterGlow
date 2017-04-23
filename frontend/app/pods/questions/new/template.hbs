@@ -7,121 +7,129 @@
       addToDashboard='addToDashboard'
       showAddToDashboard='showAddToDashboard'
       question=question
+      showVariables=showVariables
       transitionToIndex="transitionToIndex"
     }}
 </div>
 <div class="ui basic segment full padded-content no-top-margin">
     <div class="ui grid full">
-        <div class="{{if queryBuilderType 'four' 'sixteen'}} wide column">
+        <div class="{{if showVariables "twelve" "sixteen"}} wide column">
+            {{variables-layer variables=question.query_variables showVariables=showVariables}}
+            <div class="ui grid full">
+                <div class="{{if queryBuilderType 'four' 'sixteen'}} wide column">
 
-            {{#if queryBuilderType}}
-                {{query-builder getResults='getResults' toggleSql='toggleSql' queryObject=queryObject showGetResults=showGetResults databases=databases}}
-            {{/if}}
-        </div>
-        <div class="{{if queryBuilderType 'twelve' 'sixteen'}} wide column">
+                    {{#if queryBuilderType}}
+                        {{query-builder getResults='getResults' toggleSql='toggleSql' queryObject=queryObject showGetResults=showGetResults databases=databases}}
+                    {{/if}}
+                </div>
+                <div class="{{if queryBuilderType 'twelve' 'sixteen'}} wide column">
 
-            {{#if queryBuilderType}}
-            {{else}}
-                <div class="ui grid">
-                    <div class="{{if showVariables "twelve" "sixteen"}} wide column">
-                        <div class="ui segment">
-                            <div class="ui grid">
-                                <div class="fourteen wide column">
-                                    {{database-selector queryObject=queryObject showTags=false databases=databases}}
-                                </div>
-                                <div class="two wide column">
-                                    <div class="right" data-tooltip="Switch to Query Builder" {{action 'toggleSql'}}><i class="align justify icon"></i></div>
-                                </div>
-                            </div>
-                            {{ember-ace
-                              lines=10
-                              value=queryObject.rawQuery
-                              mode=aceMode
-                              enableSnippets=true
-                              enableLiveAutocompletion=true
-                              enableBasicAutocompletion=true theme=aceTheme update=(action (mut queryObject.rawQuery)) }}
-                            {{#if showGetResults}}
-                                <div class="content active text-align-center">
-                                    <button class="ui violet button" {{action 'getResults'}}>
-                                        <i class="icon arrow right"></i>
-                                        Get Results
-                                    </button>
-                                </div>
-                            {{/if}}
-                        </div>
-                    </div>
-                    {{#if showVariables}}
-                        <div class="four wide column">
-                            <div class="ui grid segment">
-                                {{#each question.variables as |var|}}
-                                    <div class="sixteen wide column">
-                                        <div class="ui segment">
-                                            {{create-variable entity=question variable=var}}
+                    {{#if queryBuilderType}}
+                    {{else}}
+                        <div class="ui grid">
+                            <div class="sixteen wide column">
+                                <div class="ui segment">
+                                    <div class="ui grid">
+                                        <div class="fourteen wide column">
+                                            {{database-selector queryObject=queryObject showTags=false databases=databases}}
+                                        </div>
+                                        <div class="two wide column">
+                                            <div class="right" data-tooltip="Switch to Query Builder" data-inverted=""  {{action 'toggleSql'}}><i class="align justify icon"></i></div>
                                         </div>
                                     </div>
-                                {{/each}}
-                            </div>
-                        </div>
-                    {{/if}}
-                </div>
-            {{/if}}
-            {{#if results}}
-                <div class="ui segment">
-                    {{#if question.updated_at}}
-                        <div class="text-align-center updated-ago-div {{question.updatedAgoColor}}">
-                            <div class="updated-ago">
-                                Updated: {{moment-from-now question.updated_at interval=1000}}
-                            </div>
-                        </div>
-                    {{/if}}
-                    <div class="ui grid results-view-selector">
-                        <div class="twelve wide column" bubbles=false>
-                            {{#ui-dropdown class="search selection" selected=resultsViewType onChange=(action (mut resultsViewType))  as |execute mapper|}} 
-                                {{dropdown-default  default=resultsViewType}}
-                                <i class="dropdown icon"></i>
-                                <div class="menu">
-                                    {{#each availableResultsTypes as |rv|}}
-                                        <div class="item" data-value="{{map-value mapper rv}}">
-                                            {{rv}}
+                                    {{ember-ace
+                                      lines=10
+                                      value=queryObject.rawQuery
+                                      mode=aceMode
+                                      enableSnippets=true
+                                      enableLiveAutocompletion=true
+                                      enableBasicAutocompletion=true theme=aceTheme update=(action (mut queryObject.rawQuery)) }}
+                                    {{#if showGetResults}}
+                                        <div class="content active text-align-center">
+                                            <button class="ui violet button" {{action 'getResults'}}>
+                                                <i class="icon arrow right"></i>
+                                                Get Results
+                                            </button>
                                         </div>
-                                    {{/each}}
+                                    {{/if}}
                                 </div>
-                            {{/ui-dropdown}}
+                            </div>
                         </div>
-                        <div class="four wide column text-align-right">
-                            <span data-tooltip="Configure">  
-                                <i class="settings icon" {{action 'toggleSettings'}}></i>
-                            </span>
-                        </div>
-                    </div>
-                    {{#if showSettings}}
-                        {{component resultsWidgetSettingsComponent resultsViewSettings=resultsViewSettings results=results }}
                     {{/if}}
-                    {{question-widget results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName question=question}}
+                    {{#if results}}
+                        <div class="ui segment">
+                            <div class="ui grid results-view-selector">
+                                <div class="twelve wide column" bubbles=false>
+                                    {{#ui-dropdown class="search selection" selected=resultsViewType onChange=(action (mut resultsViewType))  as |execute mapper|}} 
+                                        {{dropdown-default  default=resultsViewType}}
+                                        <i class="dropdown icon"></i>
+                                        <div class="menu">
+                                            {{#each availableResultsTypes as |rv|}}
+                                                <div class="item" data-value="{{map-value mapper rv}}">
+                                                    {{rv}}
+                                                </div>
+                                            {{/each}}
+                                        </div>
+                                    {{/ui-dropdown}}
+                                </div>
+                                <div class="four wide column text-align-right">
+                                    {{#if question.updated_at}}
+                                        <span data-tooltip=" Updated {{moment-from-now question.updated_at interval=1000}}" data-inverted="">
+                                            <i class="time icon {{question.updatedAgoColor}}"></i>
+                                        </span>
+                                    {{/if}}
+                                    <span data-tooltip="Configure" data-inverted="" >  
+                                        <i class="settings icon" {{action 'toggleSettings'}}></i>
+                                    </span>
+                                </div>
+                            </div>
+                            {{#if showSettings}}
+                                {{component resultsWidgetSettingsComponent resultsViewSettings=resultsViewSettings results=results }}
+                            {{/if}}
+                            {{question-widget results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName question=question}}
+                        </div>
+                    {{else}}
+                        {{#if loading}}
+                            <div class="ui segment results">
+                                <div class="ui active inverted dimmer">
+                                    <div class="ui text massive loader">{{loadingMessage}}</div>
+                                </div>
+                            </div>
+                        {{else}} 
+                            <div class="ui segment results">
+                                {{#if errors}}
+                                    <div class="query error section">
+                                        <div class="ui big">
+                                            <i class="ban icon red"></i>
+                                        </div>
+                                        {{errors.message}}</div>
+                                {{else}}
+                                        <div class="section">Wanna see something cool? Run a Query!</div>
+                                {{/if}}
+                            </div>
+
+                        {{/if}}
+                    {{/if}}
                 </div>
-            {{else}}
-                {{#if loading}}
-                    <div class="ui segment results">
-                        <div class="ui active inverted dimmer">
-                            <div class="ui text massive loader">{{loadingMessage}}</div>
+            </div>
+        </div>
+
+        {{#if showVariables}}
+            <div class="four wide column">
+                <div class="dashboard-title margin-bottom">Variables</div>
+                {{#each question.variables as |var|}}
+                    <div class="sixteen wide column">
+                        <div class="ui segment margin-bottom">
+                            <i class="remove icon right" {{action "removeVariable" var}}></i>
+                            {{create-variable entity=question variable=var}}
                         </div>
                     </div>
-                {{else}} 
-                    <div class="ui segment results">
-                        {{#if errors}}
-                            <div class="query error section">
-                                <div class="ui big">
-                                    <i class="ban icon red"></i>
-                                </div>
-                                {{errors.message}}</div>
-                        {{else}}
-                                <div class="section">Wanna see something cool? Run a Query!</div>
-                        {{/if}}
-                    </div>
-
-                {{/if}}
-            {{/if}}
-        </div>
+                {{/each}}
+                <div class="ui violet button full" {{action 'addVariable'}}>
+                    Add Variable
+                </div>
+            </div>
+        {{/if}}
     </div>
 </div>
 {{#if enableAddToDashBoard}}
