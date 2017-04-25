@@ -15,7 +15,7 @@ export default Ember.Mixin.create({
             "#24a8ac", "#ff4c65", "#e94c6f", "#354458", "#69d2e7",
             "#dc2742", "#3a0256", "#17a697", "#064789", "#ffc33c"
         ].map((item)=> {
-            return this.opacity(item, 0.8)
+            return this.opacity(item, 0.9)
         })
     }),
     opacity(hex, opacity) {

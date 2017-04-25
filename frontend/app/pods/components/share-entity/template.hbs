@@ -4,6 +4,7 @@
     </div>
     <div class="create-dashboard content">
         Enter email ids of people, you want to share this {{entityName}} with:
+        <div class="tip">Tip: Enter 'all' to share with everybody on AfterGlow. Also, Don't forget to save {{entityName}}</div> 
         {{#ui-dropdown allowAdditions=true class="fluid multiple selection search" selected=entity.shared_to onChange=(action (mut entity.shared_to)) as |execute mapper|}}
             <i class="dropdown icon"></i>
             <div class="default text">Enter EmailIds</div>

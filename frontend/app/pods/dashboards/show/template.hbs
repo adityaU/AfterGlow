@@ -4,10 +4,12 @@
             {{#if editMode}}
                 <div class="ui form">
                     <div class="field">
-                        {{input value=dashboard.title class="ui" placeholder="What are you calling it?"}}
+                        <label>Title</label>
+                        {{input value=dashboard.title class="ui"}}
                     </div>
                     <div class="field">
-                        {{input value=dashboard.description class="ui" placeholder="what does it show?"}}
+                        <label>Description</label>
+                        {{input value=dashboard.description class="ui" }}
                     </div>
                 </div>
 
@@ -26,6 +28,11 @@
             {{/if}}
         </div>
         <div class="six wide column text-align-right {{if editMode  "options-dashboard"}}">
+            {{#if (and editMode (not (can "edit dashboard")))}}
+                <button data-tooltip="Cancel Editing Dashboard" data-inverted=""  class="ui very basic grey button" {{action 'cancelEditingDashboard'}}>
+                    CANCEL
+                </button>
+            {{/if}}
             {{#if (can "edit dashboard")}}
                 {{#if editMode}}
                     <button data-tooltip="Save Dashboard" data-inverted=""  class="ui very basic violet button" {{action 'saveDashboard'}}>

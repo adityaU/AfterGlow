@@ -19,13 +19,16 @@ export default Ember.Component.extend({
 
     page: Ember.computed.alias("pagedRows.page"),
     perPage: Ember.computed.alias("pagedRows.perPage"),
-    totalPages: Ember.computed.oneWay("pagedRows.totalPages")
+    totalPages: Ember.computed.oneWay("pagedRows.totalPages"),
+    showPageNumbers: Ember.computed('totalPages', function(){
+        return this.get('totalPages') - 1
+    })
 });
 
 // import Ember from 'ember';
 // import Table from 'ember-light-table';
 
-// const { computed } = Ember;
+// const { computed } = Ember
 
 // export default Ember.Component.extend({
 //     classNames: ["full"],

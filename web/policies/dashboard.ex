@@ -13,7 +13,10 @@ defmodule AfterGlow.Dashboard.Policy do
     if has_permission(user, "Settings.all") do
        scope
     else
-      from s in scope, where: s.owner_id == ^user.id, or_where: fragment("? = ANY (?)", ^user.email , s.shared_to)
+        from s in scope,
+          where: s.owner_id == ^user.id
+          or fragment("? = ANY (?)", ^user.email , s.shared_to)
+          or fragment("? = ANY (?)", "all" , s.shared_to)
     end
   end
 

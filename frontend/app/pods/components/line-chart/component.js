@@ -10,6 +10,13 @@ export default Ember.Component.extend( UtilsFunctions,{
     data: Ember.observer('jsonData', "layout", function(){
         this.get('getData')(this)
     }),
+    mode(item){
+        if (item.length >= 31){
+            return "lines"
+        }else{
+            return "lines+markers"
+        }
+    },
 
     getData(_this){
         let gd = _this.get('getNode')(_this)
@@ -21,7 +28,7 @@ export default Ember.Component.extend( UtilsFunctions,{
                     x: item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayX1')}),
                     y:  item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayY')}),
                     type: 'scatter',
-                    mode: 'lines+markers',
+                    mode: _this.mode(item),
                     line: {
                         width: 1.3,
                         color: _this.get('colors')[i+j]

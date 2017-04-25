@@ -7,10 +7,9 @@
             <div class="ui horizontal divider">Selected</div>
                 {{#each variablesSelected as |variable|}}
                     <div class="four wide column margin-bottom">
-                        <div class="ui segment margin-bottom">
-                            <i class="remove icon right" {{action "removeVariable" variable}}></i>
-                            {{create-dashboard-variable variable=variable}}
-                        </div>
+                    <div class="selected permission-select margin-top" {{action 'removeVariable' variable}}>
+                        {{variable.name}}
+                    </div>
                     </div>
                 {{/each}}
 

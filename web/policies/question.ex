@@ -16,9 +16,11 @@ defmodule AfterGlow.Question.Policy do
     else
         from s in scope,
           join: d in assoc(s, :dashboards),
-          where: (s.owner_id == ^user.id),
-          or_where: fragment("? = ANY (?)", ^user.email , s.shared_to),
-          or_where: fragment("? = ANY (?)", ^user.email , d.shared_to)
+          where: (s.owner_id == ^user.id)
+          or fragment("? = ANY (?)", ^user.email , s.shared_to)
+          or fragment("? = ANY (?)", ^user.email , d.shared_to)
+          or fragment("? = ANY (?)", "all" , s.shared_to)
+          or fragment("? = ANY (?)", "all" , d.shared_to)
     end
   end
 

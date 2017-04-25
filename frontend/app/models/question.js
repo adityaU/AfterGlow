@@ -22,7 +22,7 @@ export default DS.Model.extend(ResultViewMixin, {
     inserted_at: DS.attr('date'),
     updated_at: DS.attr('date'),
     cachedResults: Ember.on('didLoad', Ember.observer("updated_at", "resultsCanBeLoaded" , "cached_results", function(){
-        if (this.get('resultsCanBeLoaded')){
+        if (this.get('resultsCanBeLoaded') && !this.get('loading')){
             this.set("loading", true)
             this.set('results', null)
             let variables = this.get('query_variables')
@@ -31,17 +31,21 @@ export default DS.Model.extend(ResultViewMixin, {
             })
             this.resultsCall( {variables: variables}).then((response)=>{
                 this.set('results', response.data)
+                this.set('cached_results', response.data)
                 this.set("loading", false)
                 this.set("resultsCanBeLoaded", false)
+                this.set('errorMessage', null)
                 // }).then((error)=>{
                 //     this.set('resultError', error.error)
                 //     this.set("loading", false)
             }).catch((error)=>{
                 this.set('errorMessage', error.message)
                 this.set("loading", false)
+                this.set('results', null)
+                this.set('cached_results', null)
                 this.set("resultsCanBeLoaded", false)
             });
-        }else{
+        }else if(!this.get('errorMessage') && !this.get('loading')){
             this.set('results', this.get('cached_results'))
         }
     })),

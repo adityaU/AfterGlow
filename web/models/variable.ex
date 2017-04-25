@@ -32,7 +32,7 @@ defmodule AfterGlow.Variable do
           _ ->
             value
         end
-      "string" ->
+      "String" ->
         "'#{value}'"
       "Integer" ->
         value

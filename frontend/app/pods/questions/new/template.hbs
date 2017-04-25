@@ -59,7 +59,7 @@
                     {{#if results}}
                         <div class="ui segment">
                             <div class="ui grid results-view-selector">
-                                <div class="twelve wide column" bubbles=false>
+                                <div class="four wide column" bubbles=false>
                                     {{#ui-dropdown class="search selection" selected=resultsViewType onChange=(action (mut resultsViewType))  as |execute mapper|}} 
                                         {{dropdown-default  default=resultsViewType}}
                                         <i class="dropdown icon"></i>
@@ -72,6 +72,7 @@
                                         </div>
                                     {{/ui-dropdown}}
                                 </div>
+                                <div class="eight wide column text-align-right"></div>
                                 <div class="four wide column text-align-right">
                                     {{#if question.updated_at}}
                                         <span data-tooltip=" Updated {{moment-from-now question.updated_at interval=1000}}" data-inverted="">

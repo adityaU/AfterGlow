@@ -127,6 +127,11 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
     dashboards: Ember.computed(function(){
         return this.store.findAll('dashboard')
     }),
+
+    // errorObserver: Ember.observer('question.errorMessage', function(){
+    //     this.set("errors", {})
+    //     this.set('errors.message', this.get('question.errorMessage'))
+    // }),
     // queryObserver: Ember.observer('queryObject.rawQuery', function(){
     //     this.set('queryChanged', true)
     // }),
@@ -152,7 +157,6 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
             if (question.id && ( changedAttributes == 0) && !this.get('variablesChanged')){
                 question.set("updated_at", new Date())
                 question.set('resultsCanBeLoaded', true) 
-                this.set('queryChanged', false)
             }else{
                 question.set("updated_at", new Date())
                 queryObject = queryObject || this.get('queryObject');

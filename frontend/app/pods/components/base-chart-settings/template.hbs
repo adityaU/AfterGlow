@@ -1,20 +1,25 @@
-<div class="ui segment">
+<div class="ui basic segment">
 <div class="ui grid">
     <div class="eight wide column">
         <div class="ui form">
-            <div class="field">
-                <label>{{x1Name}}</label>
-                {{#ui-dropdown class="search selection" selected=x1 onChange=(action (mut resultsViewSettings.x1))  as |execute mapper|}} 
-                    {{dropdown-default object=x1 default=x1Name}}
-                    <i class="dropdown icon"></i>
-                    <div class="menu">
-                        {{#each results.columns as |column|}}
-                            <div class="item" data-value="{{map-value mapper column}}">
-                                {{capitalize column}}
+            <div class="ui grid">
+                <div class="fourteen wide column">
+                    <div class="field">
+                        <label>{{x1Name}}</label>
+                        {{#ui-dropdown class="search selection" selected=x1 onChange=(action (mut resultsViewSettings.x1))  as |execute mapper|}} 
+                            {{dropdown-default object=x1 default=x1Name}}
+                            <i class="dropdown icon"></i>
+                            <div class="menu">
+                                {{#each results.columns as |column|}}
+                                    <div class="item" data-value="{{map-value mapper column}}">
+                                        {{capitalize column}}
+                                    </div>
+                                {{/each}}
                             </div>
-                        {{/each}}
+                        {{/ui-dropdown}}
                     </div>
-                {{/ui-dropdown}}
+                </div>
+                    <div class="fourteen wide column"></div>
             </div>
             <div class="ui grid">
                 <div class="fourteen wide column">
@@ -67,17 +72,32 @@
     </div>
     <div class="eight wide stretched column">
         <div class="ui form">
-            <div class="field">
-                <label>X Label</label>
-                {{input value=xLabel class="ui" placeholder="X Lable" }}
+
+            <div class="ui grid">
+                <div class="fourteen wide column">
+                    <div class="field">
+                        <label>X Label</label>
+                        {{input value=xLabel class="ui" placeholder="X Lable" }}
+                    </div>
+                </div>
             </div>
-            <div class="field">
-                <label>Y Label</label>
-                {{input value=yLabel class="ui" placeholder="Y Label" }}
+
+            <div class="ui grid">
+                <div class="fourteen wide column">
+                    <div class="field">
+                        <label>Y Label</label>
+                        {{input value=yLabel class="ui" placeholder="Y Label" }}
+                    </div>
+                </div>
             </div>
-            <div class="field">
-                <label>Title</label>
-                {{input value=title class="ui" placeholder="Title" }}
+
+            <div class="ui grid">
+                <div class="fourteen wide column">
+                    <div class="field">
+                        <label>Title</label>
+                        {{input value=title class="ui" placeholder="Title" }}
+                    </div>
+                </div>
             </div>
         </div>
     </div>

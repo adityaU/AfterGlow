@@ -36,6 +36,11 @@ export default Ember.Mixin.create({
             return method.call(this, item)
         }).reduce((a,b)=> { return a || b}, true)
     },
+    all(arr, method){
+        return arr.map((item)=>{
+            return method.call(this, item)
+        }).reduce((a,b)=> { return a && b}, true)
+    },
     categoryColumnsCount(row){
         return row.filter((item)=>{
             return !(this.findIfNumber(item) || this.findIfDate(item))
@@ -45,7 +50,7 @@ export default Ember.Mixin.create({
         if (rows.length == 0){
             return 'Table'
         }
-        if (rows.length == 1 && rows[0].length <= 10){
+        if (rows.length == 1 && rows[0].length <= 10 && this.all(row[0], this.findIfNumber)){
             return 'Number'
         }
         if (rows[0].length == 2 && this.categoryColumnsCount(rows[0]) == 1 && this.any(rows[0], this.findIfNumber)){

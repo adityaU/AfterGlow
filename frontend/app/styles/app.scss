@@ -6,6 +6,7 @@ $lightColor: gainsboro;
 $lightPrimaryColor: rgba(100, 53, 201, 0.2);
 $greyColor: #dededf;
 $textColor: #212133; 
+$textColorShade2: #a2a2a2;
 $secondaryTextColor: #7b7b7b;
 $tertiaryColor: #44b35e;
 $tertiaryColorShade2: #3c9651;
@@ -13,7 +14,7 @@ $secondaryColor: #f9fbfc;
 $lightTransparentColor: rgba(255, 255, 255, 0.85);
 $borderRadius: 0.28571429rem;
 @function box-shadow($color){
-  @return 0px 2px 6px -2px $color !important ;   
+  @return 0px 0px 0px 0px $color !important ;   
 }
 
 // plotly css
@@ -130,20 +131,21 @@ span.data-name {
 .ui.grid.results-view-selector{
     margin-top: 1em !important;
 }
+input.bigger{
+    height: 4em !important;
+}
+.database-selector-sql-mode{
+    max-width: 100px;
+}
 
 .ui.form input:not([type]), .ui.form input[type="date"], .ui.form input[type="datetime-local"], .ui.form input[type="email"], .ui.form input[type="number"], .ui.form input[type="password"], .ui.form input[type="search"], .ui.form input[type="tel"], .ui.form input[type="time"], .ui.form input[type="text"], .ui.form input[type="file"], .ui.form input[type="url"] .ui.selection.dropdown{
-  border: none;
-  box-shadow: none;
-  padding-left: 0px;
-  border-bottom: 1px solid $greyColor;
-  border-radius: 0px;
+  border: 1px solid $greyColor;
+  height: 2.87em;
+  color: $textColorShade2;
 }
 .ui.form input:not([type]):focus, .ui.form input[type="date"]:focus, .ui.form input[type="datetime-local"]:focus, .ui.form input[type="email"]:focus, .ui.form input[type="number"]:focus, .ui.form input[type="password"]:focus, .ui.form input[type="search"]:focus, .ui.form input[type="tel"]:focus, .ui.form input[type="time"]:focus, .ui.form input[type="text"]:focus, .ui.form input[type="file"]:focus, .ui.form input[type="url"]:focus{
-  border: none;
-  box-shadow: none;
-  padding-left: 0px;
-  border-bottom: 1px solid $primaryColor;
-  border-radius: 0px;
+  border: 1px solid $greyColor;
+  color: $textColorShade2;
 }
 i{
   color: $primaryColorShade2; 
@@ -230,29 +232,27 @@ label {
 
 }
 .ui.search.selection.dropdown{
-  border: none;
-  box-shadow: none;
-  padding-left: 0px;
-  border-bottom: 1px solid $greyColor;
-  border-radius: 0px;
+  border: 1px solid $greyColor;
+  color: $textColorShade2;
+  width: 100%;
 }
 .ui.search.selection.dropdown:focus{
-  border: none;
-  box-shadow: none;
-  padding-left: 0px;
-  border-bottom: 1px solid $greyColor;
-  border-radius: 0px;
+  border: 1px solid $greyColor;
+}
+.ui.search.selection.dropdown:hover{
+    border: 1px solid $greyColor;
 }
 .ui.search.selection.active.dropdown .menu {
+    border: 1px solid $greyColor;
   border-color: $greyColor;
-  border-top-width: 1px !important;
+  border-top-width: 0px !important;
   box-shadow: box-shadow($greyColor);
 
 }
 
 .ui.search.selection.active.dropdown:hover .menu {
   border-color: $greyColor;
-  border-top-width: 1px !important;
+  margin-top: 8px;
   box-shadow: box-shadow($greyColor);
   & .item:hover{
      background: $secondaryColor;
@@ -262,13 +262,39 @@ label {
 }
 .ui.search.selection.active.dropdown .menu:hover {
   border-color: $greyColor;
-  border-top-width: 1px !important;
+  border-top-width: 0px !important;
   box-shadow: box-shadow($greyColor);
 
 }
+
+.ui.search.selection.active.upward.dropdown .menu {
+    border-top-width: 2px !important;
+}
+
+.ui.search.selection.active.upward.dropdown:hover .menu {
+    margin-bottom: 2px;
+    border-top-width: 2px !important;
+
+}
+.ui.form .field:last-child, .ui.form .fields:last-child .field {
+    margin-bottom: 1em;
+}
+.ui.icon.search.input input{
+    border: 1px solid $greyColor;
+    height: 2.87em;
+    &:hover{
+        border: 1px solid $greyColor;
+    }
+    &:focus{
+        border: 1px solid $greyColor;
+    }
+}
+.ui.search.selection.active.upward.dropdown .menu:hover {
+    border-top-width: 2px !important;
+}
 .ui.search.selection.active.dropdown:focus {
   border-color: $greyColor;
-  border-top-width: 1px !important;
+  border-top-width: 2px !important;
   box-shadow: box-shadow($greyColor);
 
 }
@@ -290,6 +316,7 @@ label {
   box-shadow: none !important;
 }
 .ui.segment{
+    border: 1px solid $greyColor;
   box-shadow: box-shadow($greyColor);
 }
 .ui.grid.container{
@@ -351,14 +378,14 @@ label {
   color: white;
   background: $primaryColorShade2;
   border-radius: $borderRadius;
-  border: 1px solid $primaryColor;
+  border: 1px solid $primaryColorShade2;
   padding: 15px 10px;
   box-shadow: box-shadow($primaryColorShade2);
   text-align: center;
   &:hover{
     cursor: pointer;
     background: white;
-    color: $textColor;
+    color: $primaryColorShade2;
   }
 
 }
@@ -370,11 +397,12 @@ label {
   border-radius: $borderRadius;
   border: 1px solid $tertiaryColor;
   text-align: center;
+  text-transform: uppercase;
   box-shadow: box-shadow($tertiaryColor);
   &:hover{
     cursor: pointer;
     background: white;
-    color: $textColor;
+    color: $tertiaryColor;
   }
 
 }
@@ -621,10 +649,28 @@ button.toast-close-button{
 .margin-top{
   margin-top: 5px;
 }
+.tip {
+    font-style: italic;
+    font-size: 0.9em;
+    color: grey;
+    font-weight: 400;
+}
 .margined-content {
   margin-left: 5px;
   margin-right: 5px;
 
+}
+label {
+    margin-top: -10px !important;
+    position: absolute;
+    z-index: 1;
+    background: white;
+    margin-left: 8px !important;
+    padding: 0px 5px;
+    font-size: 0.8em !important;
+    color: $textColorShade2 !important;
+    text-transform: uppercase !important;
+    font-weight: normal !important;
 }
 .ui.segment.padded-content{
   padding-left: 22px !important;
