@@ -30,6 +30,7 @@ export default Ember.Controller.extend({
         let questions = this.get('dashboard.questions')
         questions && questions.forEach((item)=>{
             item.set('resultsCanBeLoaded', true) 
+            item.set('updated_at', new Date());
         })
         this.set('timer', this.schedule(this.get('onPoll')));
     },
@@ -37,6 +38,7 @@ export default Ember.Controller.extend({
     onPoll: function(){
         this.get('dashboard.questions').forEach((item)=>{
             item.set('updated_at', new Date());
+            item.set('resultsCanBeLoaded', true)
         }) 
     },
     refreshIntervalObserver: Ember.observer('refreshInterval', function(){

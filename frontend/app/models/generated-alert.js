@@ -5,7 +5,7 @@ export default DS.Model.extend({
     status: DS.attr('string'),
     failing_conditions: DS.attr('object'), 
 
-    created_at: DS.attr('date'),
-    updated_at: DS.attr('date')
+    inserted_at: DS.attr('utc'),
+    updated_at: DS.attr('utc'),
 
 });

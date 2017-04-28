@@ -5,6 +5,9 @@ export default DS.Model.extend({
     description: DS.attr('string'),
     color: DS.attr('string'),
     questions: DS.hasMany('question'),
-    dashboards: DS.hasMany('dashboard')
+    dashboards: DS.hasMany('dashboard'),
+
+    inserted_at: DS.attr('utc'),
+    updated_at: DS.attr('utc'),
 
 });

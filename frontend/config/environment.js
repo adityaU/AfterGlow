@@ -17,6 +17,9 @@ module.exports = function(environment) {
                 Date: false
             }
         },
+        moment: {
+            includeTimezone: 'all'  
+        },
         /* pace: {
 
             // addon-specific options to configure theme

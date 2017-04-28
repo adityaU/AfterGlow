@@ -66,6 +66,7 @@
                                         <div class="menu">
                                             {{#each availableResultsTypes as |rv|}}
                                                 <div class="item" data-value="{{map-value mapper rv}}">
+                                                    <i class="{{get-chart-icon rv}} icon"></i>
                                                     {{rv}}
                                                 </div>
                                             {{/each}}

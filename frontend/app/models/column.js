@@ -6,6 +6,8 @@ export default DS.Model.extend({
     human_name: DS.attr('string'),
     table: DS.belongsTo('table'),
     column_values: DS.hasMany('column_value'),
+    inserted_at: DS.attr('utc'),
+    updated_at: DS.attr('utc'),
     toJSON: function() {
       return this._super({ includeId: true });
     },

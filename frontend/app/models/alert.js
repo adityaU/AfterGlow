@@ -5,6 +5,8 @@ export default DS.Model.extend({
     config: DS.attr('object'), 
     question: DS.belongsTo('question'),
     created_at: DS.attr('date'),
-    updated_at: DS.attr('date')
+    updated_at: DS.attr('date'),
+    inserted_at: DS.attr('utc'),
+    updated_at: DS.attr('utc'),
 
 });

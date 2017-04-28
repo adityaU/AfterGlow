@@ -9,6 +9,8 @@ export default DS.Model.extend( ResultViewMixin, {
     default_operator: DS.attr('string'),
     question: DS.belongsTo('question'),
     dashboard: DS.belongsTo('dashboard'),
+    inserted_at: DS.attr('utc'),
+    updated_at: DS.attr('utc'),
     setDate: Ember.observer("default_date", function(){
         this.set('default', moment(this.get('default_date')).toISOString())
     }),

@@ -19,8 +19,9 @@ export default DS.Model.extend(ResultViewMixin, {
     shared_to: DS.attr(),
     variables: DS.hasMany('variables'),
 
-    inserted_at: DS.attr('date'),
-    updated_at: DS.attr('date'),
+    inserted_at: DS.attr('utc'),
+    updated_at: DS.attr('utc'),
+
     cachedResults: Ember.on('didLoad', Ember.observer("updated_at", "resultsCanBeLoaded" , "cached_results", function(){
         if (this.get('resultsCanBeLoaded') && !this.get('loading')){
             this.set("loading", true)
@@ -50,7 +51,7 @@ export default DS.Model.extend(ResultViewMixin, {
         }
     })),
 
-    updatedAgoColor: Ember.computed("updated_at", function(){
+    updatedAgoColor: Ember.computed("updated_at", "updatedAgoColorChangeTime", function(){
         let updated_at = this.get('updated_at');
         if (updated_at){
             if (moment(updated_at).add(30, 'minutes') > moment()){
@@ -60,6 +61,20 @@ export default DS.Model.extend(ResultViewMixin, {
             }
         }
     }),
+    refreshInterval: 60000,
+    startTimer: Ember.on('didLoad', function() {
+        this.set('timer', this.schedule(this.get('onPoll')));
+    }),
+    schedule: function(f) {
+        return Ember.run.later(this, function() {
+            f.apply(this);
+            this.set('timer', this.schedule(f));
+        }, this.get('refreshInterval.value'));
+    },
+    
+    onPoll: function(){
+        this.set('updatedAgoColorChangeTime', new Date())
+    },
     query_variables: Ember.computed.alias('variables'),
 
     icon: Ember.computed('results_view_settings', "results_view_settings.resultsViewType", function(){

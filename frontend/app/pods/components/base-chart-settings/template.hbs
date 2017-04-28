@@ -38,7 +38,7 @@
                         {{/ui-dropdown}}
                     </div>
                 </div>
-                <div class="two wide Column">
+                <div class="two wide column">
                     <i class="remove icon" {{action 'clearx2'}}></i>
                 </div>
             </div>
@@ -61,8 +61,36 @@
                         </div>
                     </div>
 
-                    <div class="two wide Column">
-
+                    <div class="two wide column">
+                        {{circular-checkbox checked=y.separateYaxis dataTooltip="Separate Y axis"}}
+                        {{#if (eq (or y.chartType defaultChartType) 'Line')}}
+                            {{#ui-dropdown class="left pointing dropdown icon" selected=y.lineShape onChange=(action (mut y.lineShape))  as |execute mapper|}} 
+                                    <i class="{{if (eq y.lineShape "spline") "fork" "angle down"}} icon"></i>
+                                <div class="menu">
+                                    {{#each lineShapeTypes as |lst|}}
+                                        <div class="item" data-value="{{map-value mapper lst.value}}">
+                                            <i class="{{if (eq lst.value "spline") "fork" "angle down"}} icon"></i>
+                                            {{ capitalize lst.name}}
+                                        </div>
+                                    {{/each}}
+                                </div>
+                            {{/ui-dropdown}}
+                        {{/if}}
+                        {{#ui-dropdown class="left pointing dropdown icon" selected=y.chartType onChange=(action (mut y.chartType))  as |execute mapper|}} 
+                            {{#if y.chartType}}
+                                <i class="{{get-chart-icon y.chartType}} icon"></i>
+                            {{else}}
+                                <i class="{{get-chart-icon defaultChartType}} icon"></i>
+                            {{/if}}
+                            <div class="menu">
+                                {{#each chartTypes as |ct|}}
+                                    <div class="item" data-value="{{map-value mapper ct}}">
+                                        <i class="{{get-chart-icon ct}} icon"></i>
+                                        {{ capitalize ct}}
+                                    </div>
+                                    {{/each}}
+                                </div>
+                            {{/ui-dropdown}}
                         <i class="remove icon" {{action 'removeColumn' y}}></i>
                     </div>
                 {{/each}}

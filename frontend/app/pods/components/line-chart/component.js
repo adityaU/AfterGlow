@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import UtilsFunctions from "frontend/mixins/utils-functions";
 
+
 var get = Ember.get,
     arrayComputed = Ember.arrayComputed;
 export default Ember.Component.extend( UtilsFunctions,{
@@ -10,13 +11,7 @@ export default Ember.Component.extend( UtilsFunctions,{
     data: Ember.observer('jsonData', "layout", function(){
         this.get('getData')(this)
     }),
-    mode(item){
-        if (item.length >= 31){
-            return "lines"
-        }else{
-            return "lines+markers"
-        }
-    },
+    defaultChartType: "Line",
 
     getData(_this){
         let gd = _this.get('getNode')(_this)
@@ -24,17 +19,7 @@ export default Ember.Component.extend( UtilsFunctions,{
         var data =  _this.get('jsonData'), layout;
         data = data && data.length > 0 && [].concat.apply([], data.map((series, i)=>{
             return series.map((item, j)=>{
-                return  {
-                    x: item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayX1')}),
-                    y:  item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayY')}),
-                    type: 'scatter',
-                    mode: _this.mode(item),
-                    line: {
-                        width: 1.3,
-                        color: _this.get('colors')[i+j]
-                    },
-                    name:  _this.legendName(item, i)
-                }
+                return _this.chartData(item, i, j, _this.getChartType(i), _this)
             })
         }));
         layout = data && _this.get('layout')

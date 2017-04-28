@@ -4,6 +4,7 @@ import LoadingMessages from "frontend/mixins/loading-messages"
 
 export default Ember.Component.extend(LoadingMessages, CustomEvents,{
     classNames: ["full"],
+    timeZone: moment.tz.guess(),
     didInsertElement(){
         Ember.run.next(() => {  // begin loop
             $('.grid-stack-item').each((i, item)=>{
@@ -26,6 +27,11 @@ export default Ember.Component.extend(LoadingMessages, CustomEvents,{
             let dashboard = this.get('dashboard')
             dashboard.get('questions').removeObject(question)
             dashboard.save()
+        },
+        refreshQuestion(question){
+            question.set('updated At', new Date());
+            question.set('resultsCanBeLoaded', true);
+
         }
 
     }

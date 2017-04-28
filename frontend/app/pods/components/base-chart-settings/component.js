@@ -2,6 +2,19 @@ import Ember from 'ember';
 import UtilsFunctions from 'frontend/mixins/utils-functions'
 
 export default Ember.Component.extend(UtilsFunctions, {
+    chartTypes: Ember.computed(function(){
+        return ["Line", "Bars", "Area", "Bubble"]
+    }),
+    lineShapeTypes: [
+        {
+            name: "smooth",
+            value: "spline"
+        },
+        {
+            name: "straight",
+            value: "linear"
+        }
+    ],
     x1Name: 'x1',
     x2Name: 'x2',
     yName: 'y',

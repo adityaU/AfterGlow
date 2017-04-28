@@ -6,6 +6,6 @@ export default DS.Model.extend({
     comm_type: DS.attr('string'), 
     to_addresses: DS.attr(),
     subject_template: DS.attr('string'),
-    created_at: DS.attr('date'),
-    updated_at: DS.attr('date')
+    inserted_at: DS.attr('utc'),
+    updated_at: DS.attr('utc'),
 });

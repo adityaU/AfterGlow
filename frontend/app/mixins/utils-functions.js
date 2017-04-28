@@ -93,7 +93,12 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, {
     hiddenJsonData: Ember.computed('jsonData', function(){
         return 'hidden';
     }),
-    jsonData: Ember.computed('x1', 'x2', 'multipleYs.@each.columnName', 'results', function(){
+    jsonData: Ember.computed('x1', 'x2',
+                             'multipleYs.@each.separateYaxis',
+                             'multipleYs.@each.columnName',
+                             'multipleYs.@each.chartType',
+                             'multipleYs.@each.lineShape',
+                             'results', function(){
         var data = this.get('results');
         var multipleYs = this.get('multipleYs');
         var x1 = this.get('x1');
@@ -230,7 +235,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, {
     }),
 
     layout: Ember.computed('title', 'margin', "xLabel","yLabel", "jsonData", function(){
-       return  {
+        let l  = {
             legend: {orientation: "h", x:0, y:1},
             title: this.get('title'),
             margin: this.get('margin'),
@@ -244,10 +249,104 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, {
 
         }
 
+        this.get('multipleYs').forEach((item, i)=>{
+            if (item.separateYaxis && i !=0 ){
+                let yaxisName = "yaxis" + (i + 1).toString()
+                l[yaxisName] = {
+                    title: item.columnName,
+                    titlefont: {color: this.get('colors')[i]},
+                    tickfont: {color: this.get('colors')[i]},
+                    overlaying: 'y',
+                    side: "right"
+                }
+                l["margin"] = null
+            }
+        })
+        return l
+
     }),
 
     legendName(item, i){
        return  item.get('type') || this.get('multipleYs')[i].columnName
+    },
+
+    getChartType(i){
+        let chartType = this.get('multipleYs')[i].chartType
+        let defaultChartType = this.get('defaultChartType')
+        return chartType || defaultChartType
+    },
+
+    mode(item){
+        if (item.length >= 31){
+            return "lines"
+        }else{
+            return "lines+markers"
+        }
+    },
+
+
+    chartData(item, i, j, type, _this){
+        let x =  item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayX1')})
+        let y =   item.get('contents').sortBy('x1').map((el)=>{ return el.get('displayY')})
+        let d = null
+        if (type == "Line"){
+            d = {
+                x: x,
+                y: y,
+                type: 'scatter',
+                mode: _this.mode(item),
+                line: {
+                    shape: _this.get('multipleYs')[i].lineShape,
+                    width: 1.3,
+                    color: _this.get('colors')[i+j]
+                },
+                name:  _this.legendName(item, i)
+            }
+        }else if(type == "Bars"){
+            d = {
+                x: x,
+                y: y,
+                type: 'bar',
+                marker: {
+                    color: _this.get('colors')[i + j] 
+                },
+                name: _this.legendName(item, i)
+            }
+        }else if (type == "Area"){
+            d = {
+                x: x,
+                y: y,
+                // type: 'scatter',
+                fill: 'tonexty',
+                line: {
+                    width: 1,
+                    color: _this.get('colors')[i+j]
+                },
+                name: _this.legendName(item, i)
+            }
+
+        }else if (type == "Bubble"){
+            let total = item.get('contents').sortBy('x1').map((el)=>{ return el.get('y')}).reduce((a,b)=> { return a+b}, 0)
+            d = {
+                x: x,
+                y: y,
+                type: 'scatter',
+                mode: 'markers',
+                marker: {
+                    size:  item.get('contents').sortBy('x1').map((el)=>{ return (+el.get('y')/ total)*600}),
+                    color: _this.get('colors')[i + j],
+                },
+                name: _this.legendName(item, i)
+            }
+        }
+
+        _this.get('multipleYs').forEach((item, j)=>{
+            if (item.separateYaxis && j !=0 && i == j){
+                d["yaxis"] = "y" + (i + 1).toString()
+            }
+        })
+        return d
+
     }
     // chartLine(){},
 

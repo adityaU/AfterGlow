@@ -19,8 +19,11 @@
                             </div>
                         </div>
                         <div class="six wide column text-align-right">
+                            <span data-tooltip="Refresh" data-inverted="" data-position="left center" {{action 'refreshQuestion' question}}>
+                                <i class="refresh icon"></i>
+                            </span>
                             {{#if question.updated_at}}
-                                <span data-tooltip=" Updated {{moment-from-now question.updated_at interval=1000}}" data-inverted="" data-position="left center">
+                                <span data-tooltip=" Updated {{moment-from-now question.updated_at timeZone=timeZone interval=1000}}" data-inverted="" data-position="left center">
                                     <i class="time icon {{question.updatedAgoColor}}"></i>
                                 </span>
                             {{/if}}
@@ -46,7 +49,7 @@
                     {{else}}
                         {{#if (or question.loading (not question.content.isLoaded))}}
                             <div class="ui active inverted dimmer">
-                                <div class="ui text massive loader">{{loadingMessage}}</div>
+                                <div class="ui text massive loader"></div>
                             </div>
                         {{/if}}
                     {{/if}}
