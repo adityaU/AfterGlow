@@ -34,6 +34,30 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, {
         pad: 0
         
     },
+    formatObject(params){
+        if (params || params == 0){
+            var formattedString = params;
+            var objType = (Object.prototype.toString.call(params).replace(/\[object|\]/g, "").trim())
+            if (objType == 'Object'){
+                formattedString = JSON.stringify(params);
+            }else if (objType == 'Array'){
+                formattedString = params.map((item) => {
+                    if (typeof(item) == 'object'){
+                        return JSON.stringify(params)
+                    }else{
+                        return params;
+                    }
+                })
+            }
+            let date = Date.parse(params) 
+            let dateMatch = (params.toString().match("-") != null)
+            if (date.toString() != 'NaN' && dateMatch){
+                formattedString = moment(date).format("LLLL")
+            }
+
+            return formattedString;
+        }
+    },
     downloadAsPNG(gd){
         Plotly.toImage(gd,{height:1600,width:1600})
             .then(
@@ -213,17 +237,19 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, {
     x2: Ember.computed.alias('resultsViewSettings.x2'),
     multipleYs: Ember.computed.alias('resultsViewSettings.multipleYs'),
     ys: Ember.on('init', Ember.observer('resultsViewSettings.y', function(){
-        let multipleYs = this.get('multipleYs')
-        let y = this.get('resultsViewSettings.y') || this.get('y')
-        if (y && !multipleYs){
-            this.set('multipleYs', [{columnName: y}])
-        }else if (y && multipleYs){
-            if (!multipleYs.findBy('columnName', y))
-            multipleYs.pushObject({columnName: y})
-        }else if (!y && multipleYs){
-        }else{
-            this.set('multipleYs', [{columnName: y}])
-        } 
+        if (this.get('question')){
+            let multipleYs = this.get('multipleYs')
+            let y = this.get('resultsViewSettings.y') || this.get('y')
+            if (y && !multipleYs){
+                this.set('multipleYs', [{columnName: y}])
+            }else if (y && multipleYs){
+                if (!multipleYs.findBy('columnName', y))
+                    multipleYs.pushObject({columnName: y})
+            }else if (!y && multipleYs){
+            }else{
+                this.set('multipleYs', [{columnName: y}])
+            }
+        }
     })),
     y: Ember.computed.alias('resultsViewSettings.y'),
     yLabel: Ember.computed.alias('resultsViewSettings.yLabel'),
@@ -236,7 +262,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, {
 
     layout: Ember.computed('title', 'margin', "xLabel","yLabel", "jsonData", function(){
         let l  = {
-            legend: {orientation: "h", x:0, y:1},
+            legend: {orientation: "h", x:0, y: 1},
             title: this.get('title'),
             margin: this.get('margin'),
             xaxis: {showgrid: false, zeroline: false, title: Ember.String.capitalize(this.get('xLabel') || this.get('x1')) , autorange: true, showLine: false },
@@ -267,7 +293,11 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, {
     }),
 
     legendName(item, i){
-       return  item.get('type') || this.get('multipleYs')[i].columnName
+        if (item.get('type') || item.get('type') == 0){
+            return item.get('type')
+        }else{
+            return  item.get('type') || this.get('multipleYs')[i].columnName
+        }
     },
 
     getChartType(i){
@@ -308,7 +338,11 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, {
                 y: y,
                 type: 'bar',
                 marker: {
-                    color: _this.get('colors')[i + j] 
+                    color: _this.get('colors')[i + j],  
+                    line: {
+                        color: "white",
+                        width: 1.5
+                    }
                 },
                 name: _this.legendName(item, i)
             }

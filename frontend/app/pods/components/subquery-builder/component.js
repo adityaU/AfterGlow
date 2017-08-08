@@ -3,17 +3,6 @@ import Ember from 'ember';
 export default Ember.Component.extend({
 
     selectedTable: null,
-    unsortedTables: Ember.computed('queryObject.database','databases.content.isLoaded', 'queryObject.database.id', 'database.tables.content.isLoaded',  function(){
-        if (this.get('queryObject.database') && this.get('databases.length') &&  this.get('queryObject.database.id')){
-          let store = this.get('store')
-          let database = store.peekRecord('database', this.get('queryObject.database.id')) ||  store.findRecord('database', this.get('queryObject.database.id'))
-            return database && database.get('tables')
-        }
-    }),
-
-    tables: Ember.computed("unsortedTables", "unsortedTables.content.isLoaded", function(){
-        return this.get("unsortedTables") && this.get("unsortedTables").sortBy('human_name')
-    }),
     databaseObserver:  Ember.observer('queryObject.database', function(){
         this.set('queryObject.table', null); 
         this.set('queryObject.filters', []); 
@@ -69,6 +58,7 @@ export default Ember.Component.extend({
         });
         return show;
     }),
+
     actions :{
         addFilter(){
             this.get("queryObject.filters").pushObject(Ember.Object.create({column: null, operator: null, value: null, valueDateObj: {}}))
@@ -106,5 +96,6 @@ export default Ember.Component.extend({
             let arr = this.get("queryObject").get(type);
             arr.removeObject(el)
         }
+
     }
 });

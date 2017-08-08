@@ -1,31 +1,4 @@
-<div class="title">
-    <i class="dropdown icon"></i>
-    Table
-</div>
-<div class="content">
-    {{#ui-dropdown class="search search selection" selected=queryObject.table onChange=(action (mut queryObject.table)) as |execute mapper|}}
-      {{dropdown-default object=queryObject.table.human_name default="Table"}}
-        <i class="dropdown icon"></i>
-        <div class="menu">
-
-            <div class="ui icon search input">
-                <i class="search icon"></i>
-                <input type="text" placeholder="Search">
-            </div>
-            {{#each tables as |table|}}
-                <div class="item" data-value="{{map-value mapper table}}">
-                    {{table.human_name}}
-                </div>
-            {{/each}}
-        </div>
-    {{/ui-dropdown}}
-</div>
-{{#if queryObject.table.readable_table_name }}
-    <div class="tags content active">
-        <div class="full right"><a href="#" class="ui violet basic label"> {{queryObject.table.human_name}}</a></div>
-    </div>
-{{/if}}
-
+{{table-selector queryObject=queryObject tables=tables}}
 <div class="title">
     <i class="dropdown icon"></i>
     Filters 

@@ -19,7 +19,7 @@ defmodule AfterGlow.Mixfile do
   def application do
     [mod: {AfterGlow, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :oauth2, :flasked, :db_connection, :poolboy]]
+                    :phoenix_ecto,:mongodb, :postgrex, :oauth2, :flasked, :db_connection, :poolboy]]
   end
 
   # Specifies which paths to compile per environment.
@@ -49,7 +49,10 @@ defmodule AfterGlow.Mixfile do
      {:libdecaf, "~> 0.0.1"},
      {:flasked, "~> 0.4"},
      {:bodyguard, "~> 1.0.0"},
-     {:httpoison, "~> 0.11.1"}
+     {:httpoison, "~> 0.11.1"},
+     {:mongodb, "~> 0.2.0"},
+     {:execjs, git: "https://github.com/devinus/execjs.git"},
+     {:poison, "~> 2.2.0", override: true}
     ]
   end
 

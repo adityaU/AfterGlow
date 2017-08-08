@@ -29,6 +29,9 @@ export default Ember.Component.extend({
         },
         toggleVariableWindow(){
             this.toggleProperty('showVariables')
+        },
+        exportData(){
+            this.sendAction('exportData')
         }
     }
 

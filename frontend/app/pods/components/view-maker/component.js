@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-    labelObserver: Ember.on('init', Ember.observer('selectView.selected', function(){
+    labelObserver: Ember.on('init', Ember.observer('selectView.selected', 'selectView.selected.name', 'selectView.selected.human_name','selectView.selected.value',  function(){
         let selectView = this.get('selectView') 
         if (selectView){
             if (selectView.get('selected.raw') == true){

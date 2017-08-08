@@ -6,8 +6,8 @@ module.exports = function(defaults) {
     var app = new EmberApp(defaults, {
         ace: {
             themes: ['chrome', 'ambiance'],
-            modes: ['pgsql', 'mysql', 'sql'],
-            workers: ['pgsql', 'mysql', 'sql'],
+            modes: ['pgsql', 'mysql', 'sql', 'javascript'],
+            workers: ['pgsql', 'mysql', 'sql', 'javascript'],
             basePath: "/ace/"
             
         }
@@ -16,14 +16,15 @@ module.exports = function(defaults) {
     app.import('./bower_components/lodash/dist/lodash.min.js')
     app.import('./bower_components/ace-builds/src-noconflict/theme-ambiance.js')
     app.import('./bower_components/ace-builds/src-noconflict/mode-sql.js')
+    app.import('./bower_components/ace-builds/src-noconflict/mode-javascript.js')
     app.import('./bower_components/ace-builds/src-noconflict/ext-beautify.js')
     app.import('./bower_components/ace-builds/src-noconflict/ext-language_tools.js')
     app.import('./bower_components/ace-builds/src-noconflict/snippets/text.js')
     app.import('./bower_components/ace-builds/src-noconflict/snippets/sql.js')
+    app.import('./bower_components/ace-builds/src-noconflict/snippets/javascript.js')
     app.import('./bower_components/lodash/dist/lodash.js', {
         type: 'vendor',
         prepend: true,
-
     })
     
     // Use `app.import` to add additional libraries to the generated

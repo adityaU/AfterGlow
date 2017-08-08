@@ -1,0 +1,158 @@
+adityau@Adityas-MacBook-Pro-2 ~/workspace/stuff/afterglow $ docker build -t adityau/afterglow:latest .
+Sending build context to Docker daemon 809.2 MB
+Step 1/52 : FROM elixir:1.4.0
+ ---> 9bd946f26f42
+Step 2/52 : MAINTAINER Aditya Upadhyay <im.adityau@gmail.com>
+ ---> Using cache
+ ---> b908ebc66c1f
+Step 3/52 : RUN apt-get update
+ ---> Using cache
+ ---> de3df42ca514
+Step 4/52 : RUN apt-get install -y nano wget dialog net-tools git
+ ---> Using cache
+ ---> 08663c83a229
+Step 5/52 : RUN apt-get install -y nginx
+ ---> Using cache
+ ---> 7918ecf36783
+Step 6/52 : RUN mkdir -p /var/app
+ ---> Using cache
+ ---> a371a680f8a1
+Step 7/52 : RUN perl -pi -e 's/http.debian.net/ftp.uk.debian.org/' /etc/apt/sources.list
+ ---> Using cache
+ ---> d0991f741d57
+Step 8/52 : RUN apt-get update -qq
+ ---> Using cache
+ ---> 72fbeed77e51
+Step 9/52 : RUN apt-get install -qq -y build-essential libpq-dev git
+ ---> Using cache
+ ---> f4cc1146fc30
+Step 10/52 : ENV HOME /src/node/
+ ---> Using cache
+ ---> cfdab351717c
+Step 11/52 : ENV NVM_DIR /src/node/.nvm
+ ---> Using cache
+ ---> a9b1782d1cf8
+Step 12/52 : ENV NODE_VER v6.5.0
+ ---> Using cache
+ ---> 500f49c677ca
+Step 13/52 : ENV ADMIN_EMAIL im.adityau@gmail.com
+ ---> Using cache
+ ---> 520a0a6cd849
+Step 14/52 : RUN /bin/bash -c "curl https://raw.githubusercontent.com/creationix/nvm/v0.30.1/install.sh | bash && source $NVM_DIR/nvm.sh && nvm install $NODE_VER && nvm alias default $NODE_VER && nvm use --delete-prefix $NODE_VER && nvm use default"
+ ---> Using cache
+ ---> e312d287fb2c
+Step 15/52 : ENV NODE_PATH $NVM_DIR/versions/node/$NODE_VER/bin
+ ---> Using cache
+ ---> 0b59cdc28997
+Step 16/52 : ENV PATH $NVM_DIR/versions/node/$NODE_VER/bin:$PATH
+ ---> Using cache
+ ---> e16d49165a48
+Step 17/52 : RUN npm install -g ember-cli@2.12.0
+ ---> Using cache
+ ---> 68c493e98257
+Step 18/52 : RUN npm install -g bower
+ ---> Using cache
+ ---> 33571a361cad
+Step 19/52 : WORKDIR /var/app
+ ---> Using cache
+ ---> 0d8ba2e01ae4
+Step 20/52 : COPY ./mix.exs /var/app/
+ ---> Using cache
+ ---> aab4a1258d49
+Step 21/52 : COPY ./mix.lock /var/app/
+ ---> Using cache
+ ---> b4d64cab9438
+Step 22/52 : ENV MIX_ENV prod
+ ---> Using cache
+ ---> d20a971a5867
+Step 23/52 : RUN mix local.hex --force
+ ---> Using cache
+ ---> f51e033f61ac
+Step 24/52 : RUN mix local.rebar --force
+ ---> Using cache
+ ---> e272c5a39f64
+Step 25/52 : RUN mix deps.get
+ ---> Using cache
+ ---> 1f7a2c5808f2
+Step 26/52 : RUN mix deps.compile
+ ---> Using cache
+ ---> c44ebaf6b481
+Step 27/52 : RUN mkdir -p frontend
+ ---> Using cache
+ ---> 1d50922c2a00
+Step 28/52 : WORKDIR /var/app/frontend/
+ ---> Using cache
+ ---> 33b2ccc4a05f
+Step 29/52 : COPY ./frontend/package.json /var/app/frontend/
+ ---> Using cache
+ ---> fb6d77778489
+Step 30/52 : COPY ./frontend/bower.json /var/app/frontend/
+ ---> Using cache
+ ---> 78c473319537
+Step 31/52 : RUN npm install
+ ---> Using cache
+ ---> a3da8012c59e
+Step 32/52 : RUN bower install --allow-root
+ ---> Using cache
+ ---> f394e70d528b
+Step 33/52 : WORKDIR /var/app
+ ---> Using cache
+ ---> a9cc9d111a12
+Step 34/52 : COPY ./web/ /var/app/web/
+ ---> Using cache
+ ---> d47949635318
+Step 35/52 : COPY ./config/ /var/app/config/
+ ---> Using cache
+ ---> f8eb351956fb
+Step 36/52 : COPY ./lib/ /var/app/lib/
+ ---> Using cache
+ ---> 50f2686b479c
+Step 37/52 : COPY ./priv/ /var/app/priv/
+ ---> Using cache
+ ---> e93c34965180
+Step 38/52 : COPY ./start.sh /var/app/start.sh
+ ---> Using cache
+ ---> a27595b1c8d6
+Step 39/52 : RUN mix deps.clean ja_serializer && mix deps.get
+ ---> Using cache
+ ---> 48071c254f67
+Step 40/52 : RUN mix compile
+ ---> Using cache
+ ---> b83aa89c242f
+Step 41/52 : COPY ./frontend/app/ /var/app/frontend/app/
+ ---> Using cache
+ ---> f6d6ea48354e
+Step 42/52 : COPY ./frontend/vendor/ /var/app/frontend/vendor/
+ ---> Using cache
+ ---> 75f4708bd1c2
+Step 43/52 : COPY ./frontend/public/ /var/app/frontend/public/
+ ---> Using cache
+ ---> bc40e4fd5571
+Step 44/52 : COPY ./frontend/config/ /var/app/frontend/config/
+ ---> Using cache
+ ---> 53572c6ca7f5
+Step 45/52 : COPY ./frontend/ember-cli-build.js /var/app/frontend/
+ ---> Using cache
+ ---> ddaf78b72b70
+Step 46/52 : WORKDIR /var/app/frontend/
+ ---> Using cache
+ ---> 279fb424ceb3
+Step 47/52 : RUN ember build --prod
+ ---> Using cache
+ ---> 56cc9a056774
+Step 48/52 : WORKDIR /var/app
+ ---> Using cache
+ ---> 4f0a5bcd8d77
+Step 49/52 : RUN rm -v /etc/nginx/nginx.conf
+ ---> Using cache
+ ---> 76ecc0485c81
+Step 50/52 : COPY ./.docker/nginx.conf /etc/nginx/nginx.conf
+ ---> Using cache
+ ---> 0cde3462557f
+Step 51/52 : EXPOSE 80
+ ---> Using cache
+ ---> 98fc718924a9
+Step 52/52 : CMD bash /var/app/start.sh
+ ---> Using cache
+ ---> ef07657e4dff
+Successfully built ef07657e4dff

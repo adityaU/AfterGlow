@@ -11,6 +11,8 @@ $secondaryTextColor: #7b7b7b;
 $tertiaryColor: #44b35e;
 $tertiaryColorShade2: #3c9651;
 $secondaryColor: #f9fbfc;
+$darkBackgroundColor: #1B1C1D;
+$secondaryDarkTextColor: #c3c3c3;
 $lightTransparentColor: rgba(255, 255, 255, 0.85);
 $borderRadius: 0.28571429rem;
 @function box-shadow($color){
@@ -141,11 +143,11 @@ input.bigger{
 .ui.form input:not([type]), .ui.form input[type="date"], .ui.form input[type="datetime-local"], .ui.form input[type="email"], .ui.form input[type="number"], .ui.form input[type="password"], .ui.form input[type="search"], .ui.form input[type="tel"], .ui.form input[type="time"], .ui.form input[type="text"], .ui.form input[type="file"], .ui.form input[type="url"] .ui.selection.dropdown{
   border: 1px solid $greyColor;
   height: 2.87em;
-  color: $textColorShade2;
+  color: $textColor;
 }
 .ui.form input:not([type]):focus, .ui.form input[type="date"]:focus, .ui.form input[type="datetime-local"]:focus, .ui.form input[type="email"]:focus, .ui.form input[type="number"]:focus, .ui.form input[type="password"]:focus, .ui.form input[type="search"]:focus, .ui.form input[type="tel"]:focus, .ui.form input[type="time"]:focus, .ui.form input[type="text"]:focus, .ui.form input[type="file"]:focus, .ui.form input[type="url"]:focus{
   border: 1px solid $greyColor;
-  color: $textColorShade2;
+  color: $textColor;
 }
 i{
   color: $primaryColorShade2; 
@@ -228,16 +230,18 @@ label {
   border-radius: $borderRadius ;
   background: #FFFFFF;
   box-shadow: box-shadow($greyColor);
-  border: 1px solid rgba(34, 36, 38, 0.15);
+  border: 1px solid $greyColor;
 
 }
 .ui.search.selection.dropdown{
-  border: 1px solid $greyColor;
-  color: $textColorShade2;
+  color: $textColor;
   width: 100%;
 }
 .ui.search.selection.dropdown:focus{
   border: 1px solid $greyColor;
+}
+.ui.search.selection.dropdown.active{
+    border: 1px solid $greyColor;
 }
 .ui.search.selection.dropdown:hover{
     border: 1px solid $greyColor;
@@ -245,14 +249,12 @@ label {
 .ui.search.selection.active.dropdown .menu {
     border: 1px solid $greyColor;
   border-color: $greyColor;
-  border-top-width: 0px !important;
   box-shadow: box-shadow($greyColor);
 
 }
 
 .ui.search.selection.active.dropdown:hover .menu {
   border-color: $greyColor;
-  margin-top: 8px;
   box-shadow: box-shadow($greyColor);
   & .item:hover{
      background: $secondaryColor;
@@ -261,21 +263,12 @@ label {
 
 }
 .ui.search.selection.active.dropdown .menu:hover {
+  border: 1px solid $greyColor;
   border-color: $greyColor;
-  border-top-width: 0px !important;
   box-shadow: box-shadow($greyColor);
 
 }
 
-.ui.search.selection.active.upward.dropdown .menu {
-    border-top-width: 2px !important;
-}
-
-.ui.search.selection.active.upward.dropdown:hover .menu {
-    margin-bottom: 2px;
-    border-top-width: 2px !important;
-
-}
 .ui.form .field:last-child, .ui.form .fields:last-child .field {
     margin-bottom: 1em;
 }
@@ -289,12 +282,8 @@ label {
         border: 1px solid $greyColor;
     }
 }
-.ui.search.selection.active.upward.dropdown .menu:hover {
-    border-top-width: 2px !important;
-}
 .ui.search.selection.active.dropdown:focus {
   border-color: $greyColor;
-  border-top-width: 2px !important;
   box-shadow: box-shadow($greyColor);
 
 }
@@ -317,7 +306,19 @@ label {
 }
 .ui.segment{
     border: 1px solid $greyColor;
-  box-shadow: box-shadow($greyColor);
+    box-shadow: box-shadow($greyColor);
+    &.dark{
+        background: #1B1C1D;
+        & .ui.toggle.checkbox label{
+            color: $secondaryDarkTextColor !important;
+        }
+        & label {
+            background: transparent !important;
+        }
+        & .item{
+            color: $secondaryDarkTextColor;
+        }
+    }
 }
 .ui.grid.container{
   width: calc( 1127px + 8% ) !important;
@@ -663,6 +664,19 @@ button.toast-close-button{
 .menu .item i {
     color: rgba(0, 0, 0, 0.95);
 }
+/* .ui.search.dropdown { */
+/*     min-width: 0px; */
+/* } */
+.query.error.section {
+    color: #db2828;
+}
+.ui.toggle.checkbox input:checked ~ .box:before, .ui.toggle.checkbox input:checked ~ label:before {
+    background-color: $primaryColor !important;
+}
+.theme.toggle {
+    min-height: 1rem !important;
+    margin-top: 10px;
+}
 label {
     margin-top: -10px !important;
     position: absolute;
@@ -671,9 +685,9 @@ label {
     margin-left: 8px !important;
     padding: 0px 5px;
     font-size: 0.8em !important;
-    color: $textColorShade2 !important;
+    color: $textColor !important;
     text-transform: uppercase !important;
-    font-weight: normal !important;
+    font-weight: bold !important;
 }
 .ui.segment.padded-content{
   padding-left: 22px !important;

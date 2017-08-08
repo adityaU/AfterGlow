@@ -10,7 +10,11 @@
                 </div>
                 {{/link-to}}
                 <div class="question-subtitle">
-                from <span class="table-name">{{question.human_sql.table.human_name}}</span> in <span class="database-name">{{question.human_sql.database.name}}</span>
+                    {{#if question.human_sql.rawQuery}}
+                        Native Query on <span class="database-name">{{question.human_sql.database.name}}</span>
+                    {{else}}
+                        from <span class="table-name">{{question.human_sql.table.human_name}}</span> in <span class="database-name">{{question.human_sql.database.name}}</span>
+                    {{/if}}
                     </div>
             </div>
             <div class="six wide column">

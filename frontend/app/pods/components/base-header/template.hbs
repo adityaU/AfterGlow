@@ -1,6 +1,6 @@
 {{#if sessionService.authenticated}}
-    <div class="ui segment violet no-border-radius">
-        <div class="ui secondary menu violet">
+    <div class="ui segment {{if theme.darkTheme "dark"}} violet  no-border-radius">
+        <div class="ui secondary menu {{if theme.darkTheme "dark" }} violet ">
             {{#link-to "index" }}{{app-logo logoSize="small"}}{{/link-to}}
             {{#if (can "show Dashboard")}}
                 <a class="item">
@@ -28,6 +28,9 @@
                 {{/link-to}}
             {{/if}}
             <div class="right menu">
+                <!-- <a class="item"> -->
+                <!-- {{ui-checkbox class="toggle theme" label="Dark" checked=theme.darkTheme onChange=(action (mut darkTheme))}} -->
+                <!-- </a> -->
                 <a class="item">
 
                     <div class="item pp">

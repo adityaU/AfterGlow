@@ -11,6 +11,24 @@ export default QuestionNewController.extend( ResultViewMixin, {
     questionNameIsSet: true, 
     setResultsCanBeLoaded: Ember.observer('question', 'question.isLoaded', function(){
     }),
+
+    humanSqlPropertiesObserver: Ember.observer('question.human_sql.@each',
+                                               'question.human_sql.filters.@each.label',
+                                               'question.human_sql.groupBys.@each.label',
+                                               'question.human_sql.views.@each.label',
+                                               'question.human_sql.orderBys.@each.label', function(){
+                                                   let question = this.get('question')
+                                                   if (this.get('humanSqlSetByServer')){
+                                                       this.set('humanSqlChanged')
+                                                   }
+                                               } ),
+
+    humanSqlObserver: Ember.observer('question.isLoaded', function(){
+        let question = this.get('question')
+        if (question.get('isLoaded')){
+            this.set('humanSqlSetByServer', true);
+        }
+    }),
     actions: {
         showAddToDashboard(){
             $('.ui.modal.add-to-dashboard').modal('show')

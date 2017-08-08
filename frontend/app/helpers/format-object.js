@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
 export function formatObject(params/*, hash*/) {
-    if (params && params[0]){
+    if (params && (params[0] || params[0] == 0)){
         var formattedString = params;
         params = params[0];
         var objType = (Object.prototype.toString.call(params).replace(/\[object|\]/g, "").trim())

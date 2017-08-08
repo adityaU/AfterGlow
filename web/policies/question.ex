@@ -15,7 +15,7 @@ defmodule AfterGlow.Question.Policy do
       scope
     else
         from s in scope,
-          join: d in assoc(s, :dashboards),
+          left_join: d in assoc(s, :dashboards),
           where: (s.owner_id == ^user.id)
           or fragment("? = ANY (?)", ^user.email , s.shared_to)
           or fragment("? = ANY (?)", ^user.email , d.shared_to)

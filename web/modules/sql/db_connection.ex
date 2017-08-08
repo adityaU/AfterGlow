@@ -4,7 +4,8 @@ defmodule AfterGlow.Sql.DbConnection do
 
   @adapter_modules %{
     postgres: AfterGlow.Sql.Adapters.Postgres,
-    influxdb: AfterGlow.Sql.Adapters.InfluxDb
+    influxdb: AfterGlow.Sql.Adapters.InfluxDb,
+    mongo: AfterGlow.Sql.Adapters.Mongo
   }
 
   #client methods
@@ -26,6 +27,10 @@ defmodule AfterGlow.Sql.DbConnection do
     @adapter_modules[db_record[:db_type] |> String.to_atom].execute(conn, query_record)
   end
   
+  def execute(db_record, query_record, table) do
+    {:ok, conn} = connection(db_record)
+    @adapter_modules[db_record[:db_type] |> String.to_atom].execute(conn, query_record, table)
+  end
   def get_schema(db_record) do
     {:ok, conn} = connection(db_record)
     @adapter_modules[db_record[:db_type] |> String.to_atom].get_schema(conn)

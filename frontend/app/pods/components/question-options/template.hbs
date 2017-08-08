@@ -35,6 +35,9 @@
             <span data-tooltip="Share" data-inverted="">  
                 <i class="square share icon"  {{action 'showShareDialogue'}} ></i>
             </span>
+            <span data-tooltip="Export" data-inverted="">  
+                <i class="cloud download icon"  {{action 'exportData'}} ></i>
+            </span>
         {{/if}}
         {{#if enableAddToDashboard}}
             <span data-tooltip="Add to Dashboard" data-inverted=""  {{action 'showAddToDashboard'}}>

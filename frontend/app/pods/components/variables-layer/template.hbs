@@ -2,8 +2,7 @@
             <div class="{{if showVariables "three" "four"}} column row no-margin no-padding">
             {{#each variables as |variable|}}
                 <div class="column">
-                <div class="ui form">
-                    <div class="field">
+                    <div class="ui form">
                         <label>{{capitalize variable.name}}</label>
                         {{#if variable.showDatePicker}}
                             {{ui-calendar date=variable.date_value onChange=(action (mut variable.date_value)) placeholder=variable.default_date  }}
@@ -11,7 +10,6 @@
                             {{input type="text" value=variable.value placeholder=variable.default}}
                         {{/if}}
                     </div>
-                </div>
                 </div>
             {{/each}}
             </div>

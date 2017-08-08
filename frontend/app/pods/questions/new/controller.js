@@ -4,13 +4,31 @@ import Ember from 'ember';
 import ChartSettings from 'frontend/mixins/chart-settings'
 import LoadingMessages from "frontend/mixins/loading-messages"
 import ResultViewMixin from "frontend/mixins/result-view-mixin"
+import DatabaseSettingMixin from "frontend/mixins/database-setting-mixin"
+import UtilsFunctions from "frontend/mixins/utils-functions"
 
-export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultViewMixin,{
+export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultViewMixin, DatabaseSettingMixin, UtilsFunctions, {
     ajax: Ember.inject.service(),
+    applicationController: Ember.inject.controller('application'),
+    darkTheme: Ember.computed.alias('applicationController.darkTheme'),
     
     databases: Ember.computed(function(){
         return this.get('store').findAll('database')
     }),
+    unsortedTables: Ember.computed('queryObject.database','databases.content.isLoaded', 'queryObject.database.id', 'database.tables.content.isLoaded',  function(){
+        if (this.get('queryObject.database') && this.get('databases.length') &&  this.get('queryObject.database.id')){
+            let database = this.store.peekRecord('database', this.get('queryObject.database.id')) ||  this.store.findRecord('database', this.get('queryObject.database.id'))
+            return database && database.get('tables')
+        }
+    }),
+
+    tables: Ember.computed("unsortedTables", "unsortedTables.content.isLoaded", function(){
+        return this.get("unsortedTables") && this.get("unsortedTables").sortBy('human_name')
+    }),
+    showTableInSqlMode: Ember.computed("queryObject.database", function(){
+        return this.get('showTableInSqlModeSetting')[this.get('queryObject.database.db_type')]
+    }),
+
     // variableObserver: Ember.observer('queryObject.queryType','queryObject.rawQuery' ,function(){
     //     let query = this.get('queryObject.rawQuery')
     //     let queryType = this.get('queryObject.queryType')
@@ -32,9 +50,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
     //     //     entity.get('variables').pushObjects(newVariables)
     //     // }
     // }),
-    showVariables: Ember.computed('question', 'question.variables', function(){
-        return this.get('question.variables.length') > 0
-    }),
+    showVariables: false,
     question: Ember.computed( "recalculate", function(){
         return this.store.createRecord('question', {
             title: "New Question",
@@ -44,6 +60,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
                 table: null,
                 views: [],
                 filters: [Ember.Object.create({column: null, operator: null, value: null})],
+                rawQuery: "",
                 groupBys: [],
                 orderBys: [],
                 offset: null,
@@ -52,6 +69,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
             results_view_settings: {resultsViewType: null, numbers: [], dataColumns: [{}]},
         })
     }),
+
     
     questionNameObserver: Ember.observer("question.title",
                                          "queryObject.table.human_name",
@@ -101,7 +119,9 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
       this.set('question.sql', this.get('queryObject.rawQuery'))
     }),
     aceTheme: "ace/theme/ambiance",
-    aceMode: "ace/mode/sql",
+    aceMode: Ember.computed("queryObject.database",function(){
+        return this.get('aceModes')[this.get('queryObject.database.db_type')]
+    }),
 
     queryObject: Ember.computed.alias('question.human_sql'),
     
@@ -128,6 +148,9 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
         return this.store.findAll('dashboard')
     }),
 
+
+
+
     // errorObserver: Ember.observer('question.errorMessage', function(){
     //     this.set("errors", {})
     //     this.set('errors.message', this.get('question.errorMessage'))
@@ -153,8 +176,8 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
         getResults(queryObject){
             let question = this.get('question')
             let query_variables = question.get('query_variables')
-            let changedAttributes = Object.keys(question.changedAttributes()).filter((item)=>{ item != "updated_at"})
-            if (question.id && ( changedAttributes == 0) && !this.get('variablesChanged')){
+            let changedAttributes = Object.keys(question.changedAttributes()).filter((item)=>{ return item != "updated_at"})
+            if (question.id && ( changedAttributes == 0 ) && !this.get('variablesChanged') && !this.get('humanSqlChanged')){
                 question.set("updated_at", new Date())
                 question.set('resultsCanBeLoaded', true) 
             }else{
@@ -207,6 +230,27 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
         },
         transitionToIndex(){
             this.transitionToRoute('index')
+        },
+        exportData(){
+            let results = this.get('results')
+            if (results){
+                let csv = results.columns.map((item)=>{
+                    return typeof(item) == "string" ?  this.formatObject(item).replace(/,/g, "|") : this.formatObject(item)
+                }).join(",") + "\n"
+                csv = csv + results.rows.map((item)=>{
+                    return item.map((el)=>{
+                        return typeof(el) == "string" ? this.formatObject(el).replace(/,/g, "|") :  this.formatObject(el)
+                    }).join(',')
+                }).join("\n")
+                csv = "data:text/csv;charset=utf-8," + csv
+                var encodedUri = encodeURI(csv);
+                var link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", this.get("question.title") + ".csv");
+                document.body.appendChild(link); // Required for FF
+
+                link.click();
+           }
         },
         addVariable(){
             let variable = this.store.createRecord('variable', {name: "New Variable", var_type: "String", default: "value"})

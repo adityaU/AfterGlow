@@ -1,4 +1,3 @@
-require IEx
 defmodule AfterGlow.QueryController do
   use AfterGlow.Web, :controller
   alias AfterGlow.Database
@@ -54,8 +53,9 @@ defmodule AfterGlow.QueryController do
   end
 
   defp run_raw_query db_record, params do
+    table = if params["table"], do: params["table"]["name"], else: nil
     query = replace_variables(params["rawQuery"], params["variables"])
-    results = DbConnection.execute(db_record |> Map.from_struct, query) 
+    results = DbConnection.execute(db_record |> Map.from_struct, query, %{table: table})
     {params["rawQuery"], results}
   end
   defp save_column_values results, permit_prms do

@@ -1,6 +1,7 @@
 defmodule AfterGlow do
   use Application
 
+
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
@@ -8,7 +9,7 @@ defmodule AfterGlow do
 
     # Define workers and child supervisors to be supervised
 
-    Postgrex.Types.define(AfterGlow.PostgrexTypes, [Postgrex.Extensions.JSON], json: Poison)
+    Postgrex.Types.define(AfterGlow.PostgrexTypes, [Postgrex.Extensions.JSON, AfterGlow.Sql.Postgres.Extensions.UUID], json: Poison)
     children = [
       # Start the Ecto repository
       supervisor(AfterGlow.Repo, []),

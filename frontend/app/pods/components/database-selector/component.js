@@ -1,6 +1,19 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
+    showDropdown: Ember.computed('showTags', 'queryObject.database.name', 'forceShowDropdown',  function(){
+        if (!this.get('queryObject.database.name')){
+            return true
+        }else if (this.get('forceShowDropdown')){
+            return true
+        }else{
+            return false
+        }
+    }),
+    databaseNameObserver: Ember.observer('queryObject.database.name', function(){
+        this.set('forceShowDropdown', false);
+        this.set('showTags', true);
+    }),
   databasesLength:  Ember.computed("databases.@each", function(){
     if (this.get('databases.length')){
       return true
@@ -15,6 +28,10 @@ export default Ember.Component.extend({
     actions: {
         toggleSql(){
             this.sendAction('toggleSql');
+        },
+        toggleShowDropdown(){
+            this.set('showTags', false);
+            this.set('forceShowDropdown', true)
         }
     }
 

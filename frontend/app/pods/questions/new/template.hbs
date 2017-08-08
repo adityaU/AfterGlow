@@ -1,4 +1,4 @@
-<div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
+<div class="padded-content ui segment full {{if darkTheme "dark"}} no-border-radius no-border-top no-bottom-margin">
     {{question-options
       questionName=questionName
       saveQuestion='saveQuestion'
@@ -9,9 +9,10 @@
       question=question
       showVariables=showVariables
       transitionToIndex="transitionToIndex"
+      exportData="exportData"
     }}
 </div>
-<div class="ui basic segment full padded-content no-top-margin">
+<div class="ui basic segment full padded-content no-top-margin {{if darkTheme "dark"}}">
     <div class="ui grid full">
         <div class="{{if showVariables "twelve" "sixteen"}} wide column">
             {{variables-layer variables=question.query_variables showVariables=showVariables}}
@@ -19,7 +20,14 @@
                 <div class="{{if queryBuilderType 'four' 'sixteen'}} wide column">
 
                     {{#if queryBuilderType}}
-                        {{query-builder getResults='getResults' toggleSql='toggleSql' queryObject=queryObject showGetResults=showGetResults databases=databases}}
+                        {{query-builder
+                          getResults='getResults'
+                          toggleSql='toggleSql'
+                          queryObject=queryObject
+                          showGetResults=showGetResults
+                          databases=databases
+                          tables=tables
+                        }}
                     {{/if}}
                 </div>
                 <div class="{{if queryBuilderType 'twelve' 'sixteen'}} wide column">
@@ -30,10 +38,15 @@
                             <div class="sixteen wide column">
                                 <div class="ui segment">
                                     <div class="ui grid">
-                                        <div class="fourteen wide column">
-                                            {{database-selector queryObject=queryObject showTags=false databases=databases}}
+                                        <div class="three wide column">
+                                            {{database-selector queryObject=queryObject sqlMode=true databases=databases}}
                                         </div>
-                                        <div class="two wide column">
+                                        <div class="three wide column">
+                                            {{#if showTableInSqlMode}}
+                                                {{table-selector queryObject=queryObject tables=tables sqlMode=true}}
+                                            {{/if}}
+                                        </div>
+                                        <div class="ten wide column">
                                             <div class="right" data-tooltip="Switch to Query Builder" data-inverted=""  {{action 'toggleSql'}}><i class="align justify icon"></i></div>
                                         </div>
                                     </div>

@@ -15,7 +15,8 @@ export default Ember.Controller.extend({
 
     dbTypes: [
         'postgres',
-        'influxdb'
+        'influxdb',
+        'mongo'
     ],
 
     actions:{

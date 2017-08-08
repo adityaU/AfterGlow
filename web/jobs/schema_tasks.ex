@@ -1,4 +1,3 @@
-require IEx
 defmodule AfterGlow.SchemaTasks do
   alias AfterGlow.Sql.DbConnection
   alias AfterGlow.Repo
@@ -19,7 +18,6 @@ defmodule AfterGlow.SchemaTasks do
   defp save schema, db_id do
     tables = Repo.all(from t in Table, where: t.database_id == ^db_id, select: t.name)
     schema
-    |> IO.inspect
     |> Enum.map(fn record->
       save_table_and_columns(record, db_id, tables)
     end)

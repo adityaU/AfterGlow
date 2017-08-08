@@ -50,7 +50,7 @@ export default Ember.Mixin.create({
         if (rows.length == 0){
             return 'Table'
         }
-        if (rows.length == 1 && rows[0].length <= 10 && this.all(row[0], this.findIfNumber)){
+        if (rows.length == 1 && rows[0].length <= 10 && this.all(rows[0], this.findIfNumber)){
             return 'Number'
         }
         if (rows[0].length == 2 && this.categoryColumnsCount(rows[0]) == 1 && this.any(rows[0], this.findIfNumber)){

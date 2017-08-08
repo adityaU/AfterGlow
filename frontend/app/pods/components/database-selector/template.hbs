@@ -1,11 +1,15 @@
-<div class="title no-top-border">
-    <i class="dropdown icon"></i>
-    Database
-    {{#if showTags}}
-    <div class="right" data-tooltip="Switch to SQL" data-inverted=""  data-variation="inverted" {{action 'toggleSql'}}><i class="terminal icon"></i></div>
-    {{/if}}
-</div>
-<div class="content {{if (not showTags) "database-selector-sql-mode"}}">
+{{#if (not sqlMode)}}
+    <div class="ui grid">
+        <div class="fourteen wide column">
+        </div>
+        <div class="two wide column">
+        <div class="text-align-right" data-tooltip="Switch to SQL" data-inverted=""  data-variation="inverted" {{action 'toggleSql'}}><i class="terminal icon"></i></div>
+        </div>
+    </div>
+{{/if}}
+{{#if showDropdown}}
+<div class="content {{if sqlMode "database-selector-sql-mode"}}">
+    <label>Database</label>
     {{#ui-dropdown class="search selection" selected=queryObject.database onChange=(action (mut queryObject.database)) as |execute mapper|}}
       {{dropdown-default object=queryObject.database.name default="Database"}}
         <i class="dropdown icon"></i>
@@ -18,10 +22,11 @@
         </div>
     {{/ui-dropdown}}
 </div>
-{{#if showTags}}
+{{/if}}
+{{#if showTags }}
     {{#if queryObject.database.name }}
         <div class="tags content active">
-            <div class="full"><a href="#" class="ui violet basic label"> {{queryObject.database.name}}</a></div>
+            <div class="full"><a href="#" class="ui violet basic label" {{action 'toggleShowDropdown'}}> Database:  {{queryObject.database.name}}</a></div>
         </div>
     {{/if}}
 {{/if}}
