@@ -20,12 +20,11 @@ export default Ember.Component.extend({
     selectViews: [{selected:{name: "Count", value: "count" }}],
     unsortedColumns: Ember.computed('queryObject.table','tables.content.isLoaded', function(){
         if (this.get('queryObject.table') && this.get('tables.length') && this.get('queryObject.table.id')){
-          let store = this.get('store')
-          let table = this.get('tables').findBy('id', this.get('queryObject.table.id'))
-            return table && table.get('columns')
+            let store = this.get('store')
+            return store.query('column', {table_id: this.get('queryObject.table.id')})
         }
     }),
-
+    columnsLoaded: Ember.computed.alias('unsortedColumns.content.isLoaded'),
     columns: Ember.computed("unsortedColumns", "unsortedColumns.content.isLoaded", function(){
         return this.get("unsortedColumns") && this.get("unsortedColumns").sortBy('name')
     }),

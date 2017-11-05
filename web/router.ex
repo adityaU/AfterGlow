@@ -39,6 +39,9 @@ defmodule AfterGlow.Router do
    get "auth/google", AuthController, :google_auth_path
    post "callback/google", AuthController, :callback
    post "verify-token", AuthController, :verify_token
+   post "databases/test_connection", DatabaseController, :test_connection
+   post "completed_query", WebhookController, :completed_query
+
   end
 
   # Other scopes may use custom stacks.

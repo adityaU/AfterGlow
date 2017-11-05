@@ -6,6 +6,7 @@
         </div>
     </div>
 {{else}}
+    {{#if columnsLoaded }}
     <div class="switch" data-tooltip="Switch to Raw" data-inverted=""  data-variation="inverted" {{action 'switchToRaw' 'filters' filter}}><i class="code icon" ></i></div>
     <div class="ui form margin-top-10">
         <div class="field">
@@ -46,4 +47,9 @@
         </div>
         {{filter-value-selector filter=filter}}
     </div>
+    {{else}}
+        <div class="ui active inverted dimmer">
+            <div class="ui text loader">loading columns</div>
+        </div>
+    {{/if}}
 {{/if}}

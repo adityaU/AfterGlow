@@ -4,12 +4,12 @@ defmodule AfterGlow.Database do
   alias AfterGlow.Async
   alias AfterGlow.SchemaTasks
   alias AfterGlow.Repo
+
   schema "databases" do
     field :name, :string
-    field :db_type, :string
-    field :config, :map
+    field :db_url, :string
     field :last_accessed_at, Ecto.DateTime
-    field :unique_identifier, Ecto.UUID
+    field :schema_last_updated_at, Ecto.DateTime
     has_many :tables, AfterGlow.Table
 
     timestamps()
@@ -20,34 +20,36 @@ defmodule AfterGlow.Database do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:name, :db_type, :config])
-    |> validate_required([:name, :db_type, :config])
-    |> touch_last_accessed_at
+    |> cast(params, [:name, :db_url, :schema_last_updated_at])
+    |> validate_required([:name, :db_url])
   end
 
 
   def insert changeset do
-    response = case changeset.errors |> Enum.empty? do
-                 true ->
-                   changeset = Ecto.Changeset.change(changeset, unique_identifier: Ecto.UUID.generate )
-                   case DbConnection.connection(changeset.changes) do
-                     {:ok, _} ->
-                       {:ok, data} = Repo.insert(changeset)
-
-                     {{:error, error}} ->
-                       {:error, error}
-                   end
-                 false ->
-                   {:error, changeset}
-               end
-    #save schema in async
-    Async.perform(&SchemaTasks.sync/1, [response |> elem(1)])
-    response
+    Repo.insert(changeset)
   end
 
-  defp touch_last_accessed_at changeset do
-    Ecto.Changeset.change(changeset, last_accessed_at: Ecto.DateTime.utc )
+  def update_all_tables db_record, force do
+    if force do
+      Async.perform(&SchemaTasks.update_tables/1, [db_record])
+    else
+      if db_record.schema_last_updated_at do
+        {:ok, time_before, _ , _} = Ecto.DateTime.utc |> Calendar.NaiveDateTime.diff(db_record.schema_last_updated_at)
+        if time_before > 4*3600  do
+          Async.perform(&SchemaTasks.update_tables/1, [db_record])
+        end
+      else
+        Async.perform(&SchemaTasks.update_tables/1, [db_record])
+      end
+    end
   end
 
+  def sync_db db_record do
+    Async.perform(&SchemaTasks.update_tables/1, [db_record])
+    tables = Repo.all(from t in Table, where: t.database_id == ^db_record.id)
+    |> Enum.each(fn t ->
+      Async.perform(&SchemaTasks.update_columns/1, [t])
+    end)
+  end
 
 end

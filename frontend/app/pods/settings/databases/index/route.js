@@ -9,7 +9,5 @@ export default Ember.Route.extend(AuthenticationMixin, {
         this._super(...arguments);
         this.controllerFor('settings').set('pageTitle', 'Databases');
         this.controllerFor('settings').set('showAddDatabase', true);
-        
-          
     }
 });

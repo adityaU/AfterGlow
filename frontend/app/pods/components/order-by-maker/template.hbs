@@ -1,4 +1,5 @@
-<div class=" ui segment">    
+<div class=" ui segment min-70">    
+    {{#if columnsLoaded}}
     {{#ui-dropdown class="search selection" selected=orderBy.column onChange=(action (mut orderBy.column))  as |execute mapper|}} 
         {{dropdown-default object=orderBy.column.human_name default="column"}}
         <i class="dropdown icon"></i>
@@ -21,4 +22,10 @@
             {{/each}}
         </div>
     {{/ui-dropdown}}
+
+    {{else}}
+        <div class="ui active inverted dimmer">
+            <div class="ui text loader">loading columns</div>
+        </div>
+    {{/if}}
 </div>

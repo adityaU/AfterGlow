@@ -307,6 +307,9 @@ label {
 .ui.segment{
     border: 1px solid $greyColor;
     box-shadow: box-shadow($greyColor);
+    &.min-70{
+        min-height: 70px;
+    }
     &.dark{
         background: #1B1C1D;
         & .ui.toggle.checkbox label{
@@ -491,6 +494,9 @@ a {
 }
 .toast-error{
     border-left: 5px solid $errorColor !important;
+}
+.toast-success{
+    border-left: 5px solid $tertiaryColor !important;
 }
 button.toast-close-button{
     color: $textColor

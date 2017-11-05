@@ -6,6 +6,7 @@ defmodule AfterGlow.Database.Policy do
   def can?(user, :update, _database), do: has_permission(user, "Settings.all")
   def can?(user, :delete, _database), do: has_permission(user, "Settings.all")
   def can?(user, :create, _database), do: has_permission(user, "Settings.all")
+  def can?(user, :test_connection, _database), do: has_permission(user, "Settings.all")
   def can?(_, _, _), do: false
 
 end

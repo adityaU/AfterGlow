@@ -2,11 +2,12 @@ defmodule AfterGlow.UserSocket do
   use Phoenix.Socket
 
   ## Channels
+  channel "query_result:*", AfterGlow.QueryResultChannel
   # channel "room:*", AfterGlow.RoomChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
-  # transport :longpoll, Phoenix.Transports.LongPoll
+  transport :longpoll, Phoenix.Transports.LongPoll
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
@@ -22,6 +23,7 @@ defmodule AfterGlow.UserSocket do
   def connect(_params, socket) do
     {:ok, socket}
   end
+
 
   # Socket id's are topics that allow you to identify all sockets for a given user:
   #

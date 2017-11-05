@@ -1,4 +1,4 @@
-<div class=" ui segment">    
+<div class=" ui segment min-70">    
 
     {{#if groupBy.selected.raw}}
         <div class="right" data-tooltip="Switch to Builder" data-inverted=""  {{action 'switchToBuilder' 'groupBys' groupBy true}}><i class="list layout icon" ></i></div>
@@ -8,26 +8,10 @@
             </div>
         </div>
     {{else}}
-        <div class="right" data-tooltip="Switch to Raw" data-inverted=""  {{action 'switchToRaw' 'groupBys' groupBy true}}><i class="code icon" ></i></div>
-        {{#ui-dropdown class="search selection" selected=groupBy.selected onChange=(action (mut groupBy.selected))  as |execute mapper|}} 
-            {{dropdown-default object=groupBy.selected.human_name default="Column"}}
-            <i class="dropdown icon"></i>
-            <div class="menu">
-
-                <div class="ui icon search input">
-                    <i class="search icon"></i>
-                    <input type="text" placeholder="Search">
-                </div>
-                {{#each columns as |column|}}
-                    <div class="item" data-value="{{map-value mapper column}}">
-                        {{column.human_name}}
-                    </div>
-                {{/each}}
-            </div>
-        {{/ui-dropdown}}
-        {{#if isGroupByDateType}}
-            {{#ui-dropdown class="search selection" selected=groupBy.castType onChange=(action (mut groupBy.castType))  as |execute mapper|}} 
-                {{dropdown-default object=groupBy.castType.name default="By"}}
+        {{#if columnsLoaded}}
+            <div class="right" data-tooltip="Switch to Raw" data-inverted=""  {{action 'switchToRaw' 'groupBys' groupBy true}}><i class="code icon" ></i></div>
+            {{#ui-dropdown class="search selection" selected=groupBy.selected onChange=(action (mut groupBy.selected))  as |execute mapper|}} 
+                {{dropdown-default object=groupBy.selected.human_name default="Column"}}
                 <i class="dropdown icon"></i>
                 <div class="menu">
 
@@ -35,13 +19,35 @@
                         <i class="search icon"></i>
                         <input type="text" placeholder="Search">
                     </div>
-                    {{#each groupByDateTypes as |type|}}
-                        <div class="item" data-value="{{map-value mapper type}}">
-                            {{type.name}}
+                    {{#each columns as |column|}}
+                        <div class="item" data-value="{{map-value mapper column}}">
+                            {{column.human_name}}
                         </div>
                     {{/each}}
                 </div>
             {{/ui-dropdown}}
+            {{#if isGroupByDateType}}
+                {{#ui-dropdown class="search selection" selected=groupBy.castType onChange=(action (mut groupBy.castType))  as |execute mapper|}} 
+                    {{dropdown-default object=groupBy.castType.name default="By"}}
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+
+                        <div class="ui icon search input">
+                            <i class="search icon"></i>
+                            <input type="text" placeholder="Search">
+                        </div>
+                        {{#each groupByDateTypes as |type|}}
+                            <div class="item" data-value="{{map-value mapper type}}">
+                                {{type.name}}
+                            </div>
+                        {{/each}}
+                    </div>
+                {{/ui-dropdown}}
+                {{/if}}
+    {{else}}
+                <div class="ui active inverted dimmer">
+                    <div class="ui text loader">loading columns</div>
+                </div>
         {{/if}}
     {{/if}}
 </div>

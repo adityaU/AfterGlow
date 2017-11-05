@@ -9,6 +9,7 @@ import UtilsFunctions from "frontend/mixins/utils-functions"
 
 export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultViewMixin, DatabaseSettingMixin, UtilsFunctions, {
     ajax: Ember.inject.service(),
+    socket: Ember.inject.service(),
     applicationController: Ember.inject.controller('application'),
     darkTheme: Ember.computed.alias('applicationController.darkTheme'),
     
@@ -50,6 +51,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
     //     //     entity.get('variables').pushObjects(newVariables)
     //     // }
     // }),
+    results: Ember.computed.alias('socket.results'),
     showVariables: false,
     question: Ember.computed( "recalculate", function(){
         return this.store.createRecord('question', {
@@ -195,13 +197,9 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
                 },(response, status)=>{
                     this.set('loading', false);
                     this.set('errors', null)
-                    this.set('results', response.data)
-                    if (!this.get('resultsViewType')){
-                        this.set('resultsViewType', this.autoDetect(response.data.rows))
-                    }
-                    this.set('validQuestion', true)
-                    this.set("queryObject.rawQuery", response.query)
+                    this.get('socket').connect(response.data.query_key);
                 },(error, status)=>{
+                    debugger
                     this.set('loading', false);
                     error.error ?  this.set('errors', error.error) : this.set('errors', {message: "Something isn't right. Your Query Probably timed out."})
                     this.set('results', null)

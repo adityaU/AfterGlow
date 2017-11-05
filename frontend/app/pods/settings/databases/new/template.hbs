@@ -2,48 +2,16 @@
 <form class="ui form">
 
     <div class="field">
-        <label>Database Type</label>
-        {{#ui-dropdown class="search selection" selected=db.db_type onChange=(action (mut db.db_type))  as |execute mapper|}} 
-            {{dropdown-default object=db.db_type default="DB Type"}}
-            <i class="dropdown icon"></i>
-            <div class="menu">
-                {{#each dbTypes as |dbType|}}
-                    <div class="item" data-value="{{map-value mapper dbType}}">
-                        {{dbType}}
-                    </div>
-                {{/each}}
-            </div>
-        {{/ui-dropdown}}
-    </div>
-    <div class="field">
         <label>Name</label>
         {{input type="text" name="first-name" placeholder="What do you call it?" value=db.name}}
     </div>
 
     <div class="field">
-        <label>Host Url</label>
-        {{input type="text" name="first-name" placeholder="Host endpoint" value=db.config.host_url}}
+        <label>Database Url</label>
+        {{input type="text" name="first-name" placeholder="e.g. postgres://username:password@host:port/database" value=db.db_url}}
     </div>
 
-    <div class="field">
-        <label>Host Port</label>
-        {{input type="text" name="first-name" placeholder="Host Port" value=db.config.host_port}}
-    </div>
-
-    <div class="field">
-        <label>Database Name</label>
-        {{input type="text" name="first-name" placeholder="Database Name" value=db.config.db_name}}
-    </div>
-
-    <div class="field">
-        <label>Database Username</label>
-        {{input type="text" name="first-name" placeholder="Username" value=db.config.username}}
-    </div>
-
-    <div class="field">
-        <label>Database Password</label>
-        {{input type="text" name="first-name" placeholder="Password" value=db.config.password}}
-    </div>
     <button class="ui violet  button" type="submit" {{action 'saveDatabase'}}>SAVE</button>
+    <button class="ui button" type="submit" {{action 'testConnection'}}>Test Connection</button>
 </form>
 </div>

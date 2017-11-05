@@ -4,16 +4,17 @@ defmodule AfterGlow.ColumnController do
   alias AfterGlow.Column
   alias JaSerializer.Params
   alias AfterGlow.Plugs.Authorization
+  alias AfterGlow.Table
 
   plug Authorization
   plug :authorize!, Column
   plug :scrub_params, "data" when action in [:create, :update]
   plug :verify_authorized
 
-  def index(conn, %{"filter" => %{"id" =>ids}}) do
-    ids = ids |> String.split(",")
-    tables = Repo.all(from t in Column, where: t.id in ^ids ) |> Repo.preload(:column_values)
-    render(conn, :index, data: tables)
+  def index(conn, %{"table_id" => table_id}) do
+    update_columns(table_id)
+    columns = Repo.all(from c in Column, where: c.table_id == ^table_id ) |> Repo.preload(:column_values)
+    render(conn, :index, data: columns)
   end
 
   # def index(conn, _params) do
@@ -65,5 +66,9 @@ defmodule AfterGlow.ColumnController do
 
   #   send_resp(conn, :no_content, "")
   # end
+
+  def update_columns(table) do
+    Table.update_all_columns(table)
+  end
 
 end

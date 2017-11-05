@@ -6,10 +6,13 @@ defmodule AfterGlow.Mixfile do
      version: "0.0.1",
      elixir: "~> 1.4.0",
      elixirc_paths: elixirc_paths(Mix.env),
-     compilers: [:phoenix, :gettext] ++ Mix.compilers,
+     compilers: [:phoenix, :gettext, :thrift] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      aliases: aliases(),
+     thrift: [
+       files: Path.wildcard("lib/thrift/**/*.thrift"),
+       output_path: "lib/thrift/"],
      deps: deps()]
   end
 
@@ -52,7 +55,11 @@ defmodule AfterGlow.Mixfile do
      {:httpoison, "~> 0.11.1"},
      {:mongodb, "~> 0.2.0"},
      {:execjs, git: "https://github.com/devinus/execjs.git"},
-     {:poison, "~> 2.2.0", override: true}
+     {:poison, "~> 2.2.0", override: true},
+     {:ranch, "~> 1.4", override: true},
+     {:calecto, "~> 0.16.0"},
+     {:redix, ">= 0.0.0"},
+     {:thrift,  github: "pinterest/elixir-thrift"}
     ]
   end
 

@@ -5,8 +5,8 @@
 </div>
 <div class="content">
     {{#each queryObject.filters as |filter|}}
-        <div class=" ui segment">    
-            {{filter-maker filter=filter columns=columns queryObject=queryObject switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
+        <div class=" ui segment min-70">    
+            {{filter-maker filter=filter columns=columns columnsLoaded=columnsLoaded queryObject=queryObject switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
         </div>
     {{/each}}
     <button class="ui violet button full" {{action 'addFilter'}}>
@@ -56,7 +56,7 @@
 </div>
 <div class="content">
     {{#each queryObject.groupBys as |groupBy|}}
-        {{group-by-maker columns=columns groupBy=groupBy switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
+        {{group-by-maker columns=columns columnsLoaded=columnsLoaded groupBy=groupBy switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
     {{/each}}
     <button class="ui violet button full" {{action 'addGroupBy'}}>
         <i class="icon add"></i>
@@ -80,7 +80,7 @@
 </div>
 <div class="content">
     {{#each queryObject.orderBys as |orderBy|}}
-        {{order-by-maker columns=columns orderBy=orderBy}}
+        {{order-by-maker columns=columns columnsLoaded=columnsLoaded orderBy=orderBy}}
     {{/each}}
     <button class="ui violet button full" {{action 'addOrderBy'}}>
         <i class="icon add"></i>

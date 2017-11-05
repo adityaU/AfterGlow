@@ -5,6 +5,7 @@ import ENV from "../../config/environment";
 export default DS.JSONAPIAdapter.extend({
     namespace: '/api/v1',
     host: ENV.host,
+    socketHost: ENV.socketHost,
     toast: Ember.inject.service(),
     sessionService: Ember.inject.service(),
     headers: Ember.computed('sessionService.token', function(){

@@ -5,7 +5,7 @@ alias AfterGlow.User
 import Ecto.Query
 admin_user = Repo.one(from u in User, where: u.email ==  ^Application.get_env(:afterglow, :admin_email) )
 unless admin_user do
-  Repo.insert(User, %{email:  Application.get_env(:afterglow, :ADMIN_EMAIL) })
+  Repo.insert(User, %{email:  Application.get_env(:afterglow, :admin_email) })
 end
 
 admin = Repo.one(from ps in PermissionSet, where: ps.name == "Admin")

@@ -22,7 +22,7 @@
             <tr>
                 <th colspan="100">
                     {{#if showResults}}
-                        {{page-numbers content=pagedRows}}
+                        {{page-numbers content=dummyRows totalPages=totalPages}}
                     {{else}}
                         <div class="centered">
                             Looks like your query did not return any result.

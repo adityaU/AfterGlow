@@ -1,5 +1,7 @@
 %{"base64url": {:hex, :base64url, "0.0.1", "36a90125f5948e3afd7be97662a1504b934dd5dac78451ca6e9abf85a10286be", [:rebar], []},
   "bodyguard": {:hex, :bodyguard, "1.0.0", "611f636762dadd706f166438cf59d7334ed3dc173cc9db26bacd114d7c051abf", [:mix], [{:plug, "~> 1.0", [hex: :plug, optional: false]}]},
+  "calecto": {:hex, :calecto, "0.16.2", "d64d5e2c0c47a324f24861c16743066733c6e66d6ecaf9ddc2d69790c6b7af1f", [:mix], [{:calendar, "~> 0.16", [hex: :calendar, optional: false]}, {:ecto, "~> 1.1.3 or ~> 2.0", [hex: :ecto, optional: false]}]},
+  "calendar": {:hex, :calendar, "0.17.4", "22c5e8d98a4db9494396e5727108dffb820ee0d18fed4b0aa8ab76e4f5bc32f1", [:mix], [{:tzdata, "~> 0.5.8 or ~> 0.1.201603", [hex: :tzdata, optional: false]}]},
   "certifi": {:hex, :certifi, "1.0.0", "1c787a85b1855ba354f0b8920392c19aa1d06b0ee1362f9141279620a5be2039", [:rebar3], []},
   "connection": {:hex, :connection, "1.0.4", "a1cae72211f0eef17705aaededacac3eb30e6625b04a6117c1b2db6ace7d5976", [:mix], []},
   "cors_plug": {:hex, :cors_plug, "1.2.1", "bbe1381a52e4a16e609cf3c4cbfde6884726a58b9a1a205db104dbdfc542f447", [:mix], [{:plug, "> 0.8.0", [hex: :plug, optional: false]}]},
@@ -21,6 +23,7 @@
   "ja_serializer": {:hex, :ja_serializer, "0.11.2", "952b59b480e656e0bd991c5822dda4dfc6c507f1c55d6eaea363cd84e6002e2c", [:mix], [{:inflex, "~> 1.4", [hex: :inflex, optional: false]}, {:plug, "> 1.0.0", [hex: :plug, optional: false]}, {:poison, "~> 1.4 or ~> 2.0", [hex: :poison, optional: false]}, {:scrivener, "~> 1.2 or ~> 2.0", [hex: :scrivener, optional: true]}]},
   "joken": {:hex, :joken, "1.4.1", "16b87dcbad59dfb1e75231b9d6e504d852ce11f849efb7150a41dcad29dba8e1", [:mix], [{:jose, "~> 1.8", [hex: :jose, optional: false]}, {:plug, "~> 1.0", [hex: :plug, optional: true]}, {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0", [hex: :poison, optional: true]}]},
   "jose": {:hex, :jose, "1.8.2", "2945d4ad6cc94515c606ade52455be3d6bba15578b7e2beed1704ad0cb1e1c80", [:mix, :rebar3], [{:base64url, "~> 0.0.1", [hex: :base64url, optional: false]}]},
+  "jsx": {:git, "git://github.com/talentdeficit/jsx.git", "d67f830def08e582cadcc8ecac6c56ef67bd5907", [tag: "v0.9.0"]},
   "keccakf1600": {:hex, :keccakf1600, "0.0.1", "c9f1f4abfc54c41c5abff5116c705bdfee63b21831008f361f00b70a10bf4c38", [:rebar3], []},
   "libdecaf": {:hex, :libdecaf, "0.0.4", "c1caa4c4aaea356f89372debd0a672251111c2b2236e1b1e8a0f5bc271b60af4", [:rebar3], []},
   "libsodium": {:hex, :libsodium, "0.0.10", "24584e6f5a60aed53542054c15fb31719bbf2d811d9a84f626734faf64d41304", [:rebar3], []},
@@ -38,6 +41,9 @@
   "poison": {:hex, :poison, "2.2.0", "4763b69a8a77bd77d26f477d196428b741261a761257ff1cf92753a0d4d24a63", [:mix], []},
   "poolboy": {:hex, :poolboy, "1.5.1", "6b46163901cfd0a1b43d692657ed9d7e599853b3b21b95ae5ae0a777cf9b6ca8", [:rebar], []},
   "postgrex": {:hex, :postgrex, "0.13.2", "2b88168fc6a5456a27bfb54ccf0ba4025d274841a7a3af5e5deb1b755d95154e", [:mix], [{:connection, "~> 1.0", [hex: :connection, optional: false]}, {:db_connection, "~> 1.1", [hex: :db_connection, optional: false]}, {:decimal, "~> 1.0", [hex: :decimal, optional: false]}]},
-  "ranch": {:hex, :ranch, "1.3.2", "e4965a144dc9fbe70e5c077c65e73c57165416a901bd02ea899cfd95aa890986", [:rebar3], []},
+  "ranch": {:hex, :ranch, "1.4.0", "10272f95da79340fa7e8774ba7930b901713d272905d0012b06ca6d994f8826b", [:rebar3], []},
+  "redix": {:hex, :redix, "0.6.1", "20986b0e02f02b13e6f53c79a1ae70aa83147488c408f40275ec261f5bb0a6d0", [:mix], [{:connection, "~> 1.0", [hex: :connection, optional: false]}]},
   "sql_dust": {:git, "https://github.com/adityaU/sql_dust.git", "fab33430ac0067bcf3423fa8ff7c7d4c5699d6f0", []},
-  "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.1", "28a4d65b7f59893bc2c7de786dec1e1555bd742d336043fe644ae956c3497fbe", [:make, :rebar], []}}
+  "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.1", "28a4d65b7f59893bc2c7de786dec1e1555bd742d336043fe644ae956c3497fbe", [:make, :rebar], []},
+  "thrift": {:git, "https://github.com/pinterest/elixir-thrift.git", "f96c47c56f6978d4439f7954818f9fbb8db7182c", []},
+  "tzdata": {:hex, :tzdata, "0.5.12", "1c17b68692c6ba5b6ab15db3d64cc8baa0f182043d5ae9d4b6d35d70af76f67b", [:mix], [{:hackney, "~> 1.0", [hex: :hackney, optional: false]}]}}
