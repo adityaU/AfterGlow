@@ -27,7 +27,7 @@ export default Ember.Component.extend({
 
     showDatePicker: Ember.computed('filter.column', function(){
         let dataType = this.get('filter.column.data_type')
-        if ((dataType == 'date') || (dataType == 'datetime') || (dataType == 'timestamp without time zone')){
+        if ((dataType == 'date') || (dataType == 'datetime') || (dataType == 'timestamp without time zone') || dataType == 'timestamp'){
             return true
         }else{
             return false

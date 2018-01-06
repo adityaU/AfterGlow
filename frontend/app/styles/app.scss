@@ -12,6 +12,7 @@ $tertiaryColor: #44b35e;
 $tertiaryColorShade2: #3c9651;
 $secondaryColor: #f9fbfc;
 $lightTransparentColor: rgba(255, 255, 255, 0.85);
+$borderSecondaryColor:  #dee5e8;
 $borderRadius: 0.28571429rem;
 @function box-shadow($color){
   @return 0px 0px 0px 0px $color !important ;   
@@ -179,6 +180,7 @@ height: 30px;
     text-transform: uppercase !important;
     &.violet{
     box-shadow: box-shadow($primaryColorShade2);
+    background-image: linear-gradient(to right bottom, rgba(117, 126, 239, 0.5), rgba(50, 54, 105, 0.7));
     }
     &.red{
       box-shadow: box-shadow($errorColor);
@@ -229,6 +231,7 @@ label {
   background: #FFFFFF;
   box-shadow: box-shadow($greyColor);
   border: 1px solid rgba(34, 36, 38, 0.15);
+  border-bottom: 3px solid $borderSecondaryColor;
 
 }
 .ui.search.selection.dropdown{
@@ -317,6 +320,7 @@ label {
 }
 .ui.segment{
     border: 1px solid $greyColor;
+    border-bottom: 3px solid $borderSecondaryColor;
   box-shadow: box-shadow($greyColor);
 }
 .ui.grid.container{
@@ -636,6 +640,9 @@ button.toast-close-button{
 }
 .no-border-radius{
   border-radius: 0px !important;
+  &.ui.segment.top-header{
+      border-bottom: none;
+  }
 }
 .no-border-top{
   border-top: 0px !important;
@@ -830,4 +837,7 @@ body{
 .tag:hover::after {
   border-left-color: crimson;
 
+}
+.results-table{
+    margin: 5px;
 }

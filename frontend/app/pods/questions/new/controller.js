@@ -176,6 +176,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
                     if (!this.get('resultsViewType')){
                         this.set('resultsViewType', this.autoDetect(response.data.rows))
                     }
+                    debugger
                     this.set('validQuestion', true)
                     this.set("queryObject.rawQuery", response.query)
                 },(error, status)=>{

@@ -11,7 +11,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
         if query_record[:offset] do
           query = query <> " " <> "OFFSET #{query_record[:offset]}"
         end
-        query
+        query |> IO.inspect
       end
 
       def options query_record, adapter do

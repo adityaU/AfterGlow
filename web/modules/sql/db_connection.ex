@@ -4,7 +4,9 @@ defmodule AfterGlow.Sql.DbConnection do
 
   @adapter_modules %{
     postgres: AfterGlow.Sql.Adapters.Postgres,
+    mysql: AfterGlow.Sql.Adapters.Mysql,
     influxdb: AfterGlow.Sql.Adapters.InfluxDb
+
   }
 
   #client methods

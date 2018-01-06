@@ -20,7 +20,7 @@ export default Ember.Component.extend({
 
     isGroupByDateType: Ember.computed('groupBy.selected', function(){
         let dataType = this.get('groupBy.selected.data_type')
-        if ((dataType == 'date') || (dataType == 'datetime') || (dataType == 'timestamp without time zone')){
+        if ((dataType == 'date') || (dataType == 'datetime') || (dataType == 'timestamp without time zone') || dataType == 'timestamp'){
             return true
         }else{
             return false

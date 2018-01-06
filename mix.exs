@@ -49,7 +49,8 @@ defmodule AfterGlow.Mixfile do
      {:libdecaf, "~> 0.0.1"},
      {:flasked, "~> 0.4"},
      {:bodyguard, "~> 1.0.0"},
-     {:httpoison, "~> 0.11.1"}
+     {:httpoison, "~> 0.11.1"},
+     {:mariaex,  git: "https://github.com/xerions/mariaex.git", override: true}
     ]
   end
 

@@ -38,8 +38,8 @@ defmodule AfterGlow.TableController do
   end
 
   def show(conn, %{"id" => id}) do
-    table = Repo.get!(Table, id)
-    render(conn, "show.json-api", data: table)
+    table = Repo.get!(Table, id) |> Repo.preload(:columns)
+    render(conn, :show, data: table)
   end
 
   def update(conn, %{"id" => id, "data" => data = %{"type" => "table", "attributes" => _table_params}}) do

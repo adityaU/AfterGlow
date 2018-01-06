@@ -1,16 +1,25 @@
-<div class="padded-content ui basic segment full no-border-radius no-border-top no-bottom-margin">
-<div class="ui form">
-    <div class="field">
-        {{input value=query class="ui bigger" placeholder="Search Question" }}
+<div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
+    <div class="ui grid">
+        <div class="ten wide column ">
+            <div class="dashboard-title">
+                All Questions
+            </div>
+        </div>
     </div>
 </div>
+<div class="padded-content ui basic segment full no-border-radius no-border-top no-bottom-margin">
+    <div class="ui form">
+        <div class="field">
+            {{input value=query class="ui bigger" placeholder="Search Question" }}
+        </div>
+    </div>
 </div>
 <div class="ui basic segment full padded-content no-top-margin">
     <div class="ui grid full">
-    {{#if query}}
-        {{questions-list questions=searchedQuestions}}
-    {{else}}
-        {{questions-list questions=questions}}
-    {{/if}}
-</div>
+        {{#if query}}
+            {{questions-list questions=searchedQuestions}}
+        {{else}}
+            {{questions-list questions=questions}}
+        {{/if}}
+    </div>
 </div>
