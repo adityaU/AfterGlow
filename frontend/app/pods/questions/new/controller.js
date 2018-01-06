@@ -112,7 +112,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
     apiHost: Ember.computed('store', function(){
         return this.get('store').adapterFor('application').host;
     }),
-    showGetResults: Ember.computed('queryObject.database', 'queryObject.table', 'queryObject.queryType','queryObject.rawQuery', function(){
+    showGetResults: Ember.computed.oneWay('queryObject.database', 'queryObject.table', 'queryObject.queryType','queryObject.rawQuery', function(){
         return ((this.get('queryObject.database') && this.get('queryObject.table')) ||
                 (this.get('queryObject.database') && (this.get('queryObject.queryType') == 'raw') && this.get('queryObject.rawQuery')) )
     }),
@@ -176,7 +176,6 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
                     if (!this.get('resultsViewType')){
                         this.set('resultsViewType', this.autoDetect(response.data.rows))
                     }
-                    debugger
                     this.set('validQuestion', true)
                     this.set("queryObject.rawQuery", response.query)
                 },(error, status)=>{
