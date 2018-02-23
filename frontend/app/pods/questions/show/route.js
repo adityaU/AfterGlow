@@ -16,7 +16,7 @@ export default Ember.Route.extend(CanMixin, {
         }
     },
     model(params){
-        return this.store.peekRecord('question', params.question_id) || this.store.findRecord('question', params.question_id)
+        return this.store.findRecord('question', params.question_id)
     },
     templateName: 'questions/new',
     actions:{

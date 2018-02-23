@@ -14,6 +14,6 @@ export default Ember.Mixin.create({
         "Bubble": 'bubble-chart'
     },
     resultsWidgetComponent:  Ember.computed('resultsViewType', function() {
-        return this.get('resultsWidgets')[this.get('resultsViewType')]
+        return this.get('resultsWidgets')[this.get('resultsViewType')] || "results-table"
     })
 })

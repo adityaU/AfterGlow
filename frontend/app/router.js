@@ -9,8 +9,14 @@ const Router = Ember.Router.extend({
 Router.map(function() {
   this.route('questions', function() {
       this.route('new');
-      this.route('show', {path: '/:question_id'});
-      this.route('all');
+      this.route('show', {path: '/:question_id'}, function(){
+          this.route('snapshots', function() {
+              this.route('show', {path: '/:snapshot_id'});
+              this.route('all', {path: '/'});
+          });
+      });
+      this.route('all', {path: '/'});
+
   });
 
   this.route('dashboards', function() {
@@ -45,6 +51,20 @@ Router.map(function() {
       this.route('show', {path: '/:tag_id'});
   });
   this.route('loading');
+
+  this.route('data_references', function() {
+    this.route('databases', function() {
+        this.route('show', {path: '/:database_id'}, function() {
+        this.route('tables', function() {
+            this.route('show', {path: '/:table_id'}, function() {
+                this.route('explore', {path: "/explore"});
+            });
+            this.route('all', {path: '/'});
+        });
+      });
+        this.route('all', {path:'/'});
+    });
+  });
 });
 
 export default Router;

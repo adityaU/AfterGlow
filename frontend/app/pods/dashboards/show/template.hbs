@@ -56,19 +56,6 @@
                     <i class="share icon" {{action 'showShareDialogue'}}></i>
                 </span>
 
-                <span data-tooltip="Refresh Interval: {{refreshInterval.name}}" data-inverted=""  data-position="top right">  
-
-                    {{#ui-dropdown class="ui dropdown menu-item"}}
-                        {{dropdown-default  default=null icon="refresh"}}
-                        <div class="menu left">
-                            {{#each refreshIntervals as |refreshInterval|}}
-                                <div class="item" {{action 'setRefreshInterval' refreshInterval}}>
-                                    {{refreshInterval.name}}
-                                </div>
-                            {{/each}}
-                        </div>
-                    {{/ui-dropdown}}
-                </span>
                 <span data-tooltip="Variables" data-inverted=""  data-position="top right">
                     <i class="superscript icon" {{action 'showVariablesDialogue'}}></i>
                 </span>
@@ -82,6 +69,19 @@
                     <i class="expand icon" {{action 'toggleFullScreen'}}></i>
                 </span>
             {{/if}}
+            <span data-tooltip="Refresh Interval: {{refreshInterval.name}}" data-inverted=""  data-position="top right">  
+
+                {{#ui-dropdown class="ui dropdown menu-item"}}
+                    {{dropdown-default  default=null icon="refresh"}}
+                    <div class="menu left">
+                        {{#each refreshIntervals as |refreshInterval|}}
+                            <div class="item" {{action 'setRefreshInterval' refreshInterval}}>
+                                {{refreshInterval.name}}
+                            </div>
+                        {{/each}}
+                    </div>
+                {{/ui-dropdown}}
+            </span>
         </div>
     </div>
 </div>

@@ -4,11 +4,19 @@ defmodule AfterGlow.QuestionController do
 
   alias AfterGlow.Question
   alias AfterGlow.Database
+  alias AfterGlow.TagQuestion
   alias AfterGlow.Tag
+  alias AfterGlow.Async
   alias AfterGlow.Variable
   alias AfterGlow.QueryView
+  alias AfterGlow.Snapshots.Snapshot
   alias AfterGlow.Sql.DbConnection
+  alias AfterGlow.QuestionSearchView
   alias JaSerializer.Params
+  alias AfterGlow.CacheWrapper
+  alias AfterGlow.CacheWrapper.Repo
+
+  import Ecto.Query
 
   alias AfterGlow.Plugs.Authorization
   plug Authorization
@@ -18,22 +26,97 @@ defmodule AfterGlow.QuestionController do
 
   def index(conn, %{"filter" => %{"id" => ids}}) do
     ids = ids |> String.split(",")
-    questions = scope(conn, (from q in Question, where: q.id in ^ids)) |> Repo.all() |> Repo.preload(:dashboards) |> Repo.preload(:tags) |> Repo.preload(:variables)
-    render(conn, :index, data: questions)
+    questions = scope(conn, (from q in Question,
+          where: q.id in ^ids
+        )
+    )
+    |> select([:id])
+    |> Repo.all()
+    |> Enum.map(fn x -> x.id end)
+    |> CacheWrapper.get_by_ids(Question)
+    |> Repo.preload(:dashboards)
+    |> Repo.preload(:tags)
+    |> Repo.preload(:variables)
+    |> Repo.preload(:snapshots)
+    conn
+    |> render(:index, data: questions)
+  end
+  def index(conn, %{"q" => query, "tag" => tag_id}) do
+    search_query = from q in Question,
+      where: ilike(q.title, ^"%#{query}%"),
+      order_by: q.updated_at,
+      limit: 10
+
+    if tag_id && tag_id !="" do
+      search_query = search_query
+      |> join(:left, [q],  tq in TagQuestion, q.id == tq.question_id)
+      |> where([q, tq], tq.tag_id == ^tag_id)
+    end
+    questions = scope(conn, search_query)
+    |> select([:id])
+    |> Repo.all()
+    |> Enum.map(fn x -> x.id end)
+    |> CacheWrapper.get_by_ids(Question)
+    |> Repo.preload(:dashboards)
+    |> Repo.preload(:tags)
+    |> Repo.preload(:variables)
+    |> Repo.preload(:snapshots)
+    json conn, QuestionSearchView
+    |> JaSerializer.format(questions, conn, type: 'question')
+  end
+
+  def index(conn, %{"for_variable" => "true", "query" => query}) do
+    search_query = from q in Question,
+      where: fragment("cardinality(columns) = 2"),
+      order_by: q.updated_at,
+      limit: 10
+    if query && query != "" do
+      search_query = search_query
+      |> where([q], ilike(q.title, ^"%#{query}%"))
+    end
+    questions = scope(conn, search_query)
+    |> select([:id])
+    |> Repo.all()
+    |> Enum.map(fn x -> x.id end)
+    |> CacheWrapper.get_by_ids(Question)
+    |> Repo.preload(:dashboards)
+    |> Repo.preload(:tags)
+    |> Repo.preload(:variables)
+    |> Repo.preload(:snapshots)
+    json conn, QuestionSearchView
+    |> JaSerializer.format(questions, conn, type: 'question')
   end
   def index(conn, _params) do
-    questions = scope(conn, Question) |> Repo.all()|> Repo.preload(:dashboards) |> Repo.preload(:tags) |> Repo.preload(:variables) 
-    render(conn, :index, data: questions)
+    questions = scope(conn, (from q in Question,
+          limit: 20,
+          order_by: q.updated_at
+        )
+    )
+    |> select([:id])
+    |> Repo.all()
+    |> Enum.map(fn x -> x.id end)
+    |> CacheWrapper.get_by_ids(Question)
+    |> Repo.preload(:dashboards)
+    |> Repo.preload(:tags)
+    |> Repo.preload(:variables)
+    |> Repo.preload(:snapshots)
+    json conn, QuestionSearchView
+    |> JaSerializer.format(questions, conn, type: 'question')
   end
 
   def create(conn, %{"data" => data = %{"type" => "questions", "attributes" => _question_params}}) do
     prms = Params.to_attributes(data)
-    prms = prms |> Map.merge(%{"owner_id" => conn.assigns.current_user.id})
+    prms = prms
+    |> Map.merge(%{"owner_id" => conn.assigns.current_user.id})
     changeset = Question.changeset(%Question{}, prms)
 
-    case Repo.insert(changeset) do
+    case Repo.insert_with_cache(changeset) do
       {:ok, question} ->
-        question = question |> Repo.preload(:dashboards) |> Repo.preload(:tags) |> Repo.preload(:variables)
+        question = question
+        |> Repo.preload(:dashboards)
+        |> Repo.preload(:tags)
+        |> Repo.preload(:variables)
+        |> Repo.preload(:snapshots)
         conn
         |> put_status(:created)
         |> put_resp_header("location", question_path(conn, :show, question))
@@ -46,13 +129,25 @@ defmodule AfterGlow.QuestionController do
   end
 
   def show(conn, %{"id" => id}) do
-    question = scope(conn, Question) |>  Repo.get!(id) |> Repo.preload(:dashboards) |> Repo.preload(:tags)|> Repo.preload(:variables)
+    question = scope(conn, Question)
+    |> select([:id])
+    |> Repo.get!(id)
+    question = CacheWrapper.get_by_id(question.id, Question)
+    |> Repo.preload(:dashboards)
+    |> Repo.preload(:tags)
+    |> Repo.preload(:variables)
+    |> Repo.preload(:snapshots)
     render(conn, :show, data: question)
   end
 
   def update(conn, %{"id" => id, "data" => data = %{"type" => "questions", "attributes" => _question_params}}) do
     prms = Params.to_attributes(data)
-    question =  scope(conn, Question) |> Repo.get!(id)|> Repo.preload(:tags) |> Repo.preload(:variables)
+    question =  scope(conn, Question)
+    |> Repo.get!(id)
+    |> Repo.preload(:dashboards)
+    |> Repo.preload(:tags)
+    |> Repo.preload(:variables)
+    |> Repo.preload(:snapshots)
     changeset = Question.changeset(question, prms)
     tag_ids = prms["tags_ids"]
     tags = if tag_ids |> Enum.empty? , do: nil, else: Repo.all(from q in Tag, where: q.id in ^tag_ids )
@@ -78,19 +173,19 @@ defmodule AfterGlow.QuestionController do
     send_resp(conn, :no_content, "")
   end
 
+
   def results(conn, %{"id" => id, "variables" => variables}) do
     question =  scope(conn, (from q in Question, where: q.id == ^id)) |> Repo.one() |> Repo.preload(:variables)
     db_identifier = question.human_sql["database"]["unique_identifier"]
     db_record = Repo.one(from d in Database, where: d.unique_identifier == ^db_identifier) 
-    query = replace_variables(question.sql, question.variables , variables)
+    query = Question.replace_variables(question.sql, question.variables , variables)
+    variables_replaced_query = if question.sql != query,  do: query, else: nil
     results = DbConnection.execute(db_record |> Map.from_struct, query )
+    results = results |> Question.insert_variables_replaced_at_query(variables_replaced_query)
 
     case results do
       {:ok, results} ->
-        cached_results = if used_non_default_variables?(question.variables, variables), do: nil, else: results
-        if cached_results do
-          question |> Question.update_columns(cached_results.columns, cached_results)
-        end
+        Async.perform(&Question.cache_results/3, [question, variables, results])
         conn
         |> render QueryView, "execute.json", data: results, query: question.sql
       {:error, error} ->
@@ -99,37 +194,7 @@ defmodule AfterGlow.QuestionController do
         |> render QueryView, "execute.json", error: error, query: question.sql
     end
   end
-  def used_non_default_variables?(default_variables, query_variables) do
-    case default_variables |> length == 0 do
-      true ->
-        false
-      false->
-        default_variables
-        |> Enum.map(fn var->
-          q_var = query_variables |> Enum.filter(fn x -> x["name"] == var.name end) |> Enum.at(0)
-          if q_var && q_var["value"], do: q_var["value"] != var.default, else: false
-        end)
-        |> Enum.any?(fn x -> x end)
-    end
-  end
 
-  defp replace_variables(query, default_variables, query_variables) do
-    variables = default_variables
-    |> Enum.map(fn var->
-      q_var = query_variables |> Enum.filter(fn x -> x["name"] == var.name end) |> Enum.at(0)
-      value = if q_var && q_var["value"], do: q_var["value"], else: var.default
-      value = Variable.format_value(var, value)
-      %{
-        name: var.name,
-        value: value 
-      }
-    end)
-    variables
-    |> Enum.reduce(query, fn variable, query ->
-      variable_name = variable[:name] |> String.strip()
-      query
-      |> String.replace(~r({{.*#{variable_name}.*}}), variable[:value] || "")
-    end)
-  end
+
 
 end

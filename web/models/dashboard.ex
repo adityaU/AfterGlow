@@ -3,7 +3,7 @@ defmodule AfterGlow.Dashboard do
   alias AfterGlow.Question
   alias AfterGlow.Tag
   alias AfterGlow.DashboardQuestion
-  alias AfterGlow.Repo
+  alias AfterGlow.CacheWrapper.Repo
   alias AfterGlow.Variable
   alias AfterGlow.User
 
@@ -32,18 +32,26 @@ defmodule AfterGlow.Dashboard do
     |> validate_required([:title, :owner_id])
   end
 
-  def insert(changeset, nil), do: Repo.insert(changeset)
-  def insert(changeset, questions) do
-    changeset = changeset |> add_questions(questions)
-    Repo.insert(changeset)
+  def default_preloads do
+    [:questions]
   end
 
-  def update(changeset, nil, nil), do: Repo.update(changeset)
+  def cache_deletable_associations do
+    default_preloads
+  end
+
+  def insert(changeset, nil), do: Repo.insert_with_cache(changeset)
+  def insert(changeset, questions) do
+    changeset = changeset |> add_questions(questions)
+    Repo.insert_with_cache(changeset)
+  end
+
+  def update(changeset, nil, nil), do: Repo.update_with_cache(changeset)
   def update(changeset, questions, tags) do
     changeset = changeset
     |> add_questions(questions)
     |> add_tags(tags)
-    Repo.update(changeset)
+    Repo.update_with_cache(changeset)
   end
 
   defp add_questions(changeset, nil), do: changeset

@@ -16,7 +16,8 @@ export default Ember.Controller.extend({
     dbTypes: [
         'postgres',
         'influxdb',
-        'mysql'
+        'mysql',
+        'redshift'
     ],
 
     actions:{

@@ -1,0 +1,15 @@
+{{#ui-accordion class="styled full warning"}}
+    <div class="title">
+        <i class="dropdown icon"></i>
+        Limit has been set on this query. This happens when you try to load more than {{queryLimit}} rows. You can still download complete data.
+    </div>
+    <div class="content">
+        {{ember-ace
+          lines=10
+          value=limitedQuery
+          mode=aceMode
+          theme=aceTheme
+          readOnly=true
+        }}
+    </div>
+{{/ui-accordion}}

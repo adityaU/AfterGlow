@@ -1,8 +1,9 @@
 import Ember from 'ember';
 import ColorMixin from 'frontend/mixins/colors-mixin'
 import ResultViewMixin from 'frontend/mixins/result-view-mixin'
+import HelperMixin from 'frontend/mixins/helper-mixin'
 
-export default Ember.Mixin.create(ColorMixin, ResultViewMixin, {
+export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
     display(params){
         var formattedString = params;
         var objType = (Object.prototype.toString.call(params).replace(/\[object|\]/g, "").trim())
@@ -131,6 +132,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, {
             let results = this.get('results');
             let rows = results &&  results.rows.length && results.rows[0]
             let found = null;
+
             if (this.get('resultsViewType') == 'Pie'){
                 if (rows){
 
@@ -147,27 +149,42 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, {
                         if (this.findIfDate(rows[i])) { (found = i); break;}
                     }
                     if ( found == 0 || found){
-                        this.set('x1', results.columns[i])
+                        return this.set('x1', results.columns[i])
                     }
                     for (var i=0; i<rows.length; i++){
                         if (this.findIfNumber(rows[i])) { (found = i); break;}
                     }
                     if ( found == 0 || found){
-                        this.set('x1', results.columns[i])
+                        return this.set('x1', results.columns[i])
                     }
                 }
             }
         }
     })),
+    // resultsObserverThatChecksCords: Ember.on('init', Ember.observer('results', 'x2', "multipleYs", "x1", function(){
+    //     let x1 = this.get('x1')
+    //     let x2 = this.get('x2')
+    //     let multipleYs = this.get('multipleYs')
+    //     this.set("multipleYs", multipleYs && multipleYs.filter(function(item){
+    //         return (item.columnName != x1) || (item.columnName != x2)
+    //     }))
+    // })),
     resultsObserverThatSetsX2: Ember.on('init', Ember.observer('results', 'x2', function(){
         if (!this.get('resultsViewSettings.x1')){
             let results = this.get('results');
             let rows = results &&  results.rows.length && results.rows[0]
+            let row = rows && rows.length && rows[0]
             let found = null
             if (!(this.get('resultsViewType') == 'Pie')){
-                if (rows){
-                    for (var i=0; i<rows.length; i++){
-                        if (!(this.findIfDate(rows[i]) || this.findIfNumber(rows[i]))) { (found = i); break;}
+                if (row){
+                    for (var i=0; i<row.length; i++){
+                        if (!(this.findIfDate(row[i]) || this.findIfNumber(row[i]))) {
+                            let items = rows.map(function(item){
+                                return item && item[i]
+                            })
+                            let canBeSet = (this.unique(items)).length <= 10
+                            if (canBeSet){ (found = i); break;}
+                        }
                     }
                     if (found == 0 || found){
                         this.set('x2', results.columns[i])
@@ -189,14 +206,21 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, {
             if (rows){
                 if (this.get('resultsViewType') == 'Pie'){
                     for (var i=0; i<rows.length; i++){
-                        if (!(this.findIfDate(rows[i]) || this.findIfNumber(rows[i]))) { (found = i); break;}
+                        if (!(this.findIfDate(rows[i]) || this.findIfNumber(rows[i]))) {
+                            (found = i); break;
+                        }
                     }
                     if ( found == 0 || found){
                         this.set('multipleYs', [{columnName: results.columns[i]}])
                     }
                 }else{
-                    let multipleYs = rows.filter((item)=>{
-                        return !this.findIfDate(item) && this.findIfNumber(item)
+                    let count = 0
+                    let multipleYs = rows.filter((item, i)=>{
+                        let canBeSet = count < 4
+                            && !this.findIfDate(item)
+                            && this.findIfNumber(item)
+                        canBeSet && (count += 1)
+                        return canBeSet
                     }).map((item)=>{
                         return {columnName: results.columns[rows.indexOf(item)]}
                     })

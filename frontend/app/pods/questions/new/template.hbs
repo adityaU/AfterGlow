@@ -9,6 +9,7 @@
       question=question
       showVariables=showVariables
       transitionToIndex="transitionToIndex"
+      canEdit=canEdit
     }}
 </div>
 <div class="ui basic segment full padded-content no-top-margin">
@@ -16,18 +17,19 @@
         <div class="{{if showVariables "twelve" "sixteen"}} wide column">
             {{variables-layer variables=question.query_variables showVariables=showVariables}}
             <div class="ui grid full">
-                <div class="{{if queryBuilderType 'four' 'sixteen'}} wide column">
+                <div class="{{if (and queryBuilderType canEdit) 'four' 'sixteen'}} wide column">
 
-                    {{#if queryBuilderType}}
-                        {{query-builder getResults='getResults' toggleSql='toggleSql' queryObject=queryObject showGetResults=showGetResults databases=databases}}
+                    {{#if (and queryBuilderType canEdit)}}
+                        {{query-builder loading=loading getResults='getResults' toggleSql='toggleSql' queryObject=queryObject showGetResults=showGetResults databases=databases}}
                     {{/if}}
                 </div>
-                <div class="{{if queryBuilderType 'twelve' 'sixteen'}} wide column">
+                <div class="{{if (and canEdit queryBuilderType) 'twelve' 'sixteen'}} wide column">
 
-                    {{#if queryBuilderType}}
+                    {{#if (and queryBuilderType canEdit)}}
                     {{else}}
                         <div class="ui grid">
-                            <div class="sixteen wide column">
+                            <div class="sixteen wide column no-padding">
+                                {{#if canEdit}}
                                 <div class="ui segment">
                                     <div class="ui grid">
                                         <div class="fourteen wide column">
@@ -42,19 +44,54 @@
                                       value=queryObject.rawQuery
                                       mode=aceMode
                                       enableSnippets=true
+                                      enableDefaultAutocompletion=true
                                       enableLiveAutocompletion=true
-                                      enableBasicAutocompletion=true theme=aceTheme update=(action (mut queryObject.rawQuery)) }}
+                                      context=queryObject.database
+                                      suggestAutoCompletions=suggestAutoCompletions
+                                      theme=aceTheme update=(action (mut queryObject.rawQuery)) }}
                                     {{#if showGetResults}}
-                                        <div class="content active text-align-center">
-                                            <button class="ui violet button" {{action 'getResults'}}>
-                                                <i class="icon arrow right"></i>
-                                                Get Results
-                                            </button>
-                                        </div>
+                                        {{#if loading}}
+                                            <div class="content active text-align-center">
+                                                <button class="ui basic button">
+                                                    Crunching Data ...
+                                                </button>
+                                            </div>
+                                        {{else}}
+                                            <div class="content active text-align-center">
+                                                <button class="ui violet button" {{action 'getResults'}}>
+                                                    <i class="icon arrow right"></i>
+                                                    Get Results
+                                                </button>
+                                            </div>
+                                        {{/if}}
                                     {{/if}}
                                 </div>
+                                {{else}}
+                                        {{#if loading}}
+                                            <div class="content active text-align-center">
+                                                <button class="ui basic button">
+                                                    Crunching Data ...
+                                                </button>
+                                            </div>
+                                        {{else}}
+                                            <div class="content active text-align-center">
+                                                <button class="ui violet button" {{action 'getQuestionResults'}}>
+                                                    Refresh
+                                                </button>
+                                            </div>
+                                        {{/if}}
+
+                                {{/if}}
                             </div>
                         </div>
+                    {{/if}}
+                    {{#if canEdit}}
+                        {{#if variablesReplacedQuery}}
+                            {{variables-replaced-query-accordian variablesReplacedQuery=variablesReplacedQuery aceMode=aceMode aceTheme=aceTheme}}
+                        {{/if}}
+                        {{#if isQueryLimited}}
+                            {{limited-query-accordian queryLimit=queryLimit limitedQuery=limitedQuery aceMode=aceMode aceTheme=aceTheme}}
+                        {{/if}}
                     {{/if}}
                     {{#if results}}
                         <div class="ui segment">
@@ -75,6 +112,9 @@
                                 </div>
                                 <div class="eight wide column text-align-right"></div>
                                 <div class="four wide column text-align-right">
+                                    <span data-tooltip="Download Data" data-inverted="" {{action "downloadData"}}>
+                                        <i class="save icon"></i>
+                                    </span>
                                     {{#if question.updated_at}}
                                         <span data-tooltip=" Updated {{moment-from-now question.updated_at interval=1000}}" data-inverted="">
                                             <i class="time icon {{question.updatedAgoColor}}"></i>
@@ -138,3 +178,4 @@
     {{create-dashboard question=question transitionToDashBoard='transitionToDashBoard'}}
     {{add-to-dashboard dashboards=dashboards addToDashboard='addToDashboard'}}
 {{/if}}
+{{snapshot-creator question=question}}

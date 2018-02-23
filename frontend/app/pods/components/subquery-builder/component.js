@@ -14,19 +14,27 @@ export default Ember.Component.extend({
     tables: Ember.computed("unsortedTables", "unsortedTables.content.isLoaded", function(){
         return this.get("unsortedTables") && this.get("unsortedTables").sortBy('human_name')
     }),
-    databaseObserver:  Ember.observer('queryObject.database', function(){
-        this.set('queryObject.table', null); 
-        this.set('queryObject.filters', []); 
-        this.set('queryObject.groupBys', []); 
-        this.set('queryObject.orderBys', []); 
-        this.set('queryObject.rawQuery', null); 
-        
+    tablesObserver: Ember.observer('tables', function(){
+        if (!this.get('tables').isAny('id', this.get('queryObject.table.id'))){
+            this.set('queryObject.table', null); 
+            this.set('queryObject.filters', []); 
+            this.set('queryObject.groupBys', []); 
+            this.set('queryObject.orderBys', []); 
+            this.set('queryObject.rawQuery', null); 
+        }
+
     }),
-    tableObserver:  Ember.observer('queryObject.table', function(){
-        this.set('queryObject.filters', []); 
-        this.set('queryObject.groupBys', []); 
-        this.set('queryObject.orderBys', []); 
-    }),
+    // columnsObserver:  Ember.observer('columns', function(){
+    //     if (!this.get('columns').isAny('id', this.get('queryObject.filters.0.column.id'))){
+    //         this.set('queryObject.filters', []);
+    //     }
+    //     if (!this.get('columns').isAny('id', this.get('queryObject.groupBys.0.column.id'))){
+    //         this.set('queryObject.groupBys', []);
+    //     }
+    //     if (!this.get('columns').isAny('id', this.get('queryObject.orderBys.0.column.id'))){
+    //         this.set('queryObject.orderBys', []);
+    //     }
+    // }),
     filters: [{column: "c1", operator: "Not In", value: 5}],
     selectViews: [{selected:{name: "Count", value: "count" }}],
     unsortedColumns: Ember.computed('queryObject.table','tables.content.isLoaded', function(){

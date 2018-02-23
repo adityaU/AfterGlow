@@ -3,7 +3,9 @@ defmodule AfterGlow.ColumnController do
 
   alias AfterGlow.Column
   alias JaSerializer.Params
+  alias AfterGlow.CacheWrapper
   alias AfterGlow.Plugs.Authorization
+  alias AfterGlow.CacheWrapper.Repo
 
   plug Authorization
   plug :authorize!, Column
@@ -12,7 +14,7 @@ defmodule AfterGlow.ColumnController do
 
   def index(conn, %{"filter" => %{"id" =>ids}}) do
     ids = ids |> String.split(",")
-    tables = Repo.all(from t in Column, where: t.id in ^ids ) |> Repo.preload(:column_values)
+    tables = CacheWrapper.get_by_ids(Column, ids) |> Repo.preload(:column_values)
     render(conn, :index, data: tables)
   end
 
@@ -38,23 +40,24 @@ defmodule AfterGlow.ColumnController do
   # end
 
   def show(conn, %{"id" => id}) do
-    column = Repo.get!(Column, id)  |> Repo.preload(:column_values)
-    render(conn, "show.json-api", data: column)
+    column = CacheWrapper.get_by_id(Column, id)  |> Repo.preload(:column_values)
+    render(conn, :show, data: column)
   end
 
-  # def update(conn, %{"id" => id, "data" => data = %{"type" => "column", "attributes" => _column_params}}) do
-  #   column = Repo.get!(Column, id)
-  #   changeset = Column.changeset(column, Params.to_attributes(data))
+  def update(conn, %{"id" => id, "data" => data = %{"type" => "columns", "attributes" => _column_params}}) do
+    column = Repo.get!(Column, id)
+    changeset = Column.update_changeset(column, Params.to_attributes(data))
 
-  #   case Repo.update(changeset) do
-  #     {:ok, column} ->
-  #       render(conn, "show.json-api", data: column)
-  #     {:error, changeset} ->
-  #       conn
-  #       |> put_status(:unprocessable_entity)
-  #       |> render(:errors, data: changeset)
-  #   end
-  # end
+    case Repo.update_with_cache(changeset) do
+      {:ok, column} ->
+        column = column |> Repo.preload(:column_values)
+        render(conn, :show, data: column)
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(:errors, data: changeset)
+    end
+  end
 
   # def delete(conn, %{"id" => id}) do
   #   column = Repo.get!(Column, id)

@@ -6,6 +6,9 @@ defmodule AfterGlow.UserController do
   alias AfterGlow.PermissionSet
   alias JaSerializer.Params
   alias AfterGlow.Plugs.Authorization
+  alias AfterGlow.CacheWrapper
+
+  import Ecto.Query
 
   plug Authorization
   plug :authorize!, User
@@ -14,12 +17,15 @@ defmodule AfterGlow.UserController do
 
   def index(conn, %{"filter" => %{"id" =>ids}}) do
     ids = ids |> String.split(",")
-    users = Repo.all(from t in User, where: t.id in ^ids ) |> Repo.preload(:permission_sets)
+    users = CacheWrapper.get_by_ids(User, ids ) |> Repo.preload(:permission_sets)
     render(conn, :index, data: users)
   end
 
   def index(conn, _params) do
-    users = Repo.all(User) |> Repo.preload(:permission_sets)
+    users = Repo.all(from u in User, select: [:id])
+    |> Enum.map(fn x -> x.id end)
+    |> CacheWrapper.get_by_ids(User)
+    |> Repo.preload(:permission_sets)
     render(conn, :index, data: users)
   end
   # def create(conn, %{"data" => data = %{"type" => "user", "attributes" => _user_params}}) do
@@ -39,36 +45,36 @@ defmodule AfterGlow.UserController do
   # end
 
   def show(conn, %{"id" => id}) do
-    user = Repo.get!(User, id)
+    user = CacheWrapper.get_by_id(User, id)
     render(conn, :show, data: user)
   end
 
-  def update(conn, %{"id" => id, "data" => data = %{"type" => "users", "attributes" => _user_params}}) do
+  # def update(conn, %{"id" => id, "data" => data = %{"type" => "users", "attributes" => _user_params}}) do
 
-    prms =  Params.to_attributes(data)
-    user = Repo.get!(User, id) |> Repo.preload(:permission_sets)
-    changeset = User.changeset(user, Params.to_attributes(data))
-    permission_set_ids = prms["permission_sets_ids"]
-    permission_sets = if permission_set_ids && (permission_set_ids |> Enum.empty?) , do: nil, else: Repo.all(from q in PermissionSet, where: q.id in ^permission_set_ids )
+  #   prms =  Params.to_attributes(data)
+  #   user = Repo.get!(User, id) |> Repo.preload(:permission_sets)
+  #   changeset = User.changeset(user, Params.to_attributes(data))
+  #   permission_set_ids = prms["permission_sets_ids"]
+  #   permission_sets = if permission_set_ids && (permission_set_ids |> Enum.empty?) , do: nil, else: Repo.all(from q in PermissionSet, where: q.id in ^permission_set_ids )
 
-    case User.update(changeset, permission_sets) do
-      {:ok, user} ->
-        render(conn, :show, data: user)
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> render(:errors, data: changeset)
-    end
-  end
+  #   case User.update(changeset, permission_sets) do
+  #     {:ok, user} ->
+  #       render(conn, :show, data: user)
+  #     {:error, changeset} ->
+  #       conn
+  #       |> put_status(:unprocessable_entity)
+  #       |> render(:errors, data: changeset)
+  #   end
+  # end
 
-  def delete(conn, %{"id" => id}) do
-    user = Repo.get!(User, id)
+  # def delete(conn, %{"id" => id}) do
+  #   user = Repo.get!(User, id)
 
-    # Here we use delete! (with a bang) because we expect
-    # it to always work (and if it does not, it will raise).
-    Repo.delete!(user)
+  #   # Here we use delete! (with a bang) because we expect
+  #   # it to always work (and if it does not, it will raise).
+  #   Repo.delete!(user)
 
-    send_resp(conn, :no_content, "")
-  end
+  #   send_resp(conn, :no_content, "")
+  # end
 
 end

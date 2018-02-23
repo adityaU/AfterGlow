@@ -9,7 +9,9 @@ export default Ember.Component.extend(UtilsFunctions, {
         this.get('getData')(this)
     },
     data: Ember.observer('jsonData', 'type', 'xLabel', 'yLable', 'title', function(){
-        this.get('getData')(this)
+        Ember.run.next(this, function(){
+            this.get('getData')(this)
+        })
     }),
 
     defaultChartType: "Bubble",

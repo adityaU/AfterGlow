@@ -3,7 +3,7 @@ defmodule AfterGlow.TableView do
   use JaSerializer.PhoenixView
   alias Phoenix.Naming  
 
-  attributes [:name, :inserted_at, :updated_at, :readable_table_name, :human_name]
+  attributes [:name, :inserted_at, :updated_at, :description, :readable_table_name, :human_name]
   has_many :columns,
     field: :columns,
     type: "column"

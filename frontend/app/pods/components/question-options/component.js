@@ -22,6 +22,9 @@ export default Ember.Component.extend({
         showShareDialogue(){
             $('.ui.modal.share-entity').modal('show')
         },
+        showSnapshotMaker(){
+            $('.ui.modal.snapshot-maker').modal('show')
+        },
         deleteQuestion(question){
             question.destroyRecord().then((response)=>{
                 this.sendAction('transitionToIndex')

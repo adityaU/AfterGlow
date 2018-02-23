@@ -6,20 +6,25 @@ defmodule AfterGlow.TagController do
   alias AfterGlow.Question
   alias AfterGlow.Dashboard
   alias JaSerializer.Params
+  alias AfterGlow.CacheWrapper
+
+  import Ecto.Query
 
   plug :scrub_params, "data" when action in [:create, :update]
 
   def index(conn, _params) do
-    tags = Repo.all(Tag)  |> Repo.preload(:dashboards) |> Repo.preload(:questions)
+    tags = Repo.all(from t in Tag, select: [:id])
+    |> Enum.map(fn x -> x.id end)
+    |> CacheWrapper.get_by_ids(Tag) |> Repo.preload(:dashboards) |> Repo.preload(:questions)
     render(conn, :index, data: tags)
   end
 
   def create(conn, %{"data" => data = %{"type" => "tags", "attributes" => _tag_params}}) do
     prms =  Params.to_attributes(data)
     changeset = Tag.changeset(%Tag{}, prms) 
-    question_ids = prms["questions_ids"]
+    question_ids = prms["questions_ids"] || []
     questions = if question_ids |> Enum.empty? , do: nil, else: Repo.all(from q in Question, where: q.id in ^question_ids )
-    dashboard_ids = prms["dashboards_ids"]
+    dashboard_ids = prms["dashboards_ids"] || []
     dashboards = if dashboard_ids |> Enum.empty? , do: nil, else: Repo.all(from d in Dashboard, where: d.id in ^dashboard_ids )
     case Tag.insert(changeset, questions, dashboards) do
       {:ok, tag} ->
@@ -36,7 +41,8 @@ defmodule AfterGlow.TagController do
   end
 
   def show(conn, %{"id" => id}) do
-    tag = Repo.get!(Tag, id) |> Repo.preload(:dashboards) |> Repo.preload(:questions)
+    tag = Repo.get!((from t in Tag, select: [:id]), id)
+    tag = CacheWrapper.get_by_id(tag.id, Tag) |> Repo.preload(:dashboards) |> Repo.preload(:questions)
     render(conn, :show, data: tag)
   end
 

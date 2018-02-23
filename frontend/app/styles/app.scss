@@ -14,6 +14,7 @@ $secondaryColor: #f9fbfc;
 $lightTransparentColor: rgba(255, 255, 255, 0.85);
 $borderSecondaryColor:  #dee5e8;
 $borderRadius: 0.28571429rem;
+$warningColor: #fff700;
 @function box-shadow($color){
   @return 0px 0px 0px 0px $color !important ;   
 }
@@ -24,6 +25,10 @@ g.slicetext{
 }
 .loading-height{
     height: 100vh;
+}
+
+.warning{
+    border-top: 3px solid $warningColor !important;
 }
 
 .number-block{
@@ -495,6 +500,9 @@ a {
 .toast-error{
     border-left: 5px solid $errorColor !important;
 }
+.toast-success{
+    border-left: 5px solid $primaryColor !important;
+}
 button.toast-close-button{
     color: $textColor
 }
@@ -649,6 +657,15 @@ button.toast-close-button{
 }
 .no-padding{
     padding: 0px !important;
+    &.wide.column{
+        padding: 0px !important;
+    }
+}
+.ui.grid .no-padding{
+    padding: 0px !important;
+    &.wide.column{
+        padding: 0px !important;
+    }
 }
 .margin-bottom{
   margin-bottom: 5px !important;
@@ -776,7 +793,7 @@ label {
   }
 }
 .results {
-  min-height: 100%;
+  min-height: 500px;
   width: 100%;
   & .section{
     text-align: center;
@@ -825,6 +842,42 @@ body{
   text-decoration: none;
   -webkit-transition: color 0.2s;
 
+}
+.tag-box{
+    height: 100px;
+    padding: 43px 0px;
+    text-align: center;
+    border-radius: 5px;
+    color: white;
+    font-size: 1.5em;
+}
+.multiselect-accordion { 
+    & .title{
+        color: $textColorShade2 !important;
+    }
+    & .content{
+        padding-bottom: 0px;
+    }
+    & .multiselect-label {
+        margin: 5px;
+    }
+    & .multiselect-checkboxes{
+        max-height: 150px;
+        overflow: auto;
+        margin: 0px;
+    }
+    & .multiselect-selected {
+        display: inline-block;
+        border: 1px solid $primaryColor;
+        padding: 2px 12px;
+        border-radius: 50px;
+        padding-right: 0px;
+        margin: 2px;
+    }
+
+    & .selected{
+        padding: 10px;
+    }
 }
 
 

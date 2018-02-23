@@ -17,31 +17,72 @@ defmodule AfterGlow.SchemaTasks do
 
 
   defp save schema, db_id do
-    tables = Repo.all(from t in Table, where: t.database_id == ^db_id, select: t.name)
+    tables = Repo.all(from t in Table, where: t.database_id == ^db_id)
+    |> remove_extra_tables(schema)
     schema
-    |> IO.inspect
     |> Enum.map(fn record->
-      save_table_and_columns(record, db_id, tables)
+      save_table_and_columns(record, db_id)
     end)
   end
 
-  defp save_table_and_columns record, db_id , tables do
-    if !(tables |> Enum.member?(record["table_name"])) do
-      table_changeset = Table.changeset(%Table{}, %{name: record["table_name"], readable_table_name: record["readable_table_name"], database_id: db_id})
-      Repo.transaction fn ->
-        table = Repo.insert!(table_changeset)
-
-        # Build a comment from the post struct
-        columns = record["columns"]
-        |> Enum.map(fn x->
-          Column.changeset(%Column{}, %{name: x["name"], data_type: x["data_type"] , table_id: table.id}).changes
-          |> Map.merge(%{inserted_at: Ecto.DateTime.utc, updated_at:   Ecto.DateTime.utc})
-        end)
-        Repo.insert_all(Column, columns)
-      end
-      
-    end
-    
+  defp remove_extra_tables(tables, schema) do
+    new_tables = schema
+    |> Enum.map(fn x -> x["table_name"] end)
+    to_be_removed = tables
+    |> Enum.filter(fn t ->
+      !(new_tables |> Enum.member?(t.name))
+    end)
+    |> Enum.each(fn x->
+      Repo.delete(x)
+    end)
+    tables
   end
 
+  defp remove_extra_columns(columns, new_columns) do
+    new_columns = new_columns
+    |> Enum.map(fn x -> x["name"] end)
+    to_be_removed = columns
+    |> Enum.filter(fn c ->
+      !(new_columns |> Enum.member?(c.name))
+    end)
+    |> Enum.each(fn x->
+      Repo.delete(x)
+    end)
+    columns
+  end
+  
+  defp save_table_and_columns(record, db_id) do
+    Repo.transaction fn ->
+      {:ok, table} = insert_or_update_table(record, db_id)
+      new_columns = record["columns"]
+      columns = Repo.all(from t in Column, where: t.table_id == ^table.id)
+      |> remove_extra_columns(new_columns)
+      new_columns
+      |> Enum.map(fn x->
+        insert_or_update_column(x, table.id)
+      end)
+    end
+  end
+  
+  defp insert_or_update_table(record, db_id) do
+    query = from t in Table, where: t.name == ^record["table_name"] and t.database_id == ^db_id
+    case Repo.all(query) do
+      [] -> %Table{id: nil}
+      tables -> tables |> Enum.at(0)
+    end
+    |> Table.changeset(%{name: record["table_name"], readable_table_name: record["readable_table_name"], database_id: db_id})
+    |> Repo.insert_or_update
+  end
+
+  defp insert_or_update_column(record, table_id) do
+    query = from c in Column, where: c.name == ^record["name"] and c.table_id == ^table_id
+    case Repo.all(query) do
+      [] -> %Column{id: nil}
+      columns -> columns |> Enum.at(0)
+    end
+    |> Column.changeset(%{name: record["name"], data_type: record["data_type"] , table_id: table_id})
+    |> Map.merge(%{inserted_at: Ecto.DateTime.utc, updated_at:   Ecto.DateTime.utc})
+    |> Repo.insert_or_update
+  end
 end
+

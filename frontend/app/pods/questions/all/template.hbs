@@ -2,12 +2,37 @@
     <div class="ui grid">
         <div class="ten wide column ">
             <div class="dashboard-title">
-                All Questions
+                {{pageTitle}}
             </div>
         </div>
     </div>
 </div>
 <div class="padded-content ui basic segment full no-border-radius no-border-top no-bottom-margin">
+    
+    {{#if showAllTags}}
+        <div class="ui grid">
+            <div class="ten wide column ">
+                <div class="dashboard-title">
+                    Tags:
+                </div>
+            </div>
+        </div>
+        <div class="ui basic segment full no-padding no-top-margin">
+
+            <div class="ui grid">
+                {{#each tags as |tag|}}
+
+                    <div class="two wide column ">
+                        {{#link-to 'tags.show' tag.id}} 
+                            <div class="tag-box" style="background: {{tag.color}}; opacity: 0.8">
+                                {{tag.name}}
+                            </div>
+                        {{/link-to}}
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+    {{/if}}
     <div class="ui form">
         <div class="field">
             {{input value=query class="ui bigger" placeholder="Search Question" }}
@@ -17,9 +42,9 @@
 <div class="ui basic segment full padded-content no-top-margin">
     <div class="ui grid full">
         {{#if query}}
-            {{questions-list questions=searchedQuestions}}
+            {{questions-list questions=searchedQuestions transitionToSnapshots="transitionToSnapshots"}}
         {{else}}
-            {{questions-list questions=questions}}
+            {{questions-list questions=questions transitionToSnapshots="transitionToSnapshots"}}
         {{/if}}
     </div>
 </div>

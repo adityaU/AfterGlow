@@ -22,6 +22,8 @@ defmodule AfterGlow.Router do
     #   get "/:provider/callback", AuthController, :callback
     # end
    post "/query_results", QueryController, :execute
+   get "/sql_autocomplete", AutoCompleteController, :complete
+   post "/create_csv", DataFilesController, :fetch_and_upload
    resources "/dashboards", DashboardController
    resources "/questions", QuestionController
    resources "/question_banks", QuestionBankController
@@ -34,8 +36,10 @@ defmodule AfterGlow.Router do
    resources "/permissions", PermissionController, except: [:new, :edit]
    resources "/tags", TagController, except: [:new, :edit]
    resources "/variables", VariableController, except: [:new, :edit]
+   resources "/snapshots", SnapshotController
 
    post "questions/:id/results", QuestionController, :results
+   put "databases/:id/sync", DatabaseController, :sync
    get "auth/google", AuthController, :google_auth_path
    post "callback/google", AuthController, :callback
    post "verify-token", AuthController, :verify_token

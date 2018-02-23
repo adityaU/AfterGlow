@@ -9,7 +9,9 @@ export default Ember.Component.extend(UtilsFunctions, {
         this.get('getData')(this)
     },
     data: Ember.observer('jsonData', 'type', 'xLabel', 'yLable', 'title', function(){
-        this.get('getData')(this)
+        Ember.run.next(function(){
+            this.get('getData')(this)
+        })
     }),
     stackedArea(traces) {
         for(var i=1; i<traces.length; i++) {

@@ -1,0 +1,33 @@
+<div class="ui modal snapshot-maker">
+    <div class="header">
+        Create Snapshot
+    </div>
+    <div class="create-dashboard content">
+        <div class="ui grid">
+            <div class="ui form full">
+                <div class="sixteen wide column">
+                    <div class="field">
+                    <label>Name</label>
+                        {{input value=snapshot.name class="ui" placeholder="What are you calling it?" }}
+                    </div>
+                </div>
+                <div class="sixteen wide column">
+                    <div class="field">
+                    <label>Description</label>
+                        {{input value=snapshot.description class="ui" placeholder="What does it show?" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div class="actions">
+        <div class="ui red deny button">
+            Cancel
+        </div>
+        <div class="ui positive right button" {{action "createSnapshot"}}>
+            Create Snapshot
+            <i class="checkmark icon"></i>
+        </div>
+    </div>
+</div>

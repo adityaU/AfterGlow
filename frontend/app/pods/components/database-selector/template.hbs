@@ -1,11 +1,11 @@
-<div class="title no-top-border">
+<div class="title no-top-border {{databaseClass}}">
     <i class="dropdown icon"></i>
     Database
     {{#if showTags}}
     <div class="right" data-tooltip="Switch to SQL" data-inverted=""  data-variation="inverted" {{action 'toggleSql'}}><i class="terminal icon"></i></div>
     {{/if}}
 </div>
-<div class="content {{if (not showTags) "database-selector-sql-mode"}}">
+<div class="content {{if (not showTags) "database-selector-sql-mode"}} {{databaseClass}}">
     {{#ui-dropdown class="search selection" selected=queryObject.database onChange=(action (mut queryObject.database)) as |execute mapper|}}
       {{dropdown-default object=queryObject.database.name default="Database"}}
         <i class="dropdown icon"></i>

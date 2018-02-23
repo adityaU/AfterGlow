@@ -4,13 +4,16 @@ import Ember from 'ember';
 import ChartSettings from 'frontend/mixins/chart-settings'
 import LoadingMessages from "frontend/mixins/loading-messages"
 import ResultViewMixin from "frontend/mixins/result-view-mixin"
+import AceTools from "frontend/mixins/ace-tools"
 
-export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultViewMixin,{
+export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultViewMixin, AceTools,{
     ajax: Ember.inject.service(),
     
     databases: Ember.computed(function(){
         return this.get('store').findAll('database')
     }),
+
+    canEdit: true,
     // variableObserver: Ember.observer('queryObject.queryType','queryObject.rawQuery' ,function(){
     //     let query = this.get('queryObject.rawQuery')
     //     let queryType = this.get('queryObject.queryType')
@@ -32,9 +35,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
     //     //     entity.get('variables').pushObjects(newVariables)
     //     // }
     // }),
-    showVariables: Ember.computed('question', 'question.variables', function(){
-        return this.get('question.variables.length') > 0
-    }),
+    showVariables: false,
     question: Ember.computed( "recalculate", function(){
         return this.store.createRecord('question', {
             title: "New Question",
@@ -49,7 +50,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
                 offset: null,
                 limit: 2000
             }),
-            results_view_settings: {resultsViewType: null, numbers: [], dataColumns: [{}]},
+            results_view_settings: {resultsViewType: "table", numbers: [], dataColumns: [{}]},
         })
     }),
     
@@ -112,9 +113,13 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
     apiHost: Ember.computed('store', function(){
         return this.get('store').adapterFor('application').host;
     }),
-    showGetResults: Ember.computed.oneWay('queryObject.database', 'queryObject.table', 'queryObject.queryType','queryObject.rawQuery', function(){
-        return ((this.get('queryObject.database') && this.get('queryObject.table')) ||
+    showGetResults: false,
+    showGetResultsObserver: Ember.observer('queryObject.database', 'queryObject.table', 'queryObject.queryType','queryObject.rawQuery', function(){
+        let showGetResults = ((this.get('queryObject.database') && this.get('queryObject.table')) ||
                 (this.get('queryObject.database') && (this.get('queryObject.queryType') == 'raw') && this.get('queryObject.rawQuery')) )
+        Ember.run.next(this, function(){
+            this.set('showGetResults', showGetResults);
+        })
     }),
     resultsWidgetSettingsComponent: Ember.computed('resultsViewType', function(){
         this.set('results', this.get('results'));
@@ -128,13 +133,60 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
         return this.store.findAll('dashboard')
     }),
 
-    // errorObserver: Ember.observer('question.errorMessage', function(){
-    //     this.set("errors", {})
-    //     this.set('errors.message', this.get('question.errorMessage'))
-    // }),
-    // queryObserver: Ember.observer('queryObject.rawQuery', function(){
-    //     this.set('queryChanged', true)
-    // }),
+    getResultsFunction(queryObject){
+            let question = this.get('question')
+            let query_variables = question.get('query_variables')
+            let changedAttributes = Object.keys(question.changedAttributes()).filter((item)=>{
+                return item != "updated_at" && item != "cached_results"
+            })
+            // if (question.id && ( changedAttributes == 0) && !this.get('variablesChanged') && !this.get('attributesChanged')){
+            //     question.set("updated_at", new Date())
+            //     question.set('resultsCanBeLoaded', true) 
+            // }else{
+            question.set("updated_at", new Date())
+            queryObject = queryObject || this.get('queryObject');
+            queryObject.set("id", question.get('id'))
+            queryObject.set('variables' , query_variables && query_variables.map((item)=>{
+                return {
+                    name: item.get('name'),
+                    value: item.get('value') || item.get('default'),
+                    var_type: item.get('var_type'),
+                    default_options: item.get('default_options')
+                }
+            }))
+            this.set('loading', true);
+            this.set('results', null)
+            this.get('ajax').apiCall({
+                url: this.get('apiHost') + this.get('apiNamespace') + '/query_results',
+                type: 'POST',
+                data: queryObject
+            },(response, status)=>{
+                this.set('loading', false);
+                this.set('errors', null)
+                this.set('results', response.data)
+                if (!this.get('resultsViewType')){
+                    this.set('resultsViewType', this.autoDetect(response.data.rows))
+                }
+                this.set('validQuestion', true)
+                this.set("queryObject.rawQuery", response.query)
+                this.set("isQueryLimited", response.data.limited)
+                this.set("queryLimit", response.data.limit)
+                this.set("limitedQuery", response.data.limited_query)
+                this.set("variablesReplacedQuery", response.data.variables_replaced_query)
+            },(error, status)=>{
+                this.set('loading', false);
+                (error && error.error) ?  this.set('errors', error.error) : this.set('errors', {message: "Something isn't right. Please check the query elements."})
+                this.set('results', null)
+                this.set('validQuestion', false)
+                this.set("queryObject.rawQuery", error.query)
+                this.set("isQueryLimited", null)
+                this.set("queryLimit", null)
+                this.set("limitQuery", null)
+                this.set("variablesReplacedQuery", error.error.variables_replaced_query)
+            });
+            // }
+    },
+
     actions: {
         removeVariable(variable){
             this.get('question.variables').removeObject(variable)
@@ -150,42 +202,13 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
                 this.set('queryObject.queryType', 'query_builder');
             }
         },
-        getResults(queryObject){
+        getQuestionResults(){
             let question = this.get('question')
-            let query_variables = question.get('query_variables')
-            let changedAttributes = Object.keys(question.changedAttributes()).filter((item)=>{ item != "updated_at"})
-            if (question.id && ( changedAttributes == 0) && !this.get('variablesChanged')){
-                question.set("updated_at", new Date())
-                question.set('resultsCanBeLoaded', true) 
-            }else{
-                question.set("updated_at", new Date())
-                queryObject = queryObject || this.get('queryObject');
-                queryObject.set('variables' , query_variables && query_variables.map((item)=>{
-                    return {name: item.get('name'), value: item.get('value') || item.get('default'), var_type: item.get('var_type')}
-                }))
-                this.set('loading', true);
-                this.set('results', null)
-                this.get('ajax').apiCall({
-                    url: this.get('apiHost') + this.get('apiNamespace') + '/query_results',
-                    type: 'POST',
-                    data: queryObject
-                },(response, status)=>{
-                    this.set('loading', false);
-                    this.set('errors', null)
-                    this.set('results', response.data)
-                    if (!this.get('resultsViewType')){
-                        this.set('resultsViewType', this.autoDetect(response.data.rows))
-                    }
-                    this.set('validQuestion', true)
-                    this.set("queryObject.rawQuery", response.query)
-                },(error, status)=>{
-                    this.set('loading', false);
-                    error.error ?  this.set('errors', error.error) : this.set('errors', {message: "Something isn't right. Your Query Probably timed out."})
-                    this.set('results', null)
-                    this.set('validQuestion', false)
-                    this.set("queryObject.rawQuery", error.query)
-                });
-            }
+            question.set("updated_at", new Date())
+            question.set('resultsCanBeLoaded', true) 
+        },
+        getResults(queryObject){
+            this.getResultsFunction(queryObject)
         },
         toggleSettings(){
             this.toggleProperty('showSettings')
@@ -208,8 +231,34 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
         transitionToIndex(){
             this.transitionToRoute('index')
         },
+        downloadData(){
+            let question  = this.get('question')
+            let queryObject = this.get('queryObject');
+            let query_variables = question.get('query_variables')
+            queryObject.set('variables' , query_variables && query_variables.map((item)=>{
+                return {name: item.get('name'), value: item.get('value') || item.get('default'), var_type: item.get('var_type')}
+            }))
+            this.get('ajax').apiCall({
+                url: this.get('apiHost') + this.get('apiNamespace') + '/create_csv',
+                type: 'POST',
+                data: queryObject
+            },(response, status)=>{
+
+                this.get('toast').success(
+                    "Your CSV is getting uploaded to cloud. You'll get an email with download link shortly",
+                    'YaY!',
+                    {closeButton: true, timeout: 1500, progressBar:false}
+                );
+            },(error, status)=>{
+                this.get('toast').success(
+                    "Looks like CSV download process is not working as expected. Please try again. If problem persists, talk to your Admin",
+                    'Sorry Mate!',
+                    {closeButton: true, timeout: 1500, progressBar:false}
+                );
+            })
+        },
         addVariable(){
-            let variable = this.store.createRecord('variable', {name: "New Variable", var_type: "String", default: "value"})
+            let variable = this.store.createRecord('variable', {name: "New Variable", var_type: "String", default: "value", default_options: []})
             this.get('question.variables').pushObject(variable)
             this.set('variablesChanged', true)
         }

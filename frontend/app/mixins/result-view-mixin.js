@@ -43,22 +43,22 @@ export default Ember.Mixin.create({
     },
     categoryColumnsCount(row){
         return row.filter((item)=>{
-            return !(this.findIfNumber(item) || this.findIfDate(item))
+            return !(this.findIfNumber(item) || this.findIfDate(item) || null )
         }).length
     },
     autoDetect(rows){
         if (rows.length == 0){
             return 'Table'
         }
-        if (rows.length == 1 && rows[0].length <= 10 && this.all(row[0], this.findIfNumber)){
+        if (rows.length == 1 && rows[0].length < 10 && this.all(rows[rows.length - 1], this.findIfNumber)){
             return 'Number'
         }
-        if (rows[0].length == 2 && this.categoryColumnsCount(rows[0]) == 1 && this.any(rows[0], this.findIfNumber)){
+        if (rows[rows.length -1].length == 2 && this.categoryColumnsCount(rows[rows.length - 1]) == 1 && this.any(rows[0], this.findIfNumber)){
             return 'Pie'
         }
-        if ((this.any(rows[0], this.findIfDate) || this.any(rows[0], this.findIfNumber)) &&
-            this.categoryColumnsCount(rows[0]) < 2 &&
-            (rows[0].length - this.categoryColumnsCount(rows[0]) >=2) ){
+        if ((this.any(rows[rows.length -1], this.findIfDate) || this.any(rows[rows.length -1], this.findIfNumber)) &&
+            this.categoryColumnsCount(rows[rows.length -1]) <= 2 &&
+            (rows[rows.length -1].length - this.categoryColumnsCount(rows[rows.length -1]) >=2) ){
             return 'Line'
         }
         return 'Table'

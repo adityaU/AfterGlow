@@ -2,8 +2,9 @@ defmodule AfterGlow.Plugs.Authorization do
   import Joken
   @behaviour Plug
   import Plug.Conn
-  alias AfterGlow.Repo
+  alias AfterGlow.CacheWrapper.Repo
   alias AfterGlow.User
+  alias AfterGlow.CacheWrapper
 
   def init(opts) do
     %{}
@@ -43,7 +44,8 @@ defmodule AfterGlow.Plugs.Authorization do
   end
 
   defp set_current_user(conn, user) do
+    current_user = CacheWrapper.get_by_id(User, user["id"]) |> Repo.preload([permission_sets: :permissions])
     conn = conn
-    |> assign(:current_user, Repo.get!(User, user["id"]) |> Repo.preload([permission_sets: :permissions])) 
+    |> assign(:current_user, current_user ) 
   end
 end

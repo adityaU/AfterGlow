@@ -4,6 +4,7 @@ defmodule AfterGlow.Table do
   schema "tables" do
     field :name, :string
     field :readable_table_name, :string
+    field :description
     belongs_to :database, AfterGlow.Database
     has_many :columns, AfterGlow.Column
 
@@ -15,7 +16,20 @@ defmodule AfterGlow.Table do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:name, :readable_table_name, :database_id])
+    |> cast(params, [:name, :readable_table_name, :database_id, :description])
     |> validate_required([:name, :readable_table_name, :database_id])
+  end
+
+  def default_preloads do
+    [:database, :columns]
+  end
+
+  def cache_deletable_associations do
+    default_preloads
+  end
+
+  def update_changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, [:description])
   end
 end

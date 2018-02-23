@@ -1,10 +1,10 @@
-<div class="title">
+<div class="title {{tableClass}}">
     <i class="dropdown icon"></i>
     Table
 </div>
-<div class="content">
+<div class="content {{tableClass}}">
     {{#ui-dropdown class="search search selection" selected=queryObject.table onChange=(action (mut queryObject.table)) as |execute mapper|}}
-      {{dropdown-default object=queryObject.table.human_name default="Table"}}
+        {{dropdown-default object=queryObject.table.human_name default="Table"}}
         <i class="dropdown icon"></i>
         <div class="menu">
 
@@ -25,12 +25,11 @@
         <div class="full right"><a href="#" class="ui violet basic label"> {{queryObject.table.human_name}}</a></div>
     </div>
 {{/if}}
-
-<div class="title">
+<div class="title {{filtersClass}}">
     <i class="dropdown icon"></i>
     Filters 
 </div>
-<div class="content">
+<div class="content {{filtersClass}}">
     {{#each queryObject.filters as |filter|}}
         <div class=" ui segment">    
             {{filter-maker filter=filter columns=columns queryObject=queryObject switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}

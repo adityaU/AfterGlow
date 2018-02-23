@@ -8,7 +8,7 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
       username: config["username"],
       password: config["password"],
       database: config["db_name"],
-      port: config["port"],
+      port: config["host_port"],
       timeout: 120000,
       connect_timeout: 120000,
       handshake_timeout: 120000,
@@ -22,6 +22,14 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
 
   def opts do
     [timeout: 120000, pool: DBConnection.Poolboy, pool_timeout: 120000]
+  end
+
+  def stream_opts do
+    [timeout: 12000000, pool: DBConnection.Poolboy, pool_timeout: 12000000, max_rows: 2000]
+  end
+
+  def txn_opts do
+    [timeout: 12000000, pool: DBConnection.Poolboy, pool_timeout: 12000000]
   end
 
   def get_schema(conn) do
@@ -49,7 +57,7 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
 
   def execute(conn, query, options \\ %{})
   def execute(conn, query, options) when is_map(query)  do
-    query = sql(query, :postgres)
+    query = sql(query, :postgres) |> limit_rows_in_query(2000)
     query = Postgrex.prepare(conn, "", query, opts)
     case query do
       {:ok, prepared_query} -> 
@@ -59,7 +67,19 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
     end
   end
 
+  def execute_with_stream(pid, query, mapper_fn, options \\ %{})
+  def execute_with_stream(pid, query, mapper_fn, options) when is_binary(query)  do
+    Postgrex.transaction(pid, fn(conn) ->
+      {:ok, query} = Postgrex.prepare(conn, "", query, opts) 
+      columns =   query.columns
+      rows = Postgrex.stream(conn, query, [], stream_opts)
+      |> Stream.map(fn (%Postgrex.Result{rows: rows}) -> rows end)
+      mapper_fn.(rows, columns)
+    end, txn_opts)
+  end
+  
   def execute(conn, query, options) when is_binary(query)  do
+    query = query |> limit_rows_in_query(2000) |> IO.inspect
     query = Postgrex.prepare(conn, "", query, opts)
     case query do
       {:ok, prepared_query} -> 
@@ -68,4 +88,5 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
         {:error, error.postgres}
     end
   end
+
 end

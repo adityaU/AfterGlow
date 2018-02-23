@@ -3,7 +3,7 @@ defmodule AfterGlow.Database do
   alias AfterGlow.Sql.DbConnection
   alias AfterGlow.Async
   alias AfterGlow.SchemaTasks
-  alias AfterGlow.Repo
+  alias AfterGlow.CacheWrapper.Repo
   schema "databases" do
     field :name, :string
     field :db_type, :string
@@ -32,7 +32,7 @@ defmodule AfterGlow.Database do
                    changeset = Ecto.Changeset.change(changeset, unique_identifier: Ecto.UUID.generate )
                    case DbConnection.connection(changeset.changes) do
                      {:ok, _} ->
-                       {:ok, data} = Repo.insert(changeset)
+                       {:ok, data} = Repo.insert_with_cache(changeset)
 
                      {{:error, error}} ->
                        {:error, error}
@@ -45,6 +45,14 @@ defmodule AfterGlow.Database do
     response
   end
 
+  def default_preloads do
+    [:tables]
+  end
+
+  def cache_deletable_associations do
+    default_preloads
+  end
+  
   defp touch_last_accessed_at changeset do
     Ecto.Changeset.change(changeset, last_accessed_at: Ecto.DateTime.utc )
   end

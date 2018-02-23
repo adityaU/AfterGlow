@@ -4,7 +4,7 @@ defmodule AfterGlow.Tag do
   alias AfterGlow.TagQuestion
   alias AfterGlow.Dashboard
   alias AfterGlow.TagDashboard
-  alias AfterGlow.Repo
+  alias AfterGlow.CacheWrapper.Repo
 
   schema "tags" do
     field :name, :string
@@ -26,20 +26,28 @@ defmodule AfterGlow.Tag do
     |> validate_required([:name])
   end
 
-  def insert(changeset, nil, nil), do: Repo.insert(changeset)
+  def default_preloads do
+    [:questions, :dashboards]
+  end
+
+  def cache_deletable_associations do
+    default_preloads
+  end
+
+  def insert(changeset, nil, nil), do: Repo.insert_with_cache(changeset)
   def insert(changeset, questions, dashboards) do
     changeset = changeset
     |> add_questions(questions)
     |> add_dashboards(dashboards)
-    Repo.insert(changeset)
+    Repo.insert_with_cache(changeset)
   end
 
-  def update(changeset, nil, nil), do: Repo.update(changeset)
+  def update(changeset, nil, nil), do: Repo.update_with_cache(changeset)
   def update(changeset, questions, dashboards) do
     changeset = changeset
     |> add_questions(questions)
     |> add_dashboards(dashboards)
-    Repo.update(changeset)
+    Repo.update_with_cache(changeset)
   end
 
   defp add_questions(changeset, nil), do: changeset

@@ -6,6 +6,8 @@ defmodule AfterGlow.AuthController do
   alias AfterGlow.UserPermissionSet
   alias AfterGlow.PermissionSet
   alias AfterGlow.Plugs.Authorization
+  alias AfterGlow.CacheWrapper
+  alias AfterGlow.CacheWrapper.Repo
   
 
   def google_auth_path(conn, _params) do
@@ -19,9 +21,9 @@ defmodule AfterGlow.AuthController do
     if verified.error do
       conn
       |> put_status(:unauthorized)
-      |> json %{erorr: "invalid token"}
+      |> json %{error: "invalid token"}
     else
-      perm = Repo.get!(User, verified.claims["id"]) |> Repo.preload(permission_sets: :permissions) |> permissions
+      perm = CacheWrapper.get_by_id(User, verified.claims["id"]) |> Repo.preload(permission_sets: :permissions) |> permissions
       conn
       |> json %{success: true, user: verified.claims, permissions: perm}
     end
@@ -33,6 +35,7 @@ defmodule AfterGlow.AuthController do
   end
 
   def callback(conn, %{"provider" => provider, "code" => code}) do
+    code = URI.decode(code)
     token = get_token!(provider, code)
     user = get_user!(provider, token)
     case user |> validate_email do
@@ -81,12 +84,12 @@ defmodule AfterGlow.AuthController do
     saved_user = Repo.one(from u in User, where: u.email == ^user["email"])
     if saved_user do
       changeset = User.changeset(saved_user, %{email: user["email"], first_name: user["given_name"], last_name: user["family_name"], profile_pic: user["picture"], metadata: user, full_name: user[ "name" ]})
-       {:ok ,user} = Repo.update(changeset)
+       {:ok ,user} = Repo.update_with_cache(changeset)
     else
       changeset = User.changeset(%User{}, %{email: user["email"], first_name: user["given_name"], last_name: user["family_name"], profile_pic: user["picture"], metadata: user, full_name: user[ "name" ]})
-      {:ok, user} = Repo.insert(changeset)
+      {:ok, user} = Repo.insert_with_cache(changeset)
       permission_set = Repo.one(from ps in PermissionSet, where: ps.name == "Viewer")
-      user_permission_set = Repo.insert(UserPermissionSet.changeset(%UserPermissionSet{}, %{user_id: user.id, permission_set_id: permission_set.id}))
+      user_permission_set = Repo.insert_with_cache(UserPermissionSet.changeset(%UserPermissionSet{}, %{user_id: user.id, permission_set_id: permission_set.id}))
     end
     {:ok, user}
   end

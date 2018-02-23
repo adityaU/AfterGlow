@@ -4,11 +4,12 @@ defmodule AfterGlow.Mixfile do
   def project do
     [app: :afterglow,
      version: "0.0.1",
-     elixir: "~> 1.4.0",
+     elixir: "~> 1.6.0-rc.0",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     consolidate_protocols: true,
      aliases: aliases(),
      deps: deps()]
   end
@@ -19,7 +20,8 @@ defmodule AfterGlow.Mixfile do
   def application do
     [mod: {AfterGlow, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :oauth2, :flasked, :db_connection, :poolboy]]
+                    :phoenix_ecto, :postgrex, :oauth2, :flasked, :db_connection, :poolboy,
+                    :bamboo, :bamboo_smtp, :cachex]]
   end
 
   # Specifies which paths to compile per environment.
@@ -30,7 +32,7 @@ defmodule AfterGlow.Mixfile do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [{:phoenix, "~> 1.2.0"},
+    [{:phoenix, "~> 1.3.0"},
      {:phoenix_pubsub, "~> 1.0"},
      {:phoenix_ecto, "~> 3.0"},
      {:postgrex, ">= 0.0.0"},
@@ -50,6 +52,14 @@ defmodule AfterGlow.Mixfile do
      {:flasked, "~> 0.4"},
      {:bodyguard, "~> 1.0.0"},
      {:httpoison, "~> 0.11.1"},
+     {:csv, "~> 2.1.1"},
+     {:secure_random, "~> 0.5"},
+     {:ex_aws, "~> 2.0"},
+     {:ex_aws_s3, "~> 2.0"},
+     {:sweet_xml, "~> 0.6.0"},
+     {:bamboo, "~> 0.8.0"},
+     {:bamboo_smtp, "~> 1.4.0"},
+     {:cachex, git: "https://github.com/whitfin/cachex.git" },
      {:mariaex,  git: "https://github.com/xerions/mariaex.git", override: true}
     ]
   end

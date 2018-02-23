@@ -1,22 +1,11 @@
 import Ember from 'ember';
 
-export default Ember.Component.extend({
+import HelperMixin from 'frontend/mixins/helper-mixin'
+export default Ember.Component.extend(HelperMixin, {
     variablesSelected: Ember.computed.alias('dashboard.variables'),
-    unique(arr){
-        var uniqueObjects = [];
-
-        return arr.filter(function(item){
-            if(!uniqueObjects.isAny('name', item.get('name'))){
-                uniqueObjects.push(item);
-                return true;
-            }
-
-            return false;
-        });
-    },
     variablesRemaining: Ember.computed('variables', 'variablesSelected.@each', function(){
         let variablesSelected = this.get('variablesSelected')
-        return this.unique(this.get('variables').filter((item)=>{
+        return this.uniqueByName(this.get('variables').filter((item)=>{
             return variablesSelected.map((variable)=>{return variable.get('name')}).indexOf(item.get('name')) < 0
         })) 
     }),

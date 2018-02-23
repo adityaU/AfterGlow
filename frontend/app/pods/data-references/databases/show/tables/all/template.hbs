@@ -1,0 +1,80 @@
+<div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
+    <div class="ui grid">
+        <div class="ten wide column ">
+            <div class="dashboard-title">
+                Tables in database: {{database.name}}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="padded-content ui basic segment full no-border-radius no-border-top no-bottom-margin">
+
+    <div class="ui form">
+        <div class="field">
+            {{input value=query class="ui bigger" placeholder="Search Table" }}
+        </div>
+    </div>
+    {{#if loading}}
+        <div class="ui active inverted dimmer">
+            <div class="ui text massive loader">{{loadingMessage}}</div>
+        </div>
+    {{else}}
+        <table class="ui single line table">
+            <thead>
+                <tr>
+                    <th class="five wide">Table Name</th>
+                    <th class="ten wide">Description</th>
+                    {{#if canEdit}}
+                    <th class="one wide">Actions</th>
+                    {{/if}}
+                </tr>
+            </thead>
+            <tbody>
+                {{#each tables as |table|}}
+                    <tr>
+                        <td>
+                            
+                            {{#link-to 'data_references.databases.show.tables.show' database.id table.id}}
+                                {{table.human_name}}
+                            {{/link-to}}
+                        </td>
+                        <td>
+                            {{#if table.editMode}} 
+
+                                <div class="ui form">
+                                    <div class="field">
+                                        {{input value=table.description class="ui" placeholder="short description of this table" }}
+                                    </div>
+                                </div>
+                            {{else}}
+                                {{table.description}}
+                            {{/if}}
+                        </td>
+                        {{#if canEdit}}
+                        <td>
+                            {{#if table.editMode}} 
+                                <span data-tooltip="Save" data-inverted="">  
+                                    <i class="save icon" {{action "saveTable" table}}></i>
+                                </span>
+                                <span data-tooltip="Cancel Edit" data-inverted="">  
+                                    <i class="cancel icon" {{action "cancelEdit" table}}></i>
+                                </span>
+                            {{else}}
+                                
+                                <span data-tooltip="Edit" data-inverted="">  
+                                    <i class="edit icon" {{action "editTable" table}}></i>
+                                </span>
+                            {{/if}}
+                            {{#link-to 'data_references.databases.show.tables.show.explore' database.id table.id}}
+                                <span data-tooltip="Explore Data" data-inverted="">  
+                                    <i class="zoom icon"></i>
+                                </span>
+                            {{/link-to}}
+                        </td>
+                        {{/if}}
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    {{/if}}
+</div>

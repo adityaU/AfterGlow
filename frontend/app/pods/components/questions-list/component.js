@@ -14,6 +14,9 @@ export default Ember.Component.extend({
             this.set('addTagToQuestion', question)
             $('.ui.modal.add-to-tag').modal('show')
         },
+        viewSnapshots(question){
+            this.sendAction('transitionToSnapshots', question.id)
+        },
         deleteQuestion(question){
             question.destroyRecord().then((response)=>{
                 this.sendAction('transitionToIndex')

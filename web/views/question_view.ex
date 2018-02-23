@@ -4,7 +4,7 @@ defmodule AfterGlow.QuestionView do
   use AfterGlow.Web, :view
   use JaSerializer.PhoenixView
 
-  attributes [:title, :last_updated, :sql, :human_sql, :cached_results, :results_view_settings, :inserted_at, :updated_at, :shareable_link, :is_shareable_link_public, :query_type, :columns, :shared_to, :has_permission]
+  attributes [:title, :last_updated, :sql, :human_sql,:cached_results, :results_view_settings, :inserted_at, :updated_at, :shareable_link, :is_shareable_link_public, :query_type, :columns, :shared_to, :has_permission]
 
   has_many :dashboards,
     field: :dashboards,
@@ -21,6 +21,11 @@ defmodule AfterGlow.QuestionView do
     type: "variables",
     include: false
 
+  has_many :snapshots,
+    field: :snapshots,
+    type: "snapshots",
+    include: false
+  
   has_one :owner,
     field: :owner_id,
     type: "users"

@@ -1,0 +1,25 @@
+{{#each snapshots as |snapshot|}}
+        <div class="ui segment full">
+            <div class="ui grid">
+                <div class="six wide column">
+                    {{#link-to 'questions.show.snapshots.show' snapshot.question.id snapshot.id}}
+                        <div class="queston-title">
+                            <i class="{{snapshot.question.icon}} icon"></i>
+                            {{snapshot.name}}
+                        </div>
+                    {{/link-to}}
+                    <div class="question-subtitle">
+                        from: <span class="table-name">{{snapshot.question.title}}</span>, updated: <span class="database-name">{{momentize snapshot.updated_at}}</span>
+                    </div>
+                </div>
+                <div class="six wide column">
+                </div>
+                <div class="four wide column text-align-right">
+                    <button data-tooltip="Delete Question" data-inverted=""  class="ui very basic red button" {{action 'showDeleteDialogue' snapshot}}>
+                        DELETE
+                    </button>
+                </div>
+            </div>
+        </div>
+{{/each}}
+{{delete-dialogue entityName="snapshot" entity=questionToBeDeleted delete="deleteSnapshot"}}

@@ -1,6 +1,6 @@
 <div class="ui grid">
     <div class="ten wide column ">
-        {{#if editing}}
+        {{#if (and editing canEdit)}}
         <div class="ui form">
             <div class="field">
                 {{input value=questionName class="ui" placeholder=questionName }}
@@ -15,7 +15,7 @@
     </div>
     <div class="six wide column text-align-right ">
         {{#if validQuestion}}
-            {{#if editing}}
+            {{#if (and editing canEdit)}}
             <button data-tooltip="Save Question" data-inverted=""  class="ui very basic violet button" {{action 'saveQuestion'}}>
                 SAVE
             </button>
@@ -26,17 +26,22 @@
                 DELETE
             </button>
             {{else}}
-            <span data-tooltip="Edit" data-inverted=""  >  
-                <i class="pencil icon" {{action 'editQuestion'}}></i>
-            </span>
+            {{#if canEdit}}
+                <span data-tooltip="Edit" data-inverted=""  >  
+                    <i class="pencil icon" {{action 'editQuestion'}}></i>
+                </span>
+            {{/if}}
             {{/if}}
         {{/if}}
-        {{#if validQuestion}}
+        {{#if (and validQuestion canEdit)}}
             <span data-tooltip="Share" data-inverted="">  
                 <i class="square share icon"  {{action 'showShareDialogue'}} ></i>
             </span>
+            <span data-tooltip="Create A Snapshot" data-inverted="">  
+                <i class="square copy icon"  {{action 'showSnapshotMaker'}} ></i>
+            </span>
         {{/if}}
-        {{#if enableAddToDashboard}}
+        {{#if (and enableAddToDashboard canEdit)}}
             <span data-tooltip="Add to Dashboard" data-inverted=""  {{action 'showAddToDashboard'}}>
                 <i class="block layout icon" ></i>
             </span>

@@ -3,6 +3,7 @@ defmodule AfterGlow.VariableController do
 
   alias AfterGlow.Variable
   alias JaSerializer.Params
+  alias AfterGlow.CacheWrapper.Repo
 
   plug :scrub_params, "data" when action in [:create, :update]
 
@@ -15,7 +16,7 @@ defmodule AfterGlow.VariableController do
   def create(conn, %{"data" => data = %{"type" => "variables", "attributes" => _variable_params}}) do
     changeset = Variable.changeset(%Variable{}, Params.to_attributes(data))
 
-    case Repo.insert(changeset) do
+    case Repo.insert_with_cache(changeset) do
       {:ok, variable} ->
         conn
         |> put_status(:created)
@@ -37,7 +38,7 @@ defmodule AfterGlow.VariableController do
     variable = Repo.get!(Variable, id)
     changeset = Variable.changeset(variable, Params.to_attributes(data))
 
-    case Repo.update(changeset) do
+    case Repo.update_with_cache(changeset) do
       {:ok, variable} ->
         render(conn, :show, data: variable)
       {:error, changeset} ->

@@ -28,10 +28,17 @@ defmodule AfterGlow.User do
     |> validate_required([:email])
   end
 
-  def update(changeset, nil), do: Repo.update(changeset)
+  def default_preloads do
+    [permission_sets: :permissions]
+  end
+  def cache_deletable_associations do
+    []
+  end
+
+  def update(changeset, nil), do: Repo.update_with_cache(changeset)
   def update(changeset, permission_sets) do
     changeset = changeset |> update_permission_sets(permission_sets)
-    Repo.update(changeset)
+    Repo.update_with_cache(changeset)
   end
 
   defp update_permission_sets(changeset, permission_sets) do

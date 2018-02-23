@@ -94,18 +94,19 @@ defmodule AfterGlow.Sql.Adapters.InfluxDb do
 
   def execute(conn, query, options \\ %{})
   def execute(conn, query, options) when is_map(query)  do
-    query = QueryMaker.sql(query)
+    query = QueryMaker.sql(query) |> QueryMaker.limit_rows_in_query(2000)
     {:ok, results}  = http_query(url(conn.config), conn.config["db_name"], query)
     interpret_results(results)
   end
 
   def execute(conn, query, options) when is_binary(query)  do
+    query = query |> QueryMaker.limit_rows_in_query(2000)
     {:ok, results} = http_query(url(conn.config), conn.config["db_name"], query)
     interpret_results(results)
   end
 
   defp interpret_results(results) do
-    results |> IO.inspect
+    results 
     case results.status_code do
       200 ->
         {:ok , format_results(results)}

@@ -16,11 +16,14 @@ export default DS.Model.extend(ResultViewMixin, {
     cached_results: DS.attr(),
     dashboards: DS.hasMany('dashboards'),
     tags: DS.hasMany('tags'),
+    snapshots: DS.hasMany('snapshots'),
     shared_to: DS.attr(),
     variables: DS.hasMany('variables'),
+    variables_from_this_question: DS.hasMany('variables',  { inverse: 'question_filter' }),
 
     inserted_at: DS.attr('utc'),
     updated_at: DS.attr('utc'),
+
 
     cachedResults: Ember.on('didLoad', Ember.observer("updated_at", "resultsCanBeLoaded" , "cached_results", function(){
         if (this.get('resultsCanBeLoaded') && !this.get('loading')){
@@ -28,7 +31,12 @@ export default DS.Model.extend(ResultViewMixin, {
             this.set('results', null)
             let variables = this.get('query_variables')
             variables = variables && variables.map((item)=>{
-                return {name: item.get('name'), value: item.get('value'), var_type: item.get('var_type')}
+                return {
+                    name: item.get('name'),
+                    value: item.get('value') || item.get('default'),
+                    var_type: item.get('var_type'),
+                    default_options: item.get('default_options')
+                }
             })
             this.resultsCall( {variables: variables}).then((response)=>{
                 this.set('results', response.data)

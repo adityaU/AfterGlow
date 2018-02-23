@@ -4,9 +4,11 @@ defmodule AfterGlow.DashboardController do
   alias AfterGlow.Dashboard
   alias AfterGlow.Question
   alias AfterGlow.Tag
+  import Ecto.Query
 
   alias AfterGlow.Variable
   alias JaSerializer.Params
+  alias AfterGlow.CacheWrapper
   alias AfterGlow.Plugs.Authorization
   plug Authorization
   plug :authorize!, Dashboard
@@ -14,7 +16,12 @@ defmodule AfterGlow.DashboardController do
   plug :verify_authorized
 
   def index(conn, _params) do
-    dashboards = scope(conn, Dashboard) |> Repo.all() |> Repo.preload(:questions) |> Repo.preload(:tags) |> Repo.preload(:variables)
+    dashboards = scope(conn, Dashboard)
+    |> select([:id])
+    |> Repo.all()
+    |> Enum.map(fn x-> x.id end)
+    |> CacheWrapper.get_by_ids(Dashboard)
+    |> Repo.preload(:questions) |> Repo.preload(:tags) |> Repo.preload(:variables)
     conn
     |> render(:index, data: dashboards)
   end
@@ -40,7 +47,11 @@ defmodule AfterGlow.DashboardController do
   end
 
   def show(conn, %{"id" => id}) do
-    dashboard = scope(conn, Dashboard) |> Repo.get!(id) |> Repo.preload(:questions)|> Repo.preload(:tags) |> Repo.preload(:variables)
+    dashboard = scope(conn, Dashboard)
+    |> select([:id])
+    |> Repo.get!(id)
+    dashboard  =  CacheWrapper.get_by_id(dashboard.id, Dashboard)
+    |> Repo.preload(:questions)|> Repo.preload(:tags) |> Repo.preload(:variables)
     render(conn, :show, data: dashboard)
   end
 

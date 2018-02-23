@@ -2,16 +2,57 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
   defmacro __using__(_) do
     quote location: :keep do
       import SqlDust.Query
+
+      @time_fn_based_on_duration %{
+        "seconds" => "now()",
+        "minutes" => "now()",
+        "hours"  => "now()",
+        "days"  => "current_date",
+        "weeks"  => "current_date",
+        "months"  => "current_date",
+        "years"  => "current_date",
+        "quarters"  => "current_date",
+      }
+
+      def limit_rows_in_query(query, rows_number) do
+        limit_offset_regex = ~r/(limit|LIMIT) +(\d+) +(offset|OFFSET) +(\d+)$/
+        limit_regex = ~r/(limit|LIMIT) +(\d+)$/
+        {limit_add_needed, {limit_added, query}} = query
+        |> String.trim
+        |> String.trim(";")
+        |> set_limit(limit_regex, rows_number)
+        |> set_limit(limit_offset_regex, rows_number)
+        if limit_add_needed, do: {limit_added, query}, else: {true, query <> " LIMIT #{rows_number}"}
+      end
+
+      defp set_limit({bool, query}, regex, rows_number) do
+        if bool, do: {bool, query},  else: set_limit(query, regex, rows_number)
+      end
+      defp set_limit(query, regex, rows_number) do
+        case Regex.run(regex, query) do
+          [_, _limit_text, limit] -> {true, replace_limit(regex, limit |> String.to_integer, query, "LIMIT #{rows_number}")}
+          [_, _limit_text, limit, _offset_text, offset] -> {true, replace_limit(regex, limit |> String.to_integer, query, "LIMIT #{rows_number} OFFSET #{offset}")}
+          _ -> {false, {false, query}}
+        end
+      end
+
+
+
+      defp replace_limit(regex, limit, query, text) when limit <= 2000, do: {false, query}
+      defp replace_limit(regex, limit, query, text) when limit > 2000 do
+        {true, Regex.replace(regex, query, text)}
+      end
+
       def sql query_record, adapter do
         options = options(query_record, adapter)
         query = SqlDust.from(query_record[:table]["readable_table_name"], options) |> elem(0)
-        if query_record[:limit] do
+        if query_record[:limit] && query_record[:limit] != "" do
           query = query <> " " <> "LIMIT #{query_record[:limit]}" 
         end
-        if query_record[:offset] do
+        if query_record[:offset] && query_record[:limit] != "" do
           query = query <> " " <> "OFFSET #{query_record[:offset]}"
         end
-        query |> IO.inspect
+        query 
       end
 
       def options query_record, adapter do
@@ -22,13 +63,13 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
 
         columns_required =
           %{
-            select: select_maker(query_record[:selects] ,  find_columns_required_for_select(group_bys, order_by_columns)) |> IO.inspect|> Enum.map(fn x ->  x |> IO.inspect |> String.split("sep|rator") |> Enum.join(" ")  end),
+            select: select_maker(query_record[:selects] ,  find_columns_required_for_select(group_bys, order_by_columns)) |> Enum.map(fn x ->  x  |> String.split("sep|rator") |> Enum.join(" ")  end),
             group_by: sanitize_group_by(group_bys, order_by_columns),
             where:  where_maker(query_record[:filters]) || [],
             order_by:  order_bys_with_group_bys ,
             adapter: adapter,
             limit: nil
-          } |> IO.inspect
+          } 
       end
       def sanitize_order_by(group_bys, order_bys) do
         (order_bys || [] ++ ((group_bys ||[]) |> Enum.map(fn x-> (x |> String.split("sep|rator") |> Enum.at(0))  <> " ASC" end))) |> Enum.uniq
@@ -170,29 +211,8 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
                "ago" -> "-"
                _ -> "+"
              end
-        "(now() #{op} INTERVAL '#{val} #{duration}')"
+        "(#{@time_fn_based_on_duration[duration]} #{op} INTERVAL '#{val} #{duration}')"
       end
-      # def parse_filter_value(v, %{date: true, value: val, dtt: nil, duration: nil}) do
-      #   parse_filter_value(v, %{date: true, value: val, dtt: %{"value" :"ago", "name": _name}, duration: %{"value":"days", "name" : _name }}  )
-      # end
-      # def parse_filter_value(v, %{date: true, value: nil, dtt: dtt, duration: nil}) do
-      #   parse_filter_value(v, %{date: true, value: 30, dtt: dtt,  duration: %{"value":"days", "name" : _name }} )
-      # end
-      # def parse_filter_value(v, %{date: true, value: nil, dtt: nil, duration: dur}) do
-      #   parse_filter_value(v, %{date: true, value: 30, dtt: %{"value" :"ago", "name": _name}, duration: dur}  )
-      # end
-      # def parse_filter_value(v, %{date: true, value: val, dtt: nil, duration: dur}) do
-      #   parse_filter_value(v, %{date: true, value: val, dtt: %{"value" :"ago", "name": _name}, duration: dur } )
-      # end
-      # def parse_filter_value(v, %{date: true, value: nil, dtt: dtt, duration: dur}) do
-      #   parse_filter_value(v, %{date: true, value: 30, dtt: dtt, duration: dur } )
-      # end
-      # def parse_filter_value(v, %{date: true, value: val, dtt: nil, duration: dur}) do
-      #   parse_filter_value(v, %{date: true, value: val, dtt: %{"value" :"ago", "name": _name}, duration: dur}  )
-      # end
-      # def parse_filter_value(v, %{date: true, value: val, dtt: dtt, duration: nil}) do
-      #   parse_filter_value(v, %{date: true, value: val, dtt: dtt, duration: %{"value":"days", "name" : _name }}  )
-      # end
       
       def parse_select([], columns_required) when length(columns_required) == 0, do: "*"
       def parse_select([], columns_required) when length(columns_required) != 0, do: columns_required
@@ -215,7 +235,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
       def cast_group_by(el, "hour_day"),  do: "CAST(extract(year from #{el}) AS integer) sep|rator as \"#{el}  by hour of the day\""
       def cast_group_by(el, "day_week"),  do: "(CAST(extract(dow from #{el}) AS integer) + 1) sep|rator as \"#{el}  by Day of the Week\""
       def cast_group_by(el, "day_month"),  do: "CAST(extract(day from #{el}) AS integer) sep|rator as \"#{el}  by By Day of the Month\""
-      def cast_group_by(el, "week_year"),  do: "CAST(extract(week from (#{el} + INTERVAL '1 day'))) sep|rator as \"#{el}  by Week of the Year\""
+      def cast_group_by(el, "week_year"),  do: "CAST(extract(week from (#{el} + INTERVAL '1 day')) as integer) sep|rator as \"#{el}  by Week of the Year\""
       def cast_group_by(el, "month_year"),  do: "CAST(extract(month from #{el}) AS integer) sep|rator as \"#{el}  by Month of the Year\""
       def cast_group_by(el, "quarter_year"),  do: "CAST(extract(quarter from #{el}) AS integer) sep|rator as \"#{el}  by Quarter of the Year\""
 

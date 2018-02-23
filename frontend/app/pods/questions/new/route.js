@@ -10,13 +10,7 @@ export default Ember.Route.extend(CanMixin, {
     },
     afterModel(){
         if (!this.can('create question')) {
-            this.get('toast').error(
-                "You are not authorized to perform this action",
-                'Sorry Mate!',
-                {closeButton: true, timeout: 1500, progressBar:false}
-            );
-
-            this.transitionTo('dashboard', 0);
+            this.transitionTo('questions.all');
         }
     },
     actions:{

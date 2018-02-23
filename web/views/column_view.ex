@@ -3,7 +3,7 @@ defmodule AfterGlow.ColumnView do
   use JaSerializer.PhoenixView
 
   alias Phoenix.Naming  
-  attributes [:name, :data_type, :inserted_at, :updated_at, :human_name]
+  attributes [:name, :data_type, :description, :inserted_at, :updated_at, :human_name]
   
   has_one :table,
     field: :table_id,

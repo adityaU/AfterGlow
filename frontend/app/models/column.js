@@ -3,6 +3,7 @@ import DS from 'ember-data';
 export default DS.Model.extend({
     name: DS.attr('string'),
     data_type: DS.attr('string'),
+    description: DS.attr('string'),
     human_name: DS.attr('string'),
     table: DS.belongsTo('table'),
     column_values: DS.hasMany('column_value'),

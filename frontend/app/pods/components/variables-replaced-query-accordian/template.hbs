@@ -1,0 +1,15 @@
+{{#ui-accordion class="styled full"}}
+    <div class="title">
+        <i class="dropdown icon"></i>
+        This query contains variables. Hence, those variables were replaced at runtime. Click to see the replaced query.
+    </div>
+    <div class="content">
+        {{ember-ace
+          lines=10
+          value=variablesReplacedQuery
+          mode=aceMode
+          theme=aceTheme
+          readOnly=true
+        }}
+    </div>
+{{/ui-accordion}}

@@ -23,6 +23,32 @@
                     {{/ui-dropdown}}
                 </div>
             </div>
+            {{#if dynamic}}
+            <div class="sixteen wide column">
+                <div class="field">
+                    <label>Question Filter</label>
+                    {{#ui-dropdown class="search selection" selected=variable.question_filter onChange=(action (mut variable.question_filter)) as |execute mapper|}}
+                        {{dropdown-default object=variable.question_filter.title default="search question filter"}}
+                        <i class="dropdown icon"></i>
+                        <div class="menu">
+                            <div class="ui icon search input">
+                                <i class="search icon"></i>
+                                {{input value=questionQuery class="ui" placeholder="search question filter" }}
+                            </div>
+                            {{#each questions as |question|}}
+                                <div class="item" data-value={{map-value mapper question}}>
+                                    {{question.title}}
+                                </div>
+                                <!-- {{/each}} -->
+                        </div>
+                    {{/ui-dropdown}}
+                </div>
+            </div>
+
+            <div class="sixteen wide column">
+                {{accordion-multiselect label="Default Options" selection=variable.default_options options=variable.questionFilterOptions labelProperty='name' placeholder="select few options"}}
+            </div>
+            {{else}}
             <div class="sixteen wide column">
                 <div class="field">
                     <label>Default (mendatory)</label>
@@ -35,6 +61,7 @@
                     {{/if}}
                 </div>
             </div>
+            {{/if}}
         </div>
     </div>
 </div>

@@ -2,14 +2,21 @@ import Ember from 'ember';
 import QuestionNewController from '../new/controller'
 import ResultViewMixin from 'frontend/mixins/result-view-mixin'
 
-export default QuestionNewController.extend( ResultViewMixin, {
+import { CanMixin } from 'ember-can';
+export default QuestionNewController.extend( ResultViewMixin, CanMixin, {
     question: Ember.computed.alias('model'),
     enableAddToDashBoard: true ,
     results: Ember.computed.alias('question.results'),
+    isQueryLimited: Ember.computed.alias('results.limited'),
+    limitedQuery: Ember.computed.alias('results.limited_query'),
+    queryLimit: Ember.computed.alias('results.limit'),
+    variablesReplacedQuery: Ember.computed.alias('results.variables_replaced_query'),
     loading: Ember.computed.alias('question.loading'),
     validQuestion: true,
     questionNameIsSet: true, 
-    setResultsCanBeLoaded: Ember.observer('question', 'question.isLoaded', function(){
+
+    canEdit: Ember.computed(function(){
+        return this.can('edit question')
     }),
     actions: {
         showAddToDashboard(){

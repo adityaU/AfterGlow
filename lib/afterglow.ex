@@ -16,8 +16,10 @@ defmodule AfterGlow do
       supervisor(AfterGlow.Endpoint, []),
       supervisor(Registry, [:unique, AfterGlow.DbConnectionStore]),
       supervisor(AfterGlow.Sql.DbConnection, []),
-      supervisor(AfterGlow.Async, [])
+      supervisor(AfterGlow.Async, []),
+      
       # Start your own worker by calling: AfterGlow.Worker.start_link(arg1, arg2, arg3)
+      worker(Cachex, [:cache, []])
       # worker(AfterGlow.Worker, [arg1, arg2, arg3]),
     ]
 

@@ -3,7 +3,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Mysql do
 
   @time_intervals %{
     "seconds" => "second",
-    "minutes" => "month",
+    "minutes" => "minute",
     "hours"  => "hour",
     "days"  => "day",
     "weeks"  => "week",

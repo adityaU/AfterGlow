@@ -1,0 +1,73 @@
+<div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
+    <div class="ui grid">
+        <div class="ten wide column ">
+            <div class="dashboard-title">
+                Columns in table: {{table.name}} in database: {{database.name}}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="padded-content ui basic segment full no-border-radius no-border-top no-bottom-margin">
+
+    <div class="ui form">
+        <div class="field">
+            {{input value=query class="ui bigger" placeholder="Search Column" }}
+        </div>
+    </div>
+    {{#if loading}}
+        <div class="ui active inverted dimmer">
+            <div class="ui text massive loader">{{loadingMessage}}</div>
+        </div>
+    {{else}}
+        <table class="ui single line table">
+            <thead>
+                <tr>
+                    <th class="four wide">Column Name</th>
+                    <th class="three wide">Data Type</th>
+                    <th class="eight wide">Description</th>
+                    {{#if canEdit}}
+                    <th class="one wide">Actions</th>
+                    {{/if}}
+                </tr>
+            </thead>
+            <tbody>
+                {{#each columns as |column|}}
+                    <tr>
+                        <td>
+                            {{column.human_name}}
+                        </td>
+                        <td>
+                            {{column.data_type}}
+                        </td>
+                        <td>
+                            {{#if column.editMode}} 
+
+                                <div class="ui form">
+                                    <div class="field">
+                                        {{input value=column.description class="ui" placeholder="short description of this column" }}
+                                    </div>
+                                </div>
+                            {{else}}
+                                {{column.description}}
+                            {{/if}}
+                        </td>
+                        {{#if canEdit}}
+                        <td>
+                            {{#if column.editMode}} 
+                                <span data-tooltip="Save" data-inverted="">  
+                                    <i class="save icon" {{action "saveColumn" column}}></i>
+                                </span>
+                            {{else}}
+                                
+                                <span data-tooltip="Edit" data-inverted="">  
+                                    <i class="edit icon" {{action "editColumn" column}}></i>
+                                </span>
+                            {{/if}}
+                        </td>
+                        {{/if}}
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    {{/if}}
+</div>

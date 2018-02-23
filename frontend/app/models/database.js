@@ -1,4 +1,5 @@
 import DS from 'ember-data';
+import { memberAction, collectionAction } from 'ember-api-actions';
 
 export default DS.Model.extend({
     name: DS.attr('string'),
@@ -10,6 +11,7 @@ export default DS.Model.extend({
 
     inserted_at: DS.attr('utc'),
     updated_at: DS.attr('utc'),
+    sync: memberAction({ path: 'sync' }),
     toJSON: function() {
         return this._super({ includeId: true });
     }

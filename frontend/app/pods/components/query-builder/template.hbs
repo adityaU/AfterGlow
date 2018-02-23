@@ -2,11 +2,20 @@
     {{database-selector queryObject=queryObject toggleSql='toggleSql' databases=databases}}
     {{subquery-builder queryObject=queryObject databases=databases}}
     {{#if showGetResults}}
-    <div class="content active">
-        <button class="ui violet button full" {{action 'getResults'}}>
-            <i class="icon arrow right"></i>
-            Get Results
-        </button>
-    </div>
+        {{#if loading}}
+
+            <div class="content active">
+                <button class="ui basic button full">
+                    Crunching Data ...
+                </button>
+            </div>
+        {{else}}
+            <div class="content active">
+                <button class="ui violet button full" {{action 'getResults'}}>
+                    <i class="icon arrow right"></i>
+                    Get Results
+                </button>
+            </div>
+        {{/if}}
     {{/if}}
 {{/ui-accordion}}

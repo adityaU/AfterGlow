@@ -1,0 +1,34 @@
+<div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
+    <div class="ui grid">
+        <div class="ten wide column ">
+            <div class="dashboard-title">
+                All Databases
+            </div>
+        </div>
+    </div>
+</div>
+<div class="padded-content ui basic segment full no-border-radius no-border-top no-bottom-margin">
+    {{#each databases as |database|}}
+        <div class="ui segment full">
+            <div class="ui grid">
+                <div class="fourteen wide column">
+                    {{#link-to "data_references.databases.show.tables.all" database.id class="item"}}
+                        <div class="queston-title">
+                            {{database.name}}
+                        </div>
+                    {{/link-to}}
+                    <div class="question-subtitle">
+                        type: {{database.db_type}}
+                    </div>
+                </div>
+                <div class="two wide column text-align-right">
+                    {{#if canEdit}}
+                    <button data-tooltip="Sync All Tables and Columns" data-inverted=""  class="ui very basic red button" {{action 'syncDatabase' database}}>
+                        SYNC
+                    </button>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    {{/each}}
+</div>

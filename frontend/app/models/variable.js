@@ -1,4 +1,4 @@
-
+import Ember from 'ember';
 import DS from 'ember-data';
 import ResultViewMixin from 'frontend/mixins/result-view-mixin'
 export default DS.Model.extend( ResultViewMixin, {
@@ -11,6 +11,10 @@ export default DS.Model.extend( ResultViewMixin, {
     dashboard: DS.belongsTo('dashboard'),
     inserted_at: DS.attr('utc'),
     updated_at: DS.attr('utc'),
+    default_options: DS.attr('array'),
+    value_options: DS.attr('array'),
+    question_filter: DS.belongsTo('question',  { inverse: 'variables_from_this_question' }),
+    value: Ember.computed.alias("default"),
     setDate: Ember.observer("default_date", function(){
         this.set('default', moment(this.get('default_date')).toISOString())
     }),
@@ -18,46 +22,31 @@ export default DS.Model.extend( ResultViewMixin, {
         this.set('value', moment(this.get('date_value')).toISOString())
     }),
 
-    setQuestionVariables: Ember.observer('dashboard', 'value', function(){
+    questionFilterOptions: Ember.computed('question_filter', "default_options", function(){
+        let question_filter = this.get('question_filter')
+        return question_filter && question_filter.get('cached_results') && question_filter.get('cached_results.rows').map((item)=> {
+            return {name: item[0], value: item[1]}
+        })
+    }),
+
+    questionFilterObserver: Ember.observer('question_filter', function(){
+        let question_filter = this.get('question_filter')
+        if (question_filter && question_filter.get('id') && !(question_filter.get('cahced_results'))){
+            this.set('question_filter.resultsCanBeLoaded', true)
+            this.set('question_filter.updated_at', new Date())
+        }
+    }),
+
+
+
+    setQuestionVariables: Ember.observer('dashboard', 'value', 'default_options.[]', function(){
         let dashboard = this.get('dashboard')
         if (dashboard.get('content')){
             dashboard.get('questions').forEach((item)=>{
                let variable = item.get('variables').findBy('name', this.get('name'))
                variable && variable.set('value', this.get('value'))
+                variable && variable.set('default_options', this.get('default_options'))
             })
         }
     })
-
-    // valueUnformattedObserver: Ember.observer('valueUnformated', 'var_type', function(){
-    //     let var_type = this.get('var_type')
-    //     let valueUnformatted = this.get('valueUnformatted')
-    //     if (var_type == 'Date'){
-    //         if (this.findIfDate(valueUnformatted)){
-    //             this.set('value', `'${valueUnformatted}'`)
-    //         }else{
-    //             this.set('value', valueUnformatted)
-    //         }
-    //     }else if (var_type == "String"){
-    //         this.set('value', `'${valueUnformatted}'`)
-    //     }else{
-    //         this.set('value', valueUnformatted)
-    //     }
-    // }),
-
-    // defaultUnformattedObserver: Ember.observer('defaultUnformated', 'var_type', function(){
-    //     let var_type = this.get('var_type')
-    //     let defaultUnformatted = this.get('defaultUnformatted')
-    //     if (var_type == 'Date'){
-    //         if (this.findIfDate(defaultUnformatted)){
-    //             this.set('value', `'${defaultUnformatted}'`)
-    //         }else{
-    //             this.set('value', defaultUnformatted)
-    //         }
-    //     }else if (var_type == "String"){
-    //         this.set('value', `'${defaultUnformatted}'`)
-    //     }else{
-    //         this.set('value', defaultUnformatted)
-    //     }
-    // })
-
 })

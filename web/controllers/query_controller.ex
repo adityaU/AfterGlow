@@ -2,6 +2,7 @@ require IEx
 defmodule AfterGlow.QueryController do
   use AfterGlow.Web, :controller
   alias AfterGlow.Database
+  alias AfterGlow.Question
   alias AfterGlow.Sql.DbConnection
   alias AfterGlow.Async
   alias AfterGlow.ColumnValuesTasks
@@ -23,6 +24,7 @@ defmodule AfterGlow.QueryController do
                        end
     case results do
       {:ok, results} ->
+        Async.perform(&cache_results/3, [params, results, query])
         conn
         |> render "execute.json", data: results, query: query
       {:error, error} ->
@@ -45,6 +47,16 @@ defmodule AfterGlow.QueryController do
     }
   end
 
+  def cache_results(params, results, current_sql) do
+    if params["id"] do
+      question = Question |> Repo.get!(params["id"]) |> Repo.preload(:variables)
+      if current_sql == question.sql do
+        question |> Question.cache_results(params["variables"], results)
+      end
+    end
+  end
+
+
   defp run_query_from_object db_record, params do
     permit_prms = permit_params(params) 
     query = DbConnection.query_string(db_record |> Map.from_struct, permit_prms )
@@ -54,10 +66,13 @@ defmodule AfterGlow.QueryController do
   end
 
   defp run_raw_query db_record, params do
-    query = replace_variables(params["rawQuery"], params["variables"])
+    query = Question.replace_variables(params["rawQuery"], params["variables"], params["variables"])
+    variables_replaced_query = if params["rawQuery"] != query,  do: query, else: nil
     results = DbConnection.execute(db_record |> Map.from_struct, query) 
+    results = results |> Question.insert_variables_replaced_at_query(variables_replaced_query)
     {params["rawQuery"], results}
   end
+
   defp save_column_values results, permit_prms do
     case results do
       {:ok, valid_results} ->
@@ -65,16 +80,5 @@ defmodule AfterGlow.QueryController do
       _ ->
         "pass"
     end
-  end
-  defp replace_variables(query, variables) do
-    variables
-    |> Enum.reduce(query, fn variable, query ->
-      variable_name = variable["name"] |> String.strip()
-      value = variable["value"] || ""
-      variable = for {key, val} <- variable, into: %{}, do: {String.to_atom(key), val}
-      value = Variable.format_value(struct(Variable, variable), value)
-      query
-      |> String.replace(~r({{.*#{variable_name}.*}}), value)
-    end)
   end
 end
