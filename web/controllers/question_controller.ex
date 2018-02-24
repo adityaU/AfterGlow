@@ -1,4 +1,3 @@
-require IEx
 defmodule AfterGlow.QuestionController do
   use AfterGlow.Web, :controller
 
@@ -177,7 +176,7 @@ defmodule AfterGlow.QuestionController do
   def results(conn, %{"id" => id, "variables" => variables}) do
     question =  scope(conn, (from q in Question, where: q.id == ^id)) |> Repo.one() |> Repo.preload(:variables)
     db_identifier = question.human_sql["database"]["unique_identifier"]
-    db_record = Repo.one(from d in Database, where: d.unique_identifier == ^db_identifier) 
+    db_record = Repo.one(from d in Database, where: d.unique_identifier == ^db_identifier)
     query = Question.replace_variables(question.sql, question.variables , variables)
     variables_replaced_query = if question.sql != query,  do: query, else: nil
     results = DbConnection.execute(db_record |> Map.from_struct, query )

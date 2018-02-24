@@ -6,7 +6,7 @@ defmodule AfterGlow.Repo.Migrations.CreateSnapshots do
       add :name, :string, null: false
       add :description, :string
       add :columns, {:array, :string}
-      add :question_id, references(:questions, on_delete: :nothing), null: false
+      add :question_id, references(:questions, on_delete: :delete_all), null: false
 
       timestamps()
     end

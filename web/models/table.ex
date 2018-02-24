@@ -6,7 +6,7 @@ defmodule AfterGlow.Table do
     field :readable_table_name, :string
     field :description
     belongs_to :database, AfterGlow.Database
-    has_many :columns, AfterGlow.Column
+    has_many :columns, AfterGlow.Column, on_delete: :delete_all, on_replace: :delete
 
     timestamps()
   end

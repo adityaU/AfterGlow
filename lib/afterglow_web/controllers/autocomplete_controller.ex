@@ -1,6 +1,5 @@
 defmodule AfterGlow.AutoCompleteController do
   use AfterGlow.Web, :controller
-
   alias AfterGlow.AutoComplete
   alias AfterGlow.Plugs.Authorization
   plug Authorization
@@ -11,4 +10,5 @@ defmodule AfterGlow.AutoCompleteController do
     conn
     |> json AutoComplete.autocomplete(database_id, prefix)
   end
+
 end

@@ -8,12 +8,12 @@ defmodule AfterGlow.Repo.Migrations.CreatePermissionSet do
       timestamps()
     end
     create table(:user_permission_sets) do
-      add :user_id, references(:users, on_delete: :nothing)
-      add :permission_set_id, references(:permission_sets, on_delete: :nothing)
+      add :user_id, references(:users, on_delete: :delete_all)
+      add :permission_set_id, references(:permission_sets, on_delete: :delete_all)
       timestamps()
     end
     create table(:permissions) do
-      add :permission_set_id, references(:permission_sets, on_delete: :nothing)
+      add :permission_set_id, references(:permission_sets, on_delete: :delete_all)
       add :name, :string
       timestamps()
     end

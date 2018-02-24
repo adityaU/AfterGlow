@@ -8,33 +8,12 @@ import AceTools from "frontend/mixins/ace-tools"
 
 export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultViewMixin, AceTools,{
     ajax: Ember.inject.service(),
-    
+
     databases: Ember.computed(function(){
         return this.get('store').findAll('database')
     }),
 
     canEdit: true,
-    // variableObserver: Ember.observer('queryObject.queryType','queryObject.rawQuery' ,function(){
-    //     let query = this.get('queryObject.rawQuery')
-    //     let queryType = this.get('queryObject.queryType')
-    //     let entity = this.get('question')
-    //     let possibleVariables = query && query.match(/{{(.+?)}}/g)
-    //     possibleVariables = possibleVariables && possibleVariables.slice(0).map((item)=> {return item.replace("{{", "").replace("}}", "")})
-    //     let savedVariables = entity && entity.get('variables').map((item)=> {return item.get('name')})
-    //     let newVariables = possibleVariables && possibleVariables.filter((v)=>{
-    //         return (savedVariables.indexOf(v) < 0)
-    //     })
-    //     let toBedeletedVariables = savedVariables && savedVariables.filter((item)=>{
-    //         return (possibleVariables.indexOf(item) < 0)
-    //     })
-    //     newVariables =  newVariables.map((item)=>{
-    //         this.store.createRecord('variable', {name: item, var_type: "Normal"})
-    //     })
-    //     // if (entity.get('variables.isFulfilled')){
-    //     //     entity.get('variables').removeObjects(toBedeletedVariables)
-    //     //     entity.get('variables').pushObjects(newVariables)
-    //     // }
-    // }),
     showVariables: false,
     question: Ember.computed( "recalculate", function(){
         return this.store.createRecord('question', {
@@ -53,7 +32,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
             results_view_settings: {resultsViewType: "table", numbers: [], dataColumns: [{}]},
         })
     }),
-    
+
     questionNameObserver: Ember.observer("question.title",
                                          "queryObject.table.human_name",
                                          "queryObject.filters.@each.label",
@@ -62,9 +41,9 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
                                          function(){
                                              if (this.get('queryObject.table.human_name') && !this.get('questionNameIsSet')){
                                                  let title = ""
-                                                 let filterlabels = "" 
-                                                 let viewlabels = "" 
-                                                 let groupBylabels = "" 
+                                                 let filterlabels = ""
+                                                 let viewlabels = ""
+                                                 let groupBylabels = ""
                                                  if (this.get('queryObject.views.length')){
                                                      viewlabels = this.get('queryObject.views').map((item)=> {return item.get('label')}).join(" , ")
                                                  }
@@ -105,7 +84,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
     aceMode: "ace/mode/sql",
 
     queryObject: Ember.computed.alias('question.human_sql'),
-    
+
     apiNamespace: Ember.computed('store', function(){
         return this.get('store').adapterFor('application').namespace;
     }),
@@ -141,7 +120,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
             })
             // if (question.id && ( changedAttributes == 0) && !this.get('variablesChanged') && !this.get('attributesChanged')){
             //     question.set("updated_at", new Date())
-            //     question.set('resultsCanBeLoaded', true) 
+            //     question.set('resultsCanBeLoaded', true)
             // }else{
             question.set("updated_at", new Date())
             queryObject = queryObject || this.get('queryObject');
@@ -205,7 +184,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
         getQuestionResults(){
             let question = this.get('question')
             question.set("updated_at", new Date())
-            question.set('resultsCanBeLoaded', true) 
+            question.set('resultsCanBeLoaded', true)
         },
         getResults(queryObject){
             this.getResultsFunction(queryObject)
@@ -222,7 +201,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
                 question.get('variables').invoke('save')
                 this.transitionToRoute('questions.show', response.id)
             }).then((variable)=>{
-                question.set('resultsCanBeLoaded', true) 
+                question.set('resultsCanBeLoaded', true)
             });
         },
         transitionToDashBoard(dashboard_id){

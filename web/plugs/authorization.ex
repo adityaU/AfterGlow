@@ -6,7 +6,7 @@ defmodule AfterGlow.Plugs.Authorization do
   alias AfterGlow.User
   alias AfterGlow.CacheWrapper
 
-  def init(opts) do
+  def init(_opts) do
     %{}
   end
 
@@ -17,15 +17,15 @@ defmodule AfterGlow.Plugs.Authorization do
     |> sign
     |> get_compact
   end
-  def verify_token(t) do 
+  def verify_token(t) do
     t
     |> token
     |> with_signer(hs256("my_secret"))
     |> verify
   end
 
-  def call(conn, opts) do
-    access_token = get_req_header(conn, "authorization") 
+  def call(conn, _opts) do
+    access_token = get_req_header(conn, "authorization")
     case access_token do
       nil -> raise Bodyguard.NotAuthorizedError, message: "No auth token found"
       _ ->
@@ -38,14 +38,14 @@ defmodule AfterGlow.Plugs.Authorization do
     |> Enum.at(0)
     |> verify_token
     case verified.error do
-      nil -> set_current_user(conn, verified.claims) 
+      nil -> set_current_user(conn, verified.claims)
       _ -> raise Bodyguard.NotAuthorizedError, message: "invalid token"
     end
   end
 
   defp set_current_user(conn, user) do
     current_user = CacheWrapper.get_by_id(User, user["id"]) |> Repo.preload([permission_sets: :permissions])
-    conn = conn
-    |> assign(:current_user, current_user ) 
+    conn
+    |> assign(:current_user, current_user )
   end
 end
