@@ -10,7 +10,7 @@ defmodule AfterGlow.Database do
     field :config, :map
     field :last_accessed_at, Ecto.DateTime
     field :unique_identifier, Ecto.UUID
-    has_many :tables, AfterGlow.Table
+    has_many :tables, AfterGlow.Table, on_delete: :delete_all, on_replace: :delete
 
     timestamps()
   end
@@ -52,7 +52,7 @@ defmodule AfterGlow.Database do
   def cache_deletable_associations do
     default_preloads
   end
-  
+
   defp touch_last_accessed_at changeset do
     Ecto.Changeset.change(changeset, last_accessed_at: Ecto.DateTime.utc )
   end

@@ -2,12 +2,11 @@ require IEx
 defmodule AfterGlow.SchemaTasks do
   alias AfterGlow.Sql.DbConnection
   alias AfterGlow.Repo
-  alias AfterGlow.Database
   alias AfterGlow.Table
   alias AfterGlow.Column
 
   import Ecto.Query, only: [from: 2]
-  
+
   def sync db_record do
     db_record = db_record |> Map.from_struct
     {:ok, schema} = DbConnection.get_schema(db_record)
@@ -17,7 +16,7 @@ defmodule AfterGlow.SchemaTasks do
 
 
   defp save schema, db_id do
-    tables = Repo.all(from t in Table, where: t.database_id == ^db_id)
+    Repo.all(from t in Table, where: t.database_id == ^db_id)
     |> remove_extra_tables(schema)
     schema
     |> Enum.map(fn record->
@@ -28,7 +27,7 @@ defmodule AfterGlow.SchemaTasks do
   defp remove_extra_tables(tables, schema) do
     new_tables = schema
     |> Enum.map(fn x -> x["table_name"] end)
-    to_be_removed = tables
+    tables
     |> Enum.filter(fn t ->
       !(new_tables |> Enum.member?(t.name))
     end)
@@ -41,7 +40,7 @@ defmodule AfterGlow.SchemaTasks do
   defp remove_extra_columns(columns, new_columns) do
     new_columns = new_columns
     |> Enum.map(fn x -> x["name"] end)
-    to_be_removed = columns
+    columns
     |> Enum.filter(fn c ->
       !(new_columns |> Enum.member?(c.name))
     end)
@@ -50,12 +49,12 @@ defmodule AfterGlow.SchemaTasks do
     end)
     columns
   end
-  
+
   defp save_table_and_columns(record, db_id) do
     Repo.transaction fn ->
       {:ok, table} = insert_or_update_table(record, db_id)
       new_columns = record["columns"]
-      columns = Repo.all(from t in Column, where: t.table_id == ^table.id)
+      Repo.all(from t in Column, where: t.table_id == ^table.id)
       |> remove_extra_columns(new_columns)
       new_columns
       |> Enum.map(fn x->
@@ -63,7 +62,7 @@ defmodule AfterGlow.SchemaTasks do
       end)
     end
   end
-  
+
   defp insert_or_update_table(record, db_id) do
     query = from t in Table, where: t.name == ^record["table_name"] and t.database_id == ^db_id
     case Repo.all(query) do
@@ -85,4 +84,3 @@ defmodule AfterGlow.SchemaTasks do
     |> Repo.insert_or_update
   end
 end
-

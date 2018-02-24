@@ -15,12 +15,12 @@ export default Ember.Component.extend({
         return this.get("unsortedTables") && this.get("unsortedTables").sortBy('human_name')
     }),
     tablesObserver: Ember.observer('tables', function(){
-        if (!this.get('tables').isAny('id', this.get('queryObject.table.id'))){
-            this.set('queryObject.table', null); 
-            this.set('queryObject.filters', []); 
-            this.set('queryObject.groupBys', []); 
-            this.set('queryObject.orderBys', []); 
-            this.set('queryObject.rawQuery', null); 
+        if (this.get('tables') && !this.get('tables').isAny('id', this.get('queryObject.table.id'))){
+            this.set('queryObject.table', null);
+            this.set('queryObject.filters', []);
+            this.set('queryObject.groupBys', []);
+            this.set('queryObject.orderBys', []);
+            this.set('queryObject.rawQuery', null);
         }
 
     }),
@@ -73,7 +73,7 @@ export default Ember.Component.extend({
         filters.forEach((item) =>{
             if (item.label){
                 show = true
-            } 
+            }
         });
         return show;
     }),
@@ -93,7 +93,7 @@ export default Ember.Component.extend({
             this.get("queryObject.orderBys").pushObject(Ember.Object.create({}));
         },
         switchToBuilder(type, el, handleSelected){
-            var items = this.get('queryObject').get(type) 
+            var items = this.get('queryObject').get(type)
             if (handleSelected){
                 el.set('selected', Ember.Object.create({}))
                 el.set('castType', null)
@@ -102,7 +102,7 @@ export default Ember.Component.extend({
             }
         },
         switchToRaw(type, el, handleSelected){
-            var items = this.get('queryObject').get(type) 
+            var items = this.get('queryObject').get(type)
             if (handleSelected){
                 el.set('selected', Ember.Object.create({raw: true}))
                 el.set('castType', null)

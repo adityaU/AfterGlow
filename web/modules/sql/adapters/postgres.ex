@@ -41,13 +41,13 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
       json_agg((select x from (select cast(column_name as text) as "name", cast(data_type as text) as "data_type") x)) as columns
       from information_schema.columns where table_schema = \'public'
         group by table_catalog,table_schema, table_name/,
-      [], opts)
+      [], opts())
 
     {:ok, data.rows
     |> Enum.map(fn row ->
       Enum.zip(data.columns, row)  |> Map.new
     end)}
-   
+
 
   end
 
@@ -56,37 +56,42 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
   end
 
   def execute(conn, query, options \\ %{})
-  def execute(conn, query, options) when is_map(query)  do
-    query = sql(query, :postgres) |> limit_rows_in_query(2000)
-    query = Postgrex.prepare(conn, "", query, opts)
-    case query do
-      {:ok, prepared_query} -> 
-        Postgrex.execute(conn, prepared_query, [], opts) 
-      {:error, error} ->
-        {:error, error.postgres}
-    end
+  def execute(conn, query, _options) when is_map(query)  do
+    {limited, exec_query} = sql(query, :postgres)
+    |> limit_rows_in_query(2000)
+    run_query(conn, query, exec_query, limited)
+  end
+  def execute(conn, query, options) when is_binary(query)  do
+    {limited, exec_query} = query |> limit_rows_in_query(2000)
+    run_query(conn, query, exec_query, limited)
   end
 
   def execute_with_stream(pid, query, mapper_fn, options \\ %{})
-  def execute_with_stream(pid, query, mapper_fn, options) when is_binary(query)  do
+  def execute_with_stream(pid, query, mapper_fn, _options) when is_binary(query)  do
     Postgrex.transaction(pid, fn(conn) ->
-      {:ok, query} = Postgrex.prepare(conn, "", query, opts) 
-      columns =   query.columns
-      rows = Postgrex.stream(conn, query, [], stream_opts)
-      |> Stream.map(fn (%Postgrex.Result{rows: rows}) -> rows end)
-      mapper_fn.(rows, columns)
+    {:ok, query} = Postgrex.prepare(conn, "", query, opts())
+    columns =   query.columns
+    rows = Postgrex.stream(conn, query, [], stream_opts())
+    |> Stream.map(fn (%Postgrex.Result{rows: rows}) -> rows end)
+    mapper_fn.(rows, columns)
     end, txn_opts)
   end
-  
-  def execute(conn, query, options) when is_binary(query)  do
-    query = query |> limit_rows_in_query(2000) |> IO.inspect
-    query = Postgrex.prepare(conn, "", query, opts)
-    case query do
-      {:ok, prepared_query} -> 
-        Postgrex.execute(conn, prepared_query, [], opts) 
+
+
+  defp run_query(conn, _query, exec_query, limited) do
+    try do
+      query = Postgrex.prepare(conn, "", exec_query, opts)
+      case query do
+        {:ok, prepared_query} ->
+          {:ok, results} = Postgrex.execute(conn, prepared_query, [], opts())
+          {:ok, %{columns: results.columns, rows: results.rows, limited: limited, limit: 2000, limited_query: exec_query}}
         {:error, error} ->
-        {:error, error.postgres}
+          {:error, error.postgres}
+      end
+    rescue
+      DBConnection.ConnectionError -> {:error, %{message: "Query Timed Out. Please Try to optimize your query"}}
     end
   end
+
 
 end

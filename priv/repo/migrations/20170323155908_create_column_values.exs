@@ -5,7 +5,7 @@ defmodule AfterGlow.Repo.Migrations.CreateColumnValues do
     create table(:column_values) do
       add :name, :string
       add :value, :string
-      add :column_id, references(:columns, on_delete: :nothing)
+      add :column_id, references(:columns, on_delete: :delete_all)
 
       timestamps()
     end

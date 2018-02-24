@@ -1,6 +1,5 @@
-defmodule AfterGlow.DataFilesController do
+ defmodule AfterGlow.DataFilesController do
   use AfterGlow.Web, :controller
-  require IEx
   alias AfterGlow.Repo
   alias AfterGlow.Database
   alias AfterGlow.Async
@@ -14,9 +13,10 @@ defmodule AfterGlow.DataFilesController do
     Snapshots.fetch_and_upload_for_snapshot(id, conn.assigns.current_user.email)
     json conn, %{success: true}
   end
-  
+
+
   def fetch_and_upload(conn, params) do
-    db_identifier = params["dpharmeasyatabase"]["unique_identifier"]
+    db_identifier = params["database"]["unique_identifier"]
     db_record = Repo.one(from d in Database, where: d.unique_identifier == ^db_identifier)
     case params["queryType"] do
       "query_builder" ->

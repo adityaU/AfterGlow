@@ -31,18 +31,21 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
   def txn_opts do
     [timeout: 12000000, pool: DBConnection.Poolboy, pool_timeout: 12000000]
   end
-  
+
   def execute_with_stream(pid, query, mapper_fn, options \\ %{})
-  def execute_with_stream(pid, query, mapper_fn, options) when is_binary(query)  do
+  def execute_with_stream(pid, query, mapper_fn, _options) when is_binary(query)  do
     Mariaex.transaction(pid, fn(conn) ->
-      {:ok, query} = Mariaex.prepare(conn, "", query, opts) 
-      columns =   query.columns
-      rows = Mariaex.stream(conn, query, [], stream_opts)
-      |> Stream.map(fn (%Mariaex.Result{rows: rows}) -> rows end)
+      {:ok, query} = Mariaex.prepare(conn, "", query, opts())
+      rows_and_columns = Mariaex.stream(conn, query, [], stream_opts())
+      |> Stream.map(fn (%Mariaex.Result{rows: rows, columns: columns}) ->
+         [rows, columns]
+       end)
+      rows = rows_and_columns |> Stream.map(fn x-> x |> Enum.at(0) end)
+      columns = rows_and_columns |> Stream.map(fn x-> x |> Enum.at(1) end) |> Enum.at(0)
       mapper_fn.(rows, columns)
-    end, txn_opts)
+    end, txn_opts())
   end
-  
+
   def get_schema(conn) do
     {:ok, data} = Mariaex.query(conn, "select table_name,
     column_name as name, column_type as data_type from information_schema.columns where
@@ -56,7 +59,7 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
      |> Enum.group_by(fn x -> x["table_name"] end)
      |> Enum.map(fn {x,y} -> %{"table_name" => x, "columns" => y, "readable_table_name" => x} end)
     }
-   
+
 
   end
 
@@ -70,8 +73,8 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
     |> QueryMaker.limit_rows_in_query(2000)
     query = Mariaex.prepare(conn, "", exec_query, opts)
     case query do
-      {:ok, prepared_query} -> 
-        {:ok, results} = Mariaex.execute(conn, prepared_query, [], opts) 
+      {:ok, prepared_query} ->
+        {:ok, results} = Mariaex.execute(conn, prepared_query, [], opts)
         {:ok, %{columns: results.columns, rows: results.rows, limited: limited, limit: 2000, limited_query: exec_query}}
       {:error, error} ->
         {:error, error.mariadb}
@@ -79,11 +82,11 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
   end
 
   def execute(conn, query, options) when is_binary(query)  do
-    {limited, exec_query} = query |> QueryMaker.limit_rows_in_query(2000) 
+    {limited, exec_query} = query |> QueryMaker.limit_rows_in_query(2000)
     query = Mariaex.prepare(conn, "", exec_query|> IO.inspect, opts)
     case query do
-      {:ok, prepared_query} -> 
-        {:ok, results} = Mariaex.execute(conn, prepared_query, [], opts) 
+      {:ok, prepared_query} ->
+        {:ok, results} = Mariaex.execute(conn, prepared_query, [], opts)
         {:ok, %{columns: results.columns, rows: results.rows, limited: limited, limit: 2000, limited_query: exec_query}}
         {:error, error} ->
         {:error, error.mariadb}

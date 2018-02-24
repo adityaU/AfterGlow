@@ -6,7 +6,7 @@ defmodule AfterGlow.Column do
     field :data_type, :string
     field :description
     belongs_to :table, AfterGlow.Table
-    has_many :column_values, AfterGlow.ColumnValue
+    has_many :column_values, AfterGlow.ColumnValue, on_delete: :delete_all, on_replace: :delete
 
     timestamps()
   end

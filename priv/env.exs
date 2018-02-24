@@ -16,3 +16,5 @@
 
   }
 }
+#export AWS_ACCESS_KEY_SECRET=""
+#export AWS_ACCESS_KEY_ID=""
