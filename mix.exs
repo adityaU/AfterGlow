@@ -21,7 +21,10 @@ defmodule AfterGlow.Mixfile do
     [mod: {AfterGlow, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
                     :phoenix_ecto, :postgrex, :oauth2, :flasked, :db_connection, :poolboy,
-                    :bamboo, :bamboo_smtp, :cachex]]
+                    :bamboo, :bamboo_smtp, :cachex, :bodyguard, :cors_plug, :csv,:ecto_enum,
+                    :ex_aws, :ex_aws_s3, :httpoison,:ja_serializer, :joken, :keccakf1600,
+                    :libdecaf, :libsodium,:mariaex, :secure_random, :sql_dust, :sweet_xml,
+                     :unsafe]]
   end
 
   # Specifies which paths to compile per environment.
