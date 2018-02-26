@@ -29,7 +29,7 @@ export default Ember.Controller.extend({
     startTimer: function() {
         let questions = this.get('dashboard.questions')
         questions && questions.forEach((item)=>{
-            item.set('resultsCanBeLoaded', true) 
+            item.set('resultsCanBeLoaded', true)
             item.set('updated_at', new Date());
         })
         this.set('timer', this.schedule(this.get('onPoll')));
@@ -39,7 +39,7 @@ export default Ember.Controller.extend({
         this.get('dashboard.questions').forEach((item)=>{
             item.set('updated_at', new Date());
             item.set('resultsCanBeLoaded', true)
-        }) 
+        })
     },
     refreshIntervalObserver: Ember.observer('refreshInterval', function(){
         let refreshInterval = this.get('refreshInterval')
@@ -50,6 +50,13 @@ export default Ember.Controller.extend({
             this.stopTimer()
         }
     }),
+    refreshFunction(){
+      let questions = this.get('dashboard.questions')
+      questions && questions.forEach((item)=>{
+        item.set('resultsCanBeLoaded', true)
+        item.set('updated_at', new Date())
+      })
+    },
     actions: {
         editDashboard(){
             this.set('nonEditable', null)
@@ -93,14 +100,10 @@ export default Ember.Controller.extend({
             })
         },
         setRefreshInterval(interval){
-            this.set('refreshInterval', interval); 
+            this.set('refreshInterval', interval);
         },
         refreshNow(){
-            let questions = this.get('dashboard.questions')
-            questions && questions.forEach((item)=>{
-                item.set('resultsCanBeLoaded', true) 
-                item.set('updated_at', new Date())
-            })
+          this.refreshFunction()
         },
         showVariablesDialogue(){
             $(".ui.modal.select-dashboard-variables").modal('show')
@@ -134,7 +137,7 @@ export default Ember.Controller.extend({
                     element.msRequestFullscreen();
                 }
                 this.set('fullScreen', true);
-            } 
+            }
         }
     }
 });

@@ -1,6 +1,17 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
+    filteredColumns: Ember.computed('columns', 'columnQuery', function(){
+      let columns = this.get('columns')
+      let columnQuery = this.get('columnQuery')
+      if (columns && columnQuery){
+        return columns.filter(function(item){
+          return item.get('human_name') && item.get('human_name').toLowerCase().match(columnQuery.toLowerCase())
+        })
+      }else{
+        return columns
+      }
+    }),
     filterObserver: Ember.observer('filter.column', 'filter.operator', 'filter.value','filter.valueDateObj.dtt',  'filter.valueDateObj.value', 'filter.valueDateObj.duration', function(){
 
         if (this.get('filter.raw') && this.get('filter.value')){
@@ -16,7 +27,7 @@ export default Ember.Component.extend({
             this.set("filter.label", null)
         }
     }),
-    
+
     operators: [
         {name: "is greater than" , value: ">" },
         {name: "is less than" , value: "<" },

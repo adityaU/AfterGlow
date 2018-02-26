@@ -23,7 +23,7 @@ defmodule AfterGlow.Mixfile do
                     :phoenix_ecto, :postgrex, :oauth2, :flasked, :db_connection, :poolboy,
                     :bamboo, :bamboo_smtp, :cachex, :bodyguard, :cors_plug, :csv,:ecto_enum,
                     :ex_aws, :ex_aws_s3, :httpoison,:ja_serializer, :joken, :keccakf1600,
-                    :libdecaf, :libsodium,:mariaex, :secure_random, :sql_dust, :sweet_xml,
+                    :libdecaf, :libsodium,:mariaex, :secure_random, :sweet_xml,
                      :unsafe]]
   end
 

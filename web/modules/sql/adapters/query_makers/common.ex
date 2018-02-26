@@ -47,12 +47,12 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
         options = options(query_record, adapter)
         query = SqlDust.from(query_record[:table]["readable_table_name"], options) |> elem(0)
         if query_record[:limit] && query_record[:limit] != "" do
-          query = query <> " " <> "LIMIT #{query_record[:limit]}" 
+          query = query <> " " <> "LIMIT #{query_record[:limit]}"
         end
         if query_record[:offset] && query_record[:limit] != "" do
           query = query <> " " <> "OFFSET #{query_record[:offset]}"
         end
-        query 
+        query
       end
 
       def options query_record, adapter do
@@ -69,7 +69,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
             order_by:  order_bys_with_group_bys ,
             adapter: adapter,
             limit: nil
-          } 
+          }
       end
       def sanitize_order_by(group_bys, order_bys) do
         (order_bys || [] ++ ((group_bys ||[]) |> Enum.map(fn x-> (x |> String.split("sep|rator") |> Enum.at(0))  <> " ASC" end))) |> Enum.uniq
@@ -86,13 +86,13 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
       def find_columns_required_for_group_by(group_by, order_by) do
         find_columns_required_for_select(group_by, order_by)
       end
-      
+
       def find_columns_required_for_select(nil, _order_by), do: []
       def find_columns_required_for_select([], _order_by), do: []
       def find_columns_required_for_select(group_by, order_by) do
         (group_by ++ order_by) |> Enum.uniq
       end
-      
+
       def order_by_columns(options) when is_nil(options), do: []
       def order_by_columns(options) do
         options
@@ -108,7 +108,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
           x["column"]["name"]
         end)
       end
-      
+
       def select_maker(nil, columns_required) when length(columns_required) == 0, do: ["*"]
       def select_maker(nil, columns_required) when length(columns_required) != 0, do: columns_required
       def select_maker([], columns_required) when length(columns_required) != 0, do: columns_required
@@ -146,7 +146,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
       def cleanup(nil), do: nil
       def cleanup el do
         el
-        |> Enum.reject(fn x -> is_nil(x) or x == "" or x == %{} or x == [] end) 
+        |> Enum.reject(fn x -> is_nil(x) or x == "" or x == %{} or x == [] end)
       end
 
       def parse_group_bys([]), do: nil
@@ -155,7 +155,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
         |> Enum.map(fn x->
           cast_group_by((x |> Enum.at(0))["name"] || (x |> Enum.at(0))["value"], x |> Enum.at(1))
         end)
-        
+
       end
 
       def parse_order_bys([]), do: nil
@@ -165,22 +165,23 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
           x["column"]["name"] <> " " <> ((x["order"]["value"] |> parse_order_type) || "ASC")
         end)
       end
-      
+
       def parse_order_type(""), do: nil
       def parse_order_type(nil), do: "ASC"
       def parse_order_type("ASC"), do: "ASC"
       def parse_order_type("DESC"), do: "DESC"
       def parse_order_type(el), do: "ASC"
-      
+
       def parse_filters([]), do: nil
       def parse_filters(el) when is_list(el) do
         el
         |> Enum.map(fn x->
-          x 
+          x
           parse_filter(x)
         end)
       end
       def parse_filter(%{"raw" => true, "value" => value}), do: value
+      def parse_filter(%{"column" => nil, "operator" => nil, "value" => nil}), do: nil
       def parse_filter(%{"column" => nil, "operator" => nil, "value" => nil, "valueDateObj" => _valdate}), do: nil
       def parse_filter(%{"column" => nil, "operator" => _op, "value" => _val,  "valueDateObj" => _valdate}), do: nil
       def parse_filter(%{"column" => _col, "operator" => nil, "value" => _val,  "valueDateObj" => _valdate}), do: nil
@@ -205,7 +206,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
                             "quarters" ->
                               { (val |> String.to_integer)*3, "months"}
                             _ ->
-                              {val , dur["value"]} 
+                              {val , dur["value"]}
                           end
         op = case dtt["value"] do
                "ago" -> "-"
@@ -213,7 +214,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
              end
         "(#{@time_fn_based_on_duration[duration]} #{op} INTERVAL '#{val} #{duration}')"
       end
-      
+
       def parse_select([], columns_required) when length(columns_required) == 0, do: "*"
       def parse_select([], columns_required) when length(columns_required) != 0, do: columns_required
       def parse_select(el, columns_required) when is_list(el) do
@@ -221,7 +222,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
         |> Enum.map(fn x->
             stringify_select(x, columns_required)
           end)) ++ columns_required |> Enum.uniq
-        
+
       end
       def cast_group_by(el, nil),  do: el
       def cast_group_by(el, "day"),  do: "CAST(#{el} AS date)  sep|rator as \"#{el} by Day\""

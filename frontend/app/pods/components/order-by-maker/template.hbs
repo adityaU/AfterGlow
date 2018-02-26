@@ -1,16 +1,20 @@
-<div class=" ui segment">    
-    {{#ui-dropdown class="search selection" selected=orderBy.column onChange=(action (mut orderBy.column))  as |execute mapper|}} 
+<div class=" ui segment">
+    {{#ui-dropdown class="search selection" selected=orderBy.column onChange=(action (mut orderBy.column))  as |execute mapper|}}
         {{dropdown-default object=orderBy.column.human_name default="column"}}
         <i class="dropdown icon"></i>
         <div class="menu">
-            {{#each columns as |column|}}
-                <div class="item" data-value="{{map-value mapper column}}">
-                    {{column.human_name}}
+                <div class="ui icon input">
+                    <i class="search icon"></i>
+                    {{input type="text" placeholder="Search" value=columnQuery}}
                 </div>
-            {{/each}}
+                {{#each filteredColumns as |column|}}
+                    <div class="item" data-value="{{map-value mapper column}}">
+                        {{column.human_name}}
+                    </div>
+                {{/each}}
         </div>
     {{/ui-dropdown}}
-    {{#ui-dropdown class="search selection" selected=orderBy.order onChange=(action (mut orderBy.order))  as |execute mapper|}} 
+    {{#ui-dropdown class="search selection" selected=orderBy.order onChange=(action (mut orderBy.order))  as |execute mapper|}}
         {{dropdown-default object=orderBy.order.name default="order"}}
         <i class="dropdown icon"></i>
         <div class="menu">

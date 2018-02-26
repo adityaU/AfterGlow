@@ -1,27 +1,50 @@
 $primaryColor   : #6435c9;
-$primaryColorShade2: #7962ab; 
+$primaryColorShade2: #7962ab;
 $errorColor: #f44336 ;
 $errorColorShade2: #e05e5e ;
 $lightColor: gainsboro;
 $lightPrimaryColor: rgba(100, 53, 201, 0.2);
 $greyColor: #dededf;
-$textColor: #212133; 
+$textColor: #212133;
 $textColorShade2: #a2a2a2;
 $secondaryTextColor: #7b7b7b;
 $tertiaryColor: #44b35e;
 $tertiaryColorShade2: #3c9651;
 $secondaryColor: #f9fbfc;
-$lightTransparentColor: rgba(255, 255, 255, 0.85);
+$lightTransparentColor: rgba(61, 64, 70, 0.85);
 $borderSecondaryColor:  #dee5e8;
 $borderRadius: 0.28571429rem;
 $warningColor: #fff700;
 @function box-shadow($color){
-  @return 0px 0px 0px 0px $color !important ;   
+  @return 0px 0px 0px 0px $color !important ;
 }
 
 // plotly css
 g.slicetext{
     font-weight: bold;
+}
+.searchbar.overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: $lightTransparentColor;
+
+    .searchbar-content{
+      margin: 10% auto;
+      width: 500px;
+      & .content{
+        padding: 0px;
+      }
+      & input{
+        border: 0px !important;
+      }
+      & .menu .item.active{
+        background: $primaryColor !important;
+        color: white;
+      }
+    }
 }
 .loading-height{
     height: 100vh;
@@ -154,7 +177,7 @@ input.bigger{
   color: $textColorShade2;
 }
 i{
-  color: $primaryColorShade2; 
+  color: $primaryColorShade2;
   &:hover{
     color: $primaryColor;
   }
@@ -196,7 +219,7 @@ height: 30px;
     &.positive{
       box-shadow: box-shadow($tertiaryColor);
     }
-    
+
     & i{
         color: white;
     }
@@ -215,7 +238,7 @@ label {
   }
 }
 .ui.dimmer{
-  background: $lightTransparentColor; 
+  background: $lightTransparentColor;
 }
 .ui.modal{
   box-shadow: none !important;
@@ -264,7 +287,7 @@ label {
   box-shadow: box-shadow($greyColor);
   & .item:hover{
      background: $secondaryColor;
-      
+
   }
 
 }
@@ -465,7 +488,7 @@ a {
     }
     &.active{
        background: $secondaryColor !important;
-        
+
     }
 }
 .ui.violet.menu .active.item{
@@ -495,7 +518,7 @@ a {
         box-shadow: none;
         -webkit-box-shadow: none;
     }
-    
+
 }
 .toast-error{
     border-left: 5px solid $errorColor !important;
@@ -595,7 +618,7 @@ button.toast-close-button{
         background: $secondaryColor;
         }
     }
-                          
+
 }
 .ui.menu .ui.dropdown .menu > .item:hover{
        background: $secondaryColor !important;
@@ -611,7 +634,7 @@ button.toast-close-button{
 }
 .grid-stack{
   width: 100% !important;
-} 
+}
 .grid-stack > .grid-stack-item > .ui-resizable-se{
   right: 10px;
   bottom: 10px;
@@ -778,18 +801,18 @@ label {
   margin-top: 50px;
 }
 .without-header{
-  background: $secondaryColor !important; 
+  background: $secondaryColor !important;
   &:fullscreen{
       overflow: auto;
-    background: $secondaryColor !important; 
+    background: $secondaryColor !important;
   }
   &:-webkit-full-screen {
       overflow: auto;
-    background: $secondaryColor !important; 
+    background: $secondaryColor !important;
   }
   &:-moz-full-screen {
       overflow: auto;
-    background: $secondaryColor !important; 
+    background: $secondaryColor !important;
   }
 }
 .results {
@@ -851,7 +874,7 @@ body{
     color: white;
     font-size: 1.5em;
 }
-.multiselect-accordion { 
+.multiselect-accordion {
     & .title{
         color: $textColorShade2 !important;
     }

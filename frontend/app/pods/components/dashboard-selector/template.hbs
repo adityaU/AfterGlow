@@ -1,0 +1,25 @@
+<div class="searchbar overlay">
+  <div class="dashboard-selector searchbar-content">
+    <div class="create-dashboard content">
+      <div class="ui vertical menu full">
+
+        <div class="item">
+          <div class="ui icon input">
+            <i class="search icon"></i>
+            {{input type="text" placeholder="Search a dashboard" value=query}}
+          </div>
+        </div>
+        {{#each filteredDashboards as |dashboard index|}}
+        <div class="item {{if (eq selectedIndex index) "active"}}" {{action 'goToDashboardClick' dashboard}}>
+          {{dashboard.title}}
+        </div>
+        {{else}}
+
+        <div class="item">
+          No Results
+        </div>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+</div>

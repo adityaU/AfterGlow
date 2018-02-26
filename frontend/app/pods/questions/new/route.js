@@ -1,12 +1,13 @@
 import Ember from 'ember';
 import { CanMixin } from 'ember-can';
 
+import KeyboardShortcuts from 'ember-keyboard-shortcuts/mixins/route';
 
-export default Ember.Route.extend(CanMixin, {
+export default Ember.Route.extend(CanMixin, KeyboardShortcuts, {
     toast: Ember.inject.service(),
     setupController(controller, model){
         this._super(...arguments);
-        this.set('curruntController', controller)
+        this.set('currentController', controller)
     },
     afterModel(){
         if (!this.can('create question')) {
@@ -21,6 +22,14 @@ export default Ember.Route.extend(CanMixin, {
             this.controller.set('results', null)
             this.controller.set('errors', null)
 
+        },
+        runQuery(){
+          this.get('currentController').getResultsFunction()
         }
+    },
+
+    keyboardShortcuts: {
+      "ctrl+enter": "runQuery"
     }
+
 });

@@ -11,8 +11,16 @@ export default Ember.Component.extend({
         }
     }),
 
-    tables: Ember.computed("unsortedTables", "unsortedTables.content.isLoaded", function(){
-        return this.get("unsortedTables") && this.get("unsortedTables").sortBy('human_name')
+    tables: Ember.computed("unsortedTables", "tableQuery", "unsortedTables.content.isLoaded", function(){
+        let tables = this.get("unsortedTables") && this.get("unsortedTables").sortBy('human_name')
+        let tableQuery = this.get('tableQuery')
+        if (tables && tableQuery){
+          return tables.filter(function(item){
+            return item.get('human_name') && item.get('human_name').toLowerCase().match(tableQuery.toLowerCase())
+          })
+        }else{
+          return tables
+        }
     }),
     tablesObserver: Ember.observer('tables', function(){
         if (this.get('tables') && !this.get('tables').isAny('id', this.get('queryObject.table.id'))){

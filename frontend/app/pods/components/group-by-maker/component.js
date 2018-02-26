@@ -1,8 +1,20 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
+
+    filteredColumns: Ember.computed('columns', 'columnQuery', function(){
+      let columns = this.get('columns')
+      let columnQuery = this.get('columnQuery')
+      if (columns && columnQuery){
+        return columns.filter(function(item){
+          return item.get('human_name') && item.get('human_name').toLowerCase().match(columnQuery.toLowerCase())
+        })
+      }else{
+        return columns
+      }
+    }),
     labelObserver:Ember.on('init', Ember.observer('groupBy.selected','groupBy.castType','groupBy.selected.value', function(){
-        let groupBy = this.get('groupBy') 
+        let groupBy = this.get('groupBy')
         if (groupBy){
             if (groupBy.get('selected.raw') == true){
                 groupBy.set('selected.human_name', null)
@@ -46,10 +58,10 @@ export default Ember.Component.extend({
     ],
     actions:{
         switchToBuilder(type, el, handleSelected){
-            this.sendAction("switchToBuilder", type,el, handleSelected); 
+            this.sendAction("switchToBuilder", type,el, handleSelected);
         },
         switchToRaw(type, el, handleSelected){
-            this.sendAction("switchToRaw", type,el, handleSelected); 
+            this.sendAction("switchToRaw", type,el, handleSelected);
         },
     }
 });

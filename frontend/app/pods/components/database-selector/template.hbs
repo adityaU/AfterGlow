@@ -1,4 +1,4 @@
-<div class="title no-top-border {{databaseClass}}">
+<div class="title no-top-border {{databaseClass}} ks-database">
     <i class="dropdown icon"></i>
     Database
     {{#if showTags}}
@@ -6,7 +6,7 @@
     {{/if}}
 </div>
 <div class="content {{if (not showTags) "database-selector-sql-mode"}} {{databaseClass}}">
-    {{#ui-dropdown class="search selection" selected=queryObject.database onChange=(action (mut queryObject.database)) as |execute mapper|}}
+    {{#ui-dropdown class="search selection ks-database-input" selected=queryObject.database onChange=(action (mut queryObject.database)) as |execute mapper|}}
       {{dropdown-default object=queryObject.database.name default="Database"}}
         <i class="dropdown icon"></i>
         <div class="menu">

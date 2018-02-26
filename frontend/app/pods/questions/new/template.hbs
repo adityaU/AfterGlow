@@ -9,6 +9,7 @@
       question=question
       showVariables=showVariables
       transitionToIndex="transitionToIndex"
+      canCreateSnapshot=canCreateSnapshot
       canEdit=canEdit
     }}
 </div>
@@ -97,7 +98,7 @@
                         <div class="ui segment">
                             <div class="ui grid results-view-selector">
                                 <div class="four wide column" bubbles=false>
-                                    {{#ui-dropdown class="search selection" selected=resultsViewType onChange=(action (mut resultsViewType))  as |execute mapper|}} 
+                                    {{#ui-dropdown class="search selection" selected=resultsViewType onChange=(action (mut resultsViewType))  as |execute mapper|}}
                                         {{dropdown-default  default=resultsViewType}}
                                         <i class="dropdown icon"></i>
                                         <div class="menu">
@@ -120,7 +121,7 @@
                                             <i class="time icon {{question.updatedAgoColor}}"></i>
                                         </span>
                                     {{/if}}
-                                    <span data-tooltip="Configure" data-inverted="" >  
+                                    <span data-tooltip="Configure" data-inverted="" >
                                         <i class="settings icon" {{action 'toggleSettings'}}></i>
                                     </span>
                                 </div>
@@ -137,7 +138,7 @@
                                     <div class="ui text massive loader">{{loadingMessage}}</div>
                                 </div>
                             </div>
-                        {{else}} 
+                        {{else}}
                             <div class="ui segment results">
                                 {{#if errors}}
                                     <div class="query error section">

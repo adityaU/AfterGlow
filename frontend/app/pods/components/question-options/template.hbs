@@ -27,19 +27,22 @@
             </button>
             {{else}}
             {{#if canEdit}}
-                <span data-tooltip="Edit" data-inverted=""  >  
+                <span data-tooltip="Edit" data-inverted=""  >
                     <i class="pencil icon" {{action 'editQuestion'}}></i>
                 </span>
             {{/if}}
             {{/if}}
         {{/if}}
         {{#if (and validQuestion canEdit)}}
-            <span data-tooltip="Share" data-inverted="">  
+            <span data-tooltip="Share" data-inverted="">
                 <i class="square share icon"  {{action 'showShareDialogue'}} ></i>
             </span>
-            <span data-tooltip="Create A Snapshot" data-inverted="">  
-                <i class="square copy icon"  {{action 'showSnapshotMaker'}} ></i>
-            </span>
+        {{/if}}
+
+        {{#if (and (and validQuestion canCreateSnapshot) canEdit)}}
+          <span data-tooltip="Create A Snapshot" data-inverted="">
+            <i class="square copy icon"  {{action 'showSnapshotMaker'}} ></i>
+          </span>
         {{/if}}
         {{#if (and enableAddToDashboard canEdit)}}
             <span data-tooltip="Add to Dashboard" data-inverted=""  {{action 'showAddToDashboard'}}>

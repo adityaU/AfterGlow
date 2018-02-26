@@ -13,11 +13,11 @@
                 {{dropdown-default object=filter.column.human_name default="Column"}}
                 <i class="dropdown icon"></i>
                 <div class="menu">
-                    <div class="ui icon search input">
+                    <div class="ui icon input">
                         <i class="search icon"></i>
-                        <input type="text" placeholder="Search">
+                        {{input type="text" placeholder="Search" value=columnQuery}}
                     </div>
-                    {{#each columns as |column|}}
+                    {{#each filteredColumns as |column|}}
                         <div class="item" data-value="{{map-value mapper column}}">
                             {{column.human_name}}
                         </div>

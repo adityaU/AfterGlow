@@ -4,4 +4,9 @@
         {{outlet}}
     </div>
 </div>
-
+{{#if showDashboardSearch}}
+  {{dashboard-selector goToDashboard='goToDashboard'}}
+{{/if}}
+{{#if showQuestionSearch}}
+{{question-selector goToQuestion='goToQuestion'}}
+{{/if}}

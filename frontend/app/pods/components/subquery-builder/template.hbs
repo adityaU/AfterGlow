@@ -1,16 +1,16 @@
-<div class="title {{tableClass}}">
+<div class="title {{tableClass}} ks-table">
     <i class="dropdown icon"></i>
     Table
 </div>
 <div class="content {{tableClass}}">
-    {{#ui-dropdown class="search search selection" selected=queryObject.table onChange=(action (mut queryObject.table)) as |execute mapper|}}
+    {{#ui-dropdown class="selection full ks-table-input" selected=queryObject.table onChange=(action (mut queryObject.table)) as |execute mapper|}}
         {{dropdown-default object=queryObject.table.human_name default="Table"}}
         <i class="dropdown icon"></i>
         <div class="menu">
 
-            <div class="ui icon search input">
+            <div class="ui icon input">
                 <i class="search icon"></i>
-                <input type="text" placeholder="Search">
+                {{input type="text" placeholder="Search" class="ui input ks-table-search" value=tableQuery}}
             </div>
             {{#each tables as |table|}}
                 <div class="item" data-value="{{map-value mapper table}}">
@@ -25,13 +25,13 @@
         <div class="full right"><a href="#" class="ui violet basic label"> {{queryObject.table.human_name}}</a></div>
     </div>
 {{/if}}
-<div class="title {{filtersClass}}">
+<div class="title {{filtersClass}} ks-filters">
     <i class="dropdown icon"></i>
-    Filters 
+    Filters
 </div>
 <div class="content {{filtersClass}}">
     {{#each queryObject.filters as |filter|}}
-        <div class=" ui segment">    
+        <div class=" ui segment">
             {{filter-maker filter=filter columns=columns queryObject=queryObject switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
         </div>
     {{/each}}
@@ -51,7 +51,7 @@
     </div>
 {{/if}}
 
-<div class="title">
+<div class="title ks-view">
     <i class="dropdown icon"></i>
     View
 </div>
@@ -76,7 +76,7 @@
     </div>
 {{/if}}
 
-<div class="title">
+<div class="title ks-group_bys">
     <i class="dropdown icon"></i>
     Group By
 </div>
@@ -100,7 +100,7 @@
     </div>
 {{/if}}
 
-<div class="title">
+<div class="title ks-order_bys">
     <i class="dropdown icon"></i>
     Order By
 </div>
