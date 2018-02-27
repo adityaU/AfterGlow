@@ -17,7 +17,8 @@ config :afterglow, AfterGlow.Endpoint,
   secret_key_base: "Tn3BxHU8EtAfwHsjDlEk91rjB9OdR3gXZfzOhO4vfK1XbU14yZPNfWsZjaoUvCTD",
   render_errors: [view: AfterGlow.ErrorView, accepts: ~w(html json)],
   pubsub: [name: AfterGlow.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+           adapter: Phoenix.PubSub.PG2],
+  server: true
 
 # Configures Elixir's Logger
 config :logger, :console,

@@ -8,8 +8,9 @@ module.exports = function(defaults) {
             themes: ['chrome', 'ambiance'],
             modes: ['pgsql', 'mysql', 'sql'],
             workers: ['pgsql', 'mysql', 'sql'],
+            exts: ["language_tools", "beautify"],
             basePath: "/ace/"
-            
+
         }
         // Add options here
     });
@@ -25,7 +26,7 @@ module.exports = function(defaults) {
         prepend: true,
 
     })
-    
+
     // Use `app.import` to add additional libraries to the generated
     // output files.
     //
