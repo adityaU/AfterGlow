@@ -23,6 +23,48 @@ $warningColor: #fff700;
 g.slicetext{
     font-weight: bold;
 }
+
+.shortcut-button{
+  position: fixed;
+  bottom: 5%;
+  right: 5%;
+  z-index: 99;
+  background: #daa718;
+  padding: 10px 17px;
+  border-radius: 50%;
+  box-shadow: 0px 0px 1px 0px grey !important;;
+  color: white;
+  border: 2px solid;
+}
+.sidebar{
+  position: fixed;
+  background: $lightTransparentColor;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 70%;
+  color: white;
+  z-index: 80;
+  & .header{
+    background: #515665;
+    border-radius: 2px;
+    padding: 5px;
+    margin: 5px 0px;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  & .subheader{
+    padding: 10px;
+  }
+  & .content{
+    padding: 10px;
+    background: #515665;
+    & .shortcut{
+      float: right
+    }
+  }
+}
+
 .searchbar.overlay {
     position: fixed;
     top: 0;

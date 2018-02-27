@@ -41,7 +41,7 @@
                         <div class="menu">
 
                             {{#if (can "show settings")}}
-                                
+
                                 {{#link-to 'settings' class="item" }}Settings{{/link-to}}
                             {{/if}}
                             <div class="item" {{action 'invalidateSession'}}>Logout</div>
@@ -51,4 +51,5 @@
             </div>
         </div>
     </div>
+  
 {{/if}}

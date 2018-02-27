@@ -1,0 +1,46 @@
+{{#if showKeyboardShortcutsButton}}
+<div class="fixed shortcut-button" {{action 'toggleKeyboardShortcuts'}}>
+  ?
+</div>
+{{/if}}
+
+{{#if showKeyboardShortcuts}}
+<div class="sidebar">
+  <div class= "header">
+    Keyboard Shortcuts
+  </div>
+
+  <div class="subheader">
+    Application
+  </div>
+  <div class="content">
+    <div class="row"><div class="shortcut">Ctrl+n</div> New Question</div>
+    <div class="row"><div class="shortcut">Ctrl+q</div> Search Questions</div>
+    <div class="row"><div class="shortcut">Ctrl+d</div> Search Dashboards</div>
+    <div class="row"><div class="shortcut">Ctrl+Shift+r</div> Go To Data Reference</div>
+    <div class="row"><div class="shortcut">Ctrl+Shift+q</div> Go To All Questions</div>
+    <div class="row"><div class="shortcut">Ctrl+Shift+k</div> Toggle Show Shortcuts Button</div>
+    <div class="row"><div class="shortcut">Ctrl+k</div> Show Keyboard Shortcuts</div>
+  </div>
+
+  <div class="subheader">
+    Dashboard
+  </div>
+  <div class="content">
+    <div class="row"><div class="shortcut">Ctrl+r</div> Refresh All Components</div>
+  </div>
+
+  <div class="subheader">
+    New Question/ Saved Question
+  </div>
+  <div class="content">
+    <div class="row"><div class="shortcut">Ctrl+Enter</div> Run Query</div>
+    <div class="row"><div class="shortcut">Ctrl+Shift+d</div> Select Database</div>
+    <div class="row"><div class="shortcut">Ctrl+Shift+t</div> Select Table</div>
+    <div class="row"><div class="shortcut">Ctrl+Shift+f</div> Add Filters</div>
+    <div class="row"><div class="shortcut">Ctrl+Shift+g</div> Add group By Clause</div>
+    <div class="row"><div class="shortcut">Ctrl+Shift+o</div> Add Order By Clause</div>
+    <div class="row"><div class="shortcut">Ctrl+Shift+v</div> Select View</div>
+  </div>
+</div>
+{{/if}}
