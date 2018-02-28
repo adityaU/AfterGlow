@@ -49,23 +49,23 @@ defmodule AfterGlow.UserController do
     render(conn, :show, data: user)
   end
 
-  # def update(conn, %{"id" => id, "data" => data = %{"type" => "users", "attributes" => _user_params}}) do
+  def update(conn, %{"id" => id, "data" => data = %{"type" => "users", "attributes" => _user_params}}) do
 
-  #   prms =  Params.to_attributes(data)
-  #   user = Repo.get!(User, id) |> Repo.preload(:permission_sets)
-  #   changeset = User.changeset(user, Params.to_attributes(data))
-  #   permission_set_ids = prms["permission_sets_ids"]
-  #   permission_sets = if permission_set_ids && (permission_set_ids |> Enum.empty?) , do: nil, else: Repo.all(from q in PermissionSet, where: q.id in ^permission_set_ids )
+    prms =  Params.to_attributes(data)
+    user = Repo.get!(User, id) |> Repo.preload(:permission_sets)
+    changeset = User.changeset(user, Params.to_attributes(data))
+    permission_set_ids = prms["permission_sets_ids"]
+    permission_sets = if permission_set_ids && (permission_set_ids |> Enum.empty?) , do: nil, else: Repo.all(from q in PermissionSet, where: q.id in ^permission_set_ids )
 
-  #   case User.update(changeset, permission_sets) do
-  #     {:ok, user} ->
-  #       render(conn, :show, data: user)
-  #     {:error, changeset} ->
-  #       conn
-  #       |> put_status(:unprocessable_entity)
-  #       |> render(:errors, data: changeset)
-  #   end
-  # end
+    case User.update(changeset, permission_sets) do
+      {:ok, user} ->
+        render(conn, :show, data: user)
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(:errors, data: changeset)
+    end
+  end
 
   # def delete(conn, %{"id" => id}) do
   #   user = Repo.get!(User, id)

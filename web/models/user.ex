@@ -5,7 +5,7 @@ defmodule AfterGlow.User do
   alias AfterGlow.PermissionSet
   alias AfterGlow.Permission
   alias AfterGlow.UserPermissionSet
-  alias AfterGlow.Repo
+  alias AfterGlow.CacheWrapper.Repo
 
   schema "users" do
     field :first_name, :string
