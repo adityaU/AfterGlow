@@ -9,6 +9,7 @@ defmodule AfterGlow do
     # Define workers and child supervisors to be supervised
 
     Postgrex.Types.define(AfterGlow.PostgrexTypes, [Postgrex.Extensions.JSON], json: Poison)
+
     children = [
       # Start the Ecto repository
       supervisor(AfterGlow.Repo, []),
@@ -17,7 +18,7 @@ defmodule AfterGlow do
       supervisor(Registry, [:unique, AfterGlow.DbConnectionStore]),
       supervisor(AfterGlow.Sql.DbConnection, []),
       supervisor(AfterGlow.Async, []),
-      
+
       # Start your own worker by calling: AfterGlow.Worker.start_link(arg1, arg2, arg3)
       worker(Cachex, [:cache, []])
       # worker(AfterGlow.Worker, [arg1, arg2, arg3]),

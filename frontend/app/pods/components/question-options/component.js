@@ -10,6 +10,9 @@ export default Ember.Component.extend({
         showAddToDashboard(){
             this.sendAction('showAddToDashboard')
         },
+        showAddTags(){
+            this.sendAction('showAddTags')
+        },
         editQuestion(){
             this.set('editing', true)
         },
@@ -32,7 +35,10 @@ export default Ember.Component.extend({
         },
         toggleVariableWindow(){
             this.toggleProperty('showVariables')
-        }
+        },
+        viewSnapshots(question){
+            this.sendAction('transitionToSnapshots', question.id)
+        },
     }
 
 });

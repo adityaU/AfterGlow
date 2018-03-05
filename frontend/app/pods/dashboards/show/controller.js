@@ -2,6 +2,15 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
     dashboard: Ember.computed.alias('model'),
+    questionObserver: Ember.on('init', Ember.observer('dashboard', function(){
+      let questions = this.get('dashboard.questions')
+      if (questions) {
+        let ids = questions.map(function(item){
+          return item.id
+        })
+        this.store.query('question', {filter: {id: ids.join(',')}})
+      }
+    })),
     nonEditable: "yes",
     fullScreen: false,
     refreshIntervals: [

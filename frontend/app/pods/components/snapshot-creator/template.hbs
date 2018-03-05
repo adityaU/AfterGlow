@@ -4,7 +4,7 @@
     </div>
     <div class="create-dashboard content">
         <div class="ui grid">
-            <div class="ui form full">
+            <div class="ui form row full">
                 <div class="sixteen wide column">
                     <div class="field">
                     <label>Name</label>
@@ -17,9 +17,84 @@
                         {{input value=snapshot.description class="ui" placeholder="What does it show?" }}
                     </div>
                 </div>
+                <div class="five wide column">
+                    <div class="field">
+                        {{input checked=snapshot.scheduled  class="ui" type="checkbox"}}
+                    <label class="checkbox-label">scheduled?</label>
+                    </div>
+                </div>
+                <div class="five wide column">
+                {{#if snapshot.scheduled}}
+                    <div class="field">
+                    <label>Schedule it every: </label>
+                    {{#ui-dropdown class="search selection" selected=snapshot.interval onChange=(action (mut snapshot.interval)) as |execute mapper|}}
+                    {{dropdown-default object=(get intervalsReverseMapping snapshot.interval) default="interval"}}
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+
+                      <div class="ui icon search input">
+                        <i class="search icon"></i>
+                        <input type="text" placeholder="Search">
+                      </div>
+                      {{#each intervals as |interval|}}
+                      <div class="item" data-value="{{map-value mapper interval.value}}">
+                        {{interval.name}}
+                      </div>
+                      {{/each}}
+                    </div>
+                    {{/ui-dropdown}}
+                    </div>
+                {{/if}}
+                </div>
+                <div class="five wide column">
+                {{#if snapshot.scheduled}}
+                <label >starting at</label>
+                {{ui-calendar date=snapshot.starting_at onChange=(action (mut snapshot.starting_at)) placeholder=snapshot.starting_at }}
+                {{/if}}
+                </div>
+                <div class="eight wide column">
+                    <div class="field">
+                        {{input checked=snapshot.should_save_data_to_db  class="ui" type="checkbox"}}
+                    <label class="checkbox-label">Want to plot on snapshot data ?</label>
+                    </div>
+                </div>
+
+                <div class="eight wide column">
+                    <div class="field">
+                        {{input checked=snapshot.should_create_csv  class="ui" type="checkbox"}}
+                    <label class="checkbox-label">create csv ?</label>
+                    </div>
+                </div>
+                <div class="sixteen wide column">
+                    <div class="field">
+                        {{input checked=snapshot.should_send_mail_on_completion  class="ui" type="checkbox"}}
+                    <label class="checkbox-label"> send mail after completion ?</label>
+                    </div>
+                </div>
+                <div class="sixteen wide column">
+                  {{#if snapshot.should_send_mail_on_completion}}
+                    <div class="field">
+                      <label >Email ids </label>
+
+                      {{#ui-dropdown allowAdditions=true class="fluid multiple selection search" selected=snapshot.mail_to onChange=(action (mut snapshot.mail_to)) as |execute mapper|}}
+                      <i class="dropdown icon"></i>
+                      <div class="default text">Enter EmailIds</div>
+                      <div class="ui menu">
+                        {{#each users as |user|}}
+                        <div class="item" data-value="{{user.email}}">
+                          <i class="user icon"></i>
+                          {{user.full_name}} - {{user.email}}
+                        </div>
+                        {{/each}}
+                      </div>
+                      {{/ui-dropdown}}
+                    </div>
+                  {{/if}}
+                </div>
+
             </div>
         </div>
-        
+
     </div>
     <div class="actions">
         <div class="ui red deny button">

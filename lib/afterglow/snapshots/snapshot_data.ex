@@ -3,10 +3,9 @@ defmodule AfterGlow.Snapshots.SnapshotData do
   import Ecto.Changeset
   alias AfterGlow.Snapshots.SnapshotData
 
-
   schema "snapshot_data" do
-    field :row, :map
-    field :snapshot_id, :id
+    field(:row, :map)
+    field(:snapshot_id, :id)
 
     timestamps()
   end

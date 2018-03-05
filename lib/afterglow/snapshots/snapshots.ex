@@ -1,4 +1,5 @@
 require IEx
+
 defmodule AfterGlow.Snapshots do
   @moduledoc """
   The Snapshots context.
@@ -16,6 +17,7 @@ defmodule AfterGlow.Snapshots do
   alias AfterGlow.SnapshotsTasks
   alias AfterGlow.Helpers.CsvHelpers
   alias AfterGlow.Mailers.CsvMailer
+  alias AfterGlow.Mailers.SnapshotMailer
   import Ecto.Query, only: [from: 2]
 
   @doc """
@@ -46,11 +48,11 @@ defmodule AfterGlow.Snapshots do
 
   """
   def get_snapshot!(id) do
-    snapshot_data_preload_query = from c in SnapshotData, limit: 2000
+    snapshot_data_preload_query = from(c in SnapshotData, limit: 2000)
+
     Repo.get!(Snapshot, id)
     |> Repo.preload(snapshot_data: snapshot_data_preload_query)
   end
-
 
   @doc """
   Creates a snapshot.
@@ -64,13 +66,18 @@ defmodule AfterGlow.Snapshots do
   {:error, %Ecto.Changeset{}}
 
   """
-  def create_snapshot(attrs \\ %{}, email_id) do
-    created = %Snapshot{}
-    |> Snapshot.changeset(attrs)
-    |> Repo.insert()
+  def create_snapshot(attrs \\ %{}) do
+    attrs = attrs |> set_pending_status
+
+    created =
+      %Snapshot{}
+      |> Snapshot.changeset(attrs)
+      |> Repo.insert()
+
     with {:ok, %Snapshot{} = snapshot} <- created do
-      Async.perform(&SnapshotsTasks.save/2, [snapshot, email_id])
+      Async.perform(&SnapshotsTasks.schedule_or_save/1, [snapshot])
     end
+
     created
   end
 
@@ -89,7 +96,7 @@ defmodule AfterGlow.Snapshots do
   def update_snapshot(%Snapshot{} = snapshot, attrs) do
     snapshot
     |> Snapshot.changeset(attrs)
-    |> Repo.update()
+    |> Repo.update!()
   end
 
   @doc """
@@ -125,50 +132,115 @@ defmodule AfterGlow.Snapshots do
     snapshot = snapshot |> Repo.preload(:question)
     question = snapshot.question |> Repo.preload(:variables)
     db_identifier = question.human_sql["database"]["unique_identifier"]
-    db_record = Repo.one(from d in Database, where: d.unique_identifier == ^db_identifier) 
-    query = Question.replace_variables(question.sql, question.variables , question.variables)
-    {:ok, columns} = DbConnection.execute_with_stream(db_record |> Map.from_struct,
-      query,
-      &insert_snapshot_data_in_bulk(snapshot, &1, &2)
-    )
+    db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
+    query = Question.replace_variables(question.sql, question.variables, question.variables)
 
+    {:ok, snapshot} =
+      DbConnection.execute_with_stream(
+        db_record |> Map.from_struct(),
+        query,
+        &insert_snapshot_data_in_bulk(snapshot, &1, &2)
+      )
+
+    snapshot_link =
+      "#{Application.get_env(:afterglow, :app_root)}questions/#{snapshot.question_id}/snapshots/#{
+        snapshot.id
+      }"
+
+    SnapshotMailer.mail(snapshot.mail_to, snapshot, snapshot_link)
+    snapshot
   end
 
   def fetch_and_upload_for_snapshot(id, email_id) do
-    Async.perform(&create_and_send_csv/2, [id, email_id])
+    snapshot =
+      Repo.get!(Snapshot, id)
+      |> Repo.preload(:question)
+
+    Async.perform(&create_and_send_csv/2, [snapshot, email_id])
   end
 
-  def create_and_send_csv(id, email_id) do
+  def create_and_send_csv_from_remote_db(snapshot) do
+    snapshot = snapshot |> Repo.preload(:question)
+    db_identifier = snapshot.question.human_sql["database"]["unique_identifier"]
+    db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
+    variables = (snapshot.question |> Repo.preload(:variables)).variables
+
+    url =
+      CsvHelpers.fetch_and_upload_wrapper(
+        db_record,
+        snapshot.question.sql,
+        variables,
+        file_path(snapshot)
+      )
+
+    CsvMailer.mail(snapshot.mail_to, url, csv_subject(snapshot))
+  end
+
+  def create_and_send_csv(id) when is_integer(id) do
     snapshot = Snapshot |> Repo.get!(id)
-    query = from sd in SnapshotData,
-      select: sd.row,
-      where: sd.snapshot_id == ^snapshot.id
+    create_and_send_csv(snapshot)
+  end
+
+  def create_and_send_csv(snapshot, email_id) do
+    query =
+      from(
+        sd in SnapshotData,
+        select: sd.row,
+        where: sd.snapshot_id == ^snapshot.id
+      )
+
     stream = Repo.stream(query)
-    {:ok, url} = Repo.transaction(fn() ->
-      stream = stream |> Stream.map(fn x -> x["values"] end)
-      CsvHelpers.save_to_file_and_upload([stream], snapshot.columns)
-    end)
-    CsvMailer.mail(email_id, url)
+
+    {:ok, url} =
+      Repo.transaction(fn ->
+        stream = stream |> Stream.map(fn x -> x["values"] end)
+        CsvHelpers.save_and_upload_from_stream([stream], snapshot.columns, file_path(snapshot))
+      end)
+
+    CsvMailer.mail(email_id || snapshot.mail_to, url, csv_subject(snapshot))
+  end
+
+  defp csv_subject(snapshot) do
+    "Please Download CSV for Snapshot: #{snapshot.name}"
+  end
+
+  defp set_pending_status(attrs) do
+    attrs |> Map.put("status", "pending")
+  end
+
+  defp file_path(snapshot) do
+    if snapshot.scheduled do
+      "/afterglow/questions/question-#{snapshot.question.id}/snapshots/snapshot-#{
+        snapshot.parent_id || snapshot.id
+      }/#{snapshot.starting_at}.csv"
+    else
+      "/afterglow/questions/question-#{snapshot.question.id}/snapshots/snapshot-#{
+        snapshot.parent_id || snapshot.id
+      }/#{SecureRandom.uuid()}.csv"
+    end
   end
 
   defp insert_snapshot_data_in_bulk(snapshot, rows, columns) do
-    update_snapshot(snapshot, %{columns: columns})
+    snapshot = update_snapshot(snapshot, %{"columns" => columns})
     query = "insert into snapshot_data (snapshot_id, row, inserted_at, updated_at) values"
-    time_string = DateTime.utc_now |> DateTime.to_string
-    v = rows
+    time_string = DateTime.utc_now() |> DateTime.to_string()
+
+    rows
     |> Enum.map(fn chunk ->
-      values = chunk
-      |> Enum.map(fn x ->
-        value = Poison.encode!(%{values: x}) |> String.replace("'", "''")
-        "( #{snapshot.id}, '#{value}', '#{time_string}', '#{time_string}' )"
-      end)
-      |> Enum.join(", ")
-      if values |> String.first do
+      values =
+        chunk
+        |> Enum.map(fn x ->
+          value = Poison.encode!(%{values: x}) |> String.replace("'", "''")
+          "( #{snapshot.id}, '#{value}', '#{time_string}', '#{time_string}' )"
+        end)
+        |> Enum.join(", ")
+
+      if values |> String.first() do
         query = query <> values
         Ecto.Adapters.SQL.query!(Repo, query, [])
       end
     end)
-    "I am Done" |> IO.inspect
+
+    snapshot
   end
 end
-

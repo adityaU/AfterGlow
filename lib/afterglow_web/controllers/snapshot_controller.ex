@@ -8,9 +8,9 @@ defmodule AfterGlow.SnapshotController do
   alias JaSerializer.Params
 
   alias AfterGlow.Plugs.Authorization
-  plug Authorization
+  plug(Authorization)
 
-  action_fallback AfterGlow.Web.FallbackController
+  action_fallback(AfterGlow.Web.FallbackController)
 
   def index(conn, _params) do
     snapshots = Snapshots.list_snapshots()
@@ -19,7 +19,8 @@ defmodule AfterGlow.SnapshotController do
 
   def create(conn, %{"data" => data = %{"type" => "snapshots", "attributes" => _database_params}}) do
     prms = Params.to_attributes(data)
-    with {:ok, %Snapshot{} = snapshot} <- Snapshots.create_snapshot(prms, conn.assigns.current_user.email) do
+
+    with {:ok, %Snapshot{} = snapshot} <- Snapshots.create_snapshot(prms) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", snapshot_path(conn, :show, snapshot))
@@ -29,8 +30,12 @@ defmodule AfterGlow.SnapshotController do
 
   def show(conn, %{"id" => id}) do
     snapshot = Snapshots.get_snapshot!(id)
-    json conn, SnapshotWithDataView
-    |> JaSerializer.format(snapshot, conn, type: 'snapshot')
+
+    json(
+      conn,
+      SnapshotWithDataView
+      |> JaSerializer.format(snapshot, conn, type: 'snapshot')
+    )
   end
 
   def update(conn, %{"id" => id, "snapshot" => snapshot_params}) do
@@ -43,9 +48,9 @@ defmodule AfterGlow.SnapshotController do
 
   def delete(conn, %{"id" => id}) do
     snapshot = Snapshots.get_snapshot!(id)
+
     with {:ok, %Snapshot{}} <- Snapshots.delete_snapshot(snapshot) do
       send_resp(conn, :no_content, "")
     end
   end
-
 end

@@ -15,14 +15,14 @@
                 </div>
                 <div class="six wide column">
                     {{#each question.tags as |tag|}}
-                        {{#link-to 'tags.show' tag.id}} 
+                        {{#link-to 'tags.show' tag.id}}
                             <div class="ui basic dashboard label" style="background: {{tag.color}}; color: white; opacity: 0.8;">
                                 {{tag.name}}
                             </div>
                         {{/link-to}}
                     {{/each}}
                     {{#each question.dashboards as |dashboard|}}
-                        {{#link-to 'dashboards.show' dashboard.id}} 
+                        {{#link-to 'dashboards.show' dashboard.id}}
                             <div class="ui basic dashboard violet label">
                                 {{dashboard.title}}
                             </div>
@@ -31,7 +31,7 @@
                 </div>
                 <div class="four wide column text-align-right">
                     <span data-tooltip="Edit Tags" data-inverted=""  class="" {{action 'addTag' question}}>
-                        <i class="edit icon"></i>
+                        <i class="tag icon"></i>
                     </span>
                     <span data-tooltip="view {{question.snapshots.length}} snapshot(s)" data-inverted=""  class="" {{action 'viewSnapshots' question}}>
                         <i class="copy icon"></i>

@@ -3,7 +3,7 @@ defmodule AfterGlow.QuestionSearchView do
   import AfterGlow.Policy.Helpers
   use JaSerializer, dsl: true
 
-  attributes [
+  attributes([
     :id,
     :title,
     :last_updated_at,
@@ -13,46 +13,56 @@ defmodule AfterGlow.QuestionSearchView do
     :inserted_at,
     :updated_at,
     :shared_to,
+    :query_type,
     :has_permission
-  ]
+  ])
 
   def type do
     "question"
   end
 
-  has_many :dashboards,
+  has_many(
+    :dashboards,
     field: :dashboards,
     type: "dashboards",
     include: false
-  
-  has_many :tags,
+  )
+
+  has_many(
+    :tags,
     field: :tags,
     type: "tags",
     include: false
-  
-  has_many :variables,
+  )
+
+  has_many(
+    :variables,
     field: :variables,
     type: "variables",
     include: false
+  )
 
-  has_many :snapshots,
+  has_many(
+    :snapshots,
     field: :snapshots,
     type: "snapshots",
     include: false
-  
-  has_one :owner,
+  )
+
+  has_one(
+    :owner,
     field: :owner_id,
     type: "users"
+  )
 
   def shared_to(question, _conn) do
     question.shared_to || []
   end
-  
+
   def has_permission(question, conn) do
-    if (
-      is_admin?(conn.assigns.current_user) ||
-        conn.assigns.current_user.id == question.owner_id ||
-        shared_to(question, conn) |> Enum.member?( conn.assigns.current_user.email )
-    ), do: true, else: false
+    if is_admin?(conn.assigns.current_user) || conn.assigns.current_user.id == question.owner_id ||
+         shared_to(question, conn) |> Enum.member?(conn.assigns.current_user.email),
+       do: true,
+       else: false
   end
 end

@@ -77,6 +77,10 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
             return false;
         }
     }),
+
+    tags: Ember.computed(function(){
+      return this.store.findAll('tag')
+    }),
     changeSQL: Ember.observer('queryObject.rawQuery', function(){
       this.set('question.sql', this.get('queryObject.rawQuery'))
     }),
@@ -240,6 +244,14 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
             let variable = this.store.createRecord('variable', {name: "New Variable", var_type: "String", default: "value", default_options: []})
             this.get('question.variables').pushObject(variable)
             this.set('variablesChanged', true)
+        },
+
+        showAddTags(){
+           $('.ui.modal.add-to-tag').modal('show')
+        },
+        transitionToSnapshots(questionId){
+            this.transitionToRoute('questions.show.snapshots.all', questionId)
         }
+
     }
 });

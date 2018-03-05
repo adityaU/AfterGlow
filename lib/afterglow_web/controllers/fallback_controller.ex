@@ -6,7 +6,6 @@ defmodule AfterGlow.Web.FallbackController do
   """
   use AfterGlow.Web, :controller
 
-
   def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
     conn
     |> put_status(:unprocessable_entity)

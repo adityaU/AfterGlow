@@ -41,7 +41,7 @@ export default QuestionNewController.extend( ResultViewMixin, CanMixin, {
                 this.transitionToRoute('dashboards.show', response.id)
                 $('.ui.modal.add-to-dashboard').modal('hide')
             })
-        }
+        },
 
     }
 });

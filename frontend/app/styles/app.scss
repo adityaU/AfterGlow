@@ -268,6 +268,11 @@ height: 30px;
 }
 label {
     margin-top: 30px !important;
+    &.checkbox-label{
+      margin-left: 20px !important;
+      margin-top: -23px !important;
+      padding-left: 0px !important;
+    }
 }
 .ui.button.alert-state{
   padding: 5px 10px;
@@ -895,19 +900,19 @@ body{
 }
 
 
-.tag {
-  background: #eee;
-  border-radius: 30px;
-  color: #999;
-  display: inline-block;
-  height: 26px;
-  line-height: 26px;
-  padding: 0 20px 0 23px;
-  margin: 0 10px 10px 0;
-  text-decoration: none;
-  -webkit-transition: color 0.2s;
-
-}
+// .tag {
+//   background: #eee;
+//   border-radius: 30px;
+//   color: #999;
+//   display: inline-block;
+//   height: 26px;
+//   line-height: 26px;
+//   padding: 0 20px 0 23px;
+//   margin: 0 10px 10px 0;
+//   text-decoration: none;
+//   -webkit-transition: color 0.2s;
+//
+// }
 .tag-box{
     height: 100px;
     padding: 43px 0px;
@@ -946,16 +951,16 @@ body{
 }
 
 
-.tag:hover {
-  background-color: crimson;
-  color: white;
-
-}
-
-.tag:hover::after {
-  border-left-color: crimson;
-
-}
+// .tag:hover {
+//   background-color: crimson;
+//   color: white;
+//
+// }
+//
+// .tag:hover::after {
+//   border-left-color: crimson;
+//
+// }
 .results-table{
     margin: 5px;
 }

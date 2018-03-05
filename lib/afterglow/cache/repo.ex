@@ -1,14 +1,15 @@
 defmodule AfterGlow.CacheWrapper.Repo do
   alias AfterGlow.CacheWrapper
   import AfterGlow.Extension
-  extends AfterGlow.Repo
+  extends(AfterGlow.Repo)
 
   def update_with_cache(changeset) do
     case update(changeset) do
       {:ok, struct} ->
         CacheWrapper.put_struct(struct)
         {:ok, struct}
-      {:error, changeset}->
+
+      {:error, changeset} ->
         {:error, changeset}
     end
   end
@@ -18,9 +19,9 @@ defmodule AfterGlow.CacheWrapper.Repo do
       {:ok, struct} ->
         CacheWrapper.put_struct(struct)
         {:ok, struct}
-      {:error, changeset}->
+
+      {:error, changeset} ->
         {:error, changeset}
     end
   end
-
 end

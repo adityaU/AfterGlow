@@ -52,5 +52,6 @@
   "sql_dust": {:git, "https://github.com/adityaU/sql_dust.git", "fab33430ac0067bcf3423fa8ff7c7d4c5699d6f0", []},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.1", "28a4d65b7f59893bc2c7de786dec1e1555bd742d336043fe644ae956c3497fbe", [], [], "hexpm"},
   "sweet_xml": {:hex, :sweet_xml, "0.6.5", "dd9cde443212b505d1b5f9758feb2000e66a14d3c449f04c572f3048c66e6697", [:mix], [], "hexpm"},
+  "task_after": {:hex, :task_after, "1.1.0", "364810c2632997af61ceddf839d4512c69f34fe9ffa6d7a9d75574a59f62486c", [:mix], [], "hexpm"},
   "unsafe": {:hex, :unsafe, "1.0.0", "7c21742cd05380c7875546b023481d3a26f52df8e5dfedcb9f958f322baae305", [:mix], [], "hexpm"},
 }

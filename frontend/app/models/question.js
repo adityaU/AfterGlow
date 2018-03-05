@@ -71,17 +71,17 @@ export default DS.Model.extend(ResultViewMixin, {
     }),
     refreshInterval: 60000,
     startTimer: Ember.on('didLoad', function() {
-        this.set('timer', this.schedule(this.get('onPoll')));
+        !this.isDestroyed  && this.set('timer', this.schedule(this.get('onPoll')));
     }),
     schedule: function(f) {
         return Ember.run.later(this, function() {
             f.apply(this);
-            this.set('timer', this.schedule(f));
+            !this.isDestroyed  && this.set('timer', this.schedule(f));
         }, this.get('refreshInterval.value'));
     },
-    
+
     onPoll: function(){
-        this.set('updatedAgoColorChangeTime', new Date())
+       !this.isDestroyed && this.set('updatedAgoColorChangeTime', new Date())
     },
     query_variables: Ember.computed.alias('variables'),
 

@@ -24,7 +24,7 @@ export default Ember.Mixin.create({
     },
 
     findIfDate(el){
-        let date = Date.parse(el) 
+        let date = Date.parse(el)
         let dateMatch = el && (el.toString().match("-") != null)
         return (date.toString() != 'NaN' && dateMatch)
     },
