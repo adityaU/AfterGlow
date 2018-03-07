@@ -15,6 +15,20 @@ export default Ember.Component.extend(UtilsFunctions, {
             value: "linear"
         }
     ],
+    barType:   {
+          name: "Group",
+          value: "group"
+      },
+    barTypes: [
+        {
+            name: "Stacked",
+            value: "stack"
+        },
+        {
+            name: "Group",
+            value: "group"
+        }
+    ],
     x1Name: 'x1',
     x2Name: 'x2',
     yName: 'y',

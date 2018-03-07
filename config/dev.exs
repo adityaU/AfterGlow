@@ -40,4 +40,4 @@ config :afterglow, AfterGlow.Repo,
   password: "null",
   database: "afterglow_dev",
   hostname: "localhost",
-  pool_size: 10
+  pool_size: 50

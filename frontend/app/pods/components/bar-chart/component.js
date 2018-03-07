@@ -24,11 +24,11 @@ export default Ember.Component.extend( UtilsFunctions, {
             })
         }));
         layout = data && _this.get('layout')
-        layout["barmode"]= "group"
+        layout["barmode"]= _this.get('barType')
         data && Plotly.newPlot(gd, data, layout, {showLink: false})
-            .then(_this.get('downloadAsPNG')); 
+            .then(_this.get('downloadAsPNG'));
         data && gridParent [0] && gridParent[0].addEventListener('plotlyResize', function() {
-            let dimensions = _this.get('dimensions')(gridParent) 
+            let dimensions = _this.get('dimensions')(gridParent)
             Plotly.relayout(_this.get("randomId"), dimensions)
         });
     }

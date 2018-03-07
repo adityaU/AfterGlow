@@ -6,9 +6,7 @@ defmodule AfterGlow.QuestionController do
   alias AfterGlow.TagQuestion
   alias AfterGlow.Tag
   alias AfterGlow.Async
-  alias AfterGlow.Variable
   alias AfterGlow.QueryView
-  alias AfterGlow.Snapshots.Snapshot
   alias AfterGlow.Sql.DbConnection
   alias AfterGlow.QuestionSearchView
   alias JaSerializer.Params
@@ -107,6 +105,7 @@ defmodule AfterGlow.QuestionController do
     prms = Params.to_attributes(data)
     prms = prms
     |> Map.merge(%{"owner_id" => conn.assigns.current_user.id})
+
     changeset = Question.changeset(%Question{}, prms)
 
     case Repo.insert_with_cache(changeset) do

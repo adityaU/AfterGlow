@@ -133,7 +133,9 @@ defmodule AfterGlow.Snapshots do
     question = snapshot.question |> Repo.preload(:variables)
     db_identifier = question.human_sql["database"]["unique_identifier"]
     db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
-    query = Question.replace_variables(question.sql, question.variables, question.variables)
+
+    query =
+      Question.replace_variables(question.sql, question.variables, question.variables, snapshot)
 
     {:ok, snapshot} =
       DbConnection.execute_with_stream(
@@ -165,10 +167,12 @@ defmodule AfterGlow.Snapshots do
     db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
     variables = (snapshot.question |> Repo.preload(:variables)).variables
 
+    query = Question.replace_variables(snapshot.question.sql, variables, variables, snapshot)
+
     url =
       CsvHelpers.fetch_and_upload_wrapper(
         db_record,
-        snapshot.question.sql,
+        query,
         variables,
         file_path(snapshot)
       )
@@ -189,7 +193,7 @@ defmodule AfterGlow.Snapshots do
         where: sd.snapshot_id == ^snapshot.id
       )
 
-    stream = Repo.stream(query)
+    stream = Repo.stream(query, timeout: 15_000_000)
 
     {:ok, url} =
       Repo.transaction(fn ->

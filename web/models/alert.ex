@@ -1,7 +1,6 @@
 defmodule AfterGlow.Alert do
   use AfterGlow.Web, :model
   alias AfterGlow.Question
-  import EctoEnum, only: [defenum: 2]
 
 
   schema "alerts" do

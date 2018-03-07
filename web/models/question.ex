@@ -2,6 +2,7 @@ defmodule AfterGlow.Question do
   use AfterGlow.Web, :model
   import EctoEnum, only: [defenum: 2]
   alias AfterGlow.Dashboard
+  alias AfterGlow.Database
   alias AfterGlow.Sql.DbConnection
   alias AfterGlow.Tag
   alias AfterGlow.Variable
@@ -89,26 +90,22 @@ defmodule AfterGlow.Question do
   def update_columns(question, columns, cached_results) do
     cached_results = cached_results |> Poison.encode() |> elem(1)
     # 1 MB results cache
-    case cached_results |> byte_size >= 1_000_000 do
-      false ->
-        question =
+    question =
+      case cached_results |> byte_size >= 1_000_000 do
+        false ->
           question |> changeset(%{cached_results: cached_results |> Poison.decode() |> elem(1)})
 
-      true ->
-        "pass"
-    end
+        true ->
+          question
+      end
 
     question
     |> changeset(%{columns: columns})
     |> Repo.update_with_cache()
   end
 
-  def replace_variables(query, default_variables, query_variables) do
-    same_variables = false
-
-    if default_variables == query_variables do
-      same_variables = true
-    end
+  def replace_variables(query, default_variables, query_variables, snapshot \\ nil) do
+    same_variables = default_variables == query_variables
 
     query_variables =
       query_variables
@@ -119,28 +116,43 @@ defmodule AfterGlow.Question do
 
     variables = if same_variables, do: query_variables, else: default_variables
 
-    variables =
-      variables
-      |> Enum.map(fn var ->
-        q_var = query_variables |> Enum.filter(fn x -> x.name == var.name end) |> Enum.at(0)
-        default_options_values = Variable.default_option_values(q_var)
-        value = if q_var && q_var.value, do: q_var.value, else: var.default
-        value = Variable.format_value(var, value)
-        value = if default_options_values, do: default_options_values, else: value
-
-        %{
-          name: var.name,
-          value: value
-        }
-      end)
-
     variables
+    |> Enum.map(fn var ->
+      q_var = query_variables |> Enum.filter(fn x -> x.name == var.name end) |> Enum.at(0)
+      default_options_values = Variable.default_option_values(q_var)
+      value = if q_var && q_var.value, do: q_var.value, else: var.default
+      value = Variable.format_value(var, value)
+      value = if default_options_values, do: default_options_values, else: value
+
+      %{
+        name: var.name,
+        value: value
+      }
+    end)
     |> Enum.reduce(query, fn variable, query ->
-      variable_name = variable.name |> String.strip()
+      variable_name = variable.name |> String.trim()
 
       query
       |> String.replace(~r({{.*#{variable_name}.*}}), variable.value || "")
     end)
+    |> handle_snapshot_starting_at_variable(snapshot)
+  end
+
+  defp handle_snapshot_starting_at_variable(query, nil) do
+    query
+    |> String.replace(
+      ~r({{.*snapshot_starting_at.*}}),
+      DateTime.utc_now() |> DateTime.to_iso8601()
+    )
+  end
+
+  defp handle_snapshot_starting_at_variable(query, snapshot) do
+    query
+    |> String.replace(
+      ~r({{.*snapshot_starting_at.*}}),
+      snapshot.starting_at |> Ecto.DateTime.to_iso8601() || ""
+    )
+    |> IO.inspect(label: "snapshot_starting_at")
   end
 
   def insert_variables_replaced_at_query(results, variables_replaced_query) do
@@ -208,26 +220,28 @@ defmodule AfterGlow.Question do
   end
 
   defp save_sql_from_human_sql(changeset) do
-    case changeset.changes |> Map.has_key?(:query_type) && changeset.changes.query_type do
-      "human_sql" ->
-        parsed_human_sql = parse_human_sql(changeset.changes.human_sql)
-        db_identifier = parsed_human_sql["database"]["unique_identifier"]
-        db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
-        sql = DbConnection.query_string(db_record |> Map.from_struct(), parsed_human_sql)
-        changeset = changeset |> Ecto.Changeset.change(:sql, sql)
+    changeset =
+      case changeset.changes |> Map.has_key?(:query_type) && changeset.changes.query_type do
+        "human_sql" ->
+          parsed_human_sql = parse_human_sql(changeset.changes.human_sql)
+          db_identifier = parsed_human_sql["database"]["unique_identifier"]
+          db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
+          sql = DbConnection.query_string(db_record |> Map.from_struct(), parsed_human_sql)
+          changeset |> Ecto.Changeset.change(%{sql: sql})
 
-      _ ->
-        "pass"
-    end
+        _ ->
+          changeset
+      end
 
     changeset
   end
 
   defp add_shareable_link(changeset) do
-    case changeset.data.shareable_link do
-      nil -> changeset = changeset |> Ecto.Changeset.change(shareable_link: Ecto.UUID.generate())
-      _ -> 'pass'
-    end
+    changeset =
+      case changeset.data.shareable_link do
+        nil -> changeset |> Ecto.Changeset.change(shareable_link: Ecto.UUID.generate())
+        _ -> changeset
+      end
 
     changeset
   end

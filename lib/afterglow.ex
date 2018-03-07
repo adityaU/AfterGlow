@@ -20,7 +20,9 @@ defmodule AfterGlow do
       supervisor(AfterGlow.Async, []),
 
       # Start your own worker by calling: AfterGlow.Worker.start_link(arg1, arg2, arg3)
-      worker(Cachex, [:cache, []])
+      worker(Cachex, [:cache, []]),
+      worker(Task, [&AfterGlow.SnapshotScheduler.schedule/0], restart: :temporary)
+
       # worker(AfterGlow.Worker, [arg1, arg2, arg3]),
     ]
 

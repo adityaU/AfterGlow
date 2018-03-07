@@ -2,36 +2,70 @@ defmodule AfterGlow.SnapshotsTasks do
   alias AfterGlow.Snapshots
   alias AfterGlow.Repo
 
-  def save(snapshot, scheduled) do
-    unless snapshot.status == 'pending' do
-      if scheduled do
-        create_new_snapshot_and_schedule(snapshot)
-      end
-
+  def save(snapshot) do
+    unless snapshot.status == "pending" do
       update_status(snapshot, "in_process")
 
-      cond do
-        snapshot.should_save_data_to_db and snapshot.should_create_csv ->
-          snapshot = Snapshots.save_data(snapshot)
-          Snapshots.create_and_send_csv(snapshot, nil)
+      snapshot =
+        cond do
+          snapshot.should_save_data_to_db and snapshot.should_create_csv ->
+            Snapshots.save_data(snapshot)
+            |> Snapshots.create_and_send_csv(nil)
 
-        snapshot.should_save_data_to_db ->
-          Snapshots.save_data(snapshot)
+          snapshot.should_save_data_to_db ->
+            Snapshots.save_data(snapshot)
+            snapshot
 
-        snapshot.should_create_csv ->
-          Snapshots.create_and_send_csv_from_remote_db(snapshot)
-      end
+          snapshot.should_create_csv ->
+            Snapshots.create_and_send_csv_from_remote_db(snapshot)
+            snapshot
+        end
 
       update_status(snapshot, "success")
+    end
+  after
+    if snapshot.scheduled do
+      create_new_snapshot_and_schedule(snapshot)
     end
   end
 
   def schedule(snapshot, time) do
-    :timer.apply_after(time, __MODULE__, :save, [snapshot, true])
+    "Scheduling #{snapshot.name} at #{time}"
+    |> IO.inspect()
+
+    :timer.apply_after(time, __MODULE__, :save, [snapshot])
   end
 
   def schedule_or_save(snapshot) do
-    save(snapshot, snapshot.scheduled)
+    unless snapshot.status == "pending" and snapshot.starting_at do
+      if snapshot.scheduled do
+        schedule(snapshot, find_next_suitable_time(snapshot))
+      else
+        save(snapshot)
+      end
+    end
+  end
+
+  defp find_next_suitable_time(snapshot) do
+    time =
+      snapshot.starting_at
+      |> convert_ecto_datetime_to_epoc()
+      |> Kernel.+(snapshot.interval)
+
+    if time
+       |> Kernel.>(
+         DateTime.utc_now()
+         |> DateTime.to_unix(:seconds)
+       ) do
+      2
+    else
+      time
+      |> Kernel.-(
+        DateTime.utc_now()
+        |> DateTime.to_unix(:seconds)
+      )
+      |> Kernel.*(1000)
+    end
   end
 
   defp change_attributes(snapshot) do
@@ -49,6 +83,8 @@ defmodule AfterGlow.SnapshotsTasks do
       | parent_id: parent.id,
         name: name,
         status: "pending",
+        snapshot_data: [],
+        children: [],
         starting_at:
           snapshot.starting_at
           |> convert_ecto_datetime_to_epoc
@@ -74,7 +110,6 @@ defmodule AfterGlow.SnapshotsTasks do
     |> schedule(
       snapshot.starting_at
       |> convert_ecto_datetime_to_epoc
-      |> Kernel.+(snapshot.interval)
       |> Kernel.-(
         DateTime.utc_now()
         |> DateTime.to_unix(:seconds)
