@@ -11,8 +11,7 @@ defmodule AfterGlow do
 
     Postgrex.Types.define(
       AfterGlow.PostgrexTypes,
-      [Postgrex.Extensions.JSON] ++
-        Ecto.Adapters.Postgres.extensions() ++ [Postgrex.Extensions.UUIDText],
+      [Postgrex.Extensions.JSON] ++ [Postgrex.Extensions.UUIDText],
       json: Jason
     )
 
