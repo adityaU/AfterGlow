@@ -2,7 +2,7 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
   questions: Ember.computed(function(){
-    return this.store.findAll('question')
+    return this.store.query('question', {with: 'columns'})
     }),
   alert: {
     name: "New Alert",

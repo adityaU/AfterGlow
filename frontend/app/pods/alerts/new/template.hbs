@@ -25,7 +25,7 @@
           DELETE
         </button>
       {{else}}
-        <span data-tooltip="Edit" data-inverted=""  data-variation="inverted">  
+        <span data-tooltip="Edit" data-inverted=""  data-variation="inverted">
           <i class="pencil icon" {{action 'editAlert'}}></i>
         </span>
       {{/if}}
@@ -39,17 +39,17 @@
     <div class="one column row">
     <div class="column">
       <span class="step-number">
-        <button class="ui circular violet icon button">
-          1
+        <button class="ui circular violet icon button alert">
+          STEP 1
         </button>
       </span>
       <span class="alert-simple-text">
-        Get result of the question: 
+        Get result of the question:
       </span>
       <span class="empty-space"></span>
       <span class="ui form">
         <span class="field display-inline-block">
-          {{#ui-dropdown class="search selection" selected=alert.question onChange=(action (mut alert.question))  as |execute mapper|}} 
+          {{#ui-dropdown class="search selection" selected=alert.question onChange=(action (mut alert.question))  as |execute mapper|}}
             <div class="default text">Question</div>
             <i class="dropdown icon"></i>
             <div class="menu">
@@ -66,11 +66,11 @@
       </div>
     <div class="one column row">
     <div class="sixteen wide column">
-      {{alert-expression number=2 type="WARNING" color="yellow" conf=alert.config.warning columns=alert.question.columns}}
+      {{alert-expression number="STEP 2" type="WARNING" color="yellow" conf=alert.config.warning columns=alert.question.columns}}
       <div class="ui horizontal divider">
         And
       </div>
-      {{alert-expression number=3 type="CRITICAL" color="red" conf=alert.config.critical columns=alert.question.columns}}
+      {{alert-expression number="STEP 3" type="CRITICAL" color="red" conf=alert.config.critical columns=alert.question.columns}}
     </div>
     </div>
   </div>

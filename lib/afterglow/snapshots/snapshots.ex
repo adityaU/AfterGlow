@@ -6,7 +6,7 @@ defmodule AfterGlow.Snapshots do
   """
 
   import Ecto.Query, warn: false
-  alias AfterGlow.Repo
+  alias AfterGlow.CacheWrapper.Repo
 
   alias AfterGlow.Snapshots.Snapshot
   alias AfterGlow.Snapshots.SnapshotData
@@ -72,7 +72,7 @@ defmodule AfterGlow.Snapshots do
     created =
       %Snapshot{}
       |> Snapshot.changeset(attrs)
-      |> Repo.insert()
+      |> Repo.insert_with_cache()
 
     with {:ok, %Snapshot{} = snapshot} <- created do
       Async.perform(&SnapshotsTasks.schedule_or_save/1, [snapshot])
@@ -227,14 +227,14 @@ defmodule AfterGlow.Snapshots do
   defp insert_snapshot_data_in_bulk(snapshot, rows, columns) do
     snapshot = update_snapshot(snapshot, %{"columns" => columns})
     query = "insert into snapshot_data (snapshot_id, row, inserted_at, updated_at) values"
-    time_string = DateTime.utc_now() |> DateTime.to_string()
+    time_string = Ecto.DateTime.utc_now() |> Ecto.DateTime.to_string()
 
     rows
     |> Enum.map(fn chunk ->
       values =
         chunk
         |> Enum.map(fn x ->
-          value = Poison.encode!(%{values: x}) |> String.replace("'", "''")
+          value = Jason.encode!(%{values: x}) |> String.replace("'", "''")
           "( #{snapshot.id}, '#{value}', '#{time_string}', '#{time_string}' )"
         end)
         |> Enum.join(", ")

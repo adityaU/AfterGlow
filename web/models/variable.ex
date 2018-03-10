@@ -72,7 +72,7 @@ defmodule AfterGlow.Variable do
   def format_value(variable, value) do
     case variable.var_type do
       "Date" ->
-        case Ecto.DateTime.cast(value) do
+        case DateTime.cast(value) do
           {:ok, date}->
             "'#{value}'"
           _ ->

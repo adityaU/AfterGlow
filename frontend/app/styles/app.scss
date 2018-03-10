@@ -213,10 +213,12 @@ input.bigger{
   border: 1px solid $greyColor;
   height: 2.87em;
   color: $textColorShade2;
+  vertical-align: inherit;
 }
 .ui.form input:not([type]):focus, .ui.form input[type="date"]:focus, .ui.form input[type="datetime-local"]:focus, .ui.form input[type="email"]:focus, .ui.form input[type="number"]:focus, .ui.form input[type="password"]:focus, .ui.form input[type="search"]:focus, .ui.form input[type="tel"]:focus, .ui.form input[type="time"]:focus, .ui.form input[type="text"]:focus, .ui.form input[type="file"]:focus, .ui.form input[type="url"]:focus{
   border: 1px solid $greyColor;
   color: $textColorShade2;
+  vertical-align: inherit;
 }
 i{
   color: $primaryColorShade2;
@@ -274,14 +276,14 @@ label {
       padding-left: 0px !important;
     }
 }
-.ui.button.alert-state{
+.ui.alert-state{
   padding: 5px 10px;
   font-size: 0.8em;
   &.yellow{
-    border: 1px solid #a07c16;
+    color: $warningColor;
   }
   &.red{
-    border: 1px solid #943030;
+    color: $errorColor;
   }
 }
 .ui.dimmer{
@@ -672,6 +674,13 @@ button.toast-close-button{
 }
 .ui.circular.button{
   padding: 8px 11px;
+  &.alert{
+    margin-left: -19px;
+    border-radius: 0px 4px 4px 0px;
+    padding: 5px 10px !important;
+    float: left;
+    margin-right: 15px;
+  }
 }
 
 .pace .pace-progress {

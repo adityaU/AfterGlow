@@ -7,7 +7,6 @@ defmodule AfterGlow.QueryController do
   alias AfterGlow.Sql.DbConnection
   alias AfterGlow.Async
   alias AfterGlow.ColumnValuesTasks
-  alias AfterGlow.Variable
   alias AfterGlow.Plugs.Authorization
   plug(Authorization)
   plug(:authorize!, AfterGlow.Query)

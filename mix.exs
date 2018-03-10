@@ -53,6 +53,7 @@ defmodule AfterGlow.Mixfile do
         :mariaex,
         :secure_random,
         :sweet_xml,
+        :jason,
         :unsafe
       ]
     ]
@@ -95,6 +96,7 @@ defmodule AfterGlow.Mixfile do
       {:bamboo, "~> 0.8.0"},
       {:bamboo_smtp, "~> 1.4.0"},
       {:distillery, "~> 1.5", runtime: false},
+      {:jason, "~> 1.0"},
       {:cachex, git: "https://github.com/whitfin/cachex.git"},
       {:mariaex, git: "https://github.com/xerions/mariaex.git", override: true}
     ]

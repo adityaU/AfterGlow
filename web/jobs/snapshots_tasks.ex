@@ -1,6 +1,6 @@
 defmodule AfterGlow.SnapshotsTasks do
   alias AfterGlow.Snapshots
-  alias AfterGlow.Repo
+  alias AfterGlow.CacheWrapper.Repo
 
   def save(snapshot) do
     unless snapshot.status == "pending" do
@@ -39,6 +39,10 @@ defmodule AfterGlow.SnapshotsTasks do
   def schedule_or_save(snapshot) do
     unless snapshot.status == "pending" and snapshot.starting_at do
       if snapshot.scheduled do
+        snapshot =
+          snapshot
+          |> Repo.preload(:parent)
+
         schedule(snapshot, find_next_suitable_time(snapshot))
       else
         save(snapshot)
@@ -103,7 +107,7 @@ defmodule AfterGlow.SnapshotsTasks do
       |> Repo.preload(:snapshot_data)
       |> change_attributes
       |> Map.delete(:id)
-      |> Repo.insert()
+      |> Repo.insert_with_cache()
 
     # schedule
     snapshot

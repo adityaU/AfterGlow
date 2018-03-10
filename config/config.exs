@@ -26,10 +26,16 @@ config :logger, :console,
 
 config :ja_serializer, key_format: :underscored
 
+config :phoenix, :format_encoders,
+  "json-api": Jason,
+  json: Jason
+
+config :ecto, json_library: Jason
+
 config :oauth2,
   serializers: %{
-    "application/vnd.api+json" => Poison,
-    "application/json" => Poison,
+    "application/vnd.api+json" => Jason,
+    "application/json" => Jason,
     "application/xml" => MyApp.XmlParser
   }
 

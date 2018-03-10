@@ -1,15 +1,15 @@
 <span class="step-number">
-  <button class="ui circular violet icon button">
+  <button class="ui circular violet icon button alert">
     {{number}}
   </button>
 </span>
 <span class="alert-simple-text">
-  When 
+  When
 </span>
 <span class="empty-space"></span>
 <span class="ui form">
   <span class="field display-inline-block">
-    {{#ui-dropdown class="search selection" selected=conf.operation onChange=(action (mut conf.operation))  as |execute mapper|}} 
+    {{#ui-dropdown class="search selection" selected=conf.operation onChange=(action (mut conf.operation))  as |execute mapper|}}
       <div class="default text">value</div>
       <i class="dropdown icon"></i>
       <div class="menu">
@@ -21,18 +21,21 @@
       </div>
     {{/ui-dropdown}}
   </span>
-  {{#if showValueText}} 
+  {{#if showValueText}}
     <span class="empty-space"></span>
     <span class="alert-simple-text">
-      of values   
+      of values
     </span>
   {{/if}}
+
+
+  <span class="empty-space"></span>
   <span class="alert-simple-text">
-    of  
+    of
   </span>
   <span class="empty-space"></span>
   <span class="field display-inline-block">
-    {{#ui-dropdown class="search selection" selected=conf.column onchange=(action (mut conf.column))  as |execute mapper|}} 
+    {{#ui-dropdown class="search selection" selected=conf.column onchange=(action (mut conf.column))  as |execute mapper|}}
       <div class="default text">Column Name</div>
       <i class="dropdown icon"></i>
       <div class="menu">
@@ -46,11 +49,11 @@
   </span>
   <span class="empty-space"></span>
   <span class="alert-simple-text">
-    in  
+    in
   </span>
   <span class="empty-space"></span>
   <span class="field display-inline-block">
-    {{#ui-dropdown class="search selection" selected=conf.within_type onChange=(action (mut conf.within_type))  as |execute mapper|}} 
+    {{#ui-dropdown class="search selection" selected=conf.within_type onChange=(action (mut conf.within_type))  as |execute mapper|}}
       <div class="default text">any</div>
       <i class="dropdown icon"></i>
       <div class="menu">
@@ -68,11 +71,11 @@
   </span>
   <span class="empty-space"></span>
   <span class="alert-simple-text">
-    rows  
+    rows
   </span>
   <span class="empty-space"></span>
   <span class="field display-inline-block">
-    {{#ui-dropdown class="search selection" selected=conf.operator onchange=(action (mut conf.operator))  as |execute mapper|}} 
+    {{#ui-dropdown class="search selection" selected=conf.operator onchange=(action (mut conf.operator))  as |execute mapper|}}
       <div class="default text">is</div>
       <i class="dropdown icon"></i>
       <div class="menu">
@@ -90,8 +93,8 @@
   </span>
   <span class="empty-space"></span>
   <span class="alert-simple-text">
-    , raise  
+    , raise
   </span>
   <span class="empty-space"></span>
-  <span class="ui alert-state {{color}} button">{{type}}</span>
+  <span class="ui alert-state {{color}}">{{type}}</span>
 </span>

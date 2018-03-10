@@ -17,6 +17,5 @@ export default Ember.Component.extend({
   withinTypes: [
         {name: "any" , value: "any" },
         {name: "consecutive" , value: "consecutive" },
-
   ],
 });

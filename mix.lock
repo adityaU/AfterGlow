@@ -27,6 +27,7 @@
   "idna": {:hex, :idna, "4.0.0", "10aaa9f79d0b12cf0def53038547855b91144f1bfcc0ec73494f38bb7b9c4961", [], [], "hexpm"},
   "inflex": {:hex, :inflex, "1.6.0", "2c0c9928cd865e3b47cfaaa15c3520dfdb8c6ba5829d036296deb766f2aba770", [], [], "hexpm"},
   "ja_serializer": {:hex, :ja_serializer, "0.11.2", "952b59b480e656e0bd991c5822dda4dfc6c507f1c55d6eaea363cd84e6002e2c", [], [{:inflex, "~> 1.4", [hex: :inflex, repo: "hexpm", optional: false]}, {:plug, "> 1.0.0", [hex: :plug, repo: "hexpm", optional: false]}, {:poison, "~> 1.4 or ~> 2.0", [hex: :poison, repo: "hexpm", optional: false]}, {:scrivener, "~> 1.2 or ~> 2.0", [hex: :scrivener, repo: "hexpm", optional: true]}], "hexpm"},
+  "jason": {:hex, :jason, "1.0.0", "0f7cfa9bdb23fed721ec05419bcee2b2c21a77e926bce0deda029b5adc716fe2", [:mix], [{:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm"},
   "joken": {:hex, :joken, "1.4.1", "16b87dcbad59dfb1e75231b9d6e504d852ce11f849efb7150a41dcad29dba8e1", [], [{:jose, "~> 1.8", [hex: :jose, repo: "hexpm", optional: false]}, {:plug, "~> 1.0", [hex: :plug, repo: "hexpm", optional: true]}, {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0", [hex: :poison, repo: "hexpm", optional: true]}], "hexpm"},
   "jose": {:hex, :jose, "1.8.2", "2945d4ad6cc94515c606ade52455be3d6bba15578b7e2beed1704ad0cb1e1c80", [], [{:base64url, "~> 0.0.1", [hex: :base64url, repo: "hexpm", optional: false]}], "hexpm"},
   "keccakf1600": {:hex, :keccakf1600, "0.0.1", "c9f1f4abfc54c41c5abff5116c705bdfee63b21831008f361f00b70a10bf4c38", [], [], "hexpm"},

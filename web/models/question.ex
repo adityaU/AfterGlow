@@ -88,12 +88,12 @@ defmodule AfterGlow.Question do
   end
 
   def update_columns(question, columns, cached_results) do
-    cached_results = cached_results |> Poison.encode() |> elem(1)
+    cached_results = cached_results |> Jason.encode() |> elem(1)
     # 1 MB results cache
     question =
       case cached_results |> byte_size >= 1_000_000 do
         false ->
-          question |> changeset(%{cached_results: cached_results |> Poison.decode() |> elem(1)})
+          question |> changeset(%{cached_results: cached_results |> Jason.decode() |> elem(1)})
 
         true ->
           question
@@ -142,7 +142,7 @@ defmodule AfterGlow.Question do
     query
     |> String.replace(
       ~r({{.*snapshot_starting_at.*}}),
-      DateTime.utc_now() |> DateTime.to_iso8601()
+      Ecto.DateTime.utc() |> Ecto.DateTime.to_iso8601()
     )
   end
 

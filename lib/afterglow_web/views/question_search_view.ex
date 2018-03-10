@@ -14,6 +14,7 @@ defmodule AfterGlow.QuestionSearchView do
     :updated_at,
     :shared_to,
     :query_type,
+    :columns,
     :has_permission
   ])
 
