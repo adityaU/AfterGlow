@@ -100,7 +100,7 @@ defmodule AfterGlow.SchemaTasks do
       data_type: record["data_type"],
       table_id: table_id
     })
-    |> Map.merge(%{inserted_at: Ecto.DateTime.utc_now(), updated_at: Ecto.DateTime.utc_now()})
+    |> Map.merge(%{inserted_at: Ecto.DateTime.utc(), updated_at: Ecto.DateTime.utc()})
     |> Repo.insert_or_update()
   end
 end

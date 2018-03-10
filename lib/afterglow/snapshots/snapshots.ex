@@ -227,7 +227,7 @@ defmodule AfterGlow.Snapshots do
   defp insert_snapshot_data_in_bulk(snapshot, rows, columns) do
     snapshot = update_snapshot(snapshot, %{"columns" => columns})
     query = "insert into snapshot_data (snapshot_id, row, inserted_at, updated_at) values"
-    time_string = Ecto.DateTime.utc_now() |> Ecto.DateTime.to_string()
+    time_string = Ecto.DateTime.utc() |> Ecto.DateTime.to_string()
 
     rows
     |> Enum.map(fn chunk ->
