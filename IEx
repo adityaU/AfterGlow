@@ -1,0 +1,108 @@
+diff --git i/frontend/app/models/variable.js w/frontend/app/models/variable.js
+index a7d02ec..200516e 100644
+--- i/frontend/app/models/variable.js
++++ w/frontend/app/models/variable.js
+@@ -22,7 +22,7 @@ export default DS.Model.extend( ResultViewMixin, {
+         this.set('value', moment(this.get('date_value')).toISOString())
+     }),
+ 
+-    questionFilterOptions: Ember.computed('question_filter', "default_options", function(){
++    questionFilterOptions: Ember.computed('question_filter.cached_results', "default_options", function(){
+         let question_filter = this.get('question_filter')
+         return question_filter && question_filter.get('cached_results') && question_filter.get('cached_results.rows').map((item)=> {
+             return {name: item[0], value: item[1]}
+diff --git i/frontend/app/pods/components/accordion-multiselect/template.hbs w/frontend/app/pods/components/accordion-multiselect/template.hbs
+index 75a5a18..b1a2098 100644
+--- i/frontend/app/pods/components/accordion-multiselect/template.hbs
++++ w/frontend/app/pods/components/accordion-multiselect/template.hbs
+@@ -6,10 +6,10 @@
+     <div class="content">
+         {{#multiselect-checkboxes options=showableOptions labelProperty=labelProperty selection=selection as |option isSelected|}}
+             <div class="ui grid">
+-                <div class="one wide column">
++                <div class="two wide column">
+                     {{input type="checkbox" checked=isSelected}}
+                 </div>
+-                <div class="fifteen wide column">
++                <div class="fourteen wide column">
+                     <div class="multiselect-label">{{get option labelProperty}}</div>
+                 </div>
+             </div>
+diff --git i/web/models/variable.ex w/web/models/variable.ex
+index 59f361c..4355597 100644
+--- i/web/models/variable.ex
++++ w/web/models/variable.ex
+@@ -34,13 +34,15 @@ defmodule AfterGlow.Variable do
+       :question_id,
+       :question_filter_id
+     ])
+-    |> make_default_from_default_options(params)
++    |> make_default_from_default_options
+     |> validate_required([:name, :default, :var_type])
+   end
+ 
+-  def make_default_from_default_options(changeset, params) do
++  def make_default_from_default_options(changeset) do
++    default_options = changeset.changes.default_options || changeset.data.default_options
++
+     changeset =
+-      case changeset.data.default_options do
++      case default_options do
+         nil ->
+           changeset
+ 
+@@ -48,7 +50,7 @@ defmodule AfterGlow.Variable do
+           changeset
+           |> Ecto.Changeset.change(
+             default:
+-              changeset.data.default_options
++              default_options
+               |> default_option_values_from_default_options
+           )
+       end
+@@ -63,24 +65,31 @@ defmodule AfterGlow.Variable do
+   def default_option_values_from_default_options(default_options) do
+     default_options
+     |> Enum.map(fn x ->
+-      case x["value"] |> Integer.parse() do
+-        :error ->
+-          case x["value"] |> Float.parse() do
+-            :error -> "'#{x["value"]}'"
+-            {_value, ""} -> x["value"]
+-            _ -> "'#{x["value"]}'"
+-          end
+-
+-        {_value, ""} ->
+-          x["value"]
+-
+-        _ ->
+-          "'#{x["value"]}'"
+-      end
++      x["value"] |> parse_value
+     end)
+     |> Enum.join(", ")
+   end
+ 
++  defp parse_value(value) when is_integer(value), do: value |> to_string
++  defp parse_value(value) when is_float(value), do: value |> to_string
++
++  defp parse_value(value) do
++    case value |> Integer.parse() do
++      :error ->
++        case value |> Float.parse() do
++          :error -> "'#{value}'"
++          {_value, ""} -> value
++          _ -> "'#{value}'"
++        end
++
++      {_value, ""} ->
++        value
++
++      _ ->
++        "'#{value}'"
++    end
++  end
++
+   def default_option_values(variable) do
+     if variable.default_options |> length > 0 do
+       variable.default_options

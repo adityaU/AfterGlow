@@ -6,10 +6,10 @@
     <div class="content">
         {{#multiselect-checkboxes options=showableOptions labelProperty=labelProperty selection=selection as |option isSelected|}}
             <div class="ui grid">
-                <div class="one wide column">
+                <div class="two wide column">
                     {{input type="checkbox" checked=isSelected}}
                 </div>
-                <div class="fifteen wide column">
+                <div class="fourteen wide column">
                     <div class="multiselect-label">{{get option labelProperty}}</div>
                 </div>
             </div>

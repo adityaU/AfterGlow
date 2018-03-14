@@ -22,7 +22,7 @@ export default DS.Model.extend( ResultViewMixin, {
         this.set('value', moment(this.get('date_value')).toISOString())
     }),
 
-    questionFilterOptions: Ember.computed('question_filter', "default_options", function(){
+    questionFilterOptions: Ember.computed('question_filter.cached_results', "default_options", function(){
         let question_filter = this.get('question_filter')
         return question_filter && question_filter.get('cached_results') && question_filter.get('cached_results.rows').map((item)=> {
             return {name: item[0], value: item[1]}

@@ -34,13 +34,15 @@ defmodule AfterGlow.Variable do
       :question_id,
       :question_filter_id
     ])
-    |> make_default_from_default_options(params)
+    |> make_default_from_default_options
     |> validate_required([:name, :default, :var_type])
   end
 
-  def make_default_from_default_options(changeset, params) do
+  def make_default_from_default_options(changeset) do
+    default_options = changeset.changes.default_options || changeset.data.default_options
+
     changeset =
-      case changeset.data.default_options do
+      case default_options do
         nil ->
           changeset
 
@@ -48,7 +50,7 @@ defmodule AfterGlow.Variable do
           changeset
           |> Ecto.Changeset.change(
             default:
-              changeset.data.default_options
+              default_options
               |> default_option_values_from_default_options
           )
       end
@@ -63,22 +65,29 @@ defmodule AfterGlow.Variable do
   def default_option_values_from_default_options(default_options) do
     default_options
     |> Enum.map(fn x ->
-      case x["value"] |> Integer.parse() do
-        :error ->
-          case x["value"] |> Float.parse() do
-            :error -> "'#{x["value"]}'"
-            {_value, ""} -> x["value"]
-            _ -> "'#{x["value"]}'"
-          end
-
-        {_value, ""} ->
-          x["value"]
-
-        _ ->
-          "'#{x["value"]}'"
-      end
+      x["value"] |> parse_value
     end)
     |> Enum.join(", ")
+  end
+
+  defp parse_value(value) when is_integer(value), do: value |> to_string
+  defp parse_value(value) when is_float(value), do: value |> to_string
+
+  defp parse_value(value) do
+    case value |> Integer.parse() do
+      :error ->
+        case value |> Float.parse() do
+          :error -> "'#{value}'"
+          {_value, ""} -> value
+          _ -> "'#{value}'"
+        end
+
+      {_value, ""} ->
+        value
+
+      _ ->
+        "'#{value}'"
+    end
   end
 
   def default_option_values(variable) do
