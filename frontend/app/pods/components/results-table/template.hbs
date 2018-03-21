@@ -10,8 +10,10 @@
         <tbody>
             {{#each pagedRows as |row|}}
                 <tr>
-                    {{#each row as |el|}}
-                        <td data-tooltip="{{el}}" data-inverted=""  data-variation="wide" class="truncate">{{format-object el}}</td>
+                    {{#each row as |el index|}}
+                        <td class="">
+                            {{format-object el}}
+                        </td>
                     {{/each}}
                 </tr>
             {{else}}

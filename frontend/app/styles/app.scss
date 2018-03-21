@@ -547,6 +547,9 @@ a {
 }
 .ui.dropdown .menu {
     top: 30px;
+    &.static{
+      position: static;
+    }
 }
 .ui.very.basic.button {
     text-transform: uppercase;
@@ -972,4 +975,22 @@ body{
 // }
 .results-table{
     margin: 5px;
+}
+table{
+  position: static !important;
+}
+
+.pivot-table{
+  width: 100%;
+  overflow: auto
+}
+
+.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+  background: white;
 }

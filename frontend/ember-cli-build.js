@@ -4,6 +4,9 @@ var EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 module.exports = function(defaults) {
     var app = new EmberApp(defaults, {
+      sourcemaps: {
+        enabled: false
+      },
         ace: {
             themes: ['chrome', 'ambiance'],
             modes: ['pgsql', 'mysql', 'sql'],

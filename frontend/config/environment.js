@@ -18,8 +18,9 @@ module.exports = function(environment) {
             }
         },
         moment: {
-            includeTimezone: 'all'  
+            includeTimezone: 'all'
         },
+      
         /* pace: {
 
             // addon-specific options to configure theme
@@ -42,13 +43,13 @@ module.exports = function(environment) {
             elements: {
                 checkInterval: 100,
                 selectors: ['body', '.ember-view']
-                
+
             },
             eventLag: {
                 minSamples: 10,
                 sampleCount: 3,
                 lagThreshold: 3
-                
+
             },
             ajax: {
                 trackMethods: ['GET','PUT','PATCH','POST', 'DELETE', 'OPTIONS'],

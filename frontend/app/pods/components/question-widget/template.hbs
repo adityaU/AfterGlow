@@ -1,1 +1,4 @@
-{{component resultsWidgetComponent results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName question=question}}
+<div class="renderer-component {{fullscreenClass}}">
+  <i class="expand icon right" {{action 'toggleFullscreen'}}></i>
+{{component resultsWidgetComponent results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName question=question context=componentContext setState=setState colorway=colorway}}
+</div>

@@ -19,6 +19,7 @@
     "ember-ace": "git+https://github.com/adityaU/ember-ace.git",
     "ember-ajax": "^2.4.1",
     "ember-api-actions": "0.1.6",
+    "ember-browserify": "^1.2.1",
     "ember-can": "0.8.4",
     "ember-chartjs": "0.0.0",
     "ember-cli": "2.18.0",
@@ -33,6 +34,7 @@
     "ember-cli-pace": "0.1.0",
     "ember-cli-pagination": "3.0.0",
     "ember-cli-qunit": "^3.0.1",
+    "ember-cli-react": "^0.3.0",
     "ember-cli-release": "^0.2.9",
     "ember-cli-sass": "6.1.1",
     "ember-cli-shims": "^1.0.2",
@@ -58,10 +60,15 @@
     "ember-vcl-plotly": "github:ember-vcl/plotly",
     "ember-welcome-page": "^2.0.2",
     "loader.js": "^4.0.10",
+    "react": "^15.6.2",
+    "react-dom": "^15.6.2",
     "semantic-ui-ember": "2.0.1"
   },
   "engines": {
     "node": ">= 0.12.0"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "react-pivottable": "^0.3.1"
+  }
 }

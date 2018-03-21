@@ -9,7 +9,8 @@ export default Ember.Mixin.create({
         "Pie" : 'pie chart',
         "Bars" : 'bar chart',
         "Area" : 'area chart',
-        "Bubble": 'circle thin'
+        "Bubble": 'circle thin',
+        "Pivot Table": "eye"
     },
 
     resultViewDashboardDefaultDimensions: {
@@ -20,7 +21,8 @@ export default Ember.Mixin.create({
         "Pie" : {width:6, height: 8},
         "Bars" : {width:6, height: 6},
         "Area" : {width:6, height: 6},
-        "Bubble": {width:6, height: 6}
+        "Bubble": {width:6, height: 6},
+        "PivotTable": {width:6, height: 6}
     },
 
     findIfDate(el){

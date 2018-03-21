@@ -22,37 +22,10 @@ export default Ember.Component.extend({
     totalPages: Ember.computed.oneWay("pagedRows.totalPages"),
     showPageNumbers: Ember.computed('totalPages', function(){
         return this.get('totalPages') - 1
-    })
+    }),
+    actions: {
+      addAdditionalFilter(el,index){
+        this.sendAction('addAdditinalFilter', el, index, operator)
+      }
+    }
 });
-
-// import Ember from 'ember';
-// import Table from 'ember-light-table';
-
-// const { computed } = Ember
-
-// export default Ember.Component.extend({
-//     classNames: ["full"],
-//     model: null,
-
-//     tableRows: computed('results', function(){
-
-//         let columns = this.get('results.columns');
-//         return this.get('results.rows').map((row)=>{
-//             var r = {};
-//             row.map((item, i)=>{
-//                 r[columns[i]] = r[columns[i]] ? r[columns[i]].push(item) : [item];
-//             })
-//             return r;
-//         })
-//     }),
-//     columns: computed('results', function() {
-//         return this.get('results.columns').map((item)=>{
-//             return {label: item, valuePath: item, width: '150px'}
-//         }) 
-//     }),
-
-//     table: computed('results', function() {
-//         return new Table(this.get('columns'), this.get('tableRows'), {responsive: true});
-//     })
-
-// });
