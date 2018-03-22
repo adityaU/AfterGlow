@@ -3,9 +3,11 @@ import PivotTableUI from 'npm:react-pivottable/PivotTableUI';
 import TableRenderers from 'npm:react-pivottable/TableRenderers';
 //import Plot from 'npm:react-plotly.js';
 import createPlotlyRenderers from 'npm:react-pivottable/PlotlyRenderers';
+import createPlotlyComponent from 'npm:react-plotly.js/factory';
 
 // create Plotly renderers via dependency injection
-const PlotlyRenderers = createPlotlyRenderers(Plotly);
+const Plot = createPlotlyComponent(window.Plotly);
+const PlotlyRenderers = createPlotlyRenderers(Plot);
 
 export default class App extends React.Component {
     constructor(props) {
