@@ -1,11 +1,11 @@
 import React from 'npm:react';
 import PivotTableUI from 'npm:react-pivottable/PivotTableUI';
 import TableRenderers from 'npm:react-pivottable/TableRenderers';
-import Plot from 'npm:react-plotly.js';
+//import Plot from 'npm:react-plotly.js';
 import createPlotlyRenderers from 'npm:react-pivottable/PlotlyRenderers';
 
 // create Plotly renderers via dependency injection
-const PlotlyRenderers = createPlotlyRenderers(Plot);
+const PlotlyRenderers = createPlotlyRenderers(Plotly);
 
 export default class App extends React.Component {
     constructor(props) {
