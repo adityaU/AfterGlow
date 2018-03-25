@@ -11,7 +11,7 @@ module.exports = function(defaults) {
             themes: ['chrome', 'ambiance'],
             modes: ['pgsql', 'mysql', 'sql'],
             workers: ['pgsql', 'mysql', 'sql'],
-            exts: ["language_tools", "beautify"],
+            exts: ["language_tools", "beautify", "text", "sql"],
             basePath: "/ace/"
 
         }
@@ -22,8 +22,14 @@ module.exports = function(defaults) {
     app.import('./bower_components/ace-builds/src-noconflict/mode-sql.js')
     app.import('./bower_components/ace-builds/src-noconflict/ext-beautify.js')
     app.import('./bower_components/ace-builds/src-noconflict/ext-language_tools.js')
-    app.import('./bower_components/ace-builds/src-noconflict/snippets/text.js')
-    app.import('./bower_components/ace-builds/src-noconflict/snippets/sql.js')
+    app.import('./bower_components/ace-builds/src-noconflict/snippets/text.js',
+    {
+      type: 'vendor'
+    })
+    app.import('./bower_components/ace-builds/src-noconflict/snippets/sql.js',
+    {
+      type: 'vendor'
+    })
     app.import('./bower_components/lodash/dist/lodash.js', {
         type: 'vendor',
         prepend: true,

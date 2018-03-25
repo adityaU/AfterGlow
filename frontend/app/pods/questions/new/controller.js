@@ -27,6 +27,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
                 groupBys: [],
                 orderBys: [],
                 offset: null,
+                rawQuery: "",
                 limit: 2000
             }),
             results_view_settings: {resultsViewType: "table", numbers: [], dataColumns: [{}]},
@@ -181,6 +182,8 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
             let queryType = this.get('queryObject.queryType');
             if (queryType == 'query_builder'){
                 this.set('queryObject.queryType', 'raw');
+                (this.get('queryObject.rawQuery') == null) &&
+                this.set('queryObject.rawQuery', "")
             }else{
                 this.set('queryObject.queryType', 'query_builder');
             }
