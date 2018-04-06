@@ -1,38 +1,38 @@
 <div class="overflow-y-auto border results-table">
-    <table class="ui single line table no-border">
-        <thead>
-            <tr>
-                {{#each results.columns as |column|}}
-                    <th>{{capitalize column}}</th>
-                {{/each}}
-            </tr>
-        </thead>
-        <tbody>
-            {{#each pagedRows as |row|}}
-                <tr>
-                    {{#each row as |el index|}}
-                        <td class="">
-                            {{format-object el}}
-                        </td>
-                    {{/each}}
-                </tr>
-            {{else}}
-            {{/each}}
-        </tbody>
-        {{#if showPageNumbers}}
-        <tfoot class="full-width">
-            <tr>
-                <th colspan="100">
-                    {{#if showResults}}
-                        {{page-numbers content=pagedRows}}
-                    {{else}}
-                        <div class="centered">
-                            Looks like your query did not return any result.
-                        </div>
-                    {{/if}}
-                </th>
-            </tr>
-        </tfoot>
-        {{/if}}
-    </table>
+  <table class="ui single line table no-border">
+    <thead>
+      <tr>
+        {{#each results.columns as |column|}}
+        <th>{{capitalize column}}</th>
+        {{/each}}
+      </tr>
+    </thead>
+    <tbody>
+      {{#each pagedRows as |row|}}
+      <tr>
+        {{#each row as |el index|}}
+        <td class="" {{action 'openAdditionalFilterPopup' el index results}}>
+          {{format-object el}}
+        </td>
+        {{/each}}
+      </tr>
+      {{else}}
+      {{/each}}
+    </tbody>
+    {{#if showPageNumbers}}
+    <tfoot class="full-width">
+      <tr>
+        <th colspan="100">
+          {{#if showResults}}
+          {{page-numbers content=pagedRows}}
+          {{else}}
+          <div class="centered">
+            Looks like your query did not return any result.
+          </div>
+          {{/if}}
+        </th>
+      </tr>
+    </tfoot>
+    {{/if}}
+  </table>
 </div>

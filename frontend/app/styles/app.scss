@@ -396,9 +396,13 @@ label {
   box-shadow: none !important;
 }
 .ui.segment{
-    border: 1px solid $greyColor;
-    border-bottom: 3px solid $borderSecondaryColor;
+  border: 1px solid $greyColor;
+  border-bottom: 3px solid $borderSecondaryColor;
   box-shadow: box-shadow($greyColor);
+  &.outlined{
+    border-bottom: none;
+    border: 1px solid $greyColor;
+  }
 }
 .ui.grid.container{
   width: calc( 1127px + 8% ) !important;
@@ -994,4 +998,8 @@ table{
   overflow: auto;
   z-index: 999;
   background: white;
+},
+.action-buttons{
+  height: 40px;
+  text-align: right;
 }
