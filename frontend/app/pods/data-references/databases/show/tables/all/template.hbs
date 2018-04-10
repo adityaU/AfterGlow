@@ -1,31 +1,47 @@
-<div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
-    <div class="ui grid">
-        <div class="ten wide column ">
-            <div class="dashboard-title">
-                Tables in database: {{database.name}}
+<div class="header collapse d-lg-flex p-0">
+    <div class="container">
+        <div class="nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0">
+            <div class="row">
+                <div class="col-12">
+                    <div class="text-default">
+                       Tables in database: {{database.name}}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-<div class="padded-content ui basic segment full no-border-radius no-border-top no-bottom-margin">
+<div class="container px-0 mt-5">
 
-    <div class="ui form">
-        <div class="field">
-            {{input value=query class="ui bigger" placeholder="Search Table" }}
+    <div class="form-group">
+      <div class="input-group input-icon">
+        <span class="input-group-prepend" id="basic-addon3">
+          <span class="input-group-text">Search a Table</span>
+        </span>
+            {{input value=query class="form-control" placeholder="Search Table" }}
+        <div class="input-icon-addon">
+          <i class="fe fe-search"></i>
         </div>
+      </div>
     </div>
+
     {{#if loading}}
-        <div class="ui active inverted dimmer">
-            <div class="ui text massive loader">{{loadingMessage}}</div>
-        </div>
+
+                        <div class="dimmer active">
+                          <div class="loader text-primary"></div>
+                          <div class="dimmer-content">
+                          </div>
+                        </div>
     {{else}}
-        <table class="ui single line table">
+        <div class="card">
+            <div class="table-responsive">
+                 <table class="table table-hover table-outline table-vcenter text-nowrap card-table">
             <thead>
                 <tr>
-                    <th class="five wide">Table Name</th>
-                    <th class="ten wide">Description</th>
+                    <th class="w-3">Table Name</th>
+                    <th class="w-12">Description</th>
                     {{#if canEdit}}
-                    <th class="one wide">Actions</th>
+                    <th class="w-1">Actions</th>
                     {{/if}}
                 </tr>
             </thead>
@@ -41,10 +57,8 @@
                         <td>
                             {{#if table.editMode}} 
 
-                                <div class="ui form">
-                                    <div class="field">
-                                        {{input value=table.description class="ui" placeholder="short description of this table" }}
-                                    </div>
+                                <div class="form-group mb-0">
+                                        {{input value=table.description class="form-control" placeholder="short description of this table" }}
                                 </div>
                             {{else}}
                                 {{table.description}}
@@ -53,21 +67,25 @@
                         {{#if canEdit}}
                         <td>
                             {{#if table.editMode}} 
-                                <span data-tooltip="Save" data-inverted="">  
-                                    <i class="save icon" {{action "saveTable" table}}></i>
+                                <span>  
+                                    {{bs-tooltip placement=top title="Save"}}  
+                                    <i class="fe fe-save text-gray mx-1" {{action "saveTable" table}}></i>
                                 </span>
-                                <span data-tooltip="Cancel Edit" data-inverted="">  
-                                    <i class="cancel icon" {{action "cancelEdit" table}}></i>
+                                <span>  
+                                    {{bs-tooltip placement=top title="Cancel Editing"}}  
+                                    <i class="fe fe-x text-gray mx-1" {{action "cancelEdit" table}}></i>
                                 </span>
                             {{else}}
                                 
-                                <span data-tooltip="Edit" data-inverted="">  
-                                    <i class="edit icon" {{action "editTable" table}}></i>
+                                <span >
+                                    {{bs-tooltip placement=top title="Edit"}}  
+                                    <i class="fe fe-edit text-gray mx-1" {{action "editTable" table}}></i>
                                 </span>
                             {{/if}}
                             {{#link-to 'data_references.databases.show.tables.show.explore' database.id table.id}}
-                                <span data-tooltip="Explore Data" data-inverted="">  
-                                    <i class="zoom icon"></i>
+                                <span>  
+                                    {{bs-tooltip placement=top title="Explore Data"}}  
+                                    <i class="fe fe-zoom-in text-gray mx-1"></i>
                                 </span>
                             {{/link-to}}
                         </td>
@@ -75,6 +93,8 @@
                     </tr>
                 {{/each}}
             </tbody>
-        </table>
+        </table>  
+            </div>
+        </div>
     {{/if}}
 </div>

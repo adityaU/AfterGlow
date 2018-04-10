@@ -67,7 +67,7 @@ defmodule AfterGlow.DatabaseController do
 
     # Here we use delete! (with a bang) because we expect
     # it to always work (and if it does not, it will raise).
-    Repo.delete!(database)
+    Repo.delete_with_cache(database)
 
     send_resp(conn, :no_content, "")
   end

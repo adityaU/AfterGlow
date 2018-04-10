@@ -1,6 +1,7 @@
 import Ember from 'ember';
+import CustomEvents from 'frontend/mixins/custom-events'
 
-export default Ember.Component.extend({
+export default Ember.Component.extend(CustomEvents,{
     editing: false,
     actions:{
         saveQuestion(){
@@ -23,7 +24,7 @@ export default Ember.Component.extend({
             $('.ui.modal.delete-dialogue').modal('show')
         },
         showShareDialogue(){
-            $('.ui.modal.share-entity').modal('show')
+            this.set('toggleShareModal', 'true')
         },
         showSnapshotMaker(){
             $('.ui.modal.snapshot-maker').modal('show')
@@ -35,6 +36,8 @@ export default Ember.Component.extend({
         },
         toggleVariableWindow(){
             this.toggleProperty('showVariables')
+            let plotlyComponent = Ember.$('.js-plotly-plot')[0]
+            plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize')) 
         },
         viewSnapshots(question){
             this.sendAction('transitionToSnapshots', question.id)

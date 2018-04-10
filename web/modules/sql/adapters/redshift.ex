@@ -34,7 +34,7 @@ defmodule AfterGlow.Sql.Adapters.Redshift do
   end
 
   def get_schema(conn) do
-    {:ok, data} = Postgrex.query(conn, "select tablename as table_name, \"column\"::varchar as name, type::varchar as data_type from pg_table_def where schemaname = 'public'",
+    {:ok, data} = Postgrex.query(conn, "select tablename as table_name, \"column\"::varchar as name, type::varchar as data_type from pg_table_def",
       [], opts)
 
     {:ok, data.rows

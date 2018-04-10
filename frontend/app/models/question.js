@@ -19,6 +19,7 @@ export default DS.Model.extend(ResultViewMixin, {
     snapshots: DS.hasMany('snapshots'),
     shared_to: DS.attr(),
     variables: DS.hasMany('variables'),
+    owner: DS.belongsTo('user'),
     variables_from_this_question: DS.hasMany('variables',  { inverse: 'question_filter' }),
 
     inserted_at: DS.attr('utc'),
@@ -84,9 +85,13 @@ export default DS.Model.extend(ResultViewMixin, {
        !this.isDestroyed && this.set('updatedAgoColorChangeTime', new Date())
     },
     query_variables: Ember.computed.alias('variables'),
-
+    showCardHeader: Ember.computed('results_view_settings', 'results_view_settings.resultsViewType', function(){
+       return this.get('results_view_settings.resultsViewType') != 'Number'
+    }),
     icon: Ember.computed('results_view_settings', "results_view_settings.resultsViewType", function(){
-       return this.get('resultViewIcons')[this.get('results_view_settings.resultsViewType')] || "table"
+      let resultsViewType = this.get('results_view_settings.resultsViewType')
+      resultsViewType = resultsViewType && resultsViewType.toLowerCase()
+       return this.get('resultViewIcons')[resultsViewType] || "fe fe-list"
     }),
 
     resultsCall: memberAction({ path: 'results', type: 'post', urlType: 'findRecord' }),

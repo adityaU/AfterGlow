@@ -13,9 +13,11 @@ export default Ember.Component.extend({
     actions:{
         clearSharedTo(){
             this.get('entity').rollbackAttributes('shared_to')  
+            this.set('open', false)
         },
         saveSharedTo(){
             this.get('entity').save()
+            this.set('open', false)
         } 
     }
 });

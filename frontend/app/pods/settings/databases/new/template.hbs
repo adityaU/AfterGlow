@@ -5,7 +5,7 @@
         <label>Database Type</label>
         {{#ui-dropdown class="search selection" selected=db.db_type onChange=(action (mut db.db_type))  as |execute mapper|}} 
             {{dropdown-default object=db.db_type default="DB Type"}}
-            <i class="dropdown icon"></i>
+            <i class="fe fe-chevron-down"></i>
             <div class="menu">
                 {{#each dbTypes as |dbType|}}
                     <div class="item" data-value="{{map-value mapper dbType}}">

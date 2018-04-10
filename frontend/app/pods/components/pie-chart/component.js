@@ -62,5 +62,8 @@ export default Ember.Component.extend(UtilsFunctions, {
             let dimensions = _this.get('dimensions')(gridParent) 
             Plotly.relayout(_this.get("randomId"), dimensions)
         });
+        data && gd && gd.addEventListener('plotlyResize', function() {
+            Plotly.Plots.resize(document.getElementById(_this.get("randomId")))
+        });
     }
 });

@@ -5,6 +5,17 @@ export default Ember.Component.extend(UtilsFunctions, {
     chartTypes: Ember.computed(function(){
         return ["Line", "Bars", "Area", "Bubble"]
     }),
+    resultsColumnsHash: Ember.computed('results.columns', function(){
+      return this.get('results.columns') && this.get('results.columns').map(function(item){
+        return Ember.Object.create({columnName: item})
+      })
+    }),
+    x1Hash: Ember.computed("resultsViewSettings.x1", function(){
+       return this.get("resultsViewSettings.x1") && Ember.Object.create({columnName: this.get('resultsViewSettings.x1')})
+    }),
+    x2Hash: Ember.computed("resultsViewSettings.x2", function(){
+       return this.get("resultsViewSettings.x2") && Ember.Object.create({columnName: this.get('resultsViewSettings.x2')})
+    }),
     lineShapeTypes: [
         {
             name: "smooth",
@@ -39,13 +50,27 @@ export default Ember.Component.extend(UtilsFunctions, {
         addYColumn(){
             let multipleYs = this.get('multipleYs')
             if (multipleYs) {
-                multipleYs.pushObject({columnName: null})
+                multipleYs.pushObject(null)
             }else{
                 this.set('multipleYs', [{}])
             }
         },
         removeColumn(data){
             this.get('multipleYs').removeObject(data)
+        },
+        updateSelection(el, selection){
+          if (selection){
+          this.set(el, selection.get('columnName'))
+          }else{
+              this.set(el, null)
+          }
+        },
+        updateY(index, selection){
+            if (selection) {
+                this.get('multipleYs').replace(index, 1, [Ember.Object.create({columnName: selection.get('columnName')})])
+            } else{
+              this.get('multipleYs').replace(index,1, [null])
+            }
         }
     }
 });

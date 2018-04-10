@@ -1,65 +1,57 @@
 <div class="create-variable content">
-    <div class="ui grid">
-        <div class="ui form full">
-            <div class="sixteen wide column">
-                <div class="field">
-                    <label>Name (mendatory)</label>
-                    {{input value=variable.name class="ui" placeholder="Variable name" }}
-                </div>
+    <div class="row w-100">
+        <div class="form-group w-100">
+            <div class="col-12">
+                    <label class="form-label text-default">Name
+                        <span class="form-required">*</span>
+                    </label>
+
+                    {{input class="form-control" value=variable.name class="ui" placeholder="Variable name" }}
             </div>
-            <div class="sixteen wide column">
-                <div class="field">
-                    <label>Type</label>
-                    {{#ui-dropdown class="search selection" selected=variable.var_type onChange=(action (mut variable.var_type)) as |execute mapper|}}
-                        {{dropdown-default object=variable.var_type default="string"}}
-                        <i class="dropdown icon"></i>
-                        <div class="menu">
-                            {{#each variableTypes as |variableType|}}
-                                <div class="item" data-value={{variableType}}>
-                                    {{variableType}}
-                                </div>
-                                <!-- {{/each}} -->
-                        </div>
-                    {{/ui-dropdown}}
-                </div>
+            <div class="col-12">
+                    <label class="form-label text-default mt-2">Type
+                        <span class="form-required">*</span>
+                    </label>
+  {{searchable-select
+      content=variableTypes
+      sortBy="title"
+      prompt="Select a Variable Type"
+      selected=varTypeHash
+      on-change=(action 'updateVarType')}}
             </div>
             {{#if dynamic}}
-            <div class="sixteen wide column">
-                <div class="field">
-                    <label>Question Filter</label>
-                    {{#ui-dropdown class="search selection" selected=variable.question_filter onChange=(action (mut variable.question_filter)) as |execute mapper|}}
-                        {{dropdown-default object=variable.question_filter.title default="search question filter"}}
-                        <i class="dropdown icon"></i>
-                        <div class="menu">
-                            <div class="ui icon search input">
-                                <i class="search icon"></i>
-                                {{input value=questionQuery class="ui" placeholder="search question filter" }}
-                            </div>
-                            {{#each questions as |question|}}
-                                <div class="item" data-value={{map-value mapper question}}>
-                                    {{question.title}}
-                                </div>
-                                <!-- {{/each}} -->
-                        </div>
-                    {{/ui-dropdown}}
-                </div>
+            <div class="col-12">
+                    <label class="form-label text-default mt-2">Question Filter
+                        <span class="form-required">*</span>
+                    </label>
+  {{searchable-select
+      content=questions
+      sortBy="title"
+      prompt="Select a Filter Question"
+      selected=variable.question_filter
+      on-search=(action "updateQuestionSearch")
+      on-change=(action (mut variable.question_filter))}}
             </div>
 
-            <div class="sixteen wide column">
+            <div class="col-12">
+                <label class="form-label text-default mt-2">
+                    Default
+                    <span class="form-required">*</span>
+                    </label>
                 {{accordion-multiselect label="Default Options" selection=variable.default_options options=variable.questionFilterOptions labelProperty='name' placeholder="select few options"}}
             </div>
             {{else}}
-            <div class="sixteen wide column">
-                <div class="field">
-                    <label>Default (mendatory)</label>
+            <div class="col-12">
+                    <label class="form-label text-default mt-2">Default
+                        <span class="form-required">*</span>
+                    </label>
                     {{#if showDatePicker}}
-                        {{ui-calendar date=default_date onChange=(action (mut default_date)) placeholder="current_date" }}
+                        {{ui-calendar class="form-control" date=default_date onChange=(action (mut default_date)) placeholder="current_date" }}
                         <div class="ui horizontal divider">or</div>
-                        {{input value=variable.default class="ui" placeholder="current_date" }}
+                        {{input class="form-control" value=variable.default class="ui" placeholder="current_date" }}
                     {{else}}
-                    {{input value=variable.default class="ui" placeholder="default" }}
+                    {{input class="form-control" value=variable.default class="ui" placeholder="default" }}
                     {{/if}}
-                </div>
             </div>
             {{/if}}
         </div>

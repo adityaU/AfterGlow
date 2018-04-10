@@ -107,7 +107,9 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
         if (data && x1 && multipleYs && multipleYs.length >=0){
             var x2 = data.columns.indexOf(x2);
             var x1 = data.columns.indexOf(x1);
-            var multipleYs = multipleYs.map((y)=> { return data.columns.indexOf(y.columnName)}).filter((i)=>{
+            var multipleYs = multipleYs.map((y)=> { 
+                return y ? data.columns.indexOf(y.columnName) : -1 }
+            ).filter((i)=>{
                 return i >= 0
             });
             data = multipleYs.map((y)=>{
@@ -274,10 +276,10 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
         }
 
         this.get('multipleYs').forEach((item, i)=>{
-            if (item.separateYaxis && i !=0 ){
+            if ( item && item.separateYaxis && i !=0 ){
                 let yaxisName = "yaxis" + (i + 1).toString()
                 l[yaxisName] = {
-                    title: item.columnName,
+                    title:  item && item.columnName,
                     titlefont: {color: this.get('colors')[i]},
                     tickfont: {color: this.get('colors')[i]},
                     overlaying: 'y',
@@ -365,7 +367,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
         }
 
         _this.get('multipleYs').forEach((item, j)=>{
-            if (item.separateYaxis && j !=0 && i == j){
+            if ( item && item.separateYaxis && j !=0 && i == j){
                 d["yaxis"] = "y" + (i + 1).toString()
             }
         })

@@ -78,7 +78,7 @@ defmodule AfterGlow.DashboardController do
     dashboard = scope(conn, Dashboard) |> Repo.get!(Dashboard, id)
     # Here we use delete! (with a bang) because we expect
     # it to always work (and if it does not, it will raise).
-    Repo.delete!(dashboard)
+    Repo.delete_with_cache(dashboard)
     send_resp(conn, :no_content, "")
   end
 

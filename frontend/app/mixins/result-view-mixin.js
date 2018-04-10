@@ -2,15 +2,15 @@ import Ember from 'ember';
 
 export default Ember.Mixin.create({
     resultViewIcons: {
-        "Calendar": "calendar outline",
-        "Number": "hashtag",
-        "Table" : 'table',
-        "Line" : 'line chart',
-        "Pie" : 'pie chart',
-        "Bars" : 'bar chart',
-        "Area" : 'area chart',
-        "Bubble": 'circle thin',
-        "Pivot Table": "eye"
+        "calendar": "fe fe-calendar",
+        "number": "fe fe-hash",
+        "table" : 'fe fe-list',
+        "line" : 'fe fe-trending-up',
+        "pie" : 'fe fe-pie-chart',
+        "bars" : 'fe fe-bar-chart',
+        "area" : 'fe fe-activity',
+        "bubble": 'fe fe-circle',
+        "pivot table": "fe fe-eye"
     },
 
     resultViewDashboardDefaultDimensions: {

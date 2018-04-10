@@ -1,68 +1,85 @@
-<div class="ui grid">
-    <div class="ten wide column ">
-        {{#if (and editing canEdit)}}
-        <div class="ui form">
-            <div class="field">
-                {{input value=questionName class="ui" placeholder=questionName }}
-            </div>
-        </div>
-        {{else}}
-        <div class="dashboard-title">
-             <i class="{{question.icon}} icon"></i>
+<div class="header collapse d-lg-flex p-0">
+  <div class="container">
+    <div class="nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0">
+      <div class="row full">
+        <div class="col">
+          {{#if (and editing canEdit)}}
+          <div class="form-group my-0">
+            {{input class="form-control" value=questionName class="ui" placeholder=questionName }}
+          </div>
+          {{else}}
+          <div class="text-default">
+            <i class="{{question.icon}}"></i>
             {{questionName}}
+          </div>
+          {{/if}}
         </div>
-        {{/if}}
+        <div class="col text-right {{if editing 'pt-1'}} ">
+          {{#if validQuestion}}
+          {{#if canEdit}}
+          <button class="btn btn-link text-primary py-0 align-baseline" {{action 'saveQuestion'}}>
+            {{#bs-tooltip placement="top"}}Save Question{{/bs-tooltip}}
+            SAVE
+          </button>
+          {{/if}}
+          {{#if (and editing canEdit)}}
+          <button class="btn btn-link text-gray py-0 align-baseline" {{action 'cancelEditingQuestion'}}>
+            {{#bs-tooltip placement="top"}}Cancel Editing Question{{/bs-tooltip}}
+            CANCEL
+          </button>
+          <button class="btn btn-link text-red py-0 align-baseline" {{action 'showDeleteDialogue'}}>
+            {{#bs-tooltip placement="top"}}Delete Question{{/bs-tooltip}}
+            DELETE
+          </button>
+          {{else}}
+          {{#if canEdit}}
+          <span class="d-inline-flex">
+            {{#bs-tooltip placement="top"}}Edit{{/bs-tooltip}}
+            <i class="fe fe-edit text-gray px-1" {{action 'editQuestion'}}></i>
+          </span>
+          {{/if}}
+          {{/if}}
+          {{/if}}
+          {{#if (and validQuestion canEdit)}}
+          <span class="d-inline-flex">
+            {{#bs-tooltip placement="top"}}Share{{/bs-tooltip}}
+            <i class="fe fe-share text-gray px-1"  {{action 'showShareDialogue'}} ></i>
+          </span>
+          {{/if}}
+
+          {{#if (and (and validQuestion canCreateSnapshot) canEdit)}}
+          <span class="d-inline-flex">
+            {{#bs-tooltip placement="top"}}Create A Snapshot{{/bs-tooltip}}
+            <i class="fe fe-file text-gray px-1"  {{action 'showSnapshotMaker'}} ></i>
+          </span>
+          {{/if}}
+
+          {{#if (and (and validQuestion question.id) canEdit)}}
+          <span class="d-inline-flex">
+            {{#bs-tooltip placement="top"}}Add Tags{{/bs-tooltip}}
+            <i class="fe fe-tag text-gray px-1"  {{action 'showAddTags'}} ></i>
+          </span>
+          {{#if (gt question.snapshots.length 0)}}
+          <span class="d-inline-flex" {{action 'viewSnapshots' question}}>
+            {{#bs-tooltip placement="top"}}view {{question.snapshots.length}} snapshot(s){{/bs-tooltip}}
+            <i class="fe fe-copy text-gray"></i>
+          </span>
+          {{/if}}
+          {{/if}}
+          {{#if (and enableAddToDashboard canEdit)}}
+          <span class="d-inline-flex" {{action 'showAddToDashboard'}}>
+            {{#bs-tooltip placement="top"}}Add to Dashboard{{/bs-tooltip}}
+            <i class="fe fe-grid text-gray px-1"></i>
+          </span>
+          {{/if}}
+          <span class="d-inline-flex" {{action 'toggleVariableWindow'}}>
+            {{#bs-tooltip placement="top"}}Toggle Variable Window{{/bs-tooltip}}
+            <i class="fe fe-code text-gray" ></i>
+          </span>
+        </div>
+      </div>
     </div>
-    <div class="six wide column text-align-right ">
-        {{#if validQuestion}}
-            {{#if (and editing canEdit)}}
-            <button data-tooltip="Save Question" data-inverted=""  class="ui very basic violet button" {{action 'saveQuestion'}}>
-                SAVE
-            </button>
-            <button data-tooltip="Cancel Editing Question" data-inverted=""  class="ui very basic grey button" {{action 'cancelEditingQuestion'}}>
-                CANCEL
-            </button>
-            <button data-tooltip="Delete Question" data-inverted=""  class="ui very basic red button" {{action 'showDeleteDialogue'}}>
-                DELETE
-            </button>
-            {{else}}
-            {{#if canEdit}}
-                <span data-tooltip="Edit" data-inverted=""  >
-                    <i class="pencil icon" {{action 'editQuestion'}}></i>
-                </span>
-            {{/if}}
-            {{/if}}
-        {{/if}}
-        {{#if (and validQuestion canEdit)}}
-            <span data-tooltip="Share" data-inverted="">
-                <i class="square share icon"  {{action 'showShareDialogue'}} ></i>
-            </span>
-        {{/if}}
-
-        {{#if (and (and validQuestion canCreateSnapshot) canEdit)}}
-          <span data-tooltip="Create A Snapshot" data-inverted="">
-            <i class="clone icon"  {{action 'showSnapshotMaker'}} ></i>
-          </span>
-        {{/if}}
-
-        {{#if (and (and validQuestion question.id) canEdit)}}
-          <span data-tooltip="Add Tags" data-inverted="">
-            <i class="tag icon"  {{action 'showAddTags'}} ></i>
-          </span>
-
-          <span data-tooltip="view {{question.snapshots.length}} snapshot(s)" data-inverted=""  class="" {{action 'viewSnapshots' question}}>
-            <i class="copy icon"></i>
-          </span>
-        {{/if}}
-        {{#if (and enableAddToDashboard canEdit)}}
-            <span data-tooltip="Add to Dashboard" data-inverted=""  {{action 'showAddToDashboard'}}>
-                <i class="block layout icon" ></i>
-            </span>
-        {{/if}}
-            <span data-tooltip="Toggle Variable Window" data-inverted=""  {{action 'toggleVariableWindow'}} data-position="left center">
-                <i class="superscript icon" ></i>
-            </span>
-    </div>
+  </div>
 </div>
 {{delete-dialogue entityName="question" entity=question delete="deleteQuestion"}}
-{{share-entity entityName="Question" entity=question}}
+{{share-entity entityName="Question" entity=question open=toggleShareModal}}

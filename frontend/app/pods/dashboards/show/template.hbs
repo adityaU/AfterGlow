@@ -1,88 +1,115 @@
-<div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
-    <div class="ui grid">
-        <div class="six wide column">
+<div class="dashboard-page w-100">
+<div class="header collapse d-lg-flex p-0">
+  <div class="container">
+    <div class="nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0">
+    <div class="row justify-content-between w-100">
+        <div class="col">
             {{#if editMode}}
-                <div class="ui form">
-                    <div class="field">
-                        <label>Title</label>
-                        {{input value=dashboard.title class="ui"}}
-                    </div>
-                    <div class="field">
-                        <label>Description</label>
-                        {{input value=dashboard.description class="ui" }}
-                    </div>
+                <div class="form-group">
+                        <div class="input-group">
+                          <span class="input-group-prepend mt-2" id="basic-addon1">
+                            <span class="input-group-text">Title</span>
+                          </span>
+                          {{input value=dashboard.title class="form-control mt-2"}}
+                        </div>
+                        <div class="input-group">
+                          <span class="input-group-prepend mt-2" id="basic-addon1">
+                            <span class="input-group-text">Description</span>
+                          </span>
+                          {{input value=dashboard.description class="form-control mt-2"}}
+                        </div>
                 </div>
 
             {{else}}
-                <div class="dashboard-title">
+                <div class="text-default">
                     {{dashboard.title}}
                 </div>
             {{/if}}
         </div>
-        <div class="four wide column text-align-center">
+        <div class="col text-center">
             {{#if editMode}}
             {{else}}
-                <div data-tooltip="Refresh Now" data-inverted=""  class="ui violet text" {{action 'refreshNow'}}>
+                <div {{action 'refreshNow'}} class="text-primary">
+                    {{bs-tooltip title="Refresh Now"}}
                     REFRESH
                 </div>
             {{/if}}
         </div>
-        <div class="six wide column text-align-right {{if editMode  "options-dashboard"}}">
+        <div class="col text-right {{if editMode  "options-dashboard"}}">
             {{#if (and editMode (not (can "edit dashboard")))}}
-                <button data-tooltip="Cancel Editing Dashboard" data-inverted=""  class="ui very basic grey button" {{action 'cancelEditingDashboard'}}>
+                <button {{action 'cancelEditingDashboard'}}>
+                    {{bs-tooltip title="Cancel Editing Dashboard"}}
                     CANCEL
                 </button>
             {{/if}}
             {{#if (can "edit dashboard")}}
                 {{#if editMode}}
-                    <button data-tooltip="Save Dashboard" data-inverted=""  class="ui very basic violet button" {{action 'saveDashboard'}}>
+                    <button class="btn btn-link link-primary" {{action 'saveDashboard'}}>
+
+                      {{bs-tooltip title="Save Dashboard"}}
                         SAVE
                     </button>
 
-                    <button data-tooltip="Cancel Editing Dashboard" data-inverted=""  class="ui very basic grey button" {{action 'cancelEditingDashboard'}}>
+                    <button class="btn btn-link text-gray" {{action 'cancelEditingDashboard'}}>
+
+                        {{bs-tooltip title="Cancel Editing Dashboard"}}
                         CANCEL
                     </button>
 
-                    <button data-tooltip="Delete Dashboard" data-inverted=""  class="ui very basic red button" {{action 'showDeleteDialogue'}}>
+                    <button class="btn btn-link text-red" {{action 'showDeleteDialogue'}}>
+
+                    {{bs-tooltip title="Delete Dashboard"}}
                         DELETE
                     </button>
                 {{else}}
 
-                    <span data-tooltip="Edit Dashboard" data-inverted=""  >  
-                        <i class="pencil icon" {{action 'editDashboard'}}></i>
+                    <span >
+                    {{bs-tooltip title="Edit"}}
+                        <i class="fe fe-edit px-1" {{action 'editDashboard'}} px-1></i>
                     </span>
                 {{/if}}
-                <span data-tooltip="Share Dashboard" data-inverted=""  >  
-                    <i class="share icon" {{action 'showShareDialogue'}}></i>
+                <span>
+                  {{#bs-tooltip placement="top"}} Refresh Interval: {{refreshInterval.name}}{{/bs-tooltip}}
+                  {{#bs-dropdown as |dd|}}
+                  {{#dd.toggle}}<i class="fe fe-refresh-cw text-gray px-1"></i> {{/dd.toggle}}
+                  {{#dd.menu class="menu-left" as |ddm|}}
+                  {{#each refreshIntervals as |refreshInterval|}}
+                  {{#ddm.item}}
+
+                  <div class="dropdown-item" {{action 'setRefreshInterval' refreshInterval}}>
+                    {{refreshInterval.name}}
+                  </div>
+                  {{/ddm.item}}
+                  {{/each}}
+                  {{/dd.menu}}
+                  {{/bs-dropdown}}
+                </span>
+                <span >
+                    {{bs-tooltip title="Share"}}
+
+                    <i class="fe fe-share px-1" {{action 'showShareDialogue'}}></i>
                 </span>
 
-                <span data-tooltip="Variables" data-inverted=""  data-position="top right">
-                    <i class="superscript icon" {{action 'showVariablesDialogue'}}></i>
+                <span>
+
+                    {{bs-tooltip title="Variables"}}
+                    <i class="fe fe-code px-1" {{action 'showVariablesDialogue'}}></i>
                 </span>
             {{/if}}
             {{#if fullScreen}}
-                <span data-tooltip="Exit Fullscreen" data-inverted=""  data-position="top right">
-                    <i class="compress icon" {{action 'toggleFullScreen'}}></i>
+                <span>
+                    {{bs-tooltip title="Exit Fullscreen"}}
+                    <i class="fe fe-minimize" {{action 'toggleFullScreen'}}></i>
                 </span>
             {{else}}
-                <span data-tooltip="Go Fullscreen" data-inverted=""  data-position="top right">
-                    <i class="expand icon" {{action 'toggleFullScreen'}}></i>
+                <span>
+                    {{bs-tooltip title="Fullscreen"}}
+                    <i class="fe fe-maximize" {{action 'toggleFullScreen'}}></i>
                 </span>
             {{/if}}
-            <span data-tooltip="Refresh Interval: {{refreshInterval.name}}" data-inverted=""  data-position="top right">  
-
-                {{#ui-dropdown class="ui dropdown menu-item"}}
-                    {{dropdown-default  default=null icon="refresh"}}
-                    <div class="menu left">
-                        {{#each refreshIntervals as |refreshInterval|}}
-                            <div class="item" {{action 'setRefreshInterval' refreshInterval}}>
-                                {{refreshInterval.name}}
-                            </div>
-                        {{/each}}
-                    </div>
-                {{/ui-dropdown}}
-            </span>
         </div>
+      </div>
+    </div>
     </div>
 </div>
 <div class="ui basic segment padded-content full no-top-margin">
@@ -90,5 +117,6 @@
     {{dashboard-grid editing=editMode dashboard=dashboard }}
 </div>
 {{delete-dialogue entityName="dashboard" entity=dashboard delete="deleteDashboard"}}
-{{share-entity entityName="Dashboard" entity=dashboard}}
+{{share-entity entityName="Dashboard" entity=dashboard open=toggleShareModal}}
 {{dashboard-select-variables dashboard=dashboard isEditing=editMode}}
+</div>

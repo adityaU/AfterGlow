@@ -53,7 +53,7 @@ defmodule AfterGlow.VariableController do
 
     # Here we use delete! (with a bang) because we expect
     # it to always work (and if it does not, it will raise).
-    Repo.delete!(variable)
+    Repo.delete_with_cache!(variable)
 
     send_resp(conn, :no_content, "")
   end

@@ -1,27 +1,7 @@
-<div class="title no-top-border {{databaseClass}} ks-database">
-    <i class="dropdown icon"></i>
-    Database
-    {{#if showTags}}
-    <div class="right" data-tooltip="Switch to SQL" data-inverted=""  data-variation="inverted" {{action 'toggleSql'}}><i class="terminal icon"></i></div>
-    {{/if}}
-</div>
-<div class="content {{if (not showTags) "database-selector-sql-mode"}} {{databaseClass}}">
-    {{#ui-dropdown class="search selection ks-database-input" selected=queryObject.database onChange=(action (mut queryObject.database)) as |execute mapper|}}
-      {{dropdown-default object=queryObject.database.name default="Database"}}
-        <i class="dropdown icon"></i>
-        <div class="menu">
-            {{#each databases as |database|}}
-              <div class="item"  data-value="{{map-value mapper database}}">
-                    {{database.name}}
-                </div>
-            {{/each}}
-        </div>
-    {{/ui-dropdown}}
-</div>
-{{#if showTags}}
-    {{#if queryObject.database.name }}
-        <div class="tags content active">
-            <div class="full"><a href="#" class="ui violet basic label"> {{queryObject.database.name}}</a></div>
-        </div>
-    {{/if}}
-{{/if}}
+{{searchable-select
+    content=databases
+    sortBy="name"
+    prompt="Select a Database"
+    selected=queryObject.database
+    optionLabelKey="name"
+    on-change=(action (mut queryObject.database))}}

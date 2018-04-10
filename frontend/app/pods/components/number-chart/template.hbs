@@ -1,28 +1,26 @@
 <div class="number-chart full text-align-center">
-    <div class="ui column centered grid">
+    <div class="row">
         {{#if onlyOne }}
             {{#each numbers as |number|}}
-                <div class="sixteen wide column">
-                    <div class="number-block  text-align-center ">
-                        <div class="number text-align-center">
+                <div class="col-12 text-center">
+                        <div class="h1 m-0 mt-4">
                             {{localize number.value}}
                         </div>
-                        <div class="text text-align-center">
+                        <small class="text-muted mb-4">
                             {{capitalize number.title}}
-                        </div>
-                    </div>
+                        </small>
                 </div>
             {{/each}}
         {{else}}
             {{#each numbers as |number| }}
-                <div class="four wide column">
+                <div class="col-3">
                     <div class="number-block  text-align-center ">
-                        <div class="number">
+                        <div class="h1 m-0">
                             {{localize number.value}}
                         </div>
-                        <div class="text">
+                        <small class="text-muted mb-4">
                             {{capitalize number.title}}
-                        </div>
+                        </small>
                     </div>
                 </div>
             {{/each}}

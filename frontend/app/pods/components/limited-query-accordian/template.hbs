@@ -1,9 +1,11 @@
-{{#ui-accordion class="styled full warning"}}
-    <div class="title">
-        <i class="dropdown icon"></i>
+  {{#bs-accordion class="text-default mb-1" as |acc|}}
+  {{#acc.item class="m-0" as |aitem|}}
+    <div class="card-status card-status-left bg-warning"></div>
+  {{#aitem.title class="py-2"}}
+        <i class="fe fe-chevron-down"></i>
         Limit has been set on this query. This happens when you try to load more than {{queryLimit}} rows. You can still download complete data.
-    </div>
-    <div class="content">
+        {{/aitem.title}}
+        {{#aitem.body}}
         {{ember-ace
           lines=10
           value=limitedQuery
@@ -11,5 +13,6 @@
           theme=aceTheme
           readOnly=true
         }}
-    </div>
-{{/ui-accordion}}
+        {{/aitem.body}}
+{{/acc.item}}
+{{/bs-accordion}}

@@ -39,7 +39,7 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
       table_name as readable_table_name,
       table_schema,
       json_agg((select x from (select cast(column_name as text) as "name", cast(data_type as text) as "data_type") x)) as columns
-      from information_schema.columns where table_schema = \'public'
+      from information_schema.columns
         group by table_catalog,table_schema, table_name/,
       [], opts())
 

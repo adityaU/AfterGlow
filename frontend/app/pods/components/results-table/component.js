@@ -24,6 +24,12 @@ export default Ember.Component.extend({
         return this.get('totalPages') - 1
     }),
     actions: {
+      openAdditionalFilterPopup(el, index, results){
+        this.set('additionalFilterPopupEl', el)
+        this.set('additionalFilterPopupIndex', index)
+        this.set('additionalFilterPopupResults', results)
+        this.set('showAdditionalFilterPopup', true)
+      },
       addAdditionalFilter(el,index){
         this.sendAction('addAdditinalFilter', el, index, operator)
       }

@@ -1,12 +1,14 @@
-<div class="ui modal share-entity">
-    <div class="header">
+{{#bs-modal position="center" open=open onHide=(action 'clearSharedTo') as |modal|}}
+   {{#modal.header}}
+       <h4 class="modal-title">
         Share {{entityName}}
-    </div>
-    <div class="create-dashboard content">
+        </h4>
+   {{/modal.header}}
+   {{#modal.body}}
         Enter email ids of people, you want to share this {{entityName}} with:
-        <div class="tip">Tip: Enter 'all' to share with everybody on AfterGlow. Also, Don't forget to save {{entityName}}</div> 
+        <div class="tip">Tip: Enter 'all' to share with everybody on AfterGlow</div> 
         {{#ui-dropdown allowAdditions=true class="fluid multiple selection search" selected=entity.shared_to onChange=(action (mut entity.shared_to)) as |execute mapper|}}
-            <i class="dropdown icon"></i>
+            <i class="fe fe-chevron-down"></i>
             <div class="default text">Enter EmailIds</div>
             <div class="ui menu">
                 {{#each sortedUsers as |user|}}
@@ -17,13 +19,9 @@
                 {{/each}}
             </div>
         {{/ui-dropdown}}
-    </div>
-    <div class="actions">
-        <div class="ui red deny button" {{action 'clearSharedTo'}}>
-            Cancel
-        </div>
-        <div class="ui positive violet right button " {{action "saveSharedTo"}} >
-            Share
-        </div>
-    </div>
-</div>
+   {{/modal.body}}
+   {{#modal.footer as |footer|}}
+     {{#bs-button onClick=(action 'clearSharedTo') type="danger"}}Cancel{{/bs-button}}
+     {{#bs-button onClick=(action 'saveSharedTo') class="btn-primary" type="primary"}}Share{{/bs-button}}
+   {{/modal.footer}}
+ {{/bs-modal}}

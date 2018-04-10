@@ -33,12 +33,12 @@ export default Ember.Component.extend(ChartSettings, ColorMixin,{
   }),
 
   actions: {
-    toggleFullscreen(){
-      if (this.get('fullscreenClass')){
-        this.set("fullscreenClass", null)
-      }else{
-        this.set("fullscreenClass", 'fullscreen')
-      }
-    }
+    remove(){
+      this.sendAction('remove', this.get('question'))
+    },
+
+    refresh(){
+      this.sendAction('refresh', this.get('question'))
+    },
   }
 });

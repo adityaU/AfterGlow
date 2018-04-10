@@ -1,153 +1,98 @@
-<div class="ui basic segment">
-<div class="ui grid">
-    <div class="eight wide column">
-        <div class="ui form">
-            <div class="ui grid">
-                <div class="fourteen wide column">
-                    <div class="field">
-                        <label>{{x1Name}}</label>
-                        {{#ui-dropdown class="search selection" selected=x1 onChange=(action (mut resultsViewSettings.x1))  as |execute mapper|}}
-                            {{dropdown-default object=x1 default=x1Name}}
-                            <i class="dropdown icon"></i>
-                            <div class="menu">
-                                {{#each results.columns as |column|}}
-                                    <div class="item" data-value="{{map-value mapper column}}">
-                                        {{capitalize column}}
-                                    </div>
-                                {{/each}}
-                            </div>
-                        {{/ui-dropdown}}
-                    </div>
-                </div>
-                    <div class="fourteen wide column"></div>
-            </div>
-            <div class="ui grid">
-                <div class="fourteen wide column">
-                    <div class="field">
-                        <label>{{x2Name}}</label>
-                        {{#ui-dropdown class="search selection" selected=x2 onChange=(action (mut resultsViewSettings.x2))  as |execute mapper|}}
-                            {{dropdown-default object=x2 default=x2Name}}
-                            <i class="dropdown icon"></i>
-                            <div class="menu">
-                                {{#each results.columns as |column|}}
-                                    <div class="item" data-value="{{map-value mapper column}}">
-                                        {{capitalize column}}
-                                    </div>
-                                {{/each}}
-                            </div>
-                        {{/ui-dropdown}}
-                    </div>
-                </div>
-                <div class="two wide column">
-                    <i class="remove icon" {{action 'clearx2'}}></i>
-                </div>
-            </div>
-            <div class="ui grid">
-                {{#each multipleYs as |y|}}
-                    <div class="fourteen wide column">
-                        <div class="field">
-                            <label>{{yName}}</label>
-                            {{#ui-dropdown class="search selection" selected=y.columnName onChange=(action (mut y.columnName))  as |execute mapper|}}
-                                {{dropdown-default object=y.columnName default=yName}}
-                                <i class="dropdown icon"></i>
-                                <div class="menu">
-                                    {{#each results.columns as |column|}}
-                                        <div class="item" data-value="{{map-value mapper column}}">
-                                            {{ capitalize column}}
-                                        </div>
-                                    {{/each}}
-                                </div>
-                            {{/ui-dropdown}}
-                        </div>
-                    </div>
+<div class="row border-bottom p-4">
+    <div class="col-6">
+        <div class="row">
+            <div class="col-10">
+                <div class="form-group">
+                    <label class="form-label">{{x1Name}}</label>
 
-                    <div class="two wide column">
-                        {{circular-checkbox checked=y.separateYaxis dataTooltip="Separate Y axis"}}
-                        {{#if (eq (or y.chartType defaultChartType) 'Line')}}
-                            {{#ui-dropdown class="left pointing dropdown icon" selected=y.lineShape onChange=(action (mut y.lineShape))  as |execute mapper|}}
-                                    <i class="{{if (eq y.lineShape "spline") "fork" "angle down"}} icon"></i>
-                                <div class="menu">
-                                    {{#each lineShapeTypes as |lst|}}
-                                        <div class="item" data-value="{{map-value mapper lst.value}}">
-                                            <i class="{{if (eq lst.value "spline") "fork" "angle down"}} icon"></i>
-                                            {{ capitalize lst.name}}
-                                        </div>
-                                    {{/each}}
-                                </div>
-                            {{/ui-dropdown}}
-                        {{/if}}
-                        {{#ui-dropdown class="left pointing dropdown icon" selected=y.chartType onChange=(action (mut y.chartType))  as |execute mapper|}}
-                            {{#if y.chartType}}
-                                <i class="{{get-chart-icon y.chartType}} icon"></i>
-                            {{else}}
-                                <i class="{{get-chart-icon defaultChartType}} icon"></i>
-                            {{/if}}
-                            <div class="menu">
-                                {{#each chartTypes as |ct|}}
-                                    <div class="item" data-value="{{map-value mapper ct}}">
-                                        <i class="{{get-chart-icon ct}} icon"></i>
-                                        {{ capitalize ct}}
-                                    </div>
-                                    {{/each}}
-                                </div>
-                            {{/ui-dropdown}}
-                        <i class="remove icon" {{action 'removeColumn' y}}></i>
+                    {{searchable-select content=resultsColumnsHash sortBy="columnName" optionLabelKey="columnName" selected=x1Hash
+                    prompt="Select a Column" on-change=(action "updateSelection" 'resultsViewSettings.x1')}}
+                </div>
+            </div>
+            <div class="col-2"></div>
+        </div>
+        <div class="row">
+            <div class="col-10">
+                <div class="form-group">
+                    <label class="form-label">{{x2Name}}</label>
+                    {{searchable-select class="" content=resultsColumnsHash sortBy="columnName" optionLabelKey="columnName" selected=x2Hash
+                    prompt="Select a Column" on-change=(action "updateSelection" 'resultsViewSettings.x2')}}
+                </div>
+            </div>
+            <div class="col-2">
+                <i class="fe fe-x" {{action 'clearx2'}}></i>
+            </div>
+        </div>
+        <div class="row">
+            {{#each multipleYs as |y index|}}
+            <div class="col-10">
+                <div class="form-group">
+                    <label class="form-label">{{yName}}</label>
+                    {{searchable-select class="" content=resultsColumnsHash sortBy="columnName" optionLabelKey="columnName" selected=y prompt="Select
+                    a Column" on-change=(action "updateY" index)}}
+                </div>
+            </div>
+
+            <div class="col-2">
+                {{circular-checkbox checked=y.separateYaxis dataTooltip="Separate Y axis"}} {{#if (eq (or y.chartType defaultChartType) 'Line')}}
+                {{#ui-dropdown class="left pointing fe fe-chevron-down" selected=y.lineShape onChange=(action (mut y.lineShape))
+                as |execute mapper|}}
+                <i class="{{if (eq y.lineShape " spline ") "fork " "angle down "}} icon"></i>
+                <div class="menu">
+                    {{#each lineShapeTypes as |lst|}}
+                    <div class="item" data-value="{{map-value mapper lst.value}}">
+                        <i class="{{if (eq lst.value " spline ") "fork " "angle down "}} icon"></i>
+                        {{ capitalize lst.name}}
                     </div>
-                {{/each}}
-                <div class="add-text" {{action 'addYColumn'}}>Add another {{yName}} column</div>
+                    {{/each}}
+                </div>
+                {{/ui-dropdown}} {{/if}} {{#ui-dropdown class="left pointing fe fe-chevron-down" selected=y.chartType onChange=(action (mut
+                y.chartType)) as |execute mapper|}} {{#if y.chartType}}
+                <i class="{{get-chart-icon y.chartType}} icon"></i>
+                {{else}}
+                <i class="{{get-chart-icon defaultChartType}} icon"></i>
+                {{/if}}
+                <div class="menu">
+                    {{#each chartTypes as |ct|}}
+                    <div class="item" data-value="{{map-value mapper ct}}">
+                        <i class="{{get-chart-icon ct}} icon"></i>
+                        {{ capitalize ct}}
+                    </div>
+                    {{/each}}
+                </div>
+                {{/ui-dropdown}}
+                <i class="fe fe-x text-gray" {{action 'removeColumn' y}}></i>
+            </div>
+            {{/each}}
+            <div class="add-text" {{action 'addYColumn'}}>Add another {{yName}} column</div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="row">
+            <div class="col-10 offset-2">
+                <div class="form-group">
+                    <label class="form-label">X Label</label>
+                    {{input value=xLabel class="form-control" placeholder="X Lable" }}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-10 offset-2">
+                <div class="form-group">
+                    <label class="form-label">Y Label</label>
+                    {{input value=yLabel class="form-control" placeholder="Y Label" }}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-10 offset-2">
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    {{input value=title class="form-control" placeholder="Title" }}
+                </div>
             </div>
         </div>
     </div>
-    <div class="eight wide stretched column">
-        <div class="ui form">
-
-            <div class="ui grid">
-                <div class="fourteen wide column">
-                    <div class="field">
-                        <label>X Label</label>
-                        {{input value=xLabel class="ui" placeholder="X Lable" }}
-                    </div>
-                </div>
-            </div>
-
-            <div class="ui grid">
-                <div class="fourteen wide column">
-                    <div class="field">
-                        <label>Y Label</label>
-                        {{input value=yLabel class="ui" placeholder="Y Label" }}
-                    </div>
-                </div>
-            </div>
-
-            <div class="ui grid">
-                <div class="fourteen wide column">
-                    <div class="field">
-                        <label>Title</label>
-                        {{input value=title class="ui" placeholder="Title" }}
-                    </div>
-                </div>
-            </div>
-            {{#if (eq defaultChartType 'Barssssss')}}
-            <div class="ui grid">
-                <div class="fourteen wide column">
-                    <div class="field">
-                      <label>Bars Type</label>
-                        {{#ui-dropdown class="selection dropdown" selected=barType onChange=(action (mut barType))  as |execute mapper|}}
-
-                           {{dropdown-default class="faded default" object=barType.name default="Select Bar Type"}}
-                            <div class="menu">
-                                {{#each barTypes as |ct|}}
-                                    <div class="item" data-value="{{map-value mapper ct}}">
-                                        {{ capitalize ct.name}}
-                                    </div>
-                                    {{/each}}
-                                </div>
-                            {{/ui-dropdown}}
-                    </div>
-                </div>
-            </div>
-            {{/if}}
-        </div>
-    </div>
-</div>
 </div>

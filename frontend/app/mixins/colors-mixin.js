@@ -1,10 +1,12 @@
 import Ember from 'ember';
 
-
 export default Ember.Mixin.create({
     colors:Ember.computed(function(){
         return [
-            "#2196F3", "#009688", "#f44336",  "#9c27b0", "#009688",
+             "#6574cd", "#f66d9b",  "#2bcbba",  "#fd9644",
+             "#cd201f","#a55eea", "#7bd235", "#f1c40f", "#467fcf", 
+            ,"#17a2b8", "#45aaf2","#5eba00",
+             "#2196F3", "#009688", "#f44336",  "#9c27b0", "#009688",
             "673AB7", "#3F51B5", "#4CAF50", "#E91E63", "#607D8B",
             "#FF5722", "#1C9363", "#FF715B",  "#2B59C3", "#215B56",
             "#00bcd4", "#ff5722", "#ffc107",

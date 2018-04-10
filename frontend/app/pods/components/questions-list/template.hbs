@@ -1,47 +1,100 @@
 {{#each questions as |question|}}
     {{#if (and question.id question.has_permission) }}
-        <div class="ui segment full">
-            <div class="ui grid">
-                <div class="six wide column">
-                    {{#link-to 'questions.show' question.id}}
-                        <div class="queston-title">
-                            <i class="{{question.icon}} icon"></i>
-                            {{question.title}}
+  {{#bs-accordion class="text-default py-1" as |acc|}}
+{{#acc.item class="m-0" as |aitem|}}
+{{#aitem.title class="py-2 border-bottom-0" }}
+                <div class="row justify-content-between" {{action 'loadQuestion' question}}>
+                <div class="col-auto">
+                  <div class="d-flex align-items-center">
+                    <span class="avatar mr-2 text-white bg-primary">
+                      <i class="{{question.icon}}"></i>
+                    </span>
+                    <div>
+                      <h4 class="m-0"><a href="javascript:void(0)">
+                        {{#link-to 'questions.show' question.id}}
+                        <div class="h6 text-primary mb-0">
+                          {{question.title}}
                         </div>
-                    {{/link-to}}
-                    <div class="question-subtitle">
-                        from <span class="table-name">{{question.human_sql.table.human_name}}</span> in <span class="database-name">{{question.human_sql.database.name}}</span>
-                    </div>
-                </div>
-                <div class="six wide column">
-                    {{#each question.tags as |tag|}}
-                        {{#link-to 'tags.show' tag.id}}
-                            <div class="ui basic dashboard label" style="background: {{tag.color}}; color: white; opacity: 0.8;">
-                                {{tag.name}}
-                            </div>
                         {{/link-to}}
+                      </a></h4>
+                      <small class="text-muted">
+                        from <span class="table-name">{{question.human_sql.table.human_name}}</span>
+                        {{#if question.human_sql.table.human_name }}
+                         in
+                         {{/if}}
+                         <span class="database-name">{{question.human_sql.database.name}}</span>
+                      </small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <div class="tags">
+                    {{#each question.tags as |tag|}}
+                            <span class="tag" style="background: {{tag.color}}; color: white; opacity: 0.8;">
+                        {{#link-to 'tags.show' tag.id class="text-white"}}
+                                {{tag.name}}
+                                <span class="tag-addon"><i class="fe fe-tag"></i></span>
+                        {{/link-to}}
+                            </span>
                     {{/each}}
                     {{#each question.dashboards as |dashboard|}}
+                            <span class="tag">
                         {{#link-to 'dashboards.show' dashboard.id}}
-                            <div class="ui basic dashboard violet label">
                                 {{dashboard.title}}
-                            </div>
+                                <span class="tag-addon"><i class="fe fe-grid"></i></span>
                         {{/link-to}}
+                            </span>
                     {{/each}}
+                  </div>
                 </div>
-                <div class="four wide column text-align-right">
-                    <span data-tooltip="Edit Tags" data-inverted=""  class="" {{action 'addTag' question}}>
-                        <i class="tag icon"></i>
+                <div class="col-2 text-right">
+                    <span class="px-1" {{action 'addTag' question}}>
+                        {{bs-tooltip placement="top" title="Add Tags"}}
+                        <i class="fe fe-tag text-gray"></i>
                     </span>
-                    <span data-tooltip="view {{question.snapshots.length}} snapshot(s)" data-inverted=""  class="" {{action 'viewSnapshots' question}}>
-                        <i class="copy icon"></i>
+                    <span class="px-1" {{action 'viewSnapshots' question}}>
+                        {{#bs-tooltip placement="top" }}view {{question.snapshots.length}} snapshot(s){{/bs-tooltip}}
+                        <i class="fe fe-copy text-gray"></i>
                     </span>
-                    <button data-tooltip="Delete Question" data-inverted=""  class="ui very basic red button" {{action 'showDeleteDialogue' question}}>
+                    <button class="btn btn-link text-red px-0" {{action 'showDeleteDialogue' question}}>
+                        {{bs-tooltip placement="top" title="Delete Question"}}
                         DELETE
                     </button>
                 </div>
-            </div>
-        </div>
+              </div>
+                {{/aitem.title}}
+                {{#aitem.body class="border-top"}}
+                   {{#if question.results}}
+                        {{question-widget
+                          question=question
+                          results=question.results
+                          resultsViewSettings=question.results_view_settings
+                          hideMenu=true
+                          resultsViewType=question.results_view_settings.resultsViewType }}
+                    {{else}}
+                        {{#if (or question.loading (not question.content.isLoaded))}}
+                        <div class="dimmer active">
+                          <div class="loader text-primary"></div>
+                          <div class="dimmer-content">
+                          </div>
+                        </div>
+                        {{/if}}
+                    {{/if}}
+                {{/aitem.body}}
+                <div class="card-footer">
+                <div class="row justify-content-between">
+                  <div class="col">
+                    <span class="ml-2 d-none d-lg-block">
+                      <small class="text-muted d-block mt-1">By {{or question.owner.full_name question.owner.email}}</small>
+                    </span>
+                  </div>
+                  <div class="col text-right">
+                    <small class="text-muted">  Created {{moment-from-now question.updated_at timeZone=timeZone interval=1000}}</small>
+                  </div>
+                </div>
+                </div>
+                {{/acc.item}}
+                {{/bs-accordion}}
     {{/if}}
 {{/each}}
 {{delete-dialogue entityName="question" entity=questionToBeDeleted delete="deleteQuestion"}}

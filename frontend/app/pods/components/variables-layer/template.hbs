@@ -1,24 +1,18 @@
-<div class="ui grid no-margin no-padding">
-    <div class="{{if showVariables "three" "four"}} column row no-margin no-padding">
+<div class="row variable-layer">
         {{#each variables as |variable|}}
-            <div class="column">
-                <div class="ui form">
-                    <div class="field">
-                        <label>{{capitalize variable.name}}</label>
+    <div class="{{if showVariables "col-4" "col-3"}}">
+                <div class="form-group">
+                        <label class="form-label text-default">{{capitalize variable.name}}</label>
                         {{#if variable.showDatePicker}}
                             {{ui-calendar date=variable.date_value onChange=(action (mut variable.date_value)) placeholder=variable.default_date  }}
                         {{else}}
                             {{#if variable.showMultiSelect}}
                 {{accordion-multiselect label=null selection=variable.default_options options=variable.questionFilterOptions labelProperty='name' placeholder="Select Few Options"}}
-
                             {{else}}
-
-                                {{input type="text" value=variable.value placeholder=variable.default}}
+                                {{input class="form-control" type="text" value=variable.value placeholder=variable.default}}
                             {{/if}}
                         {{/if}}
-                    </div>
                 </div>
-            </div>
-        {{/each}}
     </div>
+        {{/each}}
 </div>

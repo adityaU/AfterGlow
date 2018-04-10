@@ -1,13 +1,21 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-    variableTypes: ['String', "Integer", "Date", "Dynamic"],
+    variableTypes: [ 'String', 'Integer', 'Date', 'Dynamic'].map(function(item){
+        return Ember.Object.create({title: item})
+    }),
     showDatePicker: Ember.computed('variable.var_type', function(){
         if (this.get('variable.var_type') == "Date"){
             return true
         }else{
             return false
         }
+    }),
+    varTypeHash: Ember.computed("variable.var_type", function(){
+       return Ember.Object.create({title : this.get("variable.var_type")})
+    }),
+    varTypeHash: Ember.computed("variable.var_type", function(){
+       return Ember.Object.create({title : this.get("variable.var_type")})
     }),
     variableTypeObserver: Ember.observer('variable.var_type', function(){
         if (this.get('variable.var_type') == "Date"){
@@ -22,6 +30,15 @@ export default Ember.Component.extend({
 
     questions: Ember.computed('questionQuery', function(){
         return this.store.query('question', {for_variable: true, query: (this.get('questionQuery') || "")})
-    })
+    }),
+
+    actions: {
+        updateVarType(selection){
+          this.set('variable.var_type', selection.get('title'))
+        },
+        updateQuestionSearch(text){
+           this.set('questionQuery', text)
+        }
+    }
 
 });

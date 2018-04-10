@@ -1,4 +1,3 @@
-<div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
     {{question-options
       questionName=questionName
       saveQuestion='saveQuestion'
@@ -14,34 +13,38 @@
       canCreateSnapshot=canCreateSnapshot
       canEdit=canEdit
     }}
-</div>
-<div class="ui basic segment full padded-content no-top-margin">
-    <div class="ui grid full">
-        <div class="{{if showVariables "twelve" "sixteen"}} wide column">
+<div class="container p-0 mt-5">
+    <div class="row">
+        <div class="{{if showVariables "col-9" "col-12"}}">
             {{variables-layer variables=question.query_variables showVariables=showVariables}}
-            <div class="ui grid full">
-                <div class="{{if (and queryBuilderType canEdit) 'four' 'sixteen'}} wide column">
+            <div class="row">
+                <div class="{{if (and queryBuilderType canEdit) 'col-3' 'col-12'}}">
 
                     {{#if (and queryBuilderType canEdit)}}
                         {{query-builder loading=loading getResults='getResults' toggleSql='toggleSql' queryObject=queryObject showGetResults=showGetResults databases=databases}}
                     {{/if}}
                 </div>
-                <div class="{{if (and canEdit queryBuilderType) 'twelve' 'sixteen'}} wide column">
+                <div class="{{if (and canEdit queryBuilderType) 'col-9' 'col-12'}}">
 
                     {{#if (and queryBuilderType canEdit)}}
                     {{else}}
-                        <div class="ui grid">
-                            <div class="sixteen wide column no-padding">
+                        <div class="row">
+                            <div class="col-12">
                                 {{#if canEdit}}
-                                <div class="ui segment">
-                                    <div class="ui grid">
-                                        <div class="fourteen wide column">
+                                <div class="card {{if collapseSqlEditor 'card-collapsed'}}">
+                                    <div class="row card-header">
+                                        <div class="col-2">
                                             {{database-selector queryObject=queryObject showTags=false databases=databases}}
                                         </div>
-                                        <div class="two wide column">
-                                            <div class="right" data-tooltip="Switch to Query Builder" data-inverted=""  {{action 'toggleSql'}}><i class="align justify icon"></i></div>
+                                        <div class="card-options">
+                                          <a href="#" {{action 'toggleSqlEditor'}}><i class="fe fe-chevron-up"></i></a>
+                                            <a class="text-right"{{action 'toggleSql'}}>
+
+                                              {{#bs-tooltip placement="top"}}Switch to Query Builder{{/bs-tooltip}}
+                                              <i class="fe fe-align-justify text-gray"></i></a>
                                         </div>
                                     </div>
+                                    <div class="card-body">
                                     {{ember-ace
                                       lines=10
                                       value=queryObject.rawQuery
@@ -52,33 +55,36 @@
                                       context=queryObject.database
                                       suggestAutoCompletions=suggestAutoCompletions
                                       theme=aceTheme update=(action (mut queryObject.rawQuery)) }}
+                                    </div>
                                     {{#if showGetResults}}
+                                    <div class="card-footer">
                                         {{#if loading}}
                                             <div class="content active text-align-center">
-                                                <button class="ui basic button">
+                                                <button class="btn btn-secondary">
                                                     Crunching Data ...
                                                 </button>
                                             </div>
                                         {{else}}
                                             <div class="content active text-align-center">
-                                                <button class="ui violet button" {{action 'getResults'}}>
-                                                    <i class="icon arrow right"></i>
+                                                <button class="btn btn-primary" {{action 'getResults'}}>
                                                     Get Results
+                                                    <i class="fe fe-arrow-right text-white"></i>
                                                 </button>
                                             </div>
                                         {{/if}}
+                                      </div>
                                     {{/if}}
                                 </div>
                                 {{else}}
                                         {{#if loading}}
                                             <div class="content active text-align-center">
-                                                <button class="ui basic button">
+                                                <button class="btn btn-secondary">
                                                     Crunching Data ...
                                                 </button>
                                             </div>
                                         {{else}}
                                             <div class="content active text-align-center">
-                                                <button class="ui violet button" {{action 'getQuestionResults'}}>
+                                                <button class="btn btn-primary" {{action 'getQuestionResults'}}>
                                                     Refresh
                                                 </button>
                                             </div>
@@ -89,63 +95,77 @@
                         </div>
                     {{/if}}
                     {{#if canEdit}}
+                        {{# if (or variablesReplacedQuery isQueryLimited)}}
+                        <div class="mb-5">
                         {{#if variablesReplacedQuery}}
                             {{variables-replaced-query-accordian variablesReplacedQuery=variablesReplacedQuery aceMode=aceMode aceTheme=aceTheme}}
                         {{/if}}
                         {{#if isQueryLimited}}
                             {{limited-query-accordian queryLimit=queryLimit limitedQuery=limitedQuery aceMode=aceMode aceTheme=aceTheme}}
                         {{/if}}
+                        </div>
+                        {{/if}}
                     {{/if}}
                     {{#if results}}
-                        <div class="ui segment">
-                            <div class="ui grid results-view-selector">
-                                <div class="four wide column" bubbles=false>
-                                    {{#ui-dropdown class="search selection" selected=resultsViewType onChange=(action (mut resultsViewType))  as |execute mapper|}}
-                                        {{dropdown-default  default=resultsViewType}}
-                                        <i class="dropdown icon"></i>
-                                        <div class="menu">
-                                            {{#each availableResultsTypes as |rv|}}
-                                                <div class="item" data-value="{{map-value mapper rv}}">
-                                                    <i class="{{get-chart-icon rv}} icon"></i>
-                                                    {{rv}}
-                                                </div>
-                                            {{/each}}
-                                        </div>
-                                    {{/ui-dropdown}}
+                        <div class="card {{fullscreenClass}}">
+                            <div class="card-header row results-view-selector">
+                                <div class="col-3" bubbles=false>
+                                  {{searchable-select
+                                    class="my-2 w-75 d-inline-block"
+                                    content=availableResultsTypesHash
+                                    selected=resultsViewTypeTitle
+                                    prompt="Select a Visualization"
+                                    on-change=(action 'updateResultViewType')}}
+
+                                    <span>
+                                              {{#bs-tooltip placement="top"}}Configure Visualization{{/bs-tooltip}}
+                                        <i class="fe fe-settings text-gray" {{action 'toggleSettings'}}></i>
+                                    </span>
                                 </div>
-                                <div class="eight wide column text-align-right"></div>
-                                <div class="four wide column text-align-right">
-                                    <span data-tooltip="Download Data" data-inverted="" {{action "downloadData"}}>
-                                        <i class="save icon"></i>
+                                <div class="col-3 offset-6 text-right">
+
+                                    <span class="px-1" {{action "downloadData"}}>
+                                              {{#bs-tooltip placement="top"}}Download Data{{/bs-tooltip}}
+                                        <i class="fe fe-save text-gray"></i>
                                     </span>
                                     {{#if question.updated_at}}
-                                        <span data-tooltip=" Updated {{moment-from-now question.updated_at interval=1000}}" data-inverted="">
-                                            <i class="time icon {{question.updatedAgoColor}}"></i>
+                                        <span class="px-1" >
+                                              {{#bs-tooltip placement="top"}}Updated {{moment-from-now question.updated_at interval=1000}}{{/bs-tooltip}}
+                                            <i class="fe fe-clock text-{{question.updatedAgoColor}}"></i>
                                         </span>
                                     {{/if}}
-                                    <span data-tooltip="Configure" data-inverted="" >
-                                        <i class="settings icon" {{action 'toggleSettings'}}></i>
-                                    </span>
+                                    <span class="pl-1"  {{action "toggleFullscreen"}}>
+                                              {{#bs-tooltip placement="top"}}toggleFullScreen{{/bs-tooltip}}
+                                    <i class="fe fe-maximize text-gray"></i>
+                                  </span>
                                 </div>
                             </div>
                             {{#if showSettings}}
                                 {{component resultsWidgetSettingsComponent resultsViewSettings=resultsViewSettings results=results }}
                             {{/if}}
-                            {{question-widget results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName question=question}}
+                            <div class="card-body">
+                            {{question-widget results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName
+                            hideMenu=true question=question}}
+
+                          </div>
                         </div>
                     {{else}}
                         {{#if loading}}
-                            <div class="ui segment results">
-                                <div class="ui active inverted dimmer">
-                                    <div class="ui text massive loader">{{loadingMessage}}</div>
+                            <div class="card results">
+                              <div class="card-body">
+                                <div class="dimmer active p-8">
+                                    <div class="loader big text-primary">
+                                    </div>
+                                    <div class="dimmer-content full-height"></div>
                                 </div>
+                              </div>
                             </div>
                         {{else}}
-                            <div class="ui segment results">
+                            <div class="card results">
                                 {{#if errors}}
-                                    <div class="query error section">
+                                    <div class="query error section text-red">
                                         <div class="ui big">
-                                            <i class="ban icon red"></i>
+                                            <i class="fe fe-x-circle text-red"></i>
                                         </div>
                                         {{errors.message}}</div>
                                 {{else}}
@@ -160,17 +180,17 @@
         </div>
 
         {{#if showVariables}}
-            <div class="four wide column">
-                <div class="dashboard-title margin-bottom">Variables</div>
+            <div class="col-3 pl-2">
+                <label class="form-label">Variables</label>
                 {{#each question.variables as |var|}}
-                    <div class="sixteen wide column">
-                        <div class="ui segment margin-bottom">
-                            <i class="remove icon right" {{action "removeVariable" var}}></i>
+                    <div class="w-100">
+                        <div class="card p-4">
+                            <i class="fe fe-x text-gray variable-remove" {{action "removeVariable" var}}></i>
                             {{create-variable entity=question variable=var}}
                         </div>
                     </div>
                 {{/each}}
-                <div class="ui violet button full" {{action 'addVariable'}}>
+                <div class="btn btn-primary w-100" {{action 'addVariable'}}>
                     Add Variable
                 </div>
             </div>
