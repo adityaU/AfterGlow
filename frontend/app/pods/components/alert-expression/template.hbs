@@ -11,7 +11,7 @@
   <span class="field display-inline-block">
     {{#ui-dropdown class="search selection" selected=conf.operation onChange=(action (mut conf.operation))  as |execute mapper|}}
       <div class="default text">value</div>
-      <i class="dropdown icon"></i>
+      <i class="fe fe-chevron-down"></i>
       <div class="menu">
         {{#each operations as |operation|}}
           <div class="item" data-value="{{map-value mapper operation}}">
@@ -37,7 +37,7 @@
   <span class="field display-inline-block">
     {{#ui-dropdown class="search selection" selected=conf.column onchange=(action (mut conf.column))  as |execute mapper|}}
       <div class="default text">Column Name</div>
-      <i class="dropdown icon"></i>
+      <i class="fe fe-chevron-down"></i>
       <div class="menu">
         {{#each columns as |column|}}
           <div class="item" data-value="{{map-value mapper column}}">
@@ -55,7 +55,7 @@
   <span class="field display-inline-block">
     {{#ui-dropdown class="search selection" selected=conf.within_type onChange=(action (mut conf.within_type))  as |execute mapper|}}
       <div class="default text">any</div>
-      <i class="dropdown icon"></i>
+      <i class="fe fe-chevron-down"></i>
       <div class="menu">
         {{#each withinTypes as |withinType|}}
           <div class="item" data-value="{{map-value mapper withinType}}">
@@ -77,7 +77,7 @@
   <span class="field display-inline-block">
     {{#ui-dropdown class="search selection" selected=conf.operator onchange=(action (mut conf.operator))  as |execute mapper|}}
       <div class="default text">is</div>
-      <i class="dropdown icon"></i>
+      <i class="fe fe-chevron-down"></i>
       <div class="menu">
         {{#each operators as |operator|}}
           <div class="item" data-value="{{map-value mapper question}}">

@@ -29,7 +29,7 @@
                     <label>Schedule it every: </label>
                     {{#ui-dropdown class="search selection" selected=snapshot.interval onChange=(action (mut snapshot.interval)) as |execute mapper|}}
                     {{dropdown-default object=(get intervalsReverseMapping snapshot.interval) default="interval"}}
-                    <i class="dropdown icon"></i>
+                    <i class="fe fe-chevron-down"></i>
                     <div class="menu">
 
                       <div class="ui icon search input">
@@ -77,7 +77,7 @@
                       <label >Email ids </label>
 
                       {{#ui-dropdown allowAdditions=true class="fluid multiple selection search" selected=snapshot.mail_to onChange=(action (mut snapshot.mail_to)) as |execute mapper|}}
-                      <i class="dropdown icon"></i>
+                      <i class="fe fe-chevron-down"></i>
                       <div class="default text">Enter EmailIds</div>
                       <div class="ui menu">
                         {{#each users as |user|}}

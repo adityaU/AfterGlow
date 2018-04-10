@@ -51,7 +51,7 @@
         <span class="field display-inline-block">
           {{#ui-dropdown class="search selection" selected=alert.question onChange=(action (mut alert.question))  as |execute mapper|}}
             <div class="default text">Question</div>
-            <i class="dropdown icon"></i>
+            <i class="fe fe-chevron-down"></i>
             <div class="menu">
               {{#each questions as |question|}}
                 <div class="item" data-value="{{map-value mapper question}}">

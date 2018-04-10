@@ -1,23 +1,23 @@
-<div class=" ui segment">    
+<div class="form-control">
     {{#if selectView.selected.raw}}
-        <div class="right" data-tooltip="Switch to Builder" data-inverted=""  {{action 'switchToBuilder' 'views' selectView true}}><i class="list layout icon" ></i></div>
-        <div class="ui form margin-top-10">
-            <div class="field">
-                {{input value=selectView.selected.value class="ui" placeholder="COUNT(column) As Metric" }}
-            </div>
+        <div class="switch" {{action 'switchToBuilder' 'views' selectView true}}>
+      {{bs-tooltip title="Switch To Builder"}}
+      <i class="fe fe-list text-gray" ></i></div>
+        <div class="form-group">
+                {{input value=selectView.selected.value class="form-control my-2" placeholder="COUNT(column) As Metric" }}
         </div>
     {{else}}
-        <div class="right" data-tooltip="Switch to Raw" data-inverted=""  {{action 'switchToRaw' 'views' selectView true}}><i class="code icon" ></i></div>
-        {{#ui-dropdown class="search selection" selected=selectView.selected onChange=(action (mut selectView.selected))  as |execute mapper|}} 
-            {{dropdown-default object=selectView.selected.name default="View"}}
-            <i class="dropdown icon"></i>
-            <div class="menu">
-                {{#each viewOptions as |viewOption|}}
-                    <div class="item" data-value="{{map-value mapper viewOption}}">
-                        {{viewOption.name}}
-                    </div>
-                {{/each}}
-            </div>
-        {{/ui-dropdown}}
+        <div class="switch" {{action 'switchToRaw' 'views' selectView true}}>
+      {{bs-tooltip title="Switch To Raw"}}
+      <i class="fe fe-code text-gray" ></i>
+        </div>
+        {{searchable-select
+            class="my-2"
+            content=viewOptions
+            sortBy="name"
+            selected=selectView.selected
+            prompt="Select a View"
+            optionLabelKey="name"
+            on-change=(action (mut selectView.selected))}}
     {{/if}}
 </div>

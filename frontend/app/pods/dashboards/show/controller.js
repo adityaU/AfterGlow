@@ -75,7 +75,7 @@ export default Ember.Controller.extend({
             let dashboard = this.get('dashboard')
             let settings = {}
             dashboard.get('questions').forEach((item)=>{
-                let el = $("#" + item.get('id')).parents('.grid-stack-item')
+                let el = $("#js-question-" + item.get('id')).parents('.grid-stack-item')
                 settings[item.get('id')] = {
                     x: el.data('gs-x'),
                     y: el.data('gs-y'),
@@ -98,7 +98,7 @@ export default Ember.Controller.extend({
             this.set('editMode', false)
         },
         showShareDialogue(){
-            $('.ui.modal.share-entity').modal('show')
+            this.set('toggleShareModal', 'true')
         },
         showDeleteDialogue(){
             $('.ui.modal.delete-dialogue').modal('show')
@@ -135,7 +135,7 @@ export default Ember.Controller.extend({
                 }
                 this.set('fullScreen', false);
             } else {
-                let element = Ember.$(".without-header").get(0);
+                let element = Ember.$(".dashboard-page").get(0);
                 if (element.requestFullscreen) {
                     element.requestFullscreen();
                 } else if (element.mozRequestFullScreen) {

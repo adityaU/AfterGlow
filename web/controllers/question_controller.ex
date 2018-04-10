@@ -166,7 +166,7 @@ defmodule AfterGlow.QuestionController do
 
     # Here we use delete! (with a bang) because we expect
     # it to always work (and if it does not, it will raise).
-    Repo.delete!(question)
+    Repo.delete_with_cache(question)
 
     send_resp(conn, :no_content, "")
   end

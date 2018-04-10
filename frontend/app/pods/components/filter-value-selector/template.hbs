@@ -1,57 +1,29 @@
-<div class="field">
-    {{#each sortedColumnValues as |cv|}}
-        <div class="ui {{if cv.selected "violet"}} label square" {{action 'selectOption' cv }} >
-            {{cv.displayName}}
-        </div>
-    {{/each}}
+{{#each sortedColumnValues as |cv|}}
+<div class="{{if cv.selected "tag-primary"}} tag" {{action 'selectOption' cv }} >
+  {{cv.displayName}}
 </div>
+{{/each}}
 
 {{#if showDatePicker}}
-    <div class="field">
-        {{input value=filter.valueDateObj.value class="ui" placeholder="30"}}
-    </div>
-    <div class="field">
-        {{#ui-dropdown class="search selection" selected=filter.valueDateObj.duration onChange=(action (mut filter.valueDateObj.duration))  as |execute mapper|}} 
-            {{dropdown-default object=filter.valueDateObj.duration.name default="Days"}}
-            <i class="dropdown icon"></i>
-            <div class="menu">
-                <div class="ui icon search input">
-                    <i class="search icon"></i>
-                    <input type="text" placeholder="Search">
-                </div>
-                {{#each durations as |dur|}}
-                    <div class="item" data-value="{{map-value mapper dur}}">
-                        {{dur.name}}
-                    </div>
-                {{/each}}
-            </div>
-        {{/ui-dropdown}}
-    </div>
-    <div class="field">
-        {{#ui-dropdown class="search selection" selected=filter.valueDateObj.dtt onChange=(action (mut filter.valueDateObj.dtt))  as |execute mapper|}} 
-            {{dropdown-default object=filter.valueDateObj.dtt.name default="Ago"}}
-            <i class="dropdown icon"></i>
-            <div class="menu">
-
-                <div class="ui icon search input">
-                    <i class="search icon"></i>
-                    <input type="text" placeholder="Search">
-                </div>
-                {{#each dateTimeTypes as |dtt|}}
-                    <div class="item" data-value="{{map-value mapper dtt}}">
-                        {{dtt.name}}
-                    </div>
-                {{/each}}
-            </div>
-        {{/ui-dropdown}}
-    </div>
-    <div class="ui horizontal divider">Or</div>
-    <div class="field">
-        {{ui-calendar date=filter.value onChange=(action (mut filter.value)) placeholder="Pick a date and time"}}
-    </div>
-{{else}}
-    <div class="field">
-        {{input value=filter.value class="ui"}}
-    </div>
-{{/if}}
-
+{{input value=filter.valueDateObj.value class="form-control my-2" placeholder="30"}}
+{{searchable-select
+  content=durations
+  class="my-2"
+  sortBy="name"
+  prompt="Days"
+  selected=filter.valueDateObj.duration
+  optionLabelKey="name"
+  on-change=(action (mut filter.valueDateObj.duration))}}
+  {{searchable-select
+    class="my-2"
+    content=dateTimeTypes
+    sortBy="name"
+    prompt="Ago"
+    selected=filter.valueDateObj.dtt
+    optionLabelKey="name"
+    on-change=(action (mut filter.valueDateObj.dtt))}}
+    <div class="divider">Or</div>
+    {{ui-calendar class="form-control" date=filter.value onChange=(action (mut filter.value)) placeholder="Pick a date and time"}}
+    {{else}}
+    {{input class="form-control my-2" value=filter.value class="ui" placeholder="Column Value"}}
+    {{/if}}

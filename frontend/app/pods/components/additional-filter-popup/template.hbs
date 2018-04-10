@@ -20,7 +20,7 @@
       <label>Add a filter</label>
       {{#ui-dropdown class="search selection ks-database-input" selected=filterSelection onChange=(action (mut filterSelection)) as |execute mapper|}}
       {{dropdown-default object=filterSelection.name default="Select a Filter"}}
-          <i class="dropdown icon"></i>
+          <i class="fe fe-chevron-down"></i>
           <div class="menu">
               {{#each filterOptions as |option|}}
                 <div class="item"  data-value="{{map-value mapper option}}">

@@ -1,49 +1,35 @@
+
+<div class="form-control">
 {{#if filter.raw}}
-    <div class="switch" data-tooltip="Switch to Builder" data-inverted=""  data-variation="inverted"  {{action 'switchToBuilder' 'filters' filter false}}><i class="list layout icon" ></i></div>
-    <div class="ui form margin-top-10">
-        <div class="field">
-            {{input value=filter.value class="ui" placeholder="joining_table.column = 'something'" }}
-        </div>
+    <div class="switch" {{action 'switchToBuilder' 'filters' filter false}}>
+      {{bs-tooltip title="Switch To Builder"}}
+      <i class="fe fe-list text-gray" ></i>
     </div>
+        <div class="form-group">
+            {{input value=filter.value class="form-control my-2" placeholder="joining_table.column = 'something'" }}
+        </div>
 {{else}}
-    <div class="switch" data-tooltip="Switch to Raw" data-inverted=""  data-variation="inverted" {{action 'switchToRaw' 'filters' filter}}><i class="code icon" ></i></div>
-    <div class="ui form margin-top-10">
-        <div class="field">
-            {{#ui-dropdown class="search selection" selected=filter.column onChange=(action (mut filter.column)) as |execute mapper|}}
-                {{dropdown-default object=filter.column.human_name default="Column"}}
-                <i class="dropdown icon"></i>
-                <div class="menu">
-                    <div class="ui icon input">
-                        <i class="search icon"></i>
-                        {{input type="text" placeholder="Search" value=columnQuery}}
-                    </div>
-                    {{#each filteredColumns as |column|}}
-                        <div class="item" data-value="{{map-value mapper column}}">
-                            {{column.human_name}}
-                        </div>
-                    {{/each}}
-                </div>
-            {{/ui-dropdown}}
-        </div>
-        <div class="field">
-
-            {{#ui-dropdown class="search selection" selected=filter.operator onChange=(action (mut filter.operator)) as |execute mapper|}}
-                {{dropdown-default object=filter.operator.name default="operator"}}
-                <i class="dropdown icon"></i>
-                <div class="menu">
-
-                    <div class="ui icon search input">
-                        <i class="search icon"></i>
-                        <input type="text" placeholder="Search">
-                    </div>
-                    {{#each operators as |operator|}}
-                        <div class="item" data-value="{{map-value mapper operator}}">
-                            {{operator.name}}
-                        </div>
-                    {{/each}}
-                </div>
-            {{/ui-dropdown}}
-        </div>
-        {{filter-value-selector filter=filter}}
+    <div class="switch" {{action 'switchToRaw' 'filters' filter}}>
+      {{bs-tooltip title="Switch To Raw"}}
+      <i class="fe fe-code text-gray" ></i>
     </div>
+          {{searchable-select
+              class="my-2"
+              content=filteredColumns
+              sortBy="human_name"
+              selected=filter.column
+              prompt="Select a Column"
+              optionLabelKey="human_name"
+              on-change=(action (mut filter.column))}}
+          {{searchable-select
+              class="my-2"
+              content=operators
+              sortBy="name"
+              prompt="Select an operator"
+              selected=filter.operator
+              optionLabelKey="name"
+              on-change=(action (mut filter.operator))}}
+        {{filter-value-selector filter=filter}}
 {{/if}}
+
+</div>

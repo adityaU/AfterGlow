@@ -7,7 +7,7 @@ export default Ember.Component.extend({
         cv && cv.set('selected', true);
         this.set('filter.valueDateObj', {date: false});
     }),
-    columnObserver:  Ember.observer('filter.column', function(){
+      columnObserver:  Ember.observer('filter.column', function(){
         this.set('filter.value', null);
         if (this.get('showDatePicker')){
             this.set('filter.valueDateObj', {date: true});
@@ -47,7 +47,7 @@ export default Ember.Component.extend({
     dateTimeTypes: [
         {name: "Ago", value: "ago"},
         {name: "After", value: "after"}
-        
+
     ],
     setAllOtherFalse(_this){
         _this.get('sortedColumnValues').forEach((item)=>{

@@ -77,6 +77,7 @@ defmodule AfterGlow.CacheWrapper do
 
   defp delete_cache_struct(structs) when is_list(structs) do
     structs
+
     |> Enum.each(fn x ->
       delete_cache_struct(x)
     end)
@@ -87,7 +88,7 @@ defmodule AfterGlow.CacheWrapper do
 
     if type do
       id = struct.id
-      Cachex.del(:cache, key(type, id))
+      Cachex.del(:cache, key(type , id) )
     end
   end
 

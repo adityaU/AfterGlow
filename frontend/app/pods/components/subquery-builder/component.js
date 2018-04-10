@@ -91,7 +91,7 @@ export default Ember.Component.extend({
         },
 
         addView(){
-            this.get("queryObject.views").pushObject(this.get('rawObjectWithSelected')(this));
+            this.get("queryObject.views").pushObject(Ember.Object.create({}));
         },
 
         addGroupBy(){

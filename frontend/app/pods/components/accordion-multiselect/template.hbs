@@ -1,26 +1,8 @@
-{{#ui-accordion class="styled multiselect-accordion" as |execute|}}
-    <label>{{label}}</label>
-    <div class="title">
-            {{placeholder}}
-    </div>
-    <div class="content">
-        {{#multiselect-checkboxes options=showableOptions labelProperty=labelProperty selection=selection as |option isSelected|}}
-            <div class="ui grid">
-                <div class="two wide column">
-                    {{input type="checkbox" checked=isSelected}}
-                </div>
-                <div class="fourteen wide column">
-                    <div class="multiselect-label">{{get option labelProperty}}</div>
-                </div>
-            </div>
-        {{/multiselect-checkboxes}}
-    </div>
-    <div class="selected">
-        {{#each selection as |default|}}
-            <div class="multiselect-selected">
-                {{get default labelProperty}}
-                <i class="cancel icon" {{action 'remove' default bubble=false}}></i>
-            </div>
-        {{/each}}
-    </div>
-{{/ui-accordion}}
+{{searchable-select
+    content=showableOptions
+    sortBy=labelProperty
+    multiple=true
+    selected=selection
+    optionLabelKey=labelProperty
+    prompt=label
+    on-change=(action (mut selection))}}

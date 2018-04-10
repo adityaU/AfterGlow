@@ -19,7 +19,7 @@ export default Ember.Controller.extend({
     setResultsCanBeLoaded: Ember.on('init', Ember.observer('questions', 'dashboard.isLoaded', function(){
         let questions = this.get('questions')
         questions && questions.forEach((item)=>{
-            item.set('resultsCanBeLoaded', false) 
+            item.set('resultsCanBeLoaded', false)
         })
     })),
     showAllTags: true,

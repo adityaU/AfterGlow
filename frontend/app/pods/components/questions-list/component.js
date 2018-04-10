@@ -5,6 +5,7 @@ export default Ember.Component.extend({
     tags: Ember.computed(function(){
         return this.get('store').findAll('tag')
     }),
+    timeZone: moment.tz.guess(),
     actions: {
         showDeleteDialogue(questionToBeDeleted){
             this.set('questionToBeDeleted', questionToBeDeleted);
@@ -24,6 +25,10 @@ export default Ember.Component.extend({
         },
         getData(tag){
             this.get('tags').pushObject(tag)
+        },
+        loadQuestion(question){
+          this.store.query('question', {filter: {id: question.id}})
+
         }
     }
 });

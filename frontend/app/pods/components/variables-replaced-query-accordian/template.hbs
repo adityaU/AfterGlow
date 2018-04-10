@@ -1,9 +1,13 @@
-{{#ui-accordion class="styled full"}}
-    <div class="title">
-        <i class="dropdown icon"></i>
+
+  {{#bs-accordion class="text-default mb-1" as |acc|}}
+  {{#acc.item class="m-0" as |aitem|}}
+    <div class="card-status card-status-left bg-warning"></div>
+
+  {{#aitem.title class="py-2"}}
+        <i class="fe fe-chevron-down"></i>
         This query contains variables. Hence, those variables were replaced at runtime. Click to see the replaced query.
-    </div>
-    <div class="content">
+        {{/aitem.title}}
+        {{#aitem.body}}
         {{ember-ace
           lines=10
           value=variablesReplacedQuery
@@ -11,5 +15,6 @@
           theme=aceTheme
           readOnly=true
         }}
-    </div>
-{{/ui-accordion}}
+        {{/aitem.body}}
+{{/acc.item}}
+{{/bs-accordion}}

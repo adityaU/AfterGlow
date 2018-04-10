@@ -7,21 +7,30 @@ module.exports = function(defaults) {
       sourcemaps: {
         enabled: false
       },
-        ace: {
-            themes: ['chrome', 'ambiance'],
-            modes: ['pgsql', 'mysql', 'sql'],
-            workers: ['pgsql', 'mysql', 'sql'],
-            exts: ["language_tools", "beautify", "text", "sql"],
-            basePath: "/ace/"
 
-        }
-        // Add options here
+      // Add options here
+      ace: {
+          themes: ['chrome', 'ambiance'],
+          modes: ['pgsql', 'mysql', 'sql'],
+          workers: ['pgsql', 'mysql', 'sql'],
+          exts: ["language_tools", "beautify", "text", "sql"],
+          basePath: "/ace/"
+
+      },
+
+      'ember-bootstrap': {
+        'bootstrapVersion': 4,
+        'importBootstrapFont': false,
+        'importBootstrapCSS': false
+      }
+
     });
     app.import('./bower_components/lodash/dist/lodash.min.js')
     app.import('./bower_components/ace-builds/src-noconflict/theme-ambiance.js')
     app.import('./bower_components/ace-builds/src-noconflict/mode-sql.js')
     app.import('./bower_components/ace-builds/src-noconflict/ext-beautify.js')
     app.import('./bower_components/ace-builds/src-noconflict/ext-language_tools.js')
+    app.import('./bower_components/popper.js/dist/popper.min.js')
     app.import('./bower_components/ace-builds/src-noconflict/snippets/text.js',
     {
       type: 'vendor'

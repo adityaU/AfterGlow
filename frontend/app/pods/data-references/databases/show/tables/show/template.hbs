@@ -1,32 +1,50 @@
-<div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
-    <div class="ui grid">
-        <div class="ten wide column ">
-            <div class="dashboard-title">
-                Columns in table: {{table.name}} in database: {{database.name}}
+
+<div class="header collapse d-lg-flex p-0">
+    <div class="container">
+        <div class="nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0">
+            <div class="row">
+                <div class="col-12">
+                    <div class="text-default">
+                         Columns in table: {{table.name}} in database: {{table.database.name}}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-<div class="padded-content ui basic segment full no-border-radius no-border-top no-bottom-margin">
+<div class="container px-0 mt-5">
 
-    <div class="ui form">
-        <div class="field">
-            {{input value=query class="ui bigger" placeholder="Search Column" }}
+    <div class="form-group">
+      <div class="input-group input-icon">
+        <span class="input-group-prepend" id="basic-addon3">
+          <span class="input-group-text">Search a Column</span>
+        </span>
+            {{input value=query class="form-control" placeholder="Search Table" }}
+        <div class="input-icon-addon">
+          <i class="fe fe-search"></i>
         </div>
+      </div>
     </div>
+
     {{#if loading}}
-        <div class="ui active inverted dimmer">
-            <div class="ui text massive loader">{{loadingMessage}}</div>
-        </div>
+
+                        <div class="dimmer active">
+                          <div class="loader text-primary"></div>
+                          <div class="dimmer-content">
+                          </div>
+                        </div>
     {{else}}
-        <table class="ui single line table">
+
+        <div class="card">
+            <div class="table-responsive">
+                 <table class="table table-hover table-outline table-vcenter text-nowrap card-table">
             <thead>
                 <tr>
-                    <th class="four wide">Column Name</th>
-                    <th class="three wide">Data Type</th>
-                    <th class="eight wide">Description</th>
+                    <th>Column Name</th>
+                    <th>Data Type</th>
+                    <th class="w-9">Description</th>
                     {{#if canEdit}}
-                    <th class="one wide">Actions</th>
+                    <th>Actions</th>
                     {{/if}}
                 </tr>
             </thead>
@@ -42,10 +60,8 @@
                         <td>
                             {{#if column.editMode}} 
 
-                                <div class="ui form">
-                                    <div class="field">
-                                        {{input value=column.description class="ui" placeholder="short description of this column" }}
-                                    </div>
+                                <div class="form-group mb-0">
+                                        {{input value=column.description class="form-control" placeholder="short description of this column" }}
                                 </div>
                             {{else}}
                                 {{column.description}}
@@ -54,13 +70,15 @@
                         {{#if canEdit}}
                         <td>
                             {{#if column.editMode}} 
-                                <span data-tooltip="Save" data-inverted="">  
-                                    <i class="save icon" {{action "saveColumn" column}}></i>
+                                <span>  
+                                    {{bs-tooltip placement=top title="Save"}}  
+                                    <i class="fe fe-save text-gray mx-1" {{action "saveColumn" column}}></i>
                                 </span>
                             {{else}}
                                 
                                 <span data-tooltip="Edit" data-inverted="">  
-                                    <i class="edit icon" {{action "editColumn" column}}></i>
+                                    {{bs-tooltip placement=top title="Edit"}}  
+                                    <i class="fe fe-edit text-gray mx-1" {{action "editColumn" column}}></i>
                                 </span>
                             {{/if}}
                         </td>
@@ -69,5 +87,7 @@
                 {{/each}}
             </tbody>
         </table>
+        </div>
+        </div>
     {{/if}}
 </div>

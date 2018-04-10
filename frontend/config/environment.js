@@ -20,7 +20,15 @@ module.exports = function(environment) {
         moment: {
             includeTimezone: 'all'
         },
-      
+        'ember-cli-bootstrap-datetimepicker': {
+          icons: {
+            next: 'fe fe-chevron-right',
+            previous: 'fe fe-chevron-left',
+            date: "fe fe-calendar"
+          }
+        },
+
+
         /* pace: {
 
             // addon-specific options to configure theme

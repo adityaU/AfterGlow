@@ -24,4 +24,8 @@ defmodule AfterGlow.CacheWrapper.Repo do
         {:error, changeset}
     end
   end
+  def delete_with_cache(struct) do
+    CacheWrapper.put_struct(struct)
+    delete(struct)
+   end
 end

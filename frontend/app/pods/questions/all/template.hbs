@@ -1,46 +1,42 @@
-<div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
-    <div class="ui grid">
-        <div class="ten wide column ">
-            <div class="dashboard-title">
+<div class="header collapse d-lg-flex p-0">
+<div class="container">
+    <div class="nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0">
+            <div class="text-default">
                 {{pageTitle}}
             </div>
-        </div>
     </div>
 </div>
-<div class="padded-content ui basic segment full no-border-radius no-border-top no-bottom-margin">
-    
+</div>
+<div class="container px-0">
     {{#if showAllTags}}
-        <div class="ui grid">
-            <div class="ten wide column ">
-                <div class="dashboard-title">
-                    Tags:
-                </div>
-            </div>
-        </div>
-        <div class="ui basic segment full no-padding no-top-margin">
-
-            <div class="ui grid">
+        <div class="row py-4">
+                <div class="tags">
+                <span class="fs-1 tag font-weight-bold"> Tags: </span>
                 {{#each tags as |tag|}}
-
-                    <div class="two wide column ">
-                        {{#link-to 'tags.show' tag.id}} 
-                            <div class="tag-box" style="background: {{tag.color}}; opacity: 0.8">
-                                {{tag.name}}
-                            </div>
-                        {{/link-to}}
-                    </div>
+                <span class="tag" style="background: {{tag.color}}; opacity: 0.8; font-size: 1rem;">
+                {{#link-to  'tags.show' tag.id class="text-white"}}
+                  {{tag.name}}
+                  <span class="tag-addon"><i class="fe fe-tag"></i></span>
+                {{/link-to}}
+                </span>
                 {{/each}}
-            </div>
+              </div>
         </div>
     {{/if}}
-    <div class="ui form">
-        <div class="field">
-            {{input value=query class="ui bigger" placeholder="Search Question" }}
+    <div class="form-group">
+      <div class="input-group input-icon">
+        <span class="input-group-prepend" id="basic-addon3">
+          <span class="input-group-text">Search a Question</span>
+        </span>
+        {{input value=query class="ui form-control" placeholder="Search Question" aria-describedby="basic-addon3" }}
+        <div class="input-icon-addon">
+          <i class="fe fe-search"></i>
         </div>
+      </div>
     </div>
-</div>
-<div class="ui basic segment full padded-content no-top-margin">
-    <div class="ui grid full">
+  </div>
+<div class="container px-0">
+    <div class="row">
         {{#if query}}
             {{questions-list questions=searchedQuestions transitionToSnapshots="transitionToSnapshots"}}
         {{else}}

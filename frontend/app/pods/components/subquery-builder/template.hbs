@@ -1,165 +1,227 @@
-<div class="title {{tableClass}} ks-table">
-    <i class="dropdown icon"></i>
+{{#acc.item class="m-0" as |aitem|}}
+{{#aitem.title class="py-2"}}
+<div class="row">
+  <div class="col-10">
     Table
+  </div>
+  <div class="col-2">
+    <i class="fe fe-chevron-down"></i>
+  </div>
 </div>
-<div class="content {{tableClass}}">
-    {{#ui-dropdown class="selection full ks-table-input" selected=queryObject.table onChange=(action (mut queryObject.table)) as |execute mapper|}}
-        {{dropdown-default object=queryObject.table.human_name default="Table"}}
-        <i class="dropdown icon"></i>
-        <div class="menu">
 
-            <div class="ui icon input">
-                <i class="search icon"></i>
-                {{input type="text" placeholder="Search" class="ui input ks-table-search" value=tableQuery}}
-            </div>
-            {{#each tables as |table|}}
-                <div class="item" data-value="{{map-value mapper table}}">
-                    {{table.human_name}}
-                </div>
-            {{/each}}
-        </div>
-    {{/ui-dropdown}}
+{{/aitem.title}}
+{{#aitem.body class="py-2"}}
+<div class="content {{tableClass}}">
+  {{searchable-select
+      content=tables
+      sortBy="human_name"
+      prompt="Select a Table"
+      selected=queryObject.table
+      optionLabelKey="human_name"
+      on-change=(action (mut queryObject.table))}}
 </div>
+{{/aitem.body}}
 {{#if queryObject.table.readable_table_name }}
-    <div class="tags content active">
-        <div class="full right"><a href="#" class="ui violet basic label"> {{queryObject.table.human_name}}</a></div>
+    <div class="card-footer py-2">
+        <div class="full right"><a href="#" class="tag tag-primary"> {{queryObject.table.human_name}}</a></div>
     </div>
 {{/if}}
-<div class="title {{filtersClass}} ks-filters">
-    <i class="dropdown icon"></i>
+{{/acc.item}}
+
+{{#acc.item class="m-0"  as |aitem|}}
+{{#aitem.title class="py-2"}}
+<div class="row">
+  <div class="col-10">
     Filters
+  </div>
+  <div class="col-2">
+    <i class="fe fe-chevron-down"></i>
+  </div>
 </div>
-<div class="content {{filtersClass}}">
+{{/aitem.title}}
+{{#aitem.body class="py-2"}}
     {{#each queryObject.filters as |filter|}}
-        <div class=" ui segment">
             {{filter-maker filter=filter columns=columns queryObject=queryObject switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
-        </div>
     {{/each}}
-    <button class="ui violet button full" {{action 'addFilter'}}>
-        <i class="icon add"></i>
+    <button class="btn btn-primary mr-2 mt-2 full" {{action 'addFilter'}}>
+        <i class="fe fe-plus text-white"></i>
         Add More
     </button>
-</div>
+{{/aitem.body}}
 
 {{#if filtersTagsShow }}
-    <div class="tags content active">
+    <div class="card-footer py-2">
         {{#each queryObject.filters as |filter|}}
             {{#if filter.label}}
-                <a href="#" class="ui violet basic label">{{filter.label}}<i class="remove icon"{{action 'remove' 'filters' filter}}></i></a>
+                <span class="tag tag-primary">{{filter.label}}
+                <a href="#"class="tag-addon"> <i class="fe fe-x text-white"{{action 'remove' 'filters' filter}}></i></a>
+              </span>
             {{/if}}
         {{/each}}
     </div>
 {{/if}}
+{{/acc.item}}
 
+{{#acc.item class="m-0"  as |aitem|}}
+{{#aitem.title class="py-2"}}
 <div class="title ks-view">
-    <i class="dropdown icon"></i>
+<div class="row">
+  <div class="col-10">
     View
+  </div>
+  <div class="col-2">
+    <i class="fe fe-chevron-down"></i>
+  </div>
 </div>
-<div class="content">
+</div>
+{{/aitem.title}}
+{{#aitem.body class="py-2"}}
     {{#each queryObject.views as |selectView|}}
         {{selectView.select.name}}
         {{view-maker selectView=selectView switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
     {{/each}}
-    <button class="ui violet button full" {{action 'addView'}}>
-        <i class="icon add"></i>
+
+    <button class="btn btn-primary mr-2 mt-2 full" {{action 'addView'}}>
+        <i class="fe fe-plus text-white"></i>
         Add More
     </button>
-</div>
+{{/aitem.body}}
 
 {{#if queryObject.views }}
-    <div class="ui labels tags content active">
+    <div class="card-footer py-2">
         {{#each queryObject.views as |view|}}
             {{#if view.label}}
-                <a href="#" class="ui violet basic label">{{view.label}}<i class="remove icon"{{action 'remove' 'views' view}}></i></a>
+                <span class="tag tag-primary">{{view.label}}
+                <a href="#"class="tag-addon"> <i class="fe fe-x text-white"{{action 'remove' 'views' view}}></i></a>
+              </span>
             {{/if}}
         {{/each}}
     </div>
 {{/if}}
+{{/acc.item}}
 
-<div class="title ks-group_bys">
-    <i class="dropdown icon"></i>
+{{#acc.item class="m-0"  as |aitem|}}
+{{#aitem.title class="py-2"}}
+<div class="row">
+  <div class="col-10">
     Group By
+  </div>
+  <div class="col-2">
+    <i class="fe fe-chevron-down"></i>
+  </div>
 </div>
-<div class="content">
+{{/aitem.title}}
+{{#aitem.body class="py-2"}}
     {{#each queryObject.groupBys as |groupBy|}}
         {{group-by-maker columns=columns groupBy=groupBy switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
     {{/each}}
-    <button class="ui violet button full" {{action 'addGroupBy'}}>
-        <i class="icon add"></i>
+
+    <button class="btn btn-primary mr-2 mt-2 full" {{action 'addGroupBy'}}>
+        <i class="fe fe-plus text-white"></i>
         Add More
     </button>
-</div>
+{{/aitem.body}}
 
 {{#if queryObject.groupBys }}
-    <div class="tags content active">
+    <div class="card-footer py-2">
         {{#each queryObject.groupBys as |groupBy|}}
             {{#if groupBy.label}}
-                <a href="#" class="ui violet basic label">{{groupBy.label}}<i class="remove icon"{{action 'remove' 'groupBys' groupBy}}></i></a>
+                <span class="tag tag-primary">{{groupBy.label}}
+                <a href="#"class="tag-addon"> <i class="fe fe-x text-white"{{action 'remove' 'groupBys' groupBy}}></i></a>
+              </span>
             {{/if}}
         {{/each}}
     </div>
 {{/if}}
+{{/acc.item}}
 
-<div class="title ks-order_bys">
-    <i class="dropdown icon"></i>
-    Order By
+{{#acc.item class="m-0"  as |aitem|}}
+{{#aitem.title class="py-2"}}
+<div class="row">
+  <div class="col-10">
+    Sort By
+  </div>
+  <div class="col-2">
+    <i class="fe fe-chevron-down"></i>
+  </div>
 </div>
-<div class="content">
+{{/aitem.title}}
+{{#aitem.body class="py-2"}}
     {{#each queryObject.orderBys as |orderBy|}}
         {{order-by-maker columns=columns orderBy=orderBy}}
     {{/each}}
-    <button class="ui violet button full" {{action 'addOrderBy'}}>
-        <i class="icon add"></i>
+
+    <button class="btn btn-primary mr-2 mt-2 full" {{action 'addOrderBy'}}>
+        <i class="fe fe-plus text-white"></i>
         Add More
     </button>
-</div>
+{{/aitem.body}}
 {{#if queryObject.orderBys }}
-    <div class="tags content active">
+    <div class="card-footer py-2">
         {{#each queryObject.orderBys as |orderBy|}}
             {{#if orderBy.column.human_name}}
-                <a href="#" class="ui violet basic label">{{orderBy.label}}<i class="remove icon"{{action 'remove' 'orderBys' orderBy}}></i></a>
+                <span class="tag tag-primary">{{orderBy.label}}
+                <a href="#"class="tag-addon"> <i class="fe fe-x text-white"{{action 'remove' 'orderBys' orderBy}}></i></a>
+              </span>
             {{/if}}
         {{/each}}
     </div>
 {{/if}}
-<div class="title">
-    <i class="dropdown icon"></i>
-    No of Results
+{{/acc.item}}
+{{#acc.item class="m-0"  as |aitem|}}
+{{#aitem.title class="py-2"}}
+<div class="row">
+  <div class="col-10">
+    Number of Results
+  </div>
+  <div class="col-2">
+    <i class="fe fe-chevron-down"></i>
+  </div>
 </div>
-<div class="content">
+{{/aitem.title}}
+{{#aitem.body class="py-2"}}
     <div class="ui form margin-top-10">
         <div class="field">
             {{input value=queryObject.limit class="ui" placeholder="limit"}}
         </div>
     </div>
-</div>
+{{/aitem.body}}
 
 {{#if queryObject.limit}}
-    <div class="tags content active">
+    <div class="card-footer py-2">
 
         {{#if queryObject.limit}}
-            <a href="#" class="ui violet basic label">{{queryObject.limit}}</a>
+            <a href="#" class="tag tag-primary">{{queryObject.limit}}</a>
         {{/if}}
     </div>
 {{/if}}
+{{/acc.item}}
 
-<div class="title">
-    <i class="dropdown icon"></i>
+{{#acc.item class="m-0"  as |aitem|}}
+{{#aitem.title class="py-2"}}
+<div class="row">
+  <div class="col-10">
     Search After (offset)
+  </div>
+  <div class="col-2">
+    <i class="fe fe-chevron-down"></i>
+  </div>
 </div>
-<div class="content">
+{{/aitem.title}}
+{{#aitem.body class="py-2"}}
     <div class="ui form margin-top-10">
         <div class="field">
             {{input value=queryObject.offset class="ui" placeholder="Search after" }}
         </div>
     </div>
-</div>
+{{/aitem.body}}
 
 {{#if queryObject.offset}}
-    <div class="tags content active">
+    <div class="card-footer py-2">
 
         {{#if queryObject.offset}}
-            <a href="#" class="ui violet basic label">{{queryObject.offset}}</a>
+            <a href="#" class="tag tag-primary">{{queryObject.offset}}</a>
         {{/if}}
     </div>
 {{/if}}
+{{/acc.item}}
