@@ -75,7 +75,7 @@ defmodule AfterGlow.CacheWrapper do
     end)
   end
 
-  defp delete_cache_struct(structs) when is_list(structs) do
+  def delete_cache_struct(structs) when is_list(structs) do
     structs
 
     |> Enum.each(fn x ->
@@ -83,7 +83,7 @@ defmodule AfterGlow.CacheWrapper do
     end)
   end
 
-  defp delete_cache_struct(struct) do
+  def delete_cache_struct(struct) do
     type = if struct, do: struct.__struct__, else: nil
 
     if type do

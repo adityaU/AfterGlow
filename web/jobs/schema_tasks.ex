@@ -1,9 +1,10 @@
-require IEx
 
 defmodule AfterGlow.SchemaTasks do
   alias AfterGlow.Sql.DbConnection
-  alias AfterGlow.Repo
+  alias AfterGlow.CacheWrapper.Repo
   alias AfterGlow.Table
+  alias AfterGlow.Database
+  alias AfterGlow.CacheWrapper
   alias AfterGlow.Column
 
   import Ecto.Query, only: [from: 2]
@@ -36,7 +37,7 @@ defmodule AfterGlow.SchemaTasks do
       !(new_tables |> Enum.member?(t.name))
     end)
     |> Enum.each(fn x ->
-      Repo.delete(x)
+      Repo.delete_with_cache(x)
     end)
 
     tables
@@ -52,7 +53,7 @@ defmodule AfterGlow.SchemaTasks do
       !(new_columns |> Enum.member?(c.name))
     end)
     |> Enum.each(fn x ->
-      Repo.delete(x)
+      Repo.delete_with_cache(x)
     end)
 
     columns
@@ -75,6 +76,7 @@ defmodule AfterGlow.SchemaTasks do
 
   defp insert_or_update_table(record, db_id) do
     query = from(t in Table, where: t.name == ^record["table_name"] and t.database_id == ^db_id)
+    CacheWrapper.delete_cache_struct(Repo.get!(Database, db_id))
 
     case Repo.all(query) do
       [] -> %Table{id: nil}
@@ -90,6 +92,7 @@ defmodule AfterGlow.SchemaTasks do
 
   defp insert_or_update_column(record, table_id) do
     query = from(c in Column, where: c.name == ^record["name"] and c.table_id == ^table_id)
+    CacheWrapper.delete_cache_struct(Repo.get!(Table, table_id))
 
     case Repo.all(query) do
       [] -> %Column{id: nil}

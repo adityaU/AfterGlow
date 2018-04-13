@@ -40,7 +40,7 @@ defmodule AfterGlow.TableController do
   # end
 
   def show(conn, %{"id" => id}) do
-    table = CacheWrapper.get_by_id(Table, [id]) |> Repo.preload(:columns)
+    table = CacheWrapper.get_by_id(Table, id) |> Repo.preload(:columns)
     render(conn, :show, data: table)
   end
 
