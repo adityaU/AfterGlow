@@ -39,7 +39,11 @@ defmodule AfterGlow.Variable do
   end
 
   def make_default_from_default_options(changeset) do
-    default_options = changeset.changes.default_options || changeset.data.default_options
+    default_options =
+      (changeset.changes
+       |> Map.has_key?(:default_options) && changeset.changes.default_options) ||
+        (changeset.data
+         |> Map.has_key?(:default_options) && changeset.data.default_options)
 
     changeset =
       case default_options do

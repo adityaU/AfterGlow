@@ -192,7 +192,4 @@ defmodule AfterGlow.QuestionController do
         |> render QueryView, "execute.json", error: error, query: question.sql
     end
   end
-
-
-
 end

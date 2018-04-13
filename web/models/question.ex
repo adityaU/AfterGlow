@@ -118,7 +118,11 @@ defmodule AfterGlow.Question do
 
     variables
     |> Enum.map(fn var ->
-      q_var = query_variables |> Enum.filter(fn x -> x.name == var.name end) |> Enum.at(0)
+      q_var = query_variables |> Enum.filter(fn x ->
+        if (x.name && var.name) do
+        x.name == var.name
+        end
+       end) |> Enum.at(0)
       default_options_values = Variable.default_option_values(q_var)
       value = if q_var && q_var.value, do: q_var.value, else: var.default
       value = Variable.format_value(var, value)
@@ -264,6 +268,8 @@ defmodule AfterGlow.Question do
     |> Repo.preload(:question_filter)
     |> Enum.filter(fn var -> var.question_filter end)
     |> Enum.map(fn var ->
+      if  changeset.changes
+          |> Map.has_key?(:shared_to) do
       Ecto.Changeset.change(
         var.question_filter,
         shared_to:
@@ -272,6 +278,7 @@ defmodule AfterGlow.Question do
           |> Enum.uniq()
       )
       |> Repo.update_with_cache()
+        end
     end)
 
     changeset
