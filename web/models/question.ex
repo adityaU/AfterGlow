@@ -262,6 +262,8 @@ defmodule AfterGlow.Question do
   end
 
   defp share_variable_question(changeset) do
+    if  changeset.changes
+          |> Map.has_key?(:shared_to) do
     changeset.changes[:variables]
     |> Kernel.||(changeset.data.variables)
     |> Kernel.||([])
@@ -280,8 +282,9 @@ defmodule AfterGlow.Question do
       |> Repo.update_with_cache()
         end
     end)
-
+    end
     changeset
+
   end
 
   defp add_tags(changeset, tags) do
