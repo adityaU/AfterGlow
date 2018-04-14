@@ -30,7 +30,7 @@ export default DS.Model.extend(ResultViewMixin, {
         if (this.get('resultsCanBeLoaded') && !this.get('loading')){
             this.set("loading", true)
             this.set('results', null)
-            let variables = this.get('query_variables')
+            let variables = this.get('query_variables');
             variables = variables && variables.map((item)=>{
                 return {
                     name: item.get('name'),

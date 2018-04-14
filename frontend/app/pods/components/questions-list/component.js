@@ -29,6 +29,15 @@ export default Ember.Component.extend({
         loadQuestion(question){
           this.store.query('question', {filter: {id: question.id}})
 
+        },
+        refreshQuestion(question){
+          question && question.set('updatedAt', new Date());
+          question.set('resultsCanBeLoaded', true);
+        },
+        toggleQuestionWidget(newQuestion, oldQuestion){
+            oldQuestion && oldQuestion.set('showQuestionWidgetOnListPage', false);
+            newQuestion && newQuestion.set('showQuestionWidgetOnListPage', true);
+
         }
     }
 });
