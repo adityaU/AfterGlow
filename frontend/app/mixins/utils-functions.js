@@ -262,7 +262,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
 
     layout: Ember.computed('title', 'margin', 'xLabel','yLabel', 'jsonData', function(){
         let l  = {
-            legend: { orientation: 'v', x: 100, y: 0 },
+            //legend: { orientation: 'v', x: 100, y: 0 },
             title: this.get('title'),
             margin: this.get('margin'),
             xaxis: {showgrid: false, zeroline: false, title: Ember.String.capitalize(this.get('xLabel') || this.get('x1')) , autorange: true, showLine: false },
