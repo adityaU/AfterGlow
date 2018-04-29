@@ -5,20 +5,14 @@
         </h4>
    {{/modal.header}}
    {{#modal.body}}
-        Enter email ids of people, you want to share this {{entityName}} with:
-        <div class="tip">Tip: Enter 'all' to share with everybody on AfterGlow</div> 
-        {{#ui-dropdown allowAdditions=true class="fluid multiple selection search" selected=entity.shared_to onChange=(action (mut entity.shared_to)) as |execute mapper|}}
-            <i class="fe fe-chevron-down"></i>
-            <div class="default text">Enter EmailIds</div>
-            <div class="ui menu">
-                {{#each sortedUsers as |user|}}
-                    <div class="item" data-value="{{user.email}}">
-                        <i class="user icon"></i>
-                        {{user.full_name}} - {{user.email}}
-                    </div>
-                {{/each}}
-            </div>
-        {{/ui-dropdown}}
+        <div class="tip mb-2">Tip: Enter 'all' to share with everybody on AfterGlow</div> 
+        {{searchable-select
+            content=userEmails
+            multiple=true
+            selected=selectedUsers
+            prompt="Select People You want to share it with"
+            on-add=(action "addNewSharedTo")
+            on-change=(action 'addToSharedTo')}}
    {{/modal.body}}
    {{#modal.footer as |footer|}}
      {{#bs-button onClick=(action 'clearSharedTo') type="danger"}}Cancel{{/bs-button}}

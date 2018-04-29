@@ -4,8 +4,6 @@
       validQuestion=validQuestion
       enableAddToDashboard=enableAddToDashBoard
       addToDashboard='addToDashboard'
-      showAddToDashboard='showAddToDashboard'
-      showAddTags='showAddTags'
       question=question
       showVariables=showVariables
       transitionToIndex="transitionToIndex"
@@ -197,9 +195,3 @@
         {{/if}}
     </div>
 </div>
-{{#if enableAddToDashBoard}}
-    {{create-dashboard question=question transitionToDashBoard='transitionToDashBoard'}}
-    {{add-to-dashboard dashboards=dashboards addToDashboard='addToDashboard'}}
-{{/if}}
-{{snapshot-creator question=question}}
-{{add-tag entityName="Question" tags=tags entity=question}}

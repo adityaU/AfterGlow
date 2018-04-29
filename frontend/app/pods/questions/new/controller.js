@@ -80,9 +80,6 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
     }
   }),
 
-  tags: Ember.computed(function(){
-    return this.store.findAll('tag')
-  }),
   changeSQL: Ember.observer('queryObject.rawQuery', function(){
     this.set('question.sql', this.get('queryObject.rawQuery'))
   }),
@@ -120,10 +117,6 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
   }),
   resultsViewTypeTitle: Ember.computed('resultsViewType', function(){
     return Ember.Object.create({title: this.get('resultsViewType')})
-  }),
-
-  dashboards: Ember.computed(function(){
-    return this.store.findAll('dashboard')
   }),
 
   getResultsFunction(queryObject){
@@ -197,7 +190,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
         this.set('queryObject.queryType', 'query_builder');
       }
       let plotlyComponent = Ember.$('.js-plotly-plot')[0]
-      plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize')) 
+      plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize'))
     },
     getQuestionResults(){
       let question = this.get('question')
@@ -260,9 +253,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
       this.set('variablesChanged', true)
     },
 
-    showAddTags(){
-      $('.ui.modal.add-to-tag').modal('show')
-    },
+
     transitionToSnapshots(questionId){
       this.transitionToRoute('questions.show.snapshots.all', questionId)
     },

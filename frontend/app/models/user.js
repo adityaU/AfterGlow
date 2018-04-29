@@ -1,4 +1,5 @@
 import DS from 'ember-data';
+import Ember from 'ember';
 
 export default DS.Model.extend({
     full_name: DS.attr('string'),
@@ -11,4 +12,8 @@ export default DS.Model.extend({
 
     inserted_at: DS.attr('utc'),
     updated_at: DS.attr('utc'),
+
+    fullInfo: Ember.computed('full_name', 'email', function(){
+        return `${this.get('full_name')} - ${this.get('email')}`;
+    })
 });

@@ -14,7 +14,7 @@ defmodule AfterGlow.DatabaseController do
   plug :verify_authorized
 
   def index(conn, _params) do
-    databases = Repo.all(from d in Database, select: [:id]) 
+    databases = Repo.all(from d in Database, select: [:id])
     |> Enum.map(fn x -> x.id end)
     |> CacheWrapper.get_by_ids(Database)
     |> Repo.preload(:tables)

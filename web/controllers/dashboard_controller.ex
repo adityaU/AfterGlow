@@ -29,9 +29,9 @@ defmodule AfterGlow.DashboardController do
   def create(conn, %{"data" => data = %{"type" => "dashboards", "attributes" => _dashboard_params}}) do
     prms =  Params.to_attributes(data)
     prms = prms |> Map.merge(%{"owner_id" => conn.assigns.current_user.id})
-    changeset = Dashboard.changeset(%Dashboard{}, prms) 
+    changeset = Dashboard.changeset(%Dashboard{}, prms)
     question_ids = prms["questions_ids"]
-    questions = if question_ids |> Enum.empty? , do: nil, else: Repo.all(from q in Question, where: q.id in ^question_ids )
+    questions = if question_ids && (question_ids |> Enum.empty?) , do: nil, else: Repo.all(from q in Question, where: q.id in ^question_ids )
     case Dashboard.insert(changeset, questions) do
       {:ok, dashboard} ->
         dashboard = dashboard |> Repo.preload(:questions) |> Repo.preload(:tags) |> Repo.preload(:variables)

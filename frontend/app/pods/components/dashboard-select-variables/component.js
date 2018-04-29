@@ -22,7 +22,9 @@ export default Ember.Component.extend(HelperMixin, {
             variable = this.get('store').createRecord('variable', {
                 name: variable.get('name'),
                 default: variable.get('default'),
-                var_type: variable.get('var_type')
+                var_type: variable.get('var_type'),
+                question_filter: variable.get('question_filter'),
+                default_options: variable.get('default_options')
             })
             variablesSelected.pushObject(variable);
         },

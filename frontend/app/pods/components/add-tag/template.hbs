@@ -1,56 +1,24 @@
-<div class="ui modal add-to-tag">
-    <div class="header">
+{{#bs-modal position="center" open=open onHide=(action 'clear') as |modal|}}
+   {{#modal.header}}
+       <h4 class="modal-title">
         Edit Tags of  This {{entityName}}
-    </div>
-    <div class="dashboard content">
-        Which tag do you want to add to this question?
-        <div class="ui grid">
-            <div class="ui row">
-                <div class="ui horizontal divider">Selected Tags</div>
-                {{#each entity.tags as |tag|}}
-                    <div class="four wide column tag-select">
-                        <div class=" margin-top" {{action 'removeTag' tag}} style="background: {{tag.color}}; color: white;
-                                 border-radius: 0.28571rem;
-                                 border: 1px solid {{tag.color}};
-                                 padding: 10px 10px;
-                                 box-shadow: 0px 2px 6px -2px {{tag.color}} !important;
-                                 text-align: center;">
-                            {{tag.name}}
-                        </div>
-                    </div>
-                {{/each}}
-                <div class="ui horizontal divider">Available Tags</div>
-                {{#each availableTags as |tag|}}
-                    <div class="four wide column tag-select">
-                        <div class=" margin-top" {{action 'addTag' tag}} style="background: {{tag.color}}; color: white;
-                                 border-radius: 0.28571rem;
-                                 border: 1px solid {{tag.color}};
-                                 padding: 10px 10px;
-                                 box-shadow: 0px 2px 6px -2px {{tag.color}} !important;
-                                 text-align: center;">
-                            {{tag.name}}
-                        </div>
-                    </div>
-                {{/each}}
-            </div>
-            <div class="ui horizontal divider">Or</div>
-            <div class="ui row">
-                <div class="four wide column "></div>
-                <div class="eight wide column text-align-center"{{action 'createTag'}}>
-                    <div class="dashboard-create">
-                        Create New Tag
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="actions">
-        <div class="ui red deny button">
-            Cancel
-        </div>
-        <div class="ui positive violet right button " {{action "saveEntity" entity}} >
-            Save {{entityName}}
-        </div>
-    </div>
+        </h4>
+   {{/modal.header}}
+   {{#modal.body}}
 
-</div>
+        <div class="tip mb-2">Tip: You can create new tags by typing the name of tag in search of select box and then clicking add from dropdown</div> 
+        {{searchable-select
+           content=tags
+           sortBy="name"
+           multiple=true
+           optionLabelKey="name"
+           selected=selectedTags
+           prompt="Select a tag from dropdown"
+           on-change=(action (mut entity.tags))
+            on-add=(action 'addNewTag')}}
+   {{/modal.body}}
+   {{#modal.footer as |footer|}}
+     {{#bs-button onClick=(action 'clear') type="danger"}}Cancel{{/bs-button}}
+     {{#bs-button onClick=(action 'saveEntity') class="btn-primary" type="primary"}}Save{{/bs-button}}
+   {{/modal.footer}}
+ {{/bs-modal}}

@@ -4,8 +4,18 @@
         "editor.tabSize": 2,
         "editor.wordBasedSuggestions": true,
         "editor.formatOnType": true,
-        "editor.acceptSuggestionOnEnter": "off",
-        "editor.trimAutoWhitespace": false,
+        "editor.acceptSuggestionOnEnter": "on",
+        "editor.trimAutoWhitespace": true,
+        "files.trimTrailingWhitespace": true,
+        "files.insertFinalNewline": true
+    },
+    "[javascript]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4,
+        "editor.wordBasedSuggestions": true,
+        "editor.formatOnType": true,
+        "editor.acceptSuggestionOnEnter": "on",
+        "editor.trimAutoWhitespace": true,
         "files.trimTrailingWhitespace": true,
         "files.insertFinalNewline": true
     }
