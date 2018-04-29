@@ -13,7 +13,7 @@ export default Ember.Component.extend({
         },
         addTag(question){
             this.set('addTagToQuestion', question);
-            $('.ui.modal.add-to-tag').modal('show');
+            this.set('toggleTagsModal', true);
         },
         viewSnapshots(question){
             this.sendAction('transitionToSnapshots', question.id);

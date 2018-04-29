@@ -108,5 +108,5 @@
 {{/each}}
                 {{/bs-accordion}}
 {{delete-dialogue entityName="question" entity=questionToBeDeleted delete="deleteQuestion"}}
-{{add-tag entityName="Question" tags=tags entity=addTagToQuestion}}
+{{add-tag entityName="Question" tags=tags entity=addTagToQuestion open=toggleTagsModal}}
 {{create-tag entityName="questions" entity=addTagToQuestion getData='getData'}}
