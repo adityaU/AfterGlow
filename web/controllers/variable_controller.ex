@@ -15,9 +15,6 @@ defmodule AfterGlow.VariableController do
 
   def create(conn, %{"data" => data = %{"type" => "variables", "attributes" => _variable_params}}) do
     changeset = Variable.changeset(%Variable{}, Params.to_attributes(data))
-    require IEx
-    IEx.pry
-
     case Repo.insert_with_cache(changeset) do
       {:ok, variable} ->
         conn
