@@ -27,7 +27,10 @@ defmodule AfterGlow.QuestionController do
           where: q.id in ^ids
         )
     )
+    |> select([:id])
     |> Repo.all()
+    |> Enum.map(fn x -> x.id end)
+    |> CacheWrapper.get_by_ids(Question)
     |> Repo.preload(:dashboards)
     |> Repo.preload(:tags)
     |> Repo.preload(:variables)
@@ -47,7 +50,10 @@ defmodule AfterGlow.QuestionController do
       |> where([q, tq], tq.tag_id == ^tag_id)
     end
     questions = scope(conn, search_query)
+    |> select([:id])
     |> Repo.all()
+    |> Enum.map(fn x -> x.id end)
+    |> CacheWrapper.get_by_ids(Question)
     |> Repo.preload(:dashboards)
     |> Repo.preload(:tags)
     |> Repo.preload(:variables)
@@ -66,7 +72,10 @@ defmodule AfterGlow.QuestionController do
       |> where([q], ilike(q.title, ^"%#{query}%"))
     end
     questions = scope(conn, search_query)
+    |> select([:id])
     |> Repo.all()
+    |> Enum.map(fn x -> x.id end)
+    |> CacheWrapper.get_by_ids(Question)
     |> Repo.preload(:dashboards)
     |> Repo.preload(:tags)
     |> Repo.preload(:variables)
@@ -80,7 +89,10 @@ defmodule AfterGlow.QuestionController do
           order_by: q.updated_at
         )
     )
+    |> select([:id])
     |> Repo.all()
+    |> Enum.map(fn x -> x.id end)
+    |> CacheWrapper.get_by_ids(Question)
     |> Repo.preload(:dashboards)
     |> Repo.preload(:tags)
     |> Repo.preload(:variables)
@@ -116,7 +128,9 @@ defmodule AfterGlow.QuestionController do
 
   def show(conn, %{"id" => id}) do
     question = scope(conn, Question)
+    |> select([:id])
     |> Repo.get!(id)
+    question = CacheWrapper.get_by_id(question.id, Question)
     |> Repo.preload(:dashboards)
     |> Repo.preload(:tags)
     |> Repo.preload(:variables)
