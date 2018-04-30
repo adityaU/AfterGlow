@@ -13,6 +13,7 @@
            multiple=true
            optionLabelKey="name"
            selected=selectedTags
+           closeOnSelection=false
            prompt="Select a tag from dropdown"
            on-change=(action (mut entity.tags))
             on-add=(action 'addNewTag')}}
