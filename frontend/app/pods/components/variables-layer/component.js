@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-    variableTypeObserver: Ember.observer('variables.@each.var_type', function(){
+    variableTypeObserver: Ember.on('init', Ember.observer('variables.@each.var_type', function(){
         this.get('variables') && this.get('variables').forEach((item)=>{
             if ( item && item.get('var_type') == "Date"){
                 item.set('showDatePicker', true)
@@ -14,5 +14,5 @@ export default Ember.Component.extend({
                 item.set('showDatePicker', false)
             }
         })
-    })
+    }))
 });

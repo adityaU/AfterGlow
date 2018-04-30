@@ -46,8 +46,10 @@ defmodule AfterGlow.Variable do
          |> Map.has_key?(:default_options) && changeset.data.default_options)
 
     changeset =
-      case default_options do
+      case default_options  do
         nil ->
+          changeset
+        [] ->
           changeset
 
         _ ->

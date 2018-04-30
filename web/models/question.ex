@@ -195,7 +195,7 @@ defmodule AfterGlow.Question do
   end
 
   defp used_non_default_variables?(default_variables, query_variables) do
-    case default_variables |> length == 0 do
+    default_values = case default_variables |> length == 0 do
       true ->
         false
 
@@ -207,6 +207,20 @@ defmodule AfterGlow.Question do
         end)
         |> Enum.any?(fn x -> x end)
     end
+
+    default_options_values = case default_variables |> length == 0 do
+      true ->
+        false
+
+      false ->
+        default_variables
+        |> Enum.map(fn var ->
+          q_var = query_variables |> Enum.filter(fn x -> x["name"] == var.name end) |> Enum.at(0)
+          if q_var && q_var["default_options"], do: q_var["default_options"] != var.default_options, else: false
+        end)
+        |> Enum.any?(fn x -> x end)
+    end
+    (default_options_values || default_values)
   end
 
   defp parse_human_sql(params) do

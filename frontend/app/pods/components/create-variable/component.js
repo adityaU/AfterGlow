@@ -35,6 +35,10 @@ export default Ember.Component.extend({
     actions: {
         updateVarType(selection){
           this.set('variable.var_type', selection.get('title'))
+            this.set('variable.default', null)
+            this.set('variable.default_options', [])
+            this.set('variable.question_filter', null)
+
         },
         updateQuestionSearch(text){
            this.set('questionQuery', text)
