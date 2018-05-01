@@ -25,17 +25,6 @@ export default Ember.Component.extend(ColorMixin, {
                 this.get('entity.tags').pushObject(tag)
             })
         },
-        createTag(){
-            $('.ui.modal.create-tag').modal('show')
-        },
-
-        removeTag(tag){
-            this.get('entity.tags').removeObject(tag)
-        },
-        addTag(tag){
-            debugger
-            this.get('entity.tags').pushObject(tag)
-        },
         saveEntity(){
             this.get('entity').save();
             this.set('open', false);
