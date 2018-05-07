@@ -12,6 +12,7 @@ defmodule AfterGlow.QuestionController do
   alias JaSerializer.Params
   alias AfterGlow.CacheWrapper
   alias AfterGlow.CacheWrapper.Repo
+  import AfterGlow.Sql.QueryRunner
 
   import Ecto.Query
 
@@ -176,14 +177,10 @@ defmodule AfterGlow.QuestionController do
     question =  scope(conn, (from q in Question, where: q.id == ^id)) |> Repo.one() |> Repo.preload(:variables)
     db_identifier = question.human_sql["database"]["unique_identifier"]
     db_record = Repo.one(from d in Database, where: d.unique_identifier == ^db_identifier)
-    query = Question.replace_variables(question.sql, question.variables , variables)
-    variables_replaced_query = if question.sql != query,  do: query, else: nil
-    results = DbConnection.execute(db_record |> Map.from_struct, query )
-    results = results |> Question.insert_variables_replaced_at_query(variables_replaced_query)
-
+    params = permitted_params(variables, question.human_sql["additionalFilters"], question.sql)
+    {query, results} = run_raw_query(db_record, params, question.variables)
     case results do
       {:ok, results} ->
-        Async.perform(&Question.cache_results/3, [question, variables, results])
         conn
         |> render QueryView, "execute.json", data: results, query: question.sql
       {:error, error} ->
@@ -191,5 +188,14 @@ defmodule AfterGlow.QuestionController do
         |> put_status(:unprocessable_entity)
         |> render QueryView, "execute.json", error: error, query: question.sql
     end
+  end
+
+  def permitted_params(variables, additionalFilters, sql) do
+    %{
+      raw_query: sql,
+      additional_filters: additionalFilters,
+      variables: variables
+  }
+
   end
 end

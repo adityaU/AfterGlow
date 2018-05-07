@@ -13,6 +13,7 @@ defmodule SqlDust.PathUtils do
   end
 
   def prepend_path_aliases(sql, options) do
+
     {excluded, aliases} = scan_excluded(sql)
 
     aliases = aliases
@@ -54,6 +55,7 @@ defmodule SqlDust.PathUtils do
   end
 
   def scan_excluded(sql) do
+
     excluded = []
       |> Enum.concat(scan_quoted(sql))
       |> Enum.concat(scan_variables(sql))
@@ -67,6 +69,7 @@ defmodule SqlDust.PathUtils do
   end
 
   defp scan_and_prepend_path_aliases(sql, options) do
+
     regex = ~r/(?:\.\*|\w+[a-zA-Z]+\w*(?:\.(?:\*|\w{2,}))*)/
 
     paths = Regex.scan(regex, sql)
@@ -130,9 +133,17 @@ defmodule SqlDust.PathUtils do
 
   defp derive_path_alias(path, options) do
     case String.replace(path, "#{quotation_mark(options)}", "") do
-      "" -> String.downcase(String.at(options.resource.name, 0))
+      "" -> derive_path_alias_from_table_name(options, 0)
       _ -> path
     end
+  end
+
+  def derive_path_alias_from_table_name(options, index) do
+    path = String.downcase(String.at(options.resource.name, index))
+    unless Regex.match?(~r/[a-zA-z]/, path) do
+      path = derive_path_alias_from_table_name(options, index + 1)
+    end
+    path
   end
 
   def quotation_mark(%{adapter: :mysql}) do
@@ -149,9 +160,13 @@ defmodule SqlDust.PathUtils do
 
   def quote_alias(sql, options) do
     quotation_mark = quotation_mark(options)
-    if Regex.match?(~r/\A#{quotation_mark}.*#{quotation_mark}\z/, sql) do
+
+    cond do
+    Regex.match?(~r/from/, sql |> String.downcase) ->
+      "( #{sql} )"
+    Regex.match?(~r/\A#{quotation_mark}.*#{quotation_mark}\z/, sql) ->
       sql
-    else
+    true ->
       "#{quotation_mark}#{sql}#{quotation_mark}"
     end
   end

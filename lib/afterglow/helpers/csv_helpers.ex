@@ -1,26 +1,19 @@
 defmodule AfterGlow.Helpers.CsvHelpers do
   alias AfterGlow.Question
   alias AfterGlow.Sql.DbConnection
+  import AfterGlow.Sql.QueryRunner, only: [make_final_query: 3]
   alias ExAws.S3
 
   def fetch_and_upload_wrapper(db_record, params) when is_map(params) do
-    query = DbConnection.query_string(db_record |> Map.from_struct(), params)
+    {_, query} = make_final_query(db_record, params, params[:variables])
     fetch_and_upload(db_record, query, nil)
   end
 
   def fetch_and_upload_wrapper(db_record, params, file_path) when is_map(params) do
-    query = DbConnection.query_string(db_record |> Map.from_struct(), params)
+    {_, query} = make_final_query(db_record, params, params[:variables])
     fetch_and_upload(db_record, query, file_path)
   end
 
-  def fetch_and_upload_wrapper(db_record, sql, variables) do
-    fetch_and_upload_wrapper(db_record, sql, variables, nil)
-  end
-
-  def fetch_and_upload_wrapper(db_record, sql, variables, file_path) do
-    query = Question.replace_variables(sql, variables, variables)
-    fetch_and_upload(db_record, query, file_path)
-  end
 
   def save_to_file_and_upload(stream, columns) do
     file_name = "/tmp/#{SecureRandom.uuid()}.csv"

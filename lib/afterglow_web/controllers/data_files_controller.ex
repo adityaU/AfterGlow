@@ -7,6 +7,7 @@ defmodule AfterGlow.DataFilesController do
   alias AfterGlow.Snapshots
 
   alias AfterGlow.Plugs.Authorization
+  import AfterGlow.Sql.QueryRunner, only: [permit_params: 1, permit_prms_raw_query: 2]
   plug(Authorization)
 
   def fetch_and_upload(conn, %{"snapshot_id" => id}) do
@@ -20,35 +21,20 @@ defmodule AfterGlow.DataFilesController do
 
     case params["queryType"] do
       "query_builder" ->
-        Async.perform(&CsvTasks.fetch_and_upload/3, [
+        Async.perform(&CsvTasks.qb_fetch_and_upload/3, [
           db_record,
           permit_params(params),
           conn.assigns.current_user.email
         ])
 
       "raw" ->
-        Async.perform(&CsvTasks.fetch_and_upload/4, [
+        Async.perform(&CsvTasks.raw_fetch_and_upload/3, [
           db_record,
-          params["rawQuery"],
-          params["variables"],
+          params |> permit_params |> permit_prms_raw_query(params["rawQuery"]),
           conn.assigns.current_user.email
         ])
     end
 
     json(conn, %{success: true})
-  end
-
-  defp permit_params(params) do
-    %{
-      database: params["database"],
-      table: params["table"],
-      selects: params["views"] |> Enum.map(fn x -> x["selected"] end),
-      group_bys:
-        params["groupBys"] |> Enum.map(fn x -> [x["selected"], x["castType"]["value"]] end),
-      filters: params["filters"],
-      order_bys: params["orderBys"],
-      limit: params["limit"],
-      offset: params["offset"]
-    }
   end
 end

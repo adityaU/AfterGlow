@@ -1,26 +1,20 @@
 <div class="form-control">
     {{#if groupBy.selected.raw}}
-        <div class="switch" {{action 'switchToBuilder' 'groupBys' groupBy true}}>
-      {{bs-tooltip title="Switch To Builder"}}
-      <i class="fe fe-list text-gray" ></i></div>
-                {{input value=groupBy.selected.value class="form-control my-2" placeholder="Something complex" }}
+        <div class="switch" {{action 'switchToBuilder' 'groupBys' groupBy true}}> {{bs-tooltip title="Switch To Builder"}}
+            <i class="fe fe-list text-gray"></i>
+        </div> {{input value=groupBy.selected.value class="form-control my-2" placeholder="Something complex" }}
     {{else}}
-        <div class="switch" {{action 'switchToRaw' 'groupBys' groupBy true}}>
-
-      {{bs-tooltip title="Switch To Raw"}}
-      <i class="fe fe-code text-gray" ></i>
-    </div>
-        {{searchable-select
+        <div class="switch" {{action 'switchToRaw' 'groupBys' groupBy true}}> {{bs-tooltip title="Switch To Raw"}}
+            <i class="fe fe-code text-gray"></i>
+        </div> {{searchable-select
             class="my-2"
             content=filteredColumns
             sortBy="human_name"
-            selected=gropuBy.selected
+            selected=selectedGroupBy
             prompt="Select a Column"
             optionLabelKey="human_name"
             on-change=(action (mut groupBy.selected))}}
-        {{#if isGroupByDateType}}
-
-        {{searchable-select
+        {{#if isGroupByDateType}} {{searchable-select
             class="my-2"
             content=groupByDateTypes
             sortBy="name"
@@ -28,6 +22,6 @@
             prompt="Select a time Grouping"
             optionLabelKey="name"
             on-change=(action (mut groupBy.castType))}}
-        {{/if}}
+            {{/if}}
     {{/if}}
 </div>

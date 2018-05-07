@@ -1,0 +1,110 @@
+{{#bs-accordion class="text-default mb-1" as |acc|}}
+    {{#acc.item class="m-0" as |aitem|}}
+        {{#aitem.title class="py-2" }}
+            <div class="row">
+                <div class="col-8">
+                    <i class="fe fe-chevron-down"></i> Add Additional Filters </div>
+                <div class="col-4">
+                    {{#if hasAdditionalFilter}}
+                        <button class="btn btn-link text-error">Clear Filters</button>
+                    {{/if}}
+                </div>
+            </div>
+        {{/aitem.title}}
+        {{#aitem.body class="pt-0" }}
+            {{#bs-tab as |tab|}}
+                {{#tab.pane title="Filters" }}
+                    <div class="row ">
+                        {{#each queryObject.additionalFilters.filters as |filter|}}
+                            <div class="col-4 text-center">
+                                <div class="m-4 mt-0">{{filter-maker filter=filter columns=columns queryObject=queryObject switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
+                                    </div>
+                            </div>
+                        {{/each}}
+                        <button class="btn btn-link text-primary" {{action 'addFilter'}}>
+                            <i class="fe fe-plus"></i> Add a Filter</button>
+                    </div>
+                    <div class="row tags pl-4">
+                        {{#each queryObject.additionalFilters.filters as |filter|}}
+                            {{#if filter.label}}
+                                <span class="tag tag-primary">{{filter.label}}
+                                    <a href="#" class="tag-addon">
+                                        <i class="fe fe-x text-white" {{action 'remove' 'filters' filter}}></i>
+                                    </a>
+                                </span>
+                            {{/if}}
+                        {{/each}}
+                    </div>
+                {{/tab.pane}}
+                {{#tab.pane title="View" }}
+                    <div class="row">
+                        {{#each queryObject.additionalFilters.views as |selectView|}}
+                            <div class="col-4 text-center ">
+                                <div class="m-4 mt-0"> {{view-maker selectView=selectView switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
+                                    </div>
+                            </div>
+                        {{/each}}
+                        <button class="btn btn-link text-primary" {{action 'addView'}}>
+                            <i class="fe fe-plus"></i> Add a View</button>
+                    </div>
+                    <div class="row tags pl-4">
+                        {{#each queryObject.additionalFilters.views as |view|}}
+                            {{#if view.label}}
+                                <span class="tag tag-primary">{{view.label}}
+                                    <a href="#" class="tag-addon">
+                                        <i class="fe fe-x text-white" {{action 'remove' 'views' view}}></i>
+                                    </a>
+                                </span>
+                            {{/if}}
+                        {{/each}}
+                    </div>
+                {{/tab.pane}}
+                {{#tab.pane title="Grouping" }}
+                    <div class="row">
+                        {{#each queryObject.additionalFilters.groupBys as |groupBy|}}
+                            <div class="col-4 text-center ">
+                                <div class="m-4 mt-0"> {{group-by-maker columns=columns groupBy=groupBy switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
+                                    </div>
+                            </div>
+                        {{/each}}
+                        <button class="btn btn-link text-primary" {{action 'addGroupBy'}}>
+                            <i class="fe fe-plus"></i> Add a Grouping</button>
+                    </div>
+                    <div class="row tags pl-4">
+                        {{#each queryObject.additionalFilters.groupBys as |groupBy|}}
+                            {{#if groupBy.label}}
+                                <span class="tag tag-primary">{{groupBy.label}}
+                                    <a href="#" class="tag-addon">
+                                        <i class="fe fe-x text-white" {{action 'remove' 'groupBys' groupBy}}></i>
+                                    </a>
+                                </span>
+                            {{/if}}
+                        {{/each}}
+                    </div>
+                {{/tab.pane}}
+                {{#tab.pane title="Sort Order" }}
+                    <div class="row">
+                        {{#each queryObject.additionalFilters.orderBys as |orderBy|}}
+                            <div class="col-4 text-center">
+                                <div class="m-4 mt-0"> {{order-by-maker columns=columns orderBy=orderBy}} </div>
+                            </div>
+                        {{/each}}
+                        <button class="btn btn-link text-primary" {{action 'addOrderBy'}}>
+                            <i class="fe fe-plus"></i> Add Sort Order</button>
+                    </div>
+                    <div class="row tags pl-4">
+                        {{#each queryObject.additionalFilters.orderBys as |orderBy|}}
+                            {{#if (and orderBy.column.human_name orderBy.order.name)}}
+                                <span class="tag tag-primary">{{orderBy.column.human_name}} : {{orderBy.order.name}}
+                                    <a href="#" class="tag-addon">
+                                        <i class="fe fe-x text-white" {{action 'remove' 'orderBys' orderBy}}></i>
+                                    </a>
+                                </span>
+                            {{/if}}
+                        {{/each}}
+                    </div>
+                {{/tab.pane}}
+            {{/bs-tab}}
+        {{/aitem.body}}
+    {{/acc.item}}
+{{/bs-accordion}}

@@ -2,14 +2,16 @@ defmodule AfterGlow.CsvTasks do
   alias AfterGlow.Repo
   alias AfterGlow.Helpers.CsvHelpers
   alias AfterGlow.Mailers.CsvMailer
+  alias AfterGlow.Sql.DbConnection
+  import AfterGlow.Sql.QueryRunner, only: [permit_prms_raw_query: 2]
 
-  def fetch_and_upload(db_record, params, email) do
-    url = CsvHelpers.fetch_and_upload_wrapper(db_record, params)
-    CsvMailer.mail(email, url)
+  def qb_fetch_and_upload(db_record, params, email) do
+    query = DbConnection.query_string(db_record |> Map.from_struct(), params)
+    raw_fetch_and_upload(db_record, params |> permit_prms_raw_query(query), email)
   end
 
-  def fetch_and_upload(db_record, sql, variables, email) do
-    url = CsvHelpers.fetch_and_upload_wrapper(db_record, sql, variables) 
+  def raw_fetch_and_upload(db_record, params, email) do
+    url = CsvHelpers.fetch_and_upload_wrapper(db_record, params)
     CsvMailer.mail(email, url)
   end
 end

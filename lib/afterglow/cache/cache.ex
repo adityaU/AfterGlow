@@ -26,7 +26,8 @@ defmodule AfterGlow.CacheWrapper do
         x |> elem(1) != nil
       end)
       |> Enum.map(fn x ->
-        x |> elem(1)
+        x
+        |> elem(1)
         |> Repo.preload(type.default_preloads || [])
       end)
 
@@ -77,7 +78,6 @@ defmodule AfterGlow.CacheWrapper do
 
   def delete_cache_struct(structs) when is_list(structs) do
     structs
-
     |> Enum.each(fn x ->
       delete_cache_struct(x)
     end)
@@ -88,7 +88,7 @@ defmodule AfterGlow.CacheWrapper do
 
     if type do
       id = struct.id
-      Cachex.del(:cache, key(type , id) )
+      Cachex.del(:cache, key(type, id))
     end
   end
 

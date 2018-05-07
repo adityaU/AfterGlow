@@ -18,5 +18,10 @@
         "editor.trimAutoWhitespace": true,
         "files.trimTrailingWhitespace": true,
         "files.insertFinalNewline": true
-    }
+    },
+    "typescript.tsc.autoDetect": "off",
+    "eslint.provideLintTask": true,
+    "jake.autoDetect": "off",
+    "grunt.autoDetect": "off",
+    "gulp.autoDetect": "off"
 }

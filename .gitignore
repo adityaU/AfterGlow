@@ -5,3 +5,4 @@ frontend/dist/
 frontend/node_modules/
 frontend/tmp/
 .elixir_ls/
+erl_crash.dump

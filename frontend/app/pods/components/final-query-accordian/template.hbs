@@ -1,0 +1,35 @@
+{{#bs-accordion class="text-default mb-1" as |acc|}}
+    {{#acc.item class="m-0" as |aitem|}}
+        <div class="card-status card-status-left bg-warning"></div>
+        {{#aitem.title class="py-2" }}
+            <span class="row">
+                <div class="col-4">
+                    {{#if variablesReplacedQuery}}
+                        <i class="fe fe-check text-success"></i>
+                    {{else}}
+                        <i class="fe fe-x text-danger"></i>
+                    {{/if}} Variables Replaced </div>
+                <div class="col-4">
+                    {{#if isQueryLimited}}
+                        <i class="fe fe-check text-success"></i>
+                    {{else}}
+                        <i class="fe fe-x text-danger"></i>
+                    {{/if}} Limit of {{queryLimit}} applied </div>
+                <div class="col-4">
+                    {{#if additionalFiltersApplied}}
+                        <i class="fe fe-check text-success"></i>
+                    {{else}}
+                        <i class="fe fe-x text-danger"></i>
+                    {{/if}} Additional Filters Applied </div>
+            </span>
+        {{/aitem.title}}
+        {{#aitem.body}} {{ember-ace
+          lines=10
+          value=finalQuery
+          mode=aceMode
+          theme=aceTheme
+          readOnly=true
+        }}
+            {{/aitem.body}}
+    {{/acc.item}}
+{{/bs-accordion}}

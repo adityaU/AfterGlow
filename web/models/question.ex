@@ -118,11 +118,15 @@ defmodule AfterGlow.Question do
 
     variables
     |> Enum.map(fn var ->
-      q_var = query_variables |> Enum.filter(fn x ->
-        if (x.name && var.name) do
-        x.name == var.name
-        end
-       end) |> Enum.at(0)
+      q_var =
+        query_variables
+        |> Enum.filter(fn x ->
+          if x.name && var.name do
+            x.name == var.name
+          end
+        end)
+        |> Enum.at(0)
+
       default_options_values = Variable.default_option_values(q_var)
       value = if q_var && q_var.value, do: q_var.value, else: var.default
       value = Variable.format_value(var, value)
@@ -170,6 +174,37 @@ defmodule AfterGlow.Question do
     |> Tuple.delete_at(2)
   end
 
+  def insert_additional_filters_applied(results, additional_filters_applied) do
+    results
+    |> Tuple.insert_at(
+      1,
+      results
+      |> elem(1)
+      |> Map.put("additional_filters_applied", additional_filters_applied)
+    )
+    |> Tuple.delete_at(2)
+  end
+
+  def insert_final_query(results, final_query) do
+    limited_query =
+      results
+      |> elem(1)
+      |> Access.get(:limited_query)
+    final_query = if limited_query do
+      limited_query
+    else
+      final_query
+    end
+    results
+    |> Tuple.insert_at(
+      1,
+      results
+      |> elem(1)
+      |> Map.put("final_query", final_query)
+    )
+    |> Tuple.delete_at(2)
+  end
+
   def selectable_fields do
     [
       :id,
@@ -195,32 +230,41 @@ defmodule AfterGlow.Question do
   end
 
   defp used_non_default_variables?(default_variables, query_variables) do
-    default_values = case default_variables |> length == 0 do
-      true ->
-        false
+    default_values =
+      case default_variables |> length == 0 do
+        true ->
+          false
 
-      false ->
-        default_variables
-        |> Enum.map(fn var ->
-          q_var = query_variables |> Enum.filter(fn x -> x["name"] == var.name end) |> Enum.at(0)
-          if q_var && q_var["value"], do: q_var["value"] != var.default, else: false
-        end)
-        |> Enum.any?(fn x -> x end)
-    end
+        false ->
+          default_variables
+          |> Enum.map(fn var ->
+            q_var =
+              query_variables |> Enum.filter(fn x -> x["name"] == var.name end) |> Enum.at(0)
 
-    default_options_values = case default_variables |> length == 0 do
-      true ->
-        false
+            if q_var && q_var["value"], do: q_var["value"] != var.default, else: false
+          end)
+          |> Enum.any?(fn x -> x end)
+      end
 
-      false ->
-        default_variables
-        |> Enum.map(fn var ->
-          q_var = query_variables |> Enum.filter(fn x -> x["name"] == var.name end) |> Enum.at(0)
-          if q_var && q_var["default_options"], do: q_var["default_options"] != var.default_options, else: false
-        end)
-        |> Enum.any?(fn x -> x end)
-    end
-    (default_options_values || default_values)
+    default_options_values =
+      case default_variables |> length == 0 do
+        true ->
+          false
+
+        false ->
+          default_variables
+          |> Enum.map(fn var ->
+            q_var =
+              query_variables |> Enum.filter(fn x -> x["name"] == var.name end) |> Enum.at(0)
+
+            if q_var && q_var["default_options"],
+              do: q_var["default_options"] != var.default_options,
+              else: false
+          end)
+          |> Enum.any?(fn x -> x end)
+      end
+
+    default_options_values || default_values
   end
 
   defp parse_human_sql(params) do
@@ -276,29 +320,29 @@ defmodule AfterGlow.Question do
   end
 
   defp share_variable_question(changeset) do
-    if  changeset.changes
-          |> Map.has_key?(:shared_to) do
-    changeset.changes[:variables]
-    |> Kernel.||(changeset.data.variables)
-    |> Kernel.||([])
-    |> Repo.preload(:question_filter)
-    |> Enum.filter(fn var -> var.question_filter end)
-    |> Enum.map(fn var ->
-      if  changeset.changes
-          |> Map.has_key?(:shared_to) do
-      Ecto.Changeset.change(
-        var.question_filter,
-        shared_to:
-          changeset.changes.shared_to
-          |> Kernel.++(var.question_filter.shared_to)
-          |> Enum.uniq()
-      )
-      |> Repo.update_with_cache()
+    if changeset.changes
+       |> Map.has_key?(:shared_to) do
+      changeset.changes[:variables]
+      |> Kernel.||(changeset.data.variables)
+      |> Kernel.||([])
+      |> Repo.preload(:question_filter)
+      |> Enum.filter(fn var -> var.question_filter end)
+      |> Enum.map(fn var ->
+        if changeset.changes
+           |> Map.has_key?(:shared_to) do
+          Ecto.Changeset.change(
+            var.question_filter,
+            shared_to:
+              changeset.changes.shared_to
+              |> Kernel.++(var.question_filter.shared_to)
+              |> Enum.uniq()
+          )
+          |> Repo.update_with_cache()
         end
-    end)
+      end)
     end
-    changeset
 
+    changeset
   end
 
   defp add_tags(changeset, tags) do
