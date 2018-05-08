@@ -127,8 +127,6 @@ defmodule AfterGlow.Question do
         end)
         |> Enum.at(0)
 
-      require IEx
-      IEx.pry()
       default_options_values = Variable.default_option_values(q_var)
 
       value =
