@@ -127,8 +127,15 @@ defmodule AfterGlow.Question do
         end)
         |> Enum.at(0)
 
+      require IEx
+      IEx.pry()
       default_options_values = Variable.default_option_values(q_var)
-      value = if q_var && q_var.value, do: q_var.value, else: var.default
+
+      value =
+        if q_var && q_var |> Access.get("value"),
+          do: q_var |> Access.get("value"),
+          else: var |> Access.get("default")
+
       value = Variable.format_value(var, value)
       value = if default_options_values, do: default_options_values, else: value
 
@@ -190,11 +197,14 @@ defmodule AfterGlow.Question do
       results
       |> elem(1)
       |> Access.get(:limited_query)
-    final_query = if limited_query do
-      limited_query
-    else
-      final_query
-    end
+
+    final_query =
+      if limited_query do
+        limited_query
+      else
+        final_query
+      end
+
     results
     |> Tuple.insert_at(
       1,
