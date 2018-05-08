@@ -104,19 +104,27 @@ defmodule AfterGlow.Question do
     |> Repo.update_with_cache()
   end
 
+  defp convert_to_variables(vars) do
+    vars
+    |> Enum.map(fn default_var ->
+      if default_var |> Map.has_key?(:__struct__) do
+        default_var
+      else
+        Variable.changeset(%Variable{}, default_var).changes
+      end
+    end)
+  end
+
   def replace_variables(query, default_variables, query_variables, snapshot \\ nil) do
-    same_variables = default_variables == query_variables
+    default_variables =
+      default_variables
+      |> convert_to_variables
 
     query_variables =
       query_variables
-      |> Enum.map(fn var ->
-        var
-        |> Enum.reduce(%{}, fn {key, val}, acc -> Map.put(acc, String.to_atom(key), val) end)
-      end)
+      |> convert_to_variables
 
-    variables = if same_variables, do: query_variables, else: default_variables
-
-    variables
+    default_variables
     |> Enum.map(fn var ->
       q_var =
         query_variables
@@ -128,12 +136,7 @@ defmodule AfterGlow.Question do
         |> Enum.at(0)
 
       default_options_values = Variable.default_option_values(q_var)
-
-      value =
-        if q_var && q_var |> Access.get("value"),
-          do: q_var |> Access.get("value"),
-          else: var |> Access.get("default")
-
+      value = if q_var && q_var.value, do: q_var.value, else: var.default
       value = Variable.format_value(var, value)
       value = if default_options_values, do: default_options_values, else: value
 

@@ -22,7 +22,8 @@ defmodule AfterGlow.Question.Policy do
           s.owner_id == ^user.id or fragment("? = ANY (?)", ^user.email, s.shared_to) or
             fragment("? = ANY (?)", ^user.email, d.shared_to) or
             fragment("? = ANY (?)", "all", s.shared_to) or
-            fragment("? = ANY (?)", "all", d.shared_to)
+            fragment("? = ANY (?)", "all", d.shared_to),
+        group_by: s.id
       )
     end
   end

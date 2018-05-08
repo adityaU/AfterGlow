@@ -9,6 +9,7 @@ defmodule AfterGlow.Variable do
     field(:var_type, :string)
     field(:default_operator, :string)
     field(:default_options, {:array, :map})
+    field(:value, :string, virtual: true)
     belongs_to(:column, AfterGlow.Column)
     belongs_to(:question, AfterGlow.Question)
     belongs_to(:dashboard, AfterGlow.Dashboard)
@@ -32,6 +33,7 @@ defmodule AfterGlow.Variable do
       :question_filter_id,
       :dashboard_id,
       :question_id,
+      :value,
       :question_filter_id
     ])
     |> make_default_from_default_options
@@ -46,9 +48,10 @@ defmodule AfterGlow.Variable do
          |> Map.has_key?(:default_options) && changeset.data.default_options)
 
     changeset =
-      case default_options  do
+      case default_options do
         nil ->
           changeset
+
         [] ->
           changeset
 
