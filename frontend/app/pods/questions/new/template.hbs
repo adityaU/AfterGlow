@@ -29,10 +29,17 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                                                 </a>
                                             </div>
                                         </div>
-                                        <div class="card-body"> {{ember-ace lines=10 value=queryObject.rawQuery mode=aceMode enableSnippets=true enableDefaultAutocompletion=true enableLiveAutocompletion=true
+                                        <div class="card-body">
+                                            <div class="row">
+                                                {{#if queryObject.database}}
+                                                    <div class="col-3"> {{db-tree database=queryObject.database}} </div>
+                                                {{/if}}
+                                                <div class="{{if queryObject.database 'col-9' 'col-12'}}"> {{ember-ace lines=10 value=queryObject.rawQuery mode=aceMode enableSnippets=true enableDefaultAutocompletion=true enableLiveAutocompletion=true
                                     context=queryObject.database suggestAutoCompletions=suggestAutoCompletions theme=aceTheme
                                     update=(action (mut queryObject.rawQuery)) }}
+                                                    </div>
                                             </div>
+                                        </div>
                                         {{#if showGetResults}}
                                             <div class="card-footer">
                                                 {{#if loading}}

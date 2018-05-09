@@ -1,7 +1,6 @@
 @import 'variables';
 @import "ember-searchable-select/style";
 @import url(https://cdn.rawgit.com/tonsky/FiraCode/1.205/distr/fira_code.css);
-
 $primaryColor: $primary;
 $primaryColorShade2: #7962ab;
 $errorColor: #f44336;
@@ -16,7 +15,7 @@ $tertiaryColor: #44b35e;
 $tertiaryColorShade2: #3c9651;
 $secondaryColor: #f9fbfc;
 $lightTransparentColor: rgba(61, 64, 70, 0.85);
-$borderSecondaryColor : #dee5e8;
+$borderSecondaryColor: #dee5e8;
 $borderRadius: 0.28571429rem;
 $warningColor: #fff700;
 @function box-shadow($color) {
@@ -1059,6 +1058,21 @@ body {
     }
 }
 
+.db-tree {
+    height: 160px;
+    & .tree {
+        overflow: auto;
+        height: 122px;
+        .leafs {
+            text-indent: 20px;
+            background: $body-bg;
+            &.leaf-name {
+                font-size: 0.9em
+            }
+        }
+    }
+}
+
 // .tag:hover {
 //   background-color: crimson;
 //   color: white;
@@ -1093,6 +1107,7 @@ table {
     margin: 0px !important;
     background: white;
 }
+
 .action-buttons {
     height: 40px;
     text-align: right;
@@ -1104,13 +1119,13 @@ table {
     padding-top: 5px;
 }
 
-.dropdown-item{
-  &:hover{
-    color: $primary !important;
-  }
-&:active {
-    color: white !important;
-}
+.dropdown-item {
+    &:hover {
+        color: $primary !important;
+    }
+    &:active {
+        color: white !important;
+    }
 }
 
 .container {
@@ -1239,69 +1254,68 @@ table {
 
 .Searchable-select {
     background: $white;
-    &--multiple a{
-      padding: 5px 5px;
-      min-height: 0px;
+    &--multiple a {
+        padding: 5px 5px;
+        min-height: 0px;
     }
-    &__selected-pill{
-      font-size: px2rem(12px);
-      color: $white;
-      background-color: $primary;
-      border-radius: 3px;
-      padding: 0 .5rem;
-      line-height: 2em;
-      display: inline-flex;
-      cursor: default;
-      font-weight: 400;
-      user-select: none;
-      margin-left: 0px;
-      margin-right: 0px;
-      margin-top: 0px;
-      margin-bottom: 0px;
-      border: 0px;
-      @at-root a#{&} {
-        text-decoration: none;
-        cursor: pointer;
-        transition: .3s color, .3s background;
-    
-        &:hover {
-          background-color: rgba($text-muted-dark, .20);
-          color: inherit;
+    &__selected-pill {
+        font-size: px2rem(12px);
+        color: $white;
+        background-color: $primary;
+        border-radius: 3px;
+        padding: 0 .5rem;
+        line-height: 2em;
+        display: inline-flex;
+        cursor: default;
+        font-weight: 400;
+        user-select: none;
+        margin-left: 0px;
+        margin-right: 0px;
+        margin-top: 0px;
+        margin-bottom: 0px;
+        border: 0px;
+        @at-root a#{&} {
+            text-decoration: none;
+            cursor: pointer;
+            transition: .3s color, .3s background;
+            &:hover {
+                background-color: rgba($text-muted-dark, .20);
+                color: inherit;
+            }
         }
-      }
-      &-clear {
-          display: inline-block;
-          padding: 0 .5rem;
-          color: inherit;
-          text-decoration: none;
-          background: rgba(#000, .06);
-          margin: 0 -.5rem 0 .5rem;
-          text-align: center;
-          min-width: 1.5rem;
-          font-size: inherit;
-          line-height: inherit;
-          font-weight: inherit;
-          &:last-child {
-              border-top-right-radius: 3px;
-              border-bottom-right-radius: 3px;
-          }
-          &:hover{
+        &-clear {
+            display: inline-block;
+            padding: 0 .5rem;
             color: inherit;
-          }
-          i {
-              vertical-align: middle;
-              margin: 0 -.25rem;
-          }
-          @at-root a#{&} {
-              text-decoration: none;
-              cursor: pointer;
-              transition: .3s color, .3s background;
-              &:hover {
-                  background: rgba(#000, .16);
-                  color: inherit;
-              }
-          }
-      }
+            text-decoration: none;
+            background: rgba(#000, .06);
+            margin: 0 -.5rem 0 .5rem;
+            text-align: center;
+            min-width: 1.5rem;
+            font-size: inherit;
+            line-height: inherit;
+            font-weight: inherit;
+            &:last-child {
+                border-top-right-radius: 3px;
+                border-bottom-right-radius: 3px;
+            }
+            &:hover {
+                color: inherit;
+            }
+            i {
+                vertical-align: middle;
+                margin: 0 -.25rem;
+            }
+            @at-root a#{&} {
+                text-decoration: none;
+                cursor: pointer;
+                transition: .3s color, .3s background;
+                &:hover {
+                    background: rgba(#000, .16);
+                    color: inherit;
+                }
+            }
+        }
     }
     &__option {
         &:hover {
@@ -1423,41 +1437,49 @@ a:hover {
 .dimmer {
     position: static;
 }
-.row.variable-layer{
-  .col-4, .col-3{
-      padding-left: 5px !important;
-      padding-right: 0px !important;
-    &:first-child{
-      padding-left: 0px !important;
+
+.row.variable-layer {
+    .col-4,
+    .col-3 {
+        padding-left: 5px !important;
+        padding-right: 0px !important;
+        &:first-child {
+            padding-left: 0px !important;
+        }
+        &:last-child {
+            padding-right: 0px !important;
+        }
     }
-    &:last-child{
-      padding-right: 0px !important;
-    }
-  }
 }
-.variable-remove{
-  position: absolute;
-  right: 5px;
-  top: 5px;
-  font-weight: bold;
+
+.variable-remove {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    font-weight: bold;
 }
+
 .calendar .ui.input {
-  width: 100% !important;
+    width: 100% !important;
 }
-.database-cards{
-    & .card{
-      width: initial;
+
+.database-cards {
+    & .card {
+        width: initial;
     }
 }
+
 .row.row-cards {
-  margin: -1.25rem !important;
-  margin-top: 1.25rem !important;
+    margin: -1.25rem !important;
+    margin-top: 1.25rem !important;
 }
-.close{
-  &:before{
-    content: "";
-  }
+
+.close {
+    &:before {
+        content: "";
+    }
 }
-.dashboard-page{
+
+.dashboard-page {
     overflow: auto;
 }
