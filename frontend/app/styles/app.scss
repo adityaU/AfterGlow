@@ -1062,7 +1062,7 @@ body {
     height: 160px;
     & .tree {
         overflow: auto;
-        height: 122px;
+        height: calc(100% - 38px);
         .leafs {
             text-indent: 20px;
             background: $body-bg;
