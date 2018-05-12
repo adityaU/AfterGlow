@@ -7,6 +7,7 @@ export default DS.Transform.extend({
             return {};
         } else {
             let obj = Ember.Object.create({
+                fromQuestion: value.fromQuestion,
                 database: Ember.Object.create(value.database),
                 table: Ember.Object.create(value.table),
                 views: value.views && value.views.map((item) => {

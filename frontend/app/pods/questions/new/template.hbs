@@ -34,7 +34,7 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                                                 {{#if queryObject.database}}
                                                     <div class="col-3"> {{db-tree database=queryObject.database}} </div>
                                                 {{/if}}
-                                                <div class="{{if queryObject.database 'col-9' 'col-12'}}"> {{ember-ace lines=10 value=queryObject.rawQuery mode=aceMode enableSnippets=true enableDefaultAutocompletion=true enableLiveAutocompletion=true
+                                                <div class="{{if queryObject.database 'col-9' 'col-12'}}"> {{ember-ace lines=15 value=queryObject.rawQuery mode=aceMode enableSnippets=true enableDefaultAutocompletion=true enableLiveAutocompletion=true
                                     context=queryObject.database suggestAutoCompletions=suggestAutoCompletions theme=aceTheme
                                     update=(action (mut queryObject.rawQuery)) }}
                                                     </div>

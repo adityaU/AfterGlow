@@ -4,19 +4,23 @@ defmodule AfterGlow.Sql.QueryRunner do
   alias AfterGlow.Async
   alias AfterGlow.ColumnValuesTasks
   alias AfterGlow.Repo
+  alias AfterGlow.Database
+  import Ecto.Query, only: [from: 2]
 
   def make_final_query(db_record, params, question_variables) do
-    query =
-      Question.replace_variables(params[:raw_query], question_variables, params[:variables])
+    query = Question.replace_variables(params[:raw_query], question_variables, params[:variables])
 
     variables_replaced_query = if params[:raw_query] != query, do: true, else: false
     params = %{params | raw_query: query}
-    query = DbConnection.query_string(db_record |> Map.from_struct(), params |> additional_query_obj)
-    {variables_replaced_query, query}
-    end
 
+    query =
+      DbConnection.query_string(db_record |> Map.from_struct(), params |> additional_query_obj)
+
+    {variables_replaced_query, query}
+  end
 
   def run_raw_query(db_record, params), do: run_raw_query(db_record, params, params[:variables])
+
   def run_raw_query(db_record, params, question_variables) do
     {variables_replaced_query, query} = make_final_query(db_record, params, question_variables)
     results = DbConnection.execute(db_record |> Map.from_struct(), query)
@@ -45,21 +49,58 @@ defmodule AfterGlow.Sql.QueryRunner do
   end
 
   def permit_prms_raw_query(params, query) do
-      params
-      |> Map.merge(%{
-        :raw_query => query
-      })
+    params
+    |> Map.merge(%{
+      :raw_query => query
+    })
+  end
 
+  defp make_final_query_for_question(question_id) do
+    question =
+      from(q in Question, where: q.id == ^question_id)
+      |> Repo.one()
+      |> Repo.preload(:variables)
+
+    db_identifier = question.human_sql["database"]["unique_identifier"]
+    db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
+
+    params =
+      permitted_params(
+        question.id,
+        question.variables,
+        question.human_sql["additionalFilters"],
+        question.sql
+      )
+
+    make_final_query(db_record, params, question.variables)
+  end
+
+  defp permitted_params(id, variables, additionalFilters, sql) do
+    %{
+      id: id,
+      raw_query: sql,
+      additional_filters: additionalFilters,
+      variables: variables
+    }
   end
 
   def permit_params(params) do
+    table =
+      if params["table"]["sql"] do
+        {_, sql} = make_final_query_for_question(params["table"]["id"])
+        %{"name" => sql}
+      else
+        params["table"]
+      end
+
     %{
       id: params["id"],
       database: params["database"],
-      table: params["table"],
-      selects: params["views"] && (params["views"] |> Enum.map(fn x -> x["selected"] end)),
+      table: table,
+      selects: params["views"] && params["views"] |> Enum.map(fn x -> x["selected"] end),
       group_bys:
-       params["groupBys"] && (params["groupBys"] |> Enum.map(fn x -> [x["selected"], x["castType"]["value"]] end)),
+        params["groupBys"] &&
+          params["groupBys"] |> Enum.map(fn x -> [x["selected"], x["castType"]["value"]] end),
       filters: params["filters"],
       order_bys: params["orderBys"],
       limit: params["limit"],
@@ -70,20 +111,19 @@ defmodule AfterGlow.Sql.QueryRunner do
   end
 
   def cache_results(params, results, current_sql) do
-
     case results do
       {:ok, results} ->
+        if params[:id] do
+          question = Question |> Repo.get!(params[:id]) |> Repo.preload(:variables)
 
+          if !non_default_additional_filters_exists?(params[:additional_filters], question) &&
+               current_sql == question.sql do
+            Async.perform(&Question.cache_results/3, [question, params[:variables], results])
+          end
+        end
 
-    if params[:id] do
-      question = Question |> Repo.get!(params[:id]) |> Repo.preload(:variables)
-
-      if !non_default_additional_filters_exists?(params[:additional_filters], question) && current_sql == question.sql do
-        Async.perform(&Question.cache_results/3, [question, params[:variables], results])
-      end
-    end
-    _ ->
-      "pass"
+      _ ->
+        "pass"
     end
   end
 
@@ -101,10 +141,14 @@ defmodule AfterGlow.Sql.QueryRunner do
 
   defp additional_query_obj(params) do
     prms = permit_params(params[:additional_filters])
-    prms = prms |> Map.merge(%{
-      database: params[:database],
-      table: %{"name" => params[:raw_query]}
-    })
+
+    prms =
+      prms
+      |> Map.merge(%{
+        database: params[:database],
+        table: %{"name" => params[:raw_query]}
+      })
+
     prms
   end
 

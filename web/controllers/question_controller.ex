@@ -56,22 +56,8 @@ defmodule AfterGlow.QuestionController do
         |> where([q, tq], tq.tag_id == ^tag_id)
     end
 
-    questions =
-      scope(conn, search_query)
-      |> select([:id])
-      |> Repo.all()
-      |> Enum.map(fn x -> x.id end)
-      |> CacheWrapper.get_by_ids(Question)
-      |> Repo.preload(:dashboards)
-      |> Repo.preload(:tags)
-      |> Repo.preload(:variables)
-      |> Repo.preload(:snapshots)
-
-    json(
-      conn,
-      QuestionSearchView
-      |> JaSerializer.format(questions, conn, type: 'question')
-    )
+    scope(conn, search_query)
+    |> query_and_send_index_reponse(conn)
   end
 
   def index(conn, %{"for_variable" => "true", "query" => query}) do
@@ -89,48 +75,39 @@ defmodule AfterGlow.QuestionController do
         |> where([q], ilike(q.title, ^"%#{query}%"))
     end
 
-    questions =
-      scope(conn, search_query)
-      |> select([:id])
-      |> Repo.all()
-      |> Enum.map(fn x -> x.id end)
-      |> CacheWrapper.get_by_ids(Question)
-      |> Repo.preload(:dashboards)
-      |> Repo.preload(:tags)
-      |> Repo.preload(:variables)
-      |> Repo.preload(:snapshots)
+    scope(conn, search_query)
+    |> query_and_send_index_reponse(conn)
+  end
 
-    json(
-      conn,
-      QuestionSearchView
-      |> JaSerializer.format(questions, conn, type: 'question')
-    )
+  def index(conn, %{"database_id" => database_id, "query" => query}) do
+    search_query =
+      from(
+        q in Question,
+        where: fragment("human_sql->'database'->>'id' = ?", ^database_id),
+        order_by: q.updated_at,
+        limit: 10
+      )
+
+    if query && query != "" do
+      search_query =
+        search_query
+        |> where([q], ilike(q.title, ^"%#{query}%"))
+    end
+
+    scope(conn, search_query)
+    |> query_and_send_index_reponse(conn)
   end
 
   def index(conn, _params) do
-    questions =
-      scope(
-        conn,
-        from(
-          q in Question,
-          limit: 20,
-          order_by: q.updated_at
-        )
-      )
-      |> select([:id])
-      |> Repo.all()
-      |> Enum.map(fn x -> x.id end)
-      |> CacheWrapper.get_by_ids(Question)
-      |> Repo.preload(:dashboards)
-      |> Repo.preload(:tags)
-      |> Repo.preload(:variables)
-      |> Repo.preload(:snapshots)
-
-    json(
+    scope(
       conn,
-      QuestionSearchView
-      |> JaSerializer.format(questions, conn, type: 'question')
+      from(
+        q in Question,
+        limit: 20,
+        order_by: q.updated_at
+      )
     )
+    |> query_and_send_index_reponse(conn)
   end
 
   def create(conn, %{"data" => data = %{"type" => "questions", "attributes" => _question_params}}) do
@@ -256,7 +233,26 @@ defmodule AfterGlow.QuestionController do
     end
   end
 
-  def permitted_params(id, variables, additionalFilters, sql) do
+  defp query_and_send_index_reponse(query, conn) do
+    questions =
+      query
+      |> select([:id])
+      |> Repo.all()
+      |> Enum.map(fn x -> x.id end)
+      |> CacheWrapper.get_by_ids(Question)
+      |> Repo.preload(:dashboards)
+      |> Repo.preload(:tags)
+      |> Repo.preload(:variables)
+      |> Repo.preload(:snapshots)
+
+    json(
+      conn,
+      QuestionSearchView
+      |> JaSerializer.format(questions, conn, type: 'question')
+    )
+  end
+
+  defp permitted_params(id, variables, additionalFilters, sql) do
     %{
       id: id,
       raw_query: sql,

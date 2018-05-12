@@ -20,6 +20,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
         return this.store.createRecord('question', {
             title: 'New Question',
             human_sql: Ember.Object.create({
+                fromTable: true,
                 queryType: 'query_builder',
                 database: null,
                 table: null,

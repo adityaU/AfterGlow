@@ -1,6 +1,9 @@
 import DS from 'ember-data';
-import { memberAction, collectionAction } from 'ember-api-actions';
-import ResultViewMixin from "frontend/mixins/result-view-mixin"
+import {
+    memberAction,
+    collectionAction
+} from 'ember-api-actions';
+import ResultViewMixin from 'frontend/mixins/result-view-mixin';
 
 
 export default DS.Model.extend(ResultViewMixin, {
@@ -20,81 +23,95 @@ export default DS.Model.extend(ResultViewMixin, {
     shared_to: DS.attr(),
     variables: DS.hasMany('variables'),
     owner: DS.belongsTo('user'),
-    variables_from_this_question: DS.hasMany('variables',  { inverse: 'question_filter' }),
+    variables_from_this_question: DS.hasMany('variables', {
+        inverse: 'question_filter'
+    }),
 
     inserted_at: DS.attr('utc'),
     updated_at: DS.attr('utc'),
 
+    toJSON: function () {
+        return this._super({
+            includeId: true
+        });
+    },
 
-    cachedResults: Ember.on('didLoad', Ember.observer("updated_at", "resultsCanBeLoaded" , "cached_results", function(){
-        if (this.get('resultsCanBeLoaded') && !this.get('loading')){
-            this.set("loading", true)
-            this.set('results', null)
+
+    cachedResults: Ember.on('didLoad', Ember.observer('updated_at', 'resultsCanBeLoaded', 'cached_results', function () {
+        if (this.get('resultsCanBeLoaded') && !this.get('loading')) {
+            this.set('loading', true);
+            this.set('results', null);
             let variables = this.get('query_variables');
-            variables = variables && variables.map((item)=>{
+            variables = variables && variables.map((item) => {
                 return {
                     name: item.get('name'),
                     value: item.get('value') || item.get('default'),
                     var_type: item.get('var_type'),
                     default_options: item.get('default_options')
-                }
-            })
-            this.resultsCall( {variables: variables}).then((response)=>{
-                this.set('results', response.data)
-                this.set('cached_results', response.data)
-                this.set("loading", false)
-                this.set("resultsCanBeLoaded", false)
-                this.set('errorMessage', null)
+                };
+            });
+            this.resultsCall({
+                variables: variables
+            }).then((response) => {
+                this.set('results', response.data);
+                this.set('cached_results', response.data);
+                this.set('loading', false);
+                this.set('resultsCanBeLoaded', false);
+                this.set('errorMessage', null);
                 // }).then((error)=>{
                 //     this.set('resultError', error.error)
                 //     this.set("loading", false)
-            }).catch((error)=>{
-                this.set('errorMessage', error.message)
-                this.set("loading", false)
-                this.set('results', null)
-                this.set('cached_results', null)
-                this.set("resultsCanBeLoaded", false)
+            }).catch((error) => {
+                this.set('errorMessage', error.message);
+                this.set('loading', false);
+                this.set('results', null);
+                this.set('cached_results', null);
+                this.set('resultsCanBeLoaded', false);
             });
-        }else if(!this.get('errorMessage') && !this.get('loading')){
-            this.set('results', this.get('cached_results'))
+        } else if (!this.get('errorMessage') && !this.get('loading')) {
+            this.set('results', this.get('cached_results'));
         }
     })),
 
-    updatedAgoColor: Ember.computed("updated_at", "updatedAgoColorChangeTime", function(){
+    updatedAgoColor: Ember.computed('updated_at', 'updatedAgoColorChangeTime', function () {
         let updated_at = this.get('updated_at');
-        if (updated_at){
-            if (moment(updated_at).add(30, 'minutes') > moment()){
-                return "green"
-            }else{
-                return "red"
+        if (updated_at) {
+            if (moment(updated_at).add(30, 'minutes') > moment()) {
+                return 'green';
+            } else {
+                return 'red';
             }
         }
     }),
     refreshInterval: 60000,
-    startTimer: Ember.on('didLoad', function() {
-        !this.isDestroyed  && this.set('timer', this.schedule(this.get('onPoll')));
+    startTimer: Ember.on('didLoad', function () {
+        !this.isDestroyed && this.set('timer', this.schedule(this.get('onPoll')));
     }),
-    schedule: function(f) {
-        return Ember.run.later(this, function() {
+    schedule: function (f) {
+        return Ember.run.later(this, function () {
             f.apply(this);
-            !this.isDestroyed  && this.set('timer', this.schedule(f));
+            !this.isDestroyed && this.set('timer', this.schedule(f));
         }, this.get('refreshInterval.value'));
     },
 
-    onPoll: function(){
-       !this.isDestroyed && this.set('updatedAgoColorChangeTime', new Date())
+    onPoll: function () {
+        !this.isDestroyed && this.set('updatedAgoColorChangeTime', new Date());
     },
     query_variables: Ember.computed.alias('variables'),
-    showCardHeader: Ember.computed('results_view_settings', 'results_view_settings.resultsViewType', function(){
-       return this.get('results_view_settings.resultsViewType') != 'Number'
+    showCardHeader: Ember.computed('results_view_settings', 'results_view_settings.resultsViewType', function () {
+        return this.get('results_view_settings.resultsViewType') != 'Number';
     }),
-    icon: Ember.computed('results_view_settings', "results_view_settings.resultsViewType", function(){
-      let resultsViewType = this.get('results_view_settings.resultsViewType')
-      resultsViewType = resultsViewType && resultsViewType.toLowerCase()
-       return this.get('resultViewIcons')[resultsViewType] || "fe fe-list"
+    icon: Ember.computed('results_view_settings', 'results_view_settings.resultsViewType', function () {
+        let resultsViewType = this.get('results_view_settings.resultsViewType');
+        resultsViewType = resultsViewType && resultsViewType.toLowerCase();
+        return this.get('resultViewIcons')[resultsViewType] || 'fe fe-list';
     }),
 
-    resultsCall: memberAction({ path: 'results', type: 'post', urlType: 'findRecord' }),
+    resultsCall: memberAction({
+        path: 'results',
+        type: 'post',
+        urlType: 'findRecord'
+    }),
     resultsCanBeLoaded: false
 
 });

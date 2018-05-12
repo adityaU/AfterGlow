@@ -1,26 +1,41 @@
 {{#acc.item class="m-0" as |aitem|}}
     {{#aitem.title class="py-2" }}
         <div class="row">
-            <div class="col-10"> Table </div>
+            <div class="col-10">
+                {{#if queryObject.fromQuestion}}Question{{else}}Table{{/if}}
+            </div>
             <div class="col-2">
+                <span class="d-inline-flex" {{action 'toggleFromTable'}}>
+                    {{#bs-tooltip placement="top" }}Switch between Question and Table{{/bs-tooltip}}
+                    <i class="fe fe-toggle-right"></i>
+                </span>
                 <i class="fe fe-chevron-down"></i>
             </div>
         </div>
     {{/aitem.title}}
     {{#aitem.body class="py-2" }}
-        <div class="content {{tableClass}}"> {{searchable-select
+        <div class="content {{tableClass}}">
+            {{#if queryObject.fromQuestion}} {{searchable-select
+      content=questions
+      sortBy="title"
+      prompt="Select a Question"
+      selected=queryObject.table
+      on-search=(action "updateQuestionSearch")
+      on-change=(action (mut queryObject.table))}}
+                {{else}}{{searchable-select
       content=tables
       sortBy="human_name"
       prompt="Select a Table"
       selected=queryObject.table
       optionLabelKey="human_name"
       on-change=(action (mut queryObject.table))}}
-            </div>
+                {{/if}}
+        </div>
     {{/aitem.body}}
-    {{#if queryObject.table.readable_table_name }}
+    {{#if (or queryObject.table.readable_table_name queryObject.table.title)}}
         <div class="card-footer py-2">
             <div class="full right">
-                <a href="#" class="tag tag-primary"> {{queryObject.table.human_name}}</a>
+                <a href="#" class="tag tag-primary"> {{or queryObject.table.human_name queryObject.table.title}}</a>
             </div>
         </div>
     {{/if}}

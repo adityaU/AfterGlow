@@ -2,11 +2,11 @@
     <div class="form-group mb-0"> {{input type="text" value=query class="form-control" placeholder="Search Tables"}} </div>
     <div class="tree text-default">
         {{#each tables as |table|}}
-            <div class="node-name" {{action 'toggleColumns' table}}>
+            <div class="node-name d-flex" {{action 'toggleColumns' table}}>
                 {{#if table.showColumnsInTree}}
-                    <i class="fe fe-chevron-down"></i>
+                    <i class="fe fe-chevron-down pt-1 pr-2"></i>
                 {{else}}
-                    <i class="fe fe-chevron-right"></i>
+                    <i class="fe fe-chevron-right pt-1 pr-2"></i>
                 {{/if}} {{table.readable_table_name}} </div>
             <div class="leafs {{if table.showColumnsInTree '' 'hidden'}}">
                 {{#each table.columns as |column|}}
