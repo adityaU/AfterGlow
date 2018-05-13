@@ -6,65 +6,88 @@ const Router = Ember.Router.extend({
     rootURL: config.rootURL
 });
 
-Router.map(function() {
-  this.route('questions', function() {
-      this.route('new');
-      this.route('show', {path: '/:question_id'}, function(){
-          this.route('snapshots', function() {
-              this.route('show', {path: '/:snapshot_id'});
-              this.route('all', {path: '/'});
-          });
-      });
-      this.route('all', {path: '/'});
-
-  });
-
-  this.route('dashboards', function() {
-      this.route('show', {path: '/:dashboard_id'});
-  });
-
-  this.route('alerts', function() {
-      this.route('new');
-      this.route('show');
-  });
-  this.route('login');
-
-  this.route('api', function() {
-      this.route('google', function() {
-          this.route('callback');
-      });
-  });
-  this.route('settings', function() {
-      this.route('databases', function() {
-          this.route('index', {path: '/'});
-          this.route('new');
-      });
-
-      this.route('email');
-      this.route('sms');
-      this.route('pagerduty');
-      this.route('users');
-      this.route('permissions');
-  });
-
-  this.route('tags', function() {
-      this.route('show', {path: '/:tag_id'});
-  });
-  this.route('loading');
-
-  this.route('data_references', function() {
-    this.route('databases', function() {
-        this.route('show', {path: '/:database_id'}, function() {
-        this.route('tables', function() {
-            this.route('show', {path: '/:table_id'}, function() {
-                this.route('explore', {path: "/explore"});
+Router.map(function () {
+    this.route('questions', function () {
+        this.route('new');
+        this.route('show', {
+            path: '/:question_id'
+        }, function () {
+            this.route('snapshots', function () {
+                this.route('show', {
+                    path: '/:snapshot_id'
+                });
+                this.route('all', {
+                    path: '/'
+                });
             });
-            this.route('all', {path: '/'});
         });
-      });
-        this.route('all', {path:'/'});
+        this.route('all', {
+            path: '/'
+        });
     });
-  });
+
+    this.route('dashboards', function () {
+        this.route('show', {
+            path: '/:dashboard_id'
+        });
+    });
+
+    this.route('alerts', function () {
+        this.route('new');
+        this.route('show');
+    });
+    this.route('login');
+
+    this.route('api', function () {
+        this.route('google', function () {
+            this.route('callback');
+        });
+    });
+    this.route('settings', function () {
+        this.route('databases', function () {
+            this.route('index', {
+                path: '/'
+            });
+            this.route('new');
+        });
+
+        this.route('email');
+        this.route('sms');
+        this.route('pagerduty');
+        this.route('users');
+        this.route('permissions');
+    });
+
+    this.route('tags', function () {
+        this.route('show', {
+            path: '/:tag_id'
+        });
+    });
+    this.route('loading');
+
+    this.route('data_references', function () {
+        this.route('databases', function () {
+            this.route('show', {
+                path: '/:database_id'
+            }, function () {
+                this.route('tables', function () {
+                    this.route('show', {
+                        path: '/:table_id'
+                    }, function () {
+                        this.route('explore', {
+                            path: '/explore'
+                        });
+                    });
+                    this.route('all', {
+                        path: '/'
+                    });
+                });
+            });
+            this.route('all', {
+                path: '/'
+            });
+        });
+    });
 });
 
 export default Router;

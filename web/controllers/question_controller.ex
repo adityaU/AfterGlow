@@ -25,19 +25,23 @@ defmodule AfterGlow.QuestionController do
   def index(conn, %{"filter" => %{"id" => ids}}) do
     ids = ids |> String.split(",")
 
-    questions =
-      scope(conn, from(q in Question, where: q.id in ^ids))
-      |> select([:id])
-      |> Repo.all()
-      |> Enum.map(fn x -> x.id end)
-      |> CacheWrapper.get_by_ids(Question)
-      |> Repo.preload(:dashboards)
-      |> Repo.preload(:tags)
-      |> Repo.preload(:variables)
-      |> Repo.preload(:snapshots)
+    if ids != [""] do
+      questions =
+        scope(conn, from(q in Question, where: q.id in ^ids))
+        |> select([:id])
+        |> Repo.all()
+        |> Enum.map(fn x -> x.id end)
+        |> CacheWrapper.get_by_ids(Question)
+        |> Repo.preload(:dashboards)
+        |> Repo.preload(:tags)
+        |> Repo.preload(:variables)
+        |> Repo.preload(:snapshots)
 
-    conn
-    |> render(:index, data: questions)
+      conn
+      |> render(:index, data: questions)
+    else
+      index(conn, nil)
+    end
   end
 
   def index(conn, %{"q" => query, "tag" => tag_id}) do
@@ -96,6 +100,44 @@ defmodule AfterGlow.QuestionController do
 
     scope(conn, search_query)
     |> query_and_send_index_reponse(conn)
+  end
+
+  def index(conn, %{"id" => id, "share_id" => share_id}) when share_id != nil do
+    question =
+      CacheWrapper.get_by_id(id |> Integer.parse() |> elem(0), Question)
+      |> Repo.preload(:tags)
+      |> Repo.preload(:dashboards)
+      |> Repo.preload(:variables)
+      |> Repo.preload(:snapshots)
+
+    if question.shareable_link == share_id do
+      changeset =
+        Question.changeset(question, %{
+          shared_to:
+            question.shared_to |> Kernel.++([conn.assigns.current_user.email]) |> Enum.uniq()
+        })
+
+      {:ok, question} = Question.update(changeset, nil)
+      render(conn, :show, data: question)
+    else
+      send_404_response(conn)
+    end
+  end
+
+  def index(conn, %{"id" => id}) do
+    question =
+      scope(conn, Question)
+      |> select([:id])
+      |> Repo.get!(id)
+
+    question =
+      CacheWrapper.get_by_id(question.id, Question)
+      |> Repo.preload(:dashboards)
+      |> Repo.preload(:tags)
+      |> Repo.preload(:variables)
+      |> Repo.preload(:snapshots)
+
+    render(conn, :show, data: question)
   end
 
   def index(conn, _params) do
@@ -259,5 +301,11 @@ defmodule AfterGlow.QuestionController do
       additional_filters: additionalFilters,
       variables: variables
     }
+  end
+
+  defp send_404_response(conn) do
+    conn
+    |> put_status(:not_found)
+    |> render(:errors, data: %{error: "not-found"})
   end
 end

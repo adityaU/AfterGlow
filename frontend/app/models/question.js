@@ -7,6 +7,7 @@ import ResultViewMixin from 'frontend/mixins/result-view-mixin';
 
 
 export default DS.Model.extend(ResultViewMixin, {
+    router: Ember.inject.service(),
     title: DS.attr('string'),
     results_view_settings: DS.attr(),
     human_sql: DS.attr('query-object'),
@@ -29,6 +30,15 @@ export default DS.Model.extend(ResultViewMixin, {
 
     inserted_at: DS.attr('utc'),
     updated_at: DS.attr('utc'),
+
+    shareable_url: Ember.computed('shareable_link', function () {
+        return window.location.origin + this.get('router').urlFor('questions.show', {
+            question_id: this.get('id'),
+            queryParams: {
+                share_id: this.get('shareable_link')
+            }
+        });
+    }),
 
     toJSON: function () {
         return this._super({

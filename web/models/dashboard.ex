@@ -54,6 +54,17 @@ defmodule AfterGlow.Dashboard do
       :owner_id
     ])
     |> validate_required([:title, :owner_id])
+    |> add_shareable_link
+  end
+
+  defp add_shareable_link(changeset) do
+    changeset =
+      case changeset.data.shareable_link do
+        nil -> changeset |> Ecto.Changeset.change(shareable_link: Ecto.UUID.generate())
+        _ -> changeset
+      end
+
+    changeset
   end
 
   def default_preloads do
@@ -78,8 +89,35 @@ defmodule AfterGlow.Dashboard do
       changeset
       |> add_questions(questions)
       |> add_tags(tags)
+      |> share_variable_question
 
     Repo.update_with_cache(changeset)
+  end
+
+  defp share_variable_question(changeset) do
+    if changeset.changes
+       |> Map.has_key?(:shared_to) do
+      changeset.changes[:variables]
+      |> Kernel.||(changeset.data.variables)
+      |> Kernel.||([])
+      |> Repo.preload(:question_filter)
+      |> Enum.filter(fn var -> var.question_filter end)
+      |> Enum.map(fn var ->
+        if changeset.changes
+           |> Map.has_key?(:shared_to) do
+          Ecto.Changeset.change(
+            var.question_filter,
+            shared_to:
+              changeset.changes.shared_to
+              |> Kernel.++(var.question_filter.shared_to)
+              |> Enum.uniq()
+          )
+          |> Repo.update_with_cache()
+        end
+      end)
+    end
+
+    changeset
   end
 
   defp add_questions(changeset, nil), do: changeset
