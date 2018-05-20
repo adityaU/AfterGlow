@@ -5,6 +5,7 @@ defmodule AfterGlow.Sql.QueryRunner do
   alias AfterGlow.ColumnValuesTasks
   alias AfterGlow.Repo
   alias AfterGlow.Database
+  alias AfterGlow.Table
   import Ecto.Query, only: [from: 2]
 
   def make_final_query(db_record, params, question_variables) do
@@ -44,6 +45,11 @@ defmodule AfterGlow.Sql.QueryRunner do
     permit_prms = permit_prms_raw_query(permit_prms, query)
 
     {query, results} = run_raw_query(db_record, permit_prms)
+
+    unless params["table"]["sql"] do
+      results = results |> Table.insert_foreign_key_columns_in_results(permit_prms[:table])
+    end
+
     save_column_values(results, permit_prms)
     {query, results}
   end

@@ -1,21 +1,94 @@
-
 defmodule AfterGlow.SchemaTasks do
   alias AfterGlow.Sql.DbConnection
   alias AfterGlow.CacheWrapper.Repo
   alias AfterGlow.Table
   alias AfterGlow.Database
+  alias AfterGlow.ForeignKey
   alias AfterGlow.CacheWrapper
   alias AfterGlow.Column
 
   import Ecto.Query, only: [from: 2]
 
   def sync(db_record) do
+    og_db_record = db_record
     db_record = db_record |> Map.from_struct()
     {:ok, schema} = DbConnection.get_schema(db_record)
 
     schema
     |> save(db_record[:id])
+
+    fkeys =
+      DbConnection.get_fkeys(db_record)
+      |> save_fkeys(og_db_record)
   end
+
+  defp save_fkeys(fkeys, db_record) do
+    db_record = db_record |> Repo.preload(:tables)
+
+    tables =
+      db_record.tables
+      |> Repo.preload(:columns)
+
+    # tables
+    # |> Enum.each(fn t ->
+    #   t.columns
+    #   |> remove_extra_fkeys(fkeys)
+    # end)
+
+    columns = tables |> Enum.map(fn x -> x.columns end) |> List.flatten()
+
+    fkeys
+    |> add_fkeys(columns)
+  end
+
+  defp add_fkeys(fkeys, columns) do
+    columns = columns |> Repo.preload(:table)
+
+    fkeys
+    |> Enum.each(fn fk ->
+      column =
+        columns
+        |> Enum.filter(fn col ->
+          col.table.name == fk["table_name"] && col.name == fk["column_name"]
+        end)
+        |> Enum.at(0)
+
+      foreign_column =
+        columns
+        |> Enum.filter(fn col ->
+          col.table.name == fk["foreign_table_name"] && col.name == fk["foreign_column_name"]
+        end)
+        |> Enum.at(0)
+
+      if column && foreign_column do
+        changeset =
+          ForeignKey.changeset(%ForeignKey{}, %{
+            name: fk["name"],
+            fk_type: "fk",
+            column_id: column.id,
+            foreign_column_id: foreign_column.id
+          })
+
+        Repo.insert_or_update(changeset)
+      end
+    end)
+  end
+
+  # defp remove_extra_fkeys(columns, fkeys) do
+  #   fkey_names = fkeys |> Enum.map(fn fk -> fk["name"] end)
+
+  #   columns =
+  #     columns
+  #     |> Repo.preload(:foreign_keys)
+
+  #   columns
+  #   |> Enum.map(fn x -> x.foreign_keys end)
+  #   |> List.flatten()
+  #   |> Enum.filter(fn fk ->
+  #     !(fk.name |> Enum.member?(fkey_names)) ||
+  #       !(fk.fk_type |> Enum.member?(["guess", "user_defined"]))
+  #   end)
+  # end
 
   defp save(schema, db_id) do
     Repo.all(from(t in Table, where: t.database_id == ^db_id))

@@ -88,6 +88,12 @@ Router.map(function () {
             });
         });
     });
+
+    this.route('explore', function () {
+        this.route('new', {
+            path: '/columns/:column_id/:column_value'
+        });
+    });
 });
 
 export default Router;

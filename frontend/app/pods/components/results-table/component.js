@@ -2,7 +2,10 @@ import Ember from 'ember';
 import Table from 'ember-light-table';
 import pagedArray from 'ember-cli-pagination/computed/paged-array';
 
-const { computed, observer } = Ember;
+const {
+    computed,
+    observer
+} = Ember;
 
 export default Ember.Component.extend({
     page: 1,
@@ -10,28 +13,17 @@ export default Ember.Component.extend({
 
     pagedRows: pagedArray('results.rows'),
 
-    resetPageObserver: observer("results", function(){
+    resetPageObserver: observer("results", function () {
         this.set('pagedRows.page', 1)
     }),
-    showResults: computed('results', function(){
+    showResults: computed('results', function () {
         return (this.get('results.rows').length > 0)
     }),
 
     page: Ember.computed.alias("pagedRows.page"),
     perPage: Ember.computed.alias("pagedRows.perPage"),
     totalPages: Ember.computed.oneWay("pagedRows.totalPages"),
-    showPageNumbers: Ember.computed('totalPages', function(){
+    showPageNumbers: Ember.computed('totalPages', function () {
         return this.get('totalPages') - 1
-    }),
-    actions: {
-      openAdditionalFilterPopup(el, index, results){
-        this.set('additionalFilterPopupEl', el)
-        this.set('additionalFilterPopupIndex', index)
-        this.set('additionalFilterPopupResults', results)
-        this.set('showAdditionalFilterPopup', true)
-      },
-      addAdditionalFilter(el,index){
-        this.sendAction('addAdditinalFilter', el, index, operator)
-      }
-    }
+    })
 });

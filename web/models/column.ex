@@ -2,11 +2,12 @@ defmodule AfterGlow.Column do
   use AfterGlow.Web, :model
 
   schema "columns" do
-    field :name, :string
-    field :data_type, :string
-    field :description
-    belongs_to :table, AfterGlow.Table
-    has_many :column_values, AfterGlow.ColumnValue, on_delete: :delete_all, on_replace: :delete
+    field(:name, :string)
+    field(:data_type, :string)
+    field(:description)
+    belongs_to(:table, AfterGlow.Table)
+    has_many(:column_values, AfterGlow.ColumnValue, on_delete: :delete_all, on_replace: :delete)
+    has_many(:foreign_keys, AfterGlow.ForeignKey, on_delete: :delete_all, on_replace: :delete)
 
     timestamps()
   end

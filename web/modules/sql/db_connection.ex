@@ -23,6 +23,16 @@ defmodule AfterGlow.Sql.DbConnection do
     @adapter_modules[db_record[:db_type] |> String.to_atom()].query_string(query_record)
   end
 
+  def make_dependency_raw_query(database, column, foreign_column, table, value, value_column) do
+    @adapter_modules[database[:db_type] |> String.to_atom()].make_dependency_raw_query(
+      column,
+      foreign_column,
+      table,
+      value,
+      value_column
+    )
+  end
+
   def execute(db_record, query_record) do
     {:ok, conn} = connection(db_record)
     @adapter_modules[db_record[:db_type] |> String.to_atom()].execute(conn, query_record)
@@ -41,6 +51,11 @@ defmodule AfterGlow.Sql.DbConnection do
   def get_schema(db_record) do
     {:ok, conn} = connection(db_record)
     @adapter_modules[db_record[:db_type] |> String.to_atom()].get_schema(conn)
+  end
+
+  def get_fkeys(db_record) do
+    {:ok, conn} = connection(db_record)
+    @adapter_modules[db_record[:db_type] |> String.to_atom()].get_fkeys(conn)
   end
 
   # genserver handle messages
