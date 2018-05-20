@@ -18,7 +18,7 @@ config :afterglow, AfterGlow.Repo,
   password: System.get_env("AG_DATABASE_PASSWORD"),
   database: System.get_env("AG_DATABASE_NAME"),
   hostname: System.get_env("AG_DATABASE_HOSTNAME"),
-  pool_size: 50
+  pool_size: 5
 
 config :new_relixir,
   application_name: "afterglow",
