@@ -91,12 +91,12 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
   end
 
   def make_dependency_raw_query(column, foreign_column, table, value, value_column) do
-    "SELECT #{table.name}.* FROM #{table.name}
-    INNER JOIN #{value_column.table.name}
-    ON #{column.table.name}.`#{column.name}` = #{foreign_column.table.name}.`#{
+    "SELECT `#{table.name}`.* FROM `#{table.name}`
+    INNER JOIN `#{value_column.table.name}`
+    ON `#{column.table.name}`.`#{column.name}` = `#{foreign_column.table.name}`.`#{
       foreign_column.name
     }`
-    WHERE #{value_column.table.name}.`#{value_column.name}` = '#{value}'"
+    WHERE `#{value_column.table.name}`.`#{value_column.name}` = '#{value}'"
   end
 
   def execute(conn, query, options \\ %{})
