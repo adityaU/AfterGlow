@@ -34,19 +34,16 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
   end
 
   def get_fkeys(conn) do
-    {:ok, result} = Postgrex.query(conn, ~s/SELECT
-    CONCAT('\"\', tc.table_schema,\'\".\"\', tc.table_name, \'\"\') as table_name,
-    CONCAT('\"\', ccu.table_schema,\'\".\"\', ccu.table_name, \'\"\') as foreign_table_name,
-    tc.constraint_name as name,
-    kcu.column_name,
-    ccu.column_name AS foreign_column_name
-FROM
-    information_schema.table_constraints AS tc
-    JOIN information_schema.key_column_usage AS kcu
-      ON tc.constraint_name = kcu.constraint_name
-    JOIN information_schema.constraint_column_usage AS ccu
-      ON ccu.constraint_name = tc.constraint_name
-WHERE constraint_type = 'FOREIGN KEY'/, [], opts())
+    {:ok, result} = Postgrex.query(conn, ~s/SELECT conname as name
+    ,concat('"', n.nspname, '"."', conrelid::regclass::text, '"') AS "table_name"
+    ,CASE WHEN pg_get_constraintdef(c.oid) LIKE 'FOREIGN KEY %' THEN substring(pg_get_constraintdef(c.oid), 14, position(')' in pg_get_constraintdef(c.oid))-14) END AS "column_name"
+    ,concat('"', n.nspname, '"."', CASE WHEN pg_get_constraintdef(c.oid) LIKE 'FOREIGN KEY %' THEN substring(pg_get_constraintdef(c.oid), position(' REFERENCES ' in pg_get_constraintdef(c.oid))+12, position('(' in substring(pg_get_constraintdef(c.oid), 14))-position(' REFERENCES ' in pg_get_constraintdef(c.oid))+1) END, '"') AS "foreign_table_name"
+    ,CASE WHEN pg_get_constraintdef(c.oid) LIKE 'FOREIGN KEY %' THEN substring(pg_get_constraintdef(c.oid), position('(' in substring(pg_get_constraintdef(c.oid), 14))+14, position(')' in substring(pg_get_constraintdef(c.oid), position('(' in substring(pg_get_constraintdef(c.oid), 14))+14))-1) END AS "foreign_column_name"
+FROM   pg_constraint c
+JOIN   pg_namespace n ON n.oid = c.connamespace
+WHERE  contype IN ('f')
+AND pg_get_constraintdef(c.oid) LIKE 'FOREIGN KEY %'
+ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/, [], opts())
 
     result.rows
     |> Enum.map(fn row ->
