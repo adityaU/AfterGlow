@@ -31,18 +31,34 @@ export default Ember.Route.extend(CanMixin, KeyboardShortcuts, {
             share_id: params.share_id
         });
     },
+    resetController() {
+        this.controller.get('question').reload();
+    },
     setupController(controller, model) {
         this._super(...arguments);
         this.set('currentController', controller);
     },
     templateName: 'questions/new',
     actions: {
+
         willTransition(transition) {
             this._super(...arguments);
-            this.controller.get('question').reload();
+            this.set('nextTransition', transition);
+            if (this.can('create question') && !this.get('retryingTransition')) {
+                transition.abort();
+                this.controller.set('showTransitionWarning', true);
+            } else {
+                this.resetController();
+            }
+            this.set('retryingTransition', false);
         },
         runQuery() {
             this.get('currentController').getResultsFunction();
+        },
+        goAheadWithNextTransition() {
+            this.resetController();
+            this.set('retryingTransition', true);
+            this.get('nextTransition').retry();
         }
     },
 
