@@ -37,9 +37,9 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
     },
     downloadAsPNG(gd) {
         Plotly.toImage(gd, {
-            height: 1600,
-            width: 1600
-        })
+                height: 1600,
+                width: 1600
+            })
             .then(
                 function (url) {
                     return Plotly.toImage(gd, {
@@ -326,6 +326,12 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                 autorange: true,
                 showLine: false
             },
+            hoverlabel: {
+                bgcolor: 'black',
+                font: {
+                    color: 'white'
+                }
+            },
             font: {
                 family: 'Lato',
                 size: '1em',
@@ -372,7 +378,42 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
             return 'lines+markers';
         }
     },
+    getMarker(x, i, j, _this) {
+        let size = 6;
+        let width = 2.5;
+        let xLength = x.length;
+        if (xLength > 40) {
+            size = 4;
+            width = 1.3;
+        }
+        if (xLength > 200) {
+            return null;
+        } else {
+            return {
+                symbol: 'circle',
+                opacity: 1,
+                size: size,
+                color: 'white',
+                line: {
+                    color: _this.get('colors')[i + j],
+                    width: width
+                }
+            };
 
+        }
+
+    },
+
+    lineWidth(x) {
+        let xLength = x.length;
+        let lineWidth = 2.5;
+        if (x.length > 40 && xLength <= 100) {
+            lineWidth = 2;
+        } else if (xLength > 60) {
+            1.3;
+        }
+        return lineWidth;
+    },
 
     chartData(item, i, j, type, _this) {
         let x = item.get('contents').sortBy('x1').map((el) => {
@@ -388,9 +429,11 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                 y: y,
                 type: 'scatter',
                 mode: _this.mode(item),
+                marker: _this.get('getMarker')(x, i, j, _this),
+
                 line: {
                     shape: _this.get('multipleYs')[i].lineShape,
-                    width: 1.3,
+                    width: _this.get('lineWidth')(x),
                     color: _this.get('colors')[i + j]
                 },
                 name: _this.legendName(item, i)

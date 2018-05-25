@@ -14,7 +14,7 @@ export default Ember.Component.extend(UtilsFunctions, {
         });
     }),
 
-    defaultChartType: 'bubble',
+    defaultChartType: 'Bubble',
     getData(_this) {
         let gd = _this.get('getNode')(_this);
         let gridParent = _this.get('gridParent');
@@ -27,8 +27,8 @@ export default Ember.Component.extend(UtilsFunctions, {
         }));
         layout = data && _this.get('layout');
         data && Plotly.newPlot(gd, data, layout, {
-                showLink: false
-            })
+            showLink: false
+        })
             .then(_this.get('downloadAsPNG'));
         data && gridParent[0] && gridParent[0].addEventListener('plotlyResize', function () {
             let dimensions = _this.get('dimensions')(gridParent);

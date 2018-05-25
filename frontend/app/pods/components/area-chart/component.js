@@ -25,7 +25,7 @@ export default Ember.Component.extend(UtilsFunctions, {
 
     },
 
-    defaultChartType: 'area',
+    defaultChartType: 'Area',
 
     getData(_this) {
         let gd = _this.get('getNode')(_this);

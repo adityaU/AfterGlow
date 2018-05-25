@@ -3,7 +3,7 @@ import UtilsFunctions from 'frontend/mixins/utils-functions';
 
 export default Ember.Component.extend(UtilsFunctions, {
     chartTypes: Ember.computed(function () {
-        return ['line', 'bars', 'area', 'bubble'];
+        return ['Line', 'Bars', 'Area', 'Bubble'];
     }),
     barOrientations: [{
         title: 'Horizontal',
