@@ -3,42 +3,38 @@
         <div class="ui form">
             <div class="field">
                 <label>Values</label>
-                {{#ui-dropdown class="search selection" selected=values onChange=(action (mut values)) as |execute mapper|}}
-                <div class="default text">Values</div>
-                <i class="fe fe-chevron-down"></i>
-                <div class="menu">
-                    {{#each results.columns as |column|}}
-                    <div class="item" data-value="{{map-value mapper column}}">
-                        {{capitalize column}}
+                {{#ui-dropdown class="search selection" selected=values onChange=(action (mut values)) as
+                    |execute mapper|}}
+                    <div class="default text">Values</div>
+                    <i class="fe fe-chevron-down"></i>
+                    <div class="menu">
+                        {{#each results.columns as |column|}}
+                            <div class="item" data-value="{{map-value mapper column}}"> {{capitalize column}} </div>
+                        {{/each}}
                     </div>
-                    {{/each}}
-                </div>
                 {{/ui-dropdown}}
             </div>
             {{#each multipleYs as |y|}}
-            <div class="field">
-                <label>Labels</label>
-                {{#ui-dropdown class="search selection" selected=y.columnName onChange=(action (mut y.columnName)) as |execute mapper|}}
-                <div class="default text">Lables</div>
-                <i class="fe fe-chevron-down"></i>
-                <div class="menu">
-                    {{#each results.columns as |column|}}
-                    <div class="item" data-value="{{map-value mapper column}}">
-                        {{ capitalize column}}
-                    </div>
-                    {{/each}}
+                <div class="field">
+                    <label>Labels</label>
+                    {{#ui-dropdown class="search selection" selected=y.columnName onChange=(action (mut y.columnName))
+                        as |execute mapper|}}
+                        <div class="default text">Lables</div>
+                        <i class="fe fe-chevron-down"></i>
+                        <div class="menu">
+                            {{#each results.columns as |column|}}
+                                <div class="item" data-value="{{map-value mapper column}}"> {{ capitalize column}} </div>
+                            {{/each}}
+                        </div>
+                    {{/ui-dropdown}}
                 </div>
-                {{/ui-dropdown}}
-            </div>
             {{/each}}
         </div>
     </div>
     <div class="eight wide stretched column">
         <div class="ui form">
             <div class="field">
-                <label>Title</label>
-                {{input value=title class="ui" placeholder="Title" }}
-            </div>
+                <label>Title</label> {{input value=title class="ui" placeholder="Title" }} </div>
         </div>
     </div>
 </div>

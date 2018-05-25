@@ -3,21 +3,18 @@
         <div class="row">
             <div class="col-10">
                 <div class="form-group">
-                    <label class="form-label">{{x1Name}}</label>
-
-                    {{searchable-select content=resultsColumnsHash sortBy="columnName" optionLabelKey="columnName" selected=x1Hash
+                    <label class="form-label">{{x1Name}}</label> {{searchable-select content=resultsColumnsHash sortBy="columnName" optionLabelKey="columnName" selected=x1Hash
                     prompt="Select a Column" on-change=(action "updateSelection" 'resultsViewSettings.x1')}}
-                </div>
+                    </div>
             </div>
             <div class="col-2"></div>
         </div>
         <div class="row">
             <div class="col-10">
                 <div class="form-group">
-                    <label class="form-label">{{x2Name}}</label>
-                    {{searchable-select class="" content=resultsColumnsHash sortBy="columnName" optionLabelKey="columnName" selected=x2Hash
+                    <label class="form-label">{{x2Name}}</label> {{searchable-select class="" content=resultsColumnsHash sortBy="columnName" optionLabelKey="columnName" selected=x2Hash
                     prompt="Select a Column" on-change=(action "updateSelection" 'resultsViewSettings.x2')}}
-                </div>
+                    </div>
             </div>
             <div class="col-2">
                 <i class="fe fe-x" {{action 'clearx2'}}></i>
@@ -25,44 +22,56 @@
         </div>
         <div class="row">
             {{#each multipleYs as |y index|}}
-            <div class="col-10">
-                <div class="form-group">
-                    <label class="form-label">{{yName}}</label>
-                    {{searchable-select class="" content=resultsColumnsHash sortBy="columnName" optionLabelKey="columnName" selected=y prompt="Select
+                <div class="col-10">
+                    <div class="form-group">
+                        <label class="form-label">{{yName}}</label> {{searchable-select class="" content=resultsColumnsHash sortBy="columnName" optionLabelKey="columnName" selected=y prompt="Select
                     a Column" on-change=(action "updateY" index)}}
+                        </div>
                 </div>
-            </div>
-
-            <div class="col-2">
-                {{circular-checkbox checked=y.separateYaxis dataTooltip="Separate Y axis"}} {{#if (eq (or y.chartType defaultChartType) 'Line')}}
-                {{#ui-dropdown class="left pointing fe fe-chevron-down" selected=y.lineShape onChange=(action (mut y.lineShape))
-                as |execute mapper|}}
-                <i class="{{if (eq y.lineShape " spline ") "fork " "angle down "}} icon"></i>
-                <div class="menu">
-                    {{#each lineShapeTypes as |lst|}}
-                    <div class="item" data-value="{{map-value mapper lst.value}}">
-                        <i class="{{if (eq lst.value " spline ") "fork " "angle down "}} icon"></i>
-                        {{ capitalize lst.name}}
+                <div class="col-2">
+                    <div class="row py-5 px-1">
+                        <div class="col-6"> {{circular-checkbox   checked=y.separateYaxis dataTooltip="Separate Y axis"}} </div>
+                        <div class="col-6">
+                            {{#if (eq (or y.chartType defaultChartType) 'line')}}
+                                {{#bs-dropdown as |dd|}}
+                                    {{#dd.toggle }}
+                                        <i class="fe fe-{{if (eq y.lineShape "spline") "git-branch" "activity"}} mt-1 ml-1 text-gray "></i>
+                                    {{/dd.toggle}}
+                                    {{#dd.menu class="dropdown-menu-arrow" as |ddm|}}
+                                        {{#each lineShapeTypes as |lst|}}
+                                            {{#ddm.item }}
+                                                <div class="row p-2 w-75 nav-link" {{action (mut y.lineShape) lst.value}}>
+                                                    <i class="px-2 fe fe-{{if (eq lst.value "spline") "git-branch" "activity"}}"></i> {{ capitalize lst.name}} </div>
+                                            {{/ddm.item}}
+                                        {{/each}}
+                                    {{/dd.menu}}
+                                {{/bs-dropdown}}
+                            {{/if}}
+                        </div>
+                        <div class="col-6">
+                            {{#bs-dropdown as |dd|}}
+                                {{#dd.toggle }}
+                                    {{#if y.chartType}}
+                                        <i class="{{get-chart-icon y.chartType}} text-gray"></i>
+                                    {{else}}
+                                        <i class="{{get-chart-icon defaultChartType}} text-gray"></i>
+                                    {{/if}}
+                                {{/dd.toggle}}
+                                {{#dd.menu class="dropdown-menu-arrow" as |ddm|}}
+                                    {{#each chartTypes as |ct|}}
+                                        {{#ddm.item }}
+                                            <div class="row p-2 w-75 nav-link" {{action (mut y.chartType) ct}}>
+                                                <i class="{{get-chart-icon ct}} px-2"></i> {{ capitalize ct}} </div>
+                                        {{/ddm.item}}
+                                    {{/each}}
+                                {{/dd.menu}}
+                            {{/bs-dropdown}}
+                        </div>
+                        <div class="col-6">
+                            <i class="fe fe-x text-red" {{action 'removeColumn' y}}></i>
+                        </div>
                     </div>
-                    {{/each}}
                 </div>
-                {{/ui-dropdown}} {{/if}} {{#ui-dropdown class="left pointing fe fe-chevron-down" selected=y.chartType onChange=(action (mut
-                y.chartType)) as |execute mapper|}} {{#if y.chartType}}
-                <i class="{{get-chart-icon y.chartType}} icon"></i>
-                {{else}}
-                <i class="{{get-chart-icon defaultChartType}} icon"></i>
-                {{/if}}
-                <div class="menu">
-                    {{#each chartTypes as |ct|}}
-                    <div class="item" data-value="{{map-value mapper ct}}">
-                        <i class="{{get-chart-icon ct}} icon"></i>
-                        {{ capitalize ct}}
-                    </div>
-                    {{/each}}
-                </div>
-                {{/ui-dropdown}}
-                <i class="fe fe-x text-gray" {{action 'removeColumn' y}}></i>
-            </div>
             {{/each}}
             <div class="add-text" {{action 'addYColumn'}}>Add another {{yName}} column</div>
         </div>
@@ -71,28 +80,38 @@
         <div class="row">
             <div class="col-10 offset-2">
                 <div class="form-group">
-                    <label class="form-label">X Label</label>
-                    {{input value=xLabel class="form-control" placeholder="X Lable" }}
-                </div>
+                    <label class="form-label">X Label</label> {{input value=xLabel class="form-control" placeholder="X Lable" }} </div>
             </div>
         </div>
-
         <div class="row">
             <div class="col-10 offset-2">
                 <div class="form-group">
-                    <label class="form-label">Y Label</label>
-                    {{input value=yLabel class="form-control" placeholder="Y Label" }}
-                </div>
+                    <label class="form-label">Y Label</label> {{input value=yLabel class="form-control" placeholder="Y Label" }} </div>
             </div>
         </div>
-
         <div class="row">
             <div class="col-10 offset-2">
                 <div class="form-group">
-                    <label class="form-label">Title</label>
-                    {{input value=title class="form-control" placeholder="Title" }}
-                </div>
+                    <label class="form-label">Title</label> {{input value=title class="form-control" placeholder="Title" }} </div>
             </div>
         </div>
+        {{#if (eq resultsViewSettings.resultsViewType 'Bars')}}
+            <div class="row">
+                <div class="col-10 offset-2">
+                    <div class="form-group">
+                        <label class="form-label">Bar Orientation</label> {{searchable-select content=barOrientations sortBy="title" selected=resultsViewSettings.barOrientation
+                    prompt="Select a Bars Orientation" on-change=(action (mut resultsViewSettings.barOrientation))}}
+                        </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-10 offset-2">
+                    <div class="form-group">
+                        <label class="form-label">Bar Mode</label> {{searchable-select content=barModes sortBy="title" selected=resultsViewSettings.barMode
+                    prompt="Select a Bars Mode" on-change=(action (mut resultsViewSettings.barMode))}}
+                        </div>
+                </div>
+            </div>
+        {{/if}}
     </div>
 </div>

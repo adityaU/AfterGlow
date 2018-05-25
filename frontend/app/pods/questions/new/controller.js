@@ -236,6 +236,8 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
             question.set('query_type', question.get('human_sql.queryType') == 'raw' ? 'sql' : 'human_sql');
             question.save().then((response) => {
                 question.get('variables').invoke('save');
+
+                this.set('retryingTransition', true);
                 this.transitionToRoute('questions.show', response.id);
             }).then((variable) => {
                 question.set('resultsCanBeLoaded', true);

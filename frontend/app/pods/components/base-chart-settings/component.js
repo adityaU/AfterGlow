@@ -1,75 +1,91 @@
 import Ember from 'ember';
-import UtilsFunctions from 'frontend/mixins/utils-functions'
+import UtilsFunctions from 'frontend/mixins/utils-functions';
 
 export default Ember.Component.extend(UtilsFunctions, {
-    chartTypes: Ember.computed(function(){
-        return ["Line", "Bars", "Area", "Bubble"]
+    chartTypes: Ember.computed(function () {
+        return ['line', 'bars', 'area', 'bubble'];
     }),
-    resultsColumnsHash: Ember.computed('results.columns', function(){
-      return this.get('results.columns') && this.get('results.columns').map(function(item){
-        return Ember.Object.create({columnName: item})
-      })
+    barOrientations: [{
+        title: 'Horizontal',
+        value: 'h'
+    }, {
+        title: 'Vertical',
+        value: 'v'
+    }],
+    resultsColumnsHash: Ember.computed('results.columns', function () {
+        return this.get('results.columns') && this.get('results.columns').map(function (item) {
+            return Ember.Object.create({
+                columnName: item
+            });
+        });
     }),
-    x1Hash: Ember.computed("resultsViewSettings.x1", function(){
-       return this.get("resultsViewSettings.x1") && Ember.Object.create({columnName: this.get('resultsViewSettings.x1')})
+    x1Hash: Ember.computed('resultsViewSettings.x1', function () {
+        return this.get('resultsViewSettings.x1') && Ember.Object.create({
+            columnName: this.get('resultsViewSettings.x1')
+        });
     }),
-    x2Hash: Ember.computed("resultsViewSettings.x2", function(){
-       return this.get("resultsViewSettings.x2") && Ember.Object.create({columnName: this.get('resultsViewSettings.x2')})
+    x2Hash: Ember.computed('resultsViewSettings.x2', function () {
+        return this.get('resultsViewSettings.x2') && Ember.Object.create({
+            columnName: this.get('resultsViewSettings.x2')
+        });
     }),
-    lineShapeTypes: [
-        {
-            name: "smooth",
-            value: "spline"
-        },
-        {
-            name: "straight",
-            value: "linear"
-        }
+    lineShapeTypes: [{
+        name: 'smooth',
+        value: 'spline'
+    },
+    {
+        name: 'straight',
+        value: 'linear'
+    }
     ],
-    barType:   {
-          name: "Group",
-          value: "group"
-      },
-    barTypes: [
-        {
-            name: "Stacked",
-            value: "stack"
-        },
-        {
-            name: "Group",
-            value: "group"
-        }
+    barType: {
+        name: 'Group',
+        value: 'group'
+    },
+    barModes: [{
+        title: 'Stacked',
+        value: 'stack'
+    },
+    {
+        title: 'Group',
+        value: 'group'
+    }
     ],
     x1Name: 'x1',
     x2Name: 'x2',
     yName: 'y',
     actions: {
-        clearx2(){
-            this.set('x2', null)
+        clearx2() {
+            this.set('x2', null);
         },
-        addYColumn(){
-            let multipleYs = this.get('multipleYs')
+        addYColumn() {
+            let multipleYs = this.get('multipleYs');
             if (multipleYs) {
-                multipleYs.pushObject(null)
-            }else{
-                this.set('multipleYs', [{}])
+                multipleYs.pushObject(null);
+            } else {
+                this.set('multipleYs', [{}]);
             }
         },
-        removeColumn(data){
-            this.get('multipleYs').removeObject(data)
+        removeColumn(data) {
+            this.get('multipleYs').removeObject(data);
         },
-        updateSelection(el, selection){
-          if (selection){
-          this.set(el, selection.get('columnName'))
-          }else{
-              this.set(el, null)
-          }
-        },
-        updateY(index, selection){
+        updateSelection(el, selection) {
             if (selection) {
-                this.get('multipleYs').replace(index, 1, [Ember.Object.create({columnName: selection.get('columnName')})])
-            } else{
-              this.get('multipleYs').replace(index,1, [null])
+                this.set(el, selection.get('columnName'));
+            } else {
+                this.set(el, null);
+            }
+        },
+        selectLineShapeType(y, shape) {
+            y.set('lineShape', shape);
+        },
+        updateY(index, selection) {
+            if (selection) {
+                this.get('multipleYs').replace(index, 1, [Ember.Object.create({
+                    columnName: selection.get('columnName')
+                })]);
+            } else {
+                this.get('multipleYs').replace(index, 1, [null]);
             }
         }
     }

@@ -35,7 +35,7 @@ export default Ember.Route.extend(CanMixin, KeyboardShortcuts, {
         willTransition(transition) {
             this._super(...arguments);
             this.set('nextTransition', transition);
-            if (this.can('create question') && !this.get('retryingTransition')) {
+            if (this.can('create question') && !this.controller.get('retryingTransition')) {
                 transition.abort();
                 this.controller.set('showTransitionWarning', true);
             } else {
@@ -48,7 +48,7 @@ export default Ember.Route.extend(CanMixin, KeyboardShortcuts, {
         },
         goAheadWithNextTransition() {
             this.resetController();
-            this.set('retryingTransition', true);
+            this.controller.set('retryingTransition', true);
             this.get('nextTransition').retry();
         }
     },
