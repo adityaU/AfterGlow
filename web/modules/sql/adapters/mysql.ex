@@ -22,7 +22,7 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
   end
 
   def opts do
-    [timeout: 120_000, pool: DBConnection.Poolboy, pool_timeout: 120_000]
+    [timeout: 1_200_000, pool: DBConnection.Poolboy, pool_timeout: 1_200_000]
   end
 
   def stream_opts do
