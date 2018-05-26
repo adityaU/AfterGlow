@@ -18,6 +18,7 @@ $lightTransparentColor: rgba(61, 64, 70, 0.85);
 $borderSecondaryColor: #dee5e8;
 $borderRadius: 0.28571429rem;
 $warningColor: #fff700;
+$googleColor: #db4437;
 @function box-shadow($color) {
     @return 0px 0px 0px 0px $color !important;
 }
@@ -1486,4 +1487,7 @@ a:hover {
 
 .text-default.active {
     color: $primaryColor !important;
+}
+.text-google{
+    color: $googleColor !important;
 }

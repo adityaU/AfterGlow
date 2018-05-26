@@ -2,21 +2,12 @@
     <div class="page-single">
         <div class="container">
             <div class="row">
-                <div class="col col-login mx-auto">
+                <div class="col col-login mx-auto mt-9">
                     <form class="card p-4" action="" method="post">
-                        <div class="text-center mb-6">
-
-                            {{app-logo logoSize="big"}}
+                        <div class="text-center mb-6"> {{app-logo logoSize="big"}} </div>
+                        <div class="text-center" {{action "loginWithGoogle"}}>
+                            <button type="button" class="btn btn-link text-google"> LOGIN WITH GOOGLE </button>
                         </div>
-                        <div {{action "loginWithGoogle"}}>
-                            <button type="button" class="btn btn-google">
-                                <i class="fa fa-google mr-2"></i>
-
-                                   LOGIN WITH GOOGLE
-                                </button>
-
-                        </div>
-
                     </form>
                 </div>
             </div>
