@@ -37,9 +37,9 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
     },
     downloadAsPNG(gd) {
         Plotly.toImage(gd, {
-                height: 1600,
-                width: 1600
-            })
+            height: 1600,
+            width: 1600
+        })
             .then(
                 function (url) {
                     return Plotly.toImage(gd, {
@@ -380,7 +380,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
     },
     getMarker(x, i, j, _this) {
         let size = 6;
-        let width = 2.5;
+        let width = 2;
         let xLength = x.length;
         if (xLength > 40) {
             size = 4;
@@ -406,7 +406,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
 
     lineWidth(x) {
         let xLength = x.length;
-        let lineWidth = 2.5;
+        let lineWidth = 2;
         if (x.length > 40 && xLength <= 100) {
             lineWidth = 2;
         } else if (xLength > 60) {
