@@ -1483,3 +1483,7 @@ a:hover {
 .dashboard-page {
     overflow: auto;
 }
+
+.text-default.active {
+    color: $primaryColor !important;
+}

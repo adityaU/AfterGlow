@@ -1,19 +1,19 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-    permissionSetsSelected: Ember.computed.alias('user.permission_sets'),
-    permissionSetsRemaining: Ember.computed.setDiff('permissionSets', 'permissionSetsSelected'),
-    actions:{
-        toggleSelectedPermissions(permissionSet){
-            let permissionSetsSelected = this.get('permissionSetsSelected');
-            if (permissionSetsSelected.indexOf(permissionSet) >=0){
-                permissionSetsSelected.removeObject(permissionSet)
-            }else{
-                permissionSetsSelected.pushObject(permissionSet);
-            }
+    selectedPermissionSets: Ember.computed('user.permission_sets', function () {
+        return this.get('user.permission_sets') && this.get('user.permission_sets').map((item) => {
+            return this.get('store').peekRecord('permissionSet', item.get('id'));
+        });
+    }),
+    userNameOrEmail: Ember.computed.or('user.full_name', 'user.email'),
+    actions: {
+        clear() {
+            this.set('open', false);
         },
-        saveUserPermissions(){
-            this.sendAction('saveUserPermissions', this.get('user'))
+        saveUserPermissions() {
+            this.set('open', false);
+            this.sendAction('saveUserPermissions', this.get('user'));
         }
     }
 });

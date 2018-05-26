@@ -1,13 +1,7 @@
-<div class="ui modal delete-dialogue {{className}}">
-    <div class="create-dashboard content">
-        Are you sure , you want to delete this {{entityName}}?
-    </div>
-    <div class="actions">
-        <div class="ui red deny button">
-            Cancel
-        </div>
-        <div class="ui positive right button" {{action "delete" entity }}>
-            Yes I am Sure
-        </div>
-    </div>
-</div>
+{{#bs-modal position="center" open=open onHide=(action 'clearDelete') as |modal|}}
+    {{#modal.body}} Are you sure , you want to delete this {{entityName}}? {{/modal.body}}
+    {{#modal.footer as |footer|}}
+        {{#bs-button onClick=(action 'clearDelete') type="danger" }}No Way{{/bs-button}}
+        {{#bs-button onClick=(action 'delete' entity) class="btn-primary" type="primary" }}Yes, I am Sure{{/bs-button}}
+    {{/modal.footer}}
+{{/bs-modal}}

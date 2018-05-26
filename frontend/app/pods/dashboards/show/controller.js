@@ -2,80 +2,110 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
     dashboard: Ember.computed.alias('model'),
-    questionObserver: Ember.on('init', Ember.observer('dashboard', function(){
-      let questions = this.get('dashboard.questions')
-      if (questions) {
-        let ids = questions.map(function(item){
-          return item.id
-        })
-        this.store.query('question', {filter: {id: ids.join(',')}})
-      }
+    questionObserver: Ember.on('init', Ember.observer('dashboard', function () {
+        let questions = this.get('dashboard.questions');
+        if (questions) {
+            let ids = questions.map(function (item) {
+                return item.id;
+            });
+            this.store.query('question', {
+                filter: {
+                    id: ids.join(',')
+                }
+            });
+        }
     })),
-    nonEditable: "yes",
+    nonEditable: 'yes',
     fullScreen: false,
-    refreshIntervals: [
-        {name: "Never", value: null},
-        {name: "5 Seconds", value: 5000},
-        {name: "10 Seconds", value: 10000},
-        {name: "30 Seconds", value: 30000},
-        {name: "1 Minute", value: 60000},
-        {name: "5 Minutes", value: 300000},
-        {name: "15 Minutes", value: 900000},
-        {name: "30 Minutes", value: 1800000},
+    refreshIntervals: [{
+        name: 'Never',
+        value: null
+    },
+    {
+        name: '5 Seconds',
+        value: 5000
+    },
+    {
+        name: '10 Seconds',
+        value: 10000
+    },
+    {
+        name: '30 Seconds',
+        value: 30000
+    },
+    {
+        name: '1 Minute',
+        value: 60000
+    },
+    {
+        name: '5 Minutes',
+        value: 300000
+    },
+    {
+        name: '15 Minutes',
+        value: 900000
+    },
+    {
+        name: '30 Minutes',
+        value: 1800000
+    },
     ],
-    refreshInterval: {name: "Never", value: null},
-    schedule: function(f) {
-        return Ember.run.later(this, function() {
+    refreshInterval: {
+        name: 'Never',
+        value: null
+    },
+    schedule: function (f) {
+        return Ember.run.later(this, function () {
             f.apply(this);
             this.set('timer', this.schedule(f));
         }, this.get('refreshInterval.value'));
     },
 
-    stopTimer: function() {
+    stopTimer: function () {
         Ember.run.cancel(this.get('timer'));
     },
 
-    startTimer: function() {
-        let questions = this.get('dashboard.questions')
-        questions && questions.forEach((item)=>{
-            item.set('resultsCanBeLoaded', true)
+    startTimer: function () {
+        let questions = this.get('dashboard.questions');
+        questions && questions.forEach((item) => {
+            item.set('resultsCanBeLoaded', true);
             item.set('updated_at', new Date());
-        })
+        });
         this.set('timer', this.schedule(this.get('onPoll')));
     },
 
-    onPoll: function(){
-        this.get('dashboard.questions').forEach((item)=>{
+    onPoll: function () {
+        this.get('dashboard.questions').forEach((item) => {
             item.set('updated_at', new Date());
-            item.set('resultsCanBeLoaded', true)
-        })
+            item.set('resultsCanBeLoaded', true);
+        });
     },
-    refreshIntervalObserver: Ember.observer('refreshInterval', function(){
-        let refreshInterval = this.get('refreshInterval')
-        if (refreshInterval.value != null){
-            this.stopTimer()
-            this.startTimer()
-        }else{
-            this.stopTimer()
+    refreshIntervalObserver: Ember.observer('refreshInterval', function () {
+        let refreshInterval = this.get('refreshInterval');
+        if (refreshInterval.value != null) {
+            this.stopTimer();
+            this.startTimer();
+        } else {
+            this.stopTimer();
         }
     }),
-    refreshFunction(){
-      let questions = this.get('dashboard.questions')
-      questions && questions.forEach((item)=>{
-        item.set('resultsCanBeLoaded', true)
-        item.set('updated_at', new Date())
-      })
+    refreshFunction() {
+        let questions = this.get('dashboard.questions');
+        questions && questions.forEach((item) => {
+            item.set('resultsCanBeLoaded', true);
+            item.set('updated_at', new Date());
+        });
     },
     actions: {
-        editDashboard(){
-            this.set('nonEditable', null)
-            this.set('editMode', true)
+        editDashboard() {
+            this.set('nonEditable', null);
+            this.set('editMode', true);
         },
-        saveDashboard(){
-            let dashboard = this.get('dashboard')
-            let settings = {}
-            dashboard.get('questions').forEach((item)=>{
-                let el = $("#js-question-" + item.get('id')).parents('.grid-stack-item')
+        saveDashboard() {
+            let dashboard = this.get('dashboard');
+            let settings = {};
+            dashboard.get('questions').forEach((item) => {
+                let el = $('#js-question-' + item.get('id')).parents('.grid-stack-item');
                 settings[item.get('id')] = {
                     x: el.data('gs-x'),
                     y: el.data('gs-y'),
@@ -83,46 +113,47 @@ export default Ember.Controller.extend({
                     height: el.data('gs-height')
                     // noMove: this.get('nonEditable'),
                     // noResize: this.get('nonEditable')
-                }
-            })
-            dashboard.set('settings', Ember.Object.create(settings))
-            dashboard.save().then((response)=> {
-                dashboard.get('variables').invoke('save')
-            }).then((variables)=>{
-                this.set('nonEditable', "yes")
-                this.set('editMode', false)
-            })
+                };
+            });
+            dashboard.set('settings', Ember.Object.create(settings));
+            dashboard.save().then((response) => {
+                dashboard.get('variables').invoke('save');
+            }).then((variables) => {
+                this.set('nonEditable', 'yes');
+                this.set('editMode', false);
+            });
         },
-        cancelEditingDashboard(){
-            this.set('nonEditable', "yes")
-            this.set('editMode', false)
+        cancelEditingDashboard() {
+            this.set('nonEditable', 'yes');
+            this.set('editMode', false);
         },
-        showShareDialogue(){
-            this.set('toggleShareModal', 'true')
+        showShareDialogue() {
+            this.set('toggleShareModal', 'true');
         },
-        showDeleteDialogue(){
-            $('.ui.modal.delete-dialogue').modal('show')
+        showDeleteDialogue() {
+            this.set('toggleDeleteDialogue', true);
+            $('.ui.modal.delete-dialogue').modal('show');
         },
-        deleteDashboard(dashboard){
-            dashboard.destroyRecord().then((response)=>{
-                this.transitionToRoute('index')
-            })
+        deleteDashboard(dashboard) {
+            dashboard.destroyRecord().then((response) => {
+                this.transitionToRoute('index');
+            });
         },
-        setRefreshInterval(interval){
+        setRefreshInterval(interval) {
             this.set('refreshInterval', interval);
         },
-        refreshNow(){
-          this.refreshFunction()
+        refreshNow() {
+            this.refreshFunction();
         },
-        showVariablesDialogue(){
-            $(".ui.modal.select-dashboard-variables").modal('show')
+        showVariablesDialogue() {
+            $('.ui.modal.select-dashboard-variables').modal('show');
         },
-        toggleFullScreen(){
+        toggleFullScreen() {
             if (
                 document.fullscreenElement ||
-                    document.webkitFullscreenElement ||
-                    document.mozFullScreenElement ||
-                    document.msFullscreenElement
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement
             ) {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
@@ -135,7 +166,7 @@ export default Ember.Controller.extend({
                 }
                 this.set('fullScreen', false);
             } else {
-                let element = Ember.$(".dashboard-page").get(0);
+                let element = Ember.$('.dashboard-page').get(0);
                 if (element.requestFullscreen) {
                     element.requestFullscreen();
                 } else if (element.mozRequestFullScreen) {

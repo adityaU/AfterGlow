@@ -1,42 +1,32 @@
-<div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
-    <div class="ui grid">
-        <div class="eight wide column">
-            <div class="page-title">
-                {{pageTitle}}
-                </div>
-        </div>
-        {{#if showAddDatabase}}
-        <div class="eight wide column text-align-right">
-            {{#link-to 'settings.databases.new'}}
-                    ADD NEW DATABASE
-            {{/link-to}}
-
-        </div>
-        {{/if}}
-    </div>
-</div>
-
-<div class="ui basic segment full padded-content no-top-margin">
-    <div class="ui grid full">
-        <div class="four wide column">
-            <div class="ui vertical pointing menu full">
-                {{#link-to 'settings.databases.index' class="item"}}
-                    Databases
-                {{/link-to}}
-                
-                {{#link-to 'settings.users' class="item"}}
-                    Users
-                {{/link-to}}
-
-                {{#link-to 'settings.permissions' class="item"}}
-                    Permissions
-                {{/link-to}}
+<div class="header collapse d-lg-flex p-0">
+    <div class="container">
+        <div class="nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0">
+            <div class="row justify-content-between w-100">
+                <div class="col text-default"> {{pageTitle}} </div>
+                {{#if showAddDatabase}}
+                    <div class="col text-right">
+                        {{#link-to 'settings.databases.new'}}
+                            <div class="btn btn-link p-0">
+                                <i class="fe fe-plus"></i> ADD NEW DATABASE </div>
+                        {{/link-to}}
+                    </div>
+                {{/if}}
             </div>
         </div>
-
-        <div class="twelve wide column">
-            {{outlet}}
+    </div>
+</div>
+<div class="pt-3 px-5">
+    <div class="row">
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body p-0">
+                    {{#link-to 'settings.databases.index' class="nav-item p-3 border-bottom text-default" }} Databases {{/link-to}}
+                    {{#link-to 'settings.users' class="nav-item p-3 border-bottom text-default" }}
+                    Users {{/link-to}}
+                    {{#link-to 'settings.permissions' class="nav-item p-3 text-default" }} Permissions {{/link-to}}
+                </div>
+            </div>
         </div>
-
+        <div class="col-9"> {{outlet}} </div>
     </div>
 </div>

@@ -1,18 +1,18 @@
-{{#each permissionSets as |permissionSet|}}
-    <div class="ui segment full">
-        <div class="ui grid">
-            <div class="sixteen wide column">
-                <div class="queston-title">
-                    {{permissionSet.name}}
-                </div>
-                <div class="question-subtitle">
-                    
-                   {{permissionSet.displayPermissions}}
+<div class="pl-3 pt-0">
+    {{#each permissionSets as |permissionSet|}}
+        <div class="card mb-3">
+            <div class="card-body p-3">
+                <div class="row">
+                    <div class="col">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <h5 class=" m-0 text-default "> {{permissionSet.name}}</h5>
+                                <small class="text-muted "> {{permissionSet.displayPermissions}}</small>
+                            </div>
+                        </div>
                     </div>
-            </div>
-            <div class="eight wide column text-align-right">
+                </div>
             </div>
         </div>
-    </div>
-{{/each}}
-{{delete-dialogue entityName="database" entity=databaseToBeDeleted delete="deleteDatabase"}}
+    {{/each}}
+</div>

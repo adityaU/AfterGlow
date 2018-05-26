@@ -1,23 +1,24 @@
-{{#each users as |user|}}
-    <div class="ui segment full">
-        <div class="ui grid">
-            <div class="eight wide column">
-                <div class="queston-title">
-                <img class="profile_pic ui avatar image" src="{{user.profile_pic}}"/>
-                <span >
-                    {{user.full_name}}
-                </span>
-                <span class="question-subtitle">
-                {{user.email}}
-                    </span>
+<div class="pl-3 pt-0">
+    {{#each users as |user|}}
+        <div class="card mb-3">
+            <div class="card-body p-3">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <span class="avatar mr-2 text-white bg-primary" style="background-image: url({{user.profile_pic}})">
+                            </span>
+                            <div>
+                                <h5 class=" m-0 text-default "> {{user.full_name}} </h5>
+                                <small class="text-muted "> {{user.email}} </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 text-right ">
+                        <button data-tooltip="Change User permissions " data-inverted=" " class="btn btn-link text-primary
+                                " {{action 'showChangePermissionDialogue' user}}> EDIT PERMISSIONS </button>
+                    </div>
                 </div>
             </div>
-            <div class="eight wide column text-align-right">
-                <button data-tooltip="Change User permissions" data-inverted=""  class="ui very basic violet button" {{action 'showChangePermissionDialogue' user}}>
-                    EDIT PERMISSIONS
-                </button>
-            </div>
         </div>
-    </div>
-{{/each}}
-{{change-user-permissions-dialogue user=toBeChangedUser permissionSets=permissionSets saveUserPermissions='saveUser'}}
+    {{/each}}
+</div> {{change-user-permissions-dialogue open=togglePermissionsModal user=toBeChangedUser permissionSets=permissionSets saveUserPermissions='saveUser'}}

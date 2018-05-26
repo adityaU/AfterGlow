@@ -2,39 +2,43 @@ import Ember from 'ember';
 
 export default Ember.Component.extend({
     classNames: ['full'],
-    tags: Ember.computed(function(){
+    tags: Ember.computed(function () {
         return this.get('store').findAll('tag');
     }),
     timeZone: moment.tz.guess(),
     actions: {
-        showDeleteDialogue(questionToBeDeleted){
+        showDeleteDialogue(questionToBeDeleted) {
             this.set('questionToBeDeleted', questionToBeDeleted);
-            $('.ui.modal.delete-dialogue').modal('show');
+            this.set('toggleDeleteDialogue', true);
         },
-        addTag(question){
+        addTag(question) {
             this.set('addTagToQuestion', question);
             this.set('toggleTagsModal', true);
         },
-        viewSnapshots(question){
+        viewSnapshots(question) {
             this.sendAction('transitionToSnapshots', question.id);
         },
-        deleteQuestion(question){
-            question.destroyRecord().then((response)=>{
+        deleteQuestion(question) {
+            question.destroyRecord().then((response) => {
                 this.sendAction('transitionToIndex');
             });
         },
-        getData(tag){
+        getData(tag) {
             this.get('tags').pushObject(tag);
         },
-        loadQuestion(question){
-            this.store.query('question', {filter: {id: question.id}});
+        loadQuestion(question) {
+            this.store.query('question', {
+                filter: {
+                    id: question.id
+                }
+            });
 
         },
-        refreshQuestion(question){
+        refreshQuestion(question) {
             question && question.set('updatedAt', new Date());
             question.set('resultsCanBeLoaded', true);
         },
-        toggleQuestionWidget(newQuestion, oldQuestion){
+        toggleQuestionWidget(newQuestion, oldQuestion) {
             oldQuestion && oldQuestion.set('showQuestionWidgetOnListPage', false);
             newQuestion && newQuestion.set('showQuestionWidgetOnListPage', true);
             //Ember.$('html, body').scrollTop(Ember.$(newQuestion));

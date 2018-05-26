@@ -1,49 +1,35 @@
-<div class="ui segment">
-<form class="ui form">
-
-    <div class="field">
-        <label>Database Type</label>
-        {{#ui-dropdown class="search selection" selected=db.db_type onChange=(action (mut db.db_type))  as |execute mapper|}} 
-            {{dropdown-default object=db.db_type default="DB Type"}}
-            <i class="fe fe-chevron-down"></i>
-            <div class="menu">
-                {{#each dbTypes as |dbType|}}
-                    <div class="item" data-value="{{map-value mapper dbType}}">
-                        {{dbType}}
-                    </div>
-                {{/each}}
+<div class="pl-3 pt-0">
+    <form class="card">
+        <div class="card-body">
+            <div class="form-group">
+                <label class="form-label">Database Type</label>
+                <select class="form-control" onchange= {{action  'selectDbType' value="target.value"}}>
+                    {{#each dbTypes as |dbType|}}
+                        <option value= {{dbType}} selected= {{eq db.db_type dbType}}>{{capitalize dbType}}</option>
+                    {{/each}}
+                </select>
             </div>
-        {{/ui-dropdown}}
-    </div>
-    <div class="field">
-        <label>Name</label>
-        {{input type="text" name="first-name" placeholder="What do you call it?" value=db.name}}
-    </div>
-
-    <div class="field">
-        <label>Host Url</label>
-        {{input type="text" name="first-name" placeholder="Host endpoint" value=db.config.host_url}}
-    </div>
-
-    <div class="field">
-        <label>Host Port</label>
-        {{input type="text" name="first-name" placeholder="Host Port" value=db.config.host_port}}
-    </div>
-
-    <div class="field">
-        <label>Database Name</label>
-        {{input type="text" name="first-name" placeholder="Database Name" value=db.config.db_name}}
-    </div>
-
-    <div class="field">
-        <label>Database Username</label>
-        {{input type="text" name="first-name" placeholder="Username" value=db.config.username}}
-    </div>
-
-    <div class="field">
-        <label>Database Password</label>
-        {{input type="text" name="first-name" placeholder="Password" value=db.config.password}}
-    </div>
-    <button class="ui violet  button" type="submit" {{action 'saveDatabase'}}>SAVE</button>
-</form>
+            <div class="form-group">
+                <label class="form-label">Name</label> {{input type="text" name="first-name" class="form-control" placeholder="What do you call it?" value=db.name}}
+                </div>
+            <div class="form-group">
+                <label class="form-label">Host Url</label> {{input  class="form-control" type="text" name="first-name" placeholder="Host endpoint" value=db.config.host_url}}
+                </div>
+            <div class="form-group">
+                <label class="form-label">Host Port</label> {{input class="form-control"  type="number" name="first-name" placeholder="Host Port" value=db.config.host_port}}
+                </div>
+            <div class="form-group">
+                <label class="form-label">Database Name</label> {{input class="form-control"  type="text" name="first-name" placeholder="Database Name" value=db.config.db_name}}
+                </div>
+            <div class="form-group">
+                <label class="form-label">Database Username</label> {{input class="form-control"  type="text" name="first-name" placeholder="Username" value=db.config.username}}
+                </div>
+            <div class="form-group">
+                <label class="form-label">Database Password</label> {{input class="form-control" type="password" name="first-name" placeholder="Password" value=db.config.password}}
+                </div>
+        </div>
+        <div class="card-footer text-right">
+            <button class="btn btn-primary" type="submit" {{action 'saveDatabase'}}>SAVE</button>
+        </div>
+    </form>
 </div>

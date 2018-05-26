@@ -3,7 +3,7 @@ import Ember from 'ember';
 export default Ember.Controller.extend({
     db: {
         name: null,
-        db_type: "postgres",
+        db_type: 'postgres',
         config: {
             host_url: null,
             host_port: null,
@@ -20,13 +20,16 @@ export default Ember.Controller.extend({
         'redshift'
     ],
 
-    actions:{
-        saveDatabase(){
-            this.store.createRecord('database',this.get('db')).save()
-                .then((response)=>{
+    actions: {
+        selectDbType(value) {
+            this.set('db.db_type', value);
+        },
+        saveDatabase() {
+            this.store.createRecord('database', this.get('db')).save()
+                .then((response) => {
                     this.transitionToRoute('settings.databases.index');
-                })
-            
-        } 
+                });
+
+        }
     }
 });

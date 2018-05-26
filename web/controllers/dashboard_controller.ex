@@ -9,6 +9,7 @@ defmodule AfterGlow.DashboardController do
   alias AfterGlow.Variable
   alias JaSerializer.Params
   alias AfterGlow.CacheWrapper
+  alias AfterGlow.CacheWrapper.Repo
   alias AfterGlow.Plugs.Authorization
   plug(Authorization)
   plug(:authorize!, Dashboard)
@@ -139,7 +140,7 @@ defmodule AfterGlow.DashboardController do
   end
 
   def delete(conn, %{"id" => id}) do
-    dashboard = scope(conn, Dashboard) |> Repo.get!(Dashboard, id)
+    dashboard = scope(conn, Dashboard) |> Repo.get!(id)
     # Here we use delete! (with a bang) because we expect
     # it to always work (and if it does not, it will raise).
     Repo.delete_with_cache(dashboard)

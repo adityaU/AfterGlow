@@ -6,30 +6,36 @@ defmodule AfterGlow.DatabaseController do
   alias AfterGlow.Async
   alias AfterGlow.SchemaTasks
   alias AfterGlow.CacheWrapper
+  alias AfterGlow.CacheWrapper.Repo
 
   alias AfterGlow.Plugs.Authorization
-  plug Authorization
-  plug :authorize!, Database
-  plug :scrub_params, "data" when action in [:create, :update]
-  plug :verify_authorized
+  plug(Authorization)
+  plug(:authorize!, Database)
+  plug(:scrub_params, "data" when action in [:create, :update])
+  plug(:verify_authorized)
 
   def index(conn, _params) do
-    databases = Repo.all(from d in Database, select: [:id])
-    |> Enum.map(fn x -> x.id end)
-    |> CacheWrapper.get_by_ids(Database)
-    |> Repo.preload(:tables)
+    databases =
+      Repo.all(from(d in Database, select: [:id]))
+      |> Enum.map(fn x -> x.id end)
+      |> CacheWrapper.get_by_ids(Database)
+      |> Repo.preload(:tables)
+
     render(conn, :index, data: databases)
   end
 
   def create(conn, %{"data" => data = %{"type" => "databases", "attributes" => _database_params}}) do
     changeset = Database.changeset(%Database{}, Params.to_attributes(data))
+
     case Database.insert(changeset) do
       {:ok, database} ->
         database = database |> Repo.preload(:tables)
+
         conn
         |> put_status(:created)
         |> put_resp_header("location", database_path(conn, :show, database))
         |> render(:show, data: database)
+
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -71,5 +77,4 @@ defmodule AfterGlow.DatabaseController do
 
     send_resp(conn, :no_content, "")
   end
-
 end

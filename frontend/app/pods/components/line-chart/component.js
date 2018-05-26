@@ -1,7 +1,6 @@
 import Ember from 'ember';
 import UtilsFunctions from 'frontend/mixins/utils-functions';
 
-
 var get = Ember.get,
     arrayComputed = Ember.arrayComputed;
 export default Ember.Component.extend(UtilsFunctions, {
@@ -27,12 +26,8 @@ export default Ember.Component.extend(UtilsFunctions, {
         }));
         layout = data && _this.get('layout');
         data && Plotly.newPlot(gd, data, layout, {
-                transition: {
-                    duration: 500,
-                    easing: 'cubic-in-out'
-                },
-                showLine: false
-            })
+            showLine: false
+        })
             .then(_this.get('downloadAsPNG'));
         data && gridParent[0] && gridParent[0].addEventListener('plotlyResize', function () {
             let dimensions = _this.get('dimensions')(gridParent);

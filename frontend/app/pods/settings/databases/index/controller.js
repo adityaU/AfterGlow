@@ -4,13 +4,12 @@ export default Ember.Controller.extend({
     databases: Ember.computed.alias('model'),
 
     actions: {
-        showDeleteDialogue(databaseToBeDeleted){
+        showDeleteDialogue(databaseToBeDeleted) {
             this.set('databaseToBeDeleted', databaseToBeDeleted);
-            $('.ui.modal.delete-dialogue').modal('show')
+            this.set('toggleDeleteDialogue', true);
         },
-        deleteDatabase(database){
-            database.destroyRecord().then((database)=>{
-            })
+        deleteDatabase(database) {
+            database.destroyRecord().then((database) => {})
         },
     }
 });
