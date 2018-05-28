@@ -30,16 +30,16 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
     margin: {
         // l: 80,
         r: 5,
+        t: 40,
         b: 30,
-        t: 30,
         pad: 0
 
     },
     downloadAsPNG(gd) {
         Plotly.toImage(gd, {
-                height: 1600,
-                width: 1600
-            })
+            height: 1600,
+            width: 1600
+        })
             .then(
                 function (url) {
                     return Plotly.toImage(gd, {
@@ -314,17 +314,33 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
             xaxis: {
                 showgrid: false,
                 zeroline: false,
+                linecolor: '#e0e5ec',
                 title: Ember.String.capitalize(this.get('xLabel') || this.get('x1')),
                 autorange: true,
-                showLine: false
+                ticks: 'outside',
+                ticoklen: 6,
+                tickcolor: '#e0e5ec',
+                tickfont: {
+                    size: '10'
+                },
+                rangemode: 'tozero',
+                showLine: true
             },
             yaxis: {
-                showgrid: true,
+                showgrid: false,
                 zeroline: false,
+                linecolor: '#e0e5ec',
                 gridcolor: '#f1f1f1',
                 title: Ember.String.capitalize(this.get('yLabel') || this.get('multipleYs')[0].columnName),
                 autorange: true,
-                showLine: false
+                ticks: 'outside',
+                ticklen: 6,
+                tickfont: {
+                    size: '10'
+                },
+                tickcolor: '#e0e5ec',
+                rangemode: 'tozero',
+                showLine: true
             },
             hoverlabel: {
                 bgcolor: 'black',
@@ -335,7 +351,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
             font: {
                 family: 'Lato',
                 size: '1em',
-                color: '#212133'
+                color: '#aaafba'
             }
 
         };
