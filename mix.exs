@@ -54,7 +54,9 @@ defmodule AfterGlow.Mixfile do
         :secure_random,
         :sweet_xml,
         :jason,
-        :unsafe
+        :unsafe,
+        :quantum,
+        :timex
       ]
     ]
   end
