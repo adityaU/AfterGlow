@@ -1,108 +1,88 @@
-<div class="ui modal snapshot-maker">
-    <div class="header">
-        Create Snapshot
-    </div>
-    <div class="create-dashboard content">
+{{#bs-modal position="center" size="lg" open=open onHide=(action 'clear') as |modal|}}
+    {{#modal.header}}
+        <h4 class="modal-title"> Create Snapshot </h4>
+    {{/modal.header}}
+    {{#modal.body}}
         <div class="ui grid">
-            <div class="ui form row full">
-                <div class="sixteen wide column">
-                    <div class="field">
-                    <label>Name</label>
-                        {{input value=snapshot.name class="ui" placeholder="What are you calling it?" }}
-                    </div>
-                </div>
-                <div class="sixteen wide column">
-                    <div class="field">
-                    <label>Description</label>
-                        {{input value=snapshot.description class="ui" placeholder="What does it show?" }}
-                    </div>
-                </div>
-                <div class="five wide column">
-                    <div class="field">
-                        {{input checked=snapshot.scheduled  class="ui" type="checkbox"}}
-                    <label class="checkbox-label">scheduled?</label>
-                    </div>
-                </div>
-                <div class="five wide column">
-                {{#if snapshot.scheduled}}
-                    <div class="field">
-                    <label>Schedule it every: </label>
-                    {{#ui-dropdown class="search selection" selected=snapshot.interval onChange=(action (mut snapshot.interval)) as |execute mapper|}}
-                    {{dropdown-default object=(get intervalsReverseMapping snapshot.interval) default="interval"}}
-                    <i class="fe fe-chevron-down"></i>
-                    <div class="menu">
-
-                      <div class="ui icon search input">
-                        <i class="search icon"></i>
-                        <input type="text" placeholder="Search">
-                      </div>
-                      {{#each intervals as |interval|}}
-                      <div class="item" data-value="{{map-value mapper interval.value}}">
-                        {{interval.name}}
-                      </div>
-                      {{/each}}
-                    </div>
-                    {{/ui-dropdown}}
-                    </div>
-                {{/if}}
-                </div>
-                <div class="five wide column">
-                {{#if snapshot.scheduled}}
-                <label >starting at</label>
-                {{ui-calendar date=snapshot.starting_at onChange=(action (mut snapshot.starting_at)) placeholder=snapshot.starting_at }}
-                {{/if}}
-                </div>
-                <div class="eight wide column">
-                    <div class="field">
-                        {{input checked=snapshot.should_save_data_to_db  class="ui" type="checkbox"}}
-                    <label class="checkbox-label">Want to plot on snapshot data ?</label>
-                    </div>
-                </div>
-
-                <div class="eight wide column">
-                    <div class="field">
-                        {{input checked=snapshot.should_create_csv  class="ui" type="checkbox"}}
-                    <label class="checkbox-label">create csv ?</label>
-                    </div>
-                </div>
-                <div class="sixteen wide column">
-                    <div class="field">
-                        {{input checked=snapshot.should_send_mail_on_completion  class="ui" type="checkbox"}}
-                    <label class="checkbox-label"> send mail after completion ?</label>
-                    </div>
-                </div>
-                <div class="sixteen wide column">
-                  {{#if snapshot.should_send_mail_on_completion}}
-                    <div class="field">
-                      <label >Email ids </label>
-
-                      {{#ui-dropdown allowAdditions=true class="fluid multiple selection search" selected=snapshot.mail_to onChange=(action (mut snapshot.mail_to)) as |execute mapper|}}
-                      <i class="fe fe-chevron-down"></i>
-                      <div class="default text">Enter EmailIds</div>
-                      <div class="ui menu">
-                        {{#each users as |user|}}
-                        <div class="item" data-value="{{user.email}}">
-                          <i class="user icon"></i>
-                          {{user.full_name}} - {{user.email}}
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label">Name</label> {{input value=snapshot.name class="form-control" placeholder="What are you calling it?" }}
                         </div>
-                        {{/each}}
-                      </div>
-                      {{/ui-dropdown}}
-                    </div>
-                  {{/if}}
                 </div>
-
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="form-label">Description</label> {{input  value=snapshot.description class="form-control" placeholder="What does it show?" }}
+                        </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label class="custom-control custom-checkbox"> {{input checked=snapshot.scheduled  class="custom-control-input" type="checkbox"}}
+                            <span class="custom-control-label">scheduled?</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-4 px-2">
+                    {{#if snapshot.scheduled}}
+                        <div class="form-group">
+                            <label class="form-label">Schedule it every: </label>
+                            <select class="form-control" onchange= {{action  'selectScheduleInterval' value="target.value"}}>
+                                {{#each intervals as |interval|}}
+                                    <option value= {{interval.value}} selected= {{eq snapshot.interval interval.value}}>{{capitalize interval.name}}</option>
+                                {{/each}}
+                            </select>
+                        </div>
+                    {{/if}}
+                </div>
+                <div class="col-4">
+                    {{#if snapshot.scheduled}}
+                        <div class="form-group">
+                            <label class="form-label">starting at</label> {{ui-calendar date=snapshot.starting_at onChange=(action (mut snapshot.starting_at)) placeholder=snapshot.starting_at }}
+                            </div>
+                    {{/if}}
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label class="custom-control custom-checkbox"> {{input checked=snapshot.should_save_data_to_db  class="custom-control-input" type="checkbox"}}
+                            <span
+                                class="custom-control-label">Want to plot on snapshot data?</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label class="custom-control custom-checkbox"> {{input checked=snapshot.should_create_csv  class="custom-control-input" type="checkbox"}}
+                            <span
+                                class="custom-control-label">create csv ?</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label class="custom-control custom-checkbox"> {{input checked=snapshot.should_send_mail_on_completion class="custom-control-input" type="checkbox"}}
+                            <span class="custom-control-label">send mail after completion ?</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    {{#if snapshot.should_send_mail_on_completion}}
+                        <div class="form-group">
+                            <label class="form-label">Email ids </label> {{searchable-select
+                                        content=userEmails
+                                        multiple=true
+                                        selected=selectedUsers
+                                        closeOnSelection=false
+                                        prompt="Select People You want to share it with"
+                                        on-add=(action "addNewEmail")
+                                        on-change=(action 'addToEmails')}}
+                            </div>
+                    {{/if}}
+                </div>
             </div>
         </div>
-
-    </div>
-    <div class="actions">
-        <div class="ui red deny button">
-            Cancel
-        </div>
-        <div class="ui positive right button" {{action "createSnapshot"}}>
-            Create Snapshot
-            <i class="checkmark icon"></i>
-        </div>
-    </div>
-</div>
+    {{/modal.body}}
+    {{#modal.footer as |footer|}}
+        {{#bs-button onClick=(action 'clear') type="danger" }}Cancel{{/bs-button}}
+        {{#bs-button onClick=(action 'createSnapshot') class="btn-primary" type="primary" }}Create Snapshot{{/bs-button}}
+    {{/modal.footer}}
+{{/bs-modal}}

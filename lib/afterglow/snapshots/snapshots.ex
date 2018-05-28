@@ -69,13 +69,12 @@ defmodule AfterGlow.Snapshots do
   def create_snapshot(attrs \\ %{}) do
     attrs = attrs |> set_pending_status
 
-    created =
-      %Snapshot{}
-      |> Snapshot.changeset(attrs)
-      |> Repo.insert_with_cache()
+    created = %Snapshot{}
+    |> Snapshot.changeset(attrs)
+    |> Repo.insert_with_cache()
 
     with {:ok, %Snapshot{} = snapshot} <- created do
-      Async.perform(&SnapshotsTasks.schedule_or_save/1, [snapshot])
+      Async.perform(&SnapshotsTasks.save/1, [snapshot])
     end
 
     created
@@ -168,12 +167,12 @@ defmodule AfterGlow.Snapshots do
     variables = (snapshot.question |> Repo.preload(:variables)).variables
 
     query = Question.replace_variables(snapshot.question.sql, variables, variables, snapshot)
+    params = %{raw_query: query, variables: variables}
 
     url =
       CsvHelpers.fetch_and_upload_wrapper(
         db_record,
-        query,
-        variables,
+        params,
         file_path(snapshot)
       )
 

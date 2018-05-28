@@ -39,6 +39,20 @@ config :oauth2,
     "application/xml" => MyApp.XmlParser
   }
 
+config :afterglow, AfterGlow.Scheduler,
+  jobs: [
+    [
+      name: AfterGlow.SnapshotsTasks,
+      schedule: {:extended, "*/15 * * * * *"},
+      task: {AfterGlow.SnapshotsTasks, :run, []}
+    ],
+    [
+      name: AfterGlow.DatabaseSync,
+      schedule: {:cron, "*/30 * * * *"},
+      task: {AfterGlow.Database.SyncSchedule, :sync, []}
+    ]
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 

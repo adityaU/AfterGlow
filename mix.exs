@@ -98,6 +98,8 @@ defmodule AfterGlow.Mixfile do
       {:distillery, "~> 1.5", runtime: false},
       {:jason, "~> 1.0"},
       {:cachex, git: "https://github.com/whitfin/cachex.git"},
+      {:quantum, "~> 2.2"},
+      {:timex, "~> 3.0"},
       {:mariaex, git: "https://github.com/xerions/mariaex.git", override: true}
     ]
   end

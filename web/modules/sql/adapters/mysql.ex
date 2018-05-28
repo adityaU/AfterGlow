@@ -128,7 +128,7 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
 
   def execute(conn, query, options) when is_binary(query) do
     {limited, exec_query} = query |> QueryMaker.limit_rows_in_query(2000)
-    query = Mariaex.prepare(conn, "", exec_query |> IO.inspect(), opts)
+    query = Mariaex.prepare(conn, "", exec_query, opts)
 
     case query do
       {:ok, prepared_query} ->

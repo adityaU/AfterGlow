@@ -32,7 +32,6 @@ defmodule AfterGlow.ColumnValuesTasks do
         index = results.columns |> Enum.find_index(fn el -> el == column.name end)
 
         if index >= 0 do
-          IO.inspect(column.name)
           # compact
           values =
             results.rows

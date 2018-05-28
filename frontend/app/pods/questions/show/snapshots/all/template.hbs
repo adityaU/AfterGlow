@@ -1,25 +1,23 @@
-<div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
-    <div class="ui grid">
-        <div class="ten wide column ">
-            <div class="dashboard-title">
-                Snapshots of Question: {{question.title}}
+<div class="header collapse d-lg-flex p-0">
+    <div class="container">
+        <div class="nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0">
+            <div class="row justify-content-between w-100">
+                <div class="col text-default"> Snapshots of Question: {{question.title}} </div>
             </div>
         </div>
     </div>
 </div>
-<div class="padded-content ui basic segment full no-border-radius no-border-top no-bottom-margin">
-    <div class="ui form">
-        <div class="field">
-            {{input value=query class="ui bigger" placeholder="Search Snapshot" }}
+<div class="container px-0">
+    <div class="form-group pt-4">
+        <div class="input-group input-icon">
+            <span class="input-group-prepend" id="basic-addon3">
+                <span class="input-group-text">Search a Question</span>
+            </span> {{input value=query class="form-control" placeholder="Search Snapshot" aria-describedby="basic-addon3" }}
+            <div
+                class="input-icon-addon">
+                <i class="fe fe-search"></i>
+            </div>
         </div>
     </div>
-</div>
-<div class="ui basic segment full padded-content no-top-margin">
-    <div class="ui grid full">
-        {{#if query}}
-            {{snapshots-list questions=searchedSnapshots}}
-        {{else}}
-            {{snapshots-list snapshots=question.snapshots}}
-        {{/if}}
-    </div>
+    {{#if query}} {{snapshots-list questions=searchedSnapshots}} {{else}}{{snapshots-list snapshots=question.snapshots}} {{/if}}
 </div>

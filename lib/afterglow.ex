@@ -23,10 +23,15 @@ defmodule AfterGlow do
       supervisor(Registry, [:unique, AfterGlow.DbConnectionStore]),
       supervisor(AfterGlow.Sql.DbConnection, []),
       supervisor(AfterGlow.Async, []),
+      worker(AfterGlow.Scheduler, []),
 
       # Start your own worker by calling: AfterGlow.Worker.start_link(arg1, arg2, arg3)
       worker(Cachex, [:cache, []]),
-      worker(Task, [&AfterGlow.SnapshotScheduler.schedule/0], restart: :temporary)
+      worker(
+        Task,
+        [&AfterGlow.SnapshotsTasks.cancel_all_in_process_snapshots/0],
+        restart: :temporary
+      )
 
       # worker(AfterGlow.Worker, [arg1, arg2, arg3]),
     ]

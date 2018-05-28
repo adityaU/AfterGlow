@@ -1,48 +1,49 @@
 import Ember from 'ember';
 import CustomEvents from 'frontend/mixins/custom-events';
 
-export default Ember.Component.extend(CustomEvents,{
+export default Ember.Component.extend(CustomEvents, {
     editing: false,
-    actions:{
-        saveQuestion(){
+    actions: {
+        saveQuestion() {
             this.sendAction('saveQuestion');
             this.set('editing', false);
         },
-        showAddToDashboard(){
+        showAddToDashboard() {
             this.set('toggleAddToDashboardModal', true);
         },
-        showAddTags(){
+        showAddTags() {
             this.set('toggleTagsModal', true);
         },
-        editQuestion(){
+        editQuestion() {
             this.set('editing', true);
         },
         addToDashboard(dashboard) {
             this.sendAction('addToDashboard', dashboard);
         },
-        cancelEditingQuestion(){
+        cancelEditingQuestion() {
             this.set('editing', false);
         },
-        showDeleteDialogue(){
-            Ember.$('.ui.modal.delete-dialogue').modal('show');
+        showDeleteDialogue() {
+
+            this.set('toggleDeleteDialogue', true);
         },
-        showShareDialogue(){
+        showShareDialogue() {
             this.set('toggleShareModal', 'true');
         },
-        showSnapshotMaker(){
-            Ember.$('.ui.modal.snapshot-maker').modal('show');
+        showSnapshotMaker() {
+            this.set('toggleSnapshotModal', true);
         },
-        deleteQuestion(question){
-            question.destroyRecord().then((response)=>{
+        deleteQuestion(question) {
+            question.destroyRecord().then((response) => {
                 this.sendAction('transitionToIndex');
             });
         },
-        toggleVariableWindow(){
+        toggleVariableWindow() {
             this.toggleProperty('showVariables');
             let plotlyComponent = Ember.$('.js-plotly-plot')[0];
             plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize'));
         },
-        viewSnapshots(question){
+        viewSnapshots(question) {
             this.sendAction('transitionToSnapshots', question.id);
         },
     }

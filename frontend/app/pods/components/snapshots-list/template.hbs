@@ -1,25 +1,25 @@
 {{#each snapshots as |snapshot|}}
-        <div class="ui segment full">
-            <div class="ui grid">
-                <div class="six wide column">
-                    {{#link-to 'questions.show.snapshots.show' snapshot.question.id snapshot.id}}
-                        <div class="queston-title">
-                            <i class="{{snapshot.question.icon}} icon"></i>
-                            {{snapshot.name}}
-                        </div>
-                    {{/link-to}}
-                    <div class="question-subtitle">
-                        from: <span class="table-name">{{snapshot.question.title}}</span>, updated: <span class="database-name">{{momentize snapshot.updated_at}}</span>
+    <div class="ui segment full">
+        <div class="row">
+            <div class="col-9">
+                <div class="d-flex align-items-center">
+                    <span class="avatar mr-2 text-white bg-primary">
+                        <i class="fe fe-database"></i>
+                    </span>
+                    <div>
+                        <h5 class="m-0 text-default"> {{snapshot.name}} </h5>
+                        <small class="text-muted"> updated:{{momentize snapshot.updated_at}} </small>
                     </div>
                 </div>
-                <div class="six wide column">
-                </div>
-                <div class="four wide column text-align-right">
-                    <button data-tooltip="Delete Question" data-inverted=""  class="ui very basic red button" {{action 'showDeleteDialogue' snapshot}}>
-                        DELETE
-                    </button>
-                </div>
+            </div>
+            <div class="col-3 text-right">
+                {{#if snapshot.should_save_data_to_db}}
+                    {{#link-to 'questions.show.snapshots.show' snapshot.question.id snapshot.id}}
+                        <button class="btn btn-link text-primary">VIEW </button>
+                    {{/link-to}}
+                {{/if}}
+                <button class="btn btn-link text-red" {{action 'showDeleteDialogue' snapshot}}> DELETE </button>
             </div>
         </div>
-{{/each}}
-{{delete-dialogue entityName="snapshot" entity=questionToBeDeleted delete="deleteSnapshot"}}
+    </div>
+{{/each}} {{delete-dialogue entityName="snapshot" entity=questionToBeDeleted delete="deleteSnapshot"}}

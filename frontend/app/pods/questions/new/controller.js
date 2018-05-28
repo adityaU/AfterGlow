@@ -39,7 +39,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
                     groupBys: [],
                     orderBys: []
                 },
-                limit: 2000
+                limit: null
             }),
             results_view_settings: {
                 resultsViewType: 'table',

@@ -109,7 +109,6 @@ WHERE constraint_type = 'FOREIGN KEY'/, [], opts())
           Postgrex.stream(conn, query, [], stream_opts)
           |> Stream.map(fn %Postgrex.Result{rows: rows} -> rows end)
 
-        "got rows..." |> IO.inspect()
         mapper_fn.(rows, columns)
       end,
       txn_opts

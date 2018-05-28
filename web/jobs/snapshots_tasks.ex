@@ -1,6 +1,9 @@
 defmodule AfterGlow.SnapshotsTasks do
   alias AfterGlow.Snapshots
+  alias AfterGlow.Snapshots.Snapshot
   alias AfterGlow.CacheWrapper.Repo
+  alias AfterGlow.Async
+  import Ecto.Query
 
   def save(snapshot) do
     unless snapshot.status == "pending" do
@@ -11,6 +14,8 @@ defmodule AfterGlow.SnapshotsTasks do
           snapshot.should_save_data_to_db and snapshot.should_create_csv ->
             Snapshots.save_data(snapshot)
             |> Snapshots.create_and_send_csv(nil)
+
+            snapshot
 
           snapshot.should_save_data_to_db ->
             Snapshots.save_data(snapshot)
@@ -23,53 +28,34 @@ defmodule AfterGlow.SnapshotsTasks do
 
       update_status(snapshot, "success")
     end
+  catch
+    _ -> update_status(snapshot, "failed")
   after
     if snapshot.scheduled do
-      create_new_snapshot_and_schedule(snapshot)
+      create_new_snapshot(snapshot)
     end
   end
 
-  def schedule(snapshot, time) do
-    "Scheduling #{snapshot.name} at #{time}"
-    |> IO.inspect()
-
-    :timer.apply_after(time, __MODULE__, :save, [snapshot])
+  def run do
+    from(s in Snapshot)
+    |> where(
+      [s],
+      s.status in ["pending"] and s.starting_at <= ^Ecto.DateTime.utc()
+    )
+    |> Repo.all()
+    |> Enum.each(fn s ->
+      Async.perform(&__MODULE__.save/1, [s])
+    end)
   end
 
-  def schedule_or_save(snapshot) do
-    unless snapshot.status == "pending" and snapshot.starting_at do
-      if snapshot.scheduled do
-        snapshot =
-          snapshot
-          |> Repo.preload(:parent)
-
-        schedule(snapshot, find_next_suitable_time(snapshot))
-      else
-        save(snapshot)
-      end
-    end
-  end
-
-  defp find_next_suitable_time(snapshot) do
-    time =
-      snapshot.starting_at
-      |> convert_ecto_datetime_to_epoc()
-      |> Kernel.+(snapshot.interval)
-
-    if time
-       |> Kernel.>(
-         DateTime.utc_now()
-         |> DateTime.to_unix(:seconds)
-       ) do
-      2
-    else
-      time
-      |> Kernel.-(
-        DateTime.utc_now()
-        |> DateTime.to_unix(:seconds)
-      )
-      |> Kernel.*(1000)
-    end
+  def cancel_all_in_process_snapshots do
+    from(s in Snapshot)
+    |> where(
+      [s],
+      s.status == "in_process" and s.starting_at <= ^Ecto.DateTime.utc()
+    )
+    |> Repo.all()
+    |> Enum.map(fn s -> update_status(s, "pending") end)
   end
 
   defp change_attributes(snapshot) do
@@ -97,7 +83,7 @@ defmodule AfterGlow.SnapshotsTasks do
     }
   end
 
-  defp create_new_snapshot_and_schedule(snapshot) do
+  defp create_new_snapshot(snapshot) do
     # clone
     {:ok, snapshot} =
       snapshot
@@ -110,16 +96,16 @@ defmodule AfterGlow.SnapshotsTasks do
       |> Repo.insert_with_cache()
 
     # schedule
-    snapshot
-    |> schedule(
-      snapshot.starting_at
-      |> convert_ecto_datetime_to_epoc
-      |> Kernel.-(
-        DateTime.utc_now()
-        |> DateTime.to_unix(:seconds)
-      )
-      |> Kernel.*(1000)
-    )
+    # snapshot
+    # |> schedule(
+    #   snapshot.starting_at
+    #   |> convert_ecto_datetime_to_epoc
+    #   |> Kernel.-(
+    #     DateTime.utc_now()
+    #     |> DateTime.to_unix(:seconds)
+    #   )
+    #   |> Kernel.*(1000)
+    # )
   end
 
   defp update_status(snapshot, status) do

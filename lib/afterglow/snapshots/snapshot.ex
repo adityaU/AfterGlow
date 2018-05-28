@@ -6,7 +6,7 @@ defmodule AfterGlow.Snapshots.Snapshot do
   alias AfterGlow.Question
   import EctoEnum, only: [defenum: 2]
 
-  defenum(StatusEnum, pending: 0, in_process: 1, success: 2)
+  defenum(StatusEnum, pending: 0, in_process: 1, success: 2, failed: 3)
 
   schema "snapshots" do
     field(:columns, {:array, :string})

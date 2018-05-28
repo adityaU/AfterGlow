@@ -35,6 +35,7 @@ export default Ember.Route.extend(CanMixin, KeyboardShortcuts, {
         willTransition(transition) {
             this._super(...arguments);
             this.set('nextTransition', transition);
+            ;
             if (this.can('create question') && !this.controller.get('retryingTransition')) {
                 transition.abort();
                 this.controller.set('showTransitionWarning', true);

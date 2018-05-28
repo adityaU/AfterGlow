@@ -168,7 +168,6 @@ defmodule AfterGlow.Question do
       ~r({{.*snapshot_starting_at.*}}),
       snapshot.starting_at |> Ecto.DateTime.to_iso8601() || ""
     )
-    |> IO.inspect(label: "snapshot_starting_at")
   end
 
   def insert_variables_replaced_at_query(results, variables_replaced_query) do
