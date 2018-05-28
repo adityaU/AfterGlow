@@ -28,6 +28,10 @@ defmodule AfterGlow.Snapshots.Snapshot do
     timestamps()
   end
 
+  def cache_deletable_associations do
+    [:question]
+  end
+
   @doc false
   def changeset(%Snapshot{} = snapshot, attrs) do
     snapshot
