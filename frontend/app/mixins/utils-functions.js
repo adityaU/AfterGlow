@@ -351,7 +351,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
             font: {
                 family: 'Lato',
                 size: '1em',
-                color: '#aaafba'
+                color: '#495057'
             }
 
         };

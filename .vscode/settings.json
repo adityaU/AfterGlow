@@ -23,5 +23,23 @@
     "eslint.provideLintTask": true,
     "jake.autoDetect": "off",
     "grunt.autoDetect": "off",
-    "gulp.autoDetect": "off"
+    "gulp.autoDetect": "off",
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "frontend/node_modules/**": true,
+        "**/vendor/**": true,
+        "**/bower_components/**": true,
+        "_build/**": true,
+        ".elixir_ls/**": true,
+        "assets/**": true,
+        "backup/**": true,
+        "bin/**": true,
+        "**/cache/**": true,
+        "images/**": true,
+        "logs/**": true,
+        "system/**": true,
+        "frontend/tmp/**": true,
+        "webserver-configs/**": true
+    }
 }

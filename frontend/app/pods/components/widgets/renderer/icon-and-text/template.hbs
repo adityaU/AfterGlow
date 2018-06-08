@@ -1,0 +1,4 @@
+{{#if applicableWidgetItem}}
+    <i class="fe fe-{{applicableWidgetItem.config.icon}}" style="color: {{applicableWidgetItem.config.color}}"></i>
+    <span>{{format-object applicableWidgetItem.text}}</span>
+{{else}}{{format-object el}} {{/if}}

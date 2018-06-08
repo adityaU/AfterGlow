@@ -5,6 +5,7 @@ defmodule AfterGlow.QuestionController do
   alias AfterGlow.Database
   alias AfterGlow.TagQuestion
   alias AfterGlow.Tag
+  alias AfterGlow.Widgets.Widget
   alias AfterGlow.Async
   alias AfterGlow.QueryView
   alias AfterGlow.Sql.DbConnection
@@ -36,6 +37,7 @@ defmodule AfterGlow.QuestionController do
         |> Repo.preload(:tags)
         |> Repo.preload(:variables)
         |> Repo.preload(:snapshots)
+        |> Repo.preload(:widgets)
 
       conn
       |> render(:index, data: questions)
@@ -109,6 +111,7 @@ defmodule AfterGlow.QuestionController do
       |> Repo.preload(:dashboards)
       |> Repo.preload(:variables)
       |> Repo.preload(:snapshots)
+      |> Repo.preload(:widgets)
 
     if question.shareable_link == share_id do
       changeset =
@@ -136,6 +139,7 @@ defmodule AfterGlow.QuestionController do
       |> Repo.preload(:tags)
       |> Repo.preload(:variables)
       |> Repo.preload(:snapshots)
+      |> Repo.preload(:widgets)
 
     render(conn, :show, data: question)
   end
@@ -169,6 +173,7 @@ defmodule AfterGlow.QuestionController do
           |> Repo.preload(:tags)
           |> Repo.preload(:variables)
           |> Repo.preload(:snapshots)
+          |> Repo.preload(:widgets)
 
         conn
         |> put_status(:created)
@@ -194,6 +199,7 @@ defmodule AfterGlow.QuestionController do
       |> Repo.preload(:tags)
       |> Repo.preload(:variables)
       |> Repo.preload(:snapshots)
+      |> Repo.preload(:widgets)
 
     render(conn, :show, data: question)
   end
@@ -211,19 +217,30 @@ defmodule AfterGlow.QuestionController do
       |> Repo.preload(:tags)
       |> Repo.preload(:variables)
       |> Repo.preload(:snapshots)
+      |> Repo.preload(:widgets)
 
     changeset = Question.changeset(question, prms)
     tag_ids = prms["tags_ids"]
+    widget_ids = prms["widgets_ids"]
+
+    widgets =
+      if widget_ids |> Enum.empty?(),
+        do: nil,
+        else: Repo.all(from(w in Widget, where: w.id in ^widget_ids))
 
     tags =
       if tag_ids |> Enum.empty?(),
         do: nil,
         else: Repo.all(from(q in Tag, where: q.id in ^tag_ids))
 
-    case Question.update(changeset, tags) do
+    case Question.update(changeset, tags, widgets) do
       {:ok, question} ->
         question =
-          question |> Repo.preload(:dashboards) |> Repo.preload(:tags) |> Repo.preload(:variables)
+          question
+          |> Repo.preload(:dashboards)
+          |> Repo.preload(:tags)
+          |> Repo.preload(:variables)
+          |> Repo.preload(:widgets)
 
         render(conn, :show, data: question)
 
@@ -286,6 +303,7 @@ defmodule AfterGlow.QuestionController do
       |> Repo.preload(:tags)
       |> Repo.preload(:variables)
       |> Repo.preload(:snapshots)
+      |> Repo.preload(:widgets)
 
     json(
       conn,

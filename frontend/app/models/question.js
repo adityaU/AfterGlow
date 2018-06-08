@@ -24,6 +24,7 @@ export default DS.Model.extend(ResultViewMixin, {
     shared_to: DS.attr(),
     variables: DS.hasMany('variables'),
     owner: DS.belongsTo('user'),
+    widgets: DS.hasMany('widgets'),
     variables_from_this_question: DS.hasMany('variables', {
         inverse: 'question_filter'
     }),

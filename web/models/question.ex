@@ -7,6 +7,7 @@ defmodule AfterGlow.Question do
   alias AfterGlow.Tag
   alias AfterGlow.Variable
   alias AfterGlow.TagQuestion
+  alias AfterGlow.Widgets.Widget
   alias AfterGlow.Snapshots.Snapshot
   alias AfterGlow.CacheWrapper.Repo
   defenum(QueryTypeEnum, human_sql: 0, sql: 1)
@@ -30,6 +31,14 @@ defmodule AfterGlow.Question do
       Dashboard,
       join_through: "dashboard_questions",
       on_delete: :delete_all
+    )
+
+    many_to_many(
+      :widgets,
+      Widget,
+      join_through: "question_widgets",
+      on_delete: :delete_all,
+      on_replace: :delete
     )
 
     many_to_many(
@@ -80,11 +89,11 @@ defmodule AfterGlow.Question do
   end
 
   def default_preloads do
-    [:variables, :snapshots, :tags, :dashboards]
+    [:variables, :snapshots, :tags, :dashboards, :widgets]
   end
 
   def cache_deletable_associations do
-    [:variables, :tags, :dashboards]
+    [:variables, :tags, :dashboards, :widgets]
   end
 
   def update_columns(question, columns, cached_results) do
@@ -318,12 +327,13 @@ defmodule AfterGlow.Question do
     changeset
   end
 
-  def update(changeset, tags) do
+  def update(changeset, tags, widgets) do
     tags = if(tags == nil, do: [], else: tags)
 
     changeset =
       changeset
       |> add_tags(tags)
+      |> add_widgets(widgets)
       |> share_variable_question
 
     Repo.update_with_cache(changeset)
@@ -357,5 +367,9 @@ defmodule AfterGlow.Question do
 
   defp add_tags(changeset, tags) do
     changeset |> Ecto.Changeset.put_assoc(:tags, tags)
+  end
+
+  defp add_widgets(changeset, widgets) do
+    changeset |> Ecto.Changeset.put_assoc(:widgets, widgets || [])
   end
 end

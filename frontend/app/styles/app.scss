@@ -1488,6 +1488,14 @@ a:hover {
 .text-default.active {
     color: $primaryColor !important;
 }
-.text-google{
+
+.text-google {
     color: $googleColor !important;
+}
+
+.no-box-shadow {
+    & .card {
+        box-shadow: none !important;
+        margin-bottom: 0px !important;
+    }
 }

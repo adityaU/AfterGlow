@@ -37,6 +37,8 @@ defmodule AfterGlow.Router do
     resources("/tags", TagController, except: [:new, :edit])
     resources("/variables", VariableController, except: [:new, :edit])
     resources("/snapshots", SnapshotController)
+    resources("/widgets", WidgetController)
+    resources("/widget_items", WidgetItemController)
 
     post("questions/:id/results", QuestionController, :results)
     get("/explore", ExploreController, :get_row_view)

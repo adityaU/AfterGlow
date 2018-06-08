@@ -13,8 +13,8 @@
                     {{#each row as |el index|}}
                         <td class="">
                             {{#if (exists-in index results)}}
-                                {{#link-to 'explore.new' (get-column-id index results) el}} {{format-object el}} {{/link-to}}
-                            {{else}}{{format-object el}} {{/if}}
+                                {{#link-to 'explore.new' (get-column-id index results) el}} {{widgets/render-widgets el=el question=question index=index results=results}} {{/link-to}}
+                            {{else}}{{widgets/render-widgets el=el question=question index=index results=results}} {{/if}}
                         </td>
                     {{/each}}
                 </tr>

@@ -33,6 +33,9 @@ export default Ember.Component.extend(CustomEvents, {
         showSnapshotMaker() {
             this.set('toggleSnapshotModal', true);
         },
+        showWidgetCreator() {
+            this.set('toggleWidgetModal', true);
+        },
         deleteQuestion(question) {
             question.destroyRecord().then((response) => {
                 this.sendAction('transitionToIndex');

@@ -1,45 +1,74 @@
 defmodule AfterGlow.QuestionView do
-
   import AfterGlow.Policy.Helpers
   use AfterGlow.Web, :view
   use JaSerializer.PhoenixView
 
-  attributes [:title, :last_updated, :sql, :human_sql,:cached_results, :results_view_settings, :inserted_at, :updated_at, :shareable_link, :is_shareable_link_public, :query_type, :columns, :shared_to, :has_permission]
+  attributes([
+    :title,
+    :last_updated,
+    :sql,
+    :human_sql,
+    :cached_results,
+    :results_view_settings,
+    :inserted_at,
+    :updated_at,
+    :shareable_link,
+    :is_shareable_link_public,
+    :query_type,
+    :columns,
+    :shared_to,
+    :has_permission
+  ])
 
-  has_many :dashboards,
+  has_many(
+    :dashboards,
     field: :dashboards,
     type: "dashboards",
     include: false
-  
-  has_many :tags,
+  )
+
+  has_many(
+    :tags,
     field: :tags,
     type: "tags",
     include: false
-  
-  has_many :variables,
+  )
+
+  has_many(
+    :variables,
     field: :variables,
     type: "variables",
     include: false
+  )
 
-  has_many :snapshots,
+  has_many(
+    :snapshots,
     field: :snapshots,
     type: "snapshots",
     include: false
-  
-  has_one :owner,
+  )
+
+  has_many(
+    :widgets,
+    field: :widgets,
+    type: "widgets",
+    include: false
+  )
+
+  has_one(
+    :owner,
     field: :owner_id,
     type: "users"
+  )
 
   def shared_to(question, _conn) do
     question.shared_to || []
   end
 
   def has_permission(question, conn) do
-    if (
-      is_admin?(conn.assigns.current_user) ||
-      conn.assigns.current_user.id == question.owner_id ||
-      shared_to(question, conn) |> Enum.member?( conn.assigns.current_user.email )
-    ), do: true, else: false
+    if is_admin?(conn.assigns.current_user) || conn.assigns.current_user.id == question.owner_id ||
+         shared_to(question, conn) |> Enum.member?(conn.assigns.current_user.email),
+       do: true,
+       else: false
   end
-
 end

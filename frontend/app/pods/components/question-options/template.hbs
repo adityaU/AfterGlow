@@ -48,6 +48,10 @@
                             {{#bs-tooltip placement="top" }}Add Tags{{/bs-tooltip}}
                             <i class="fe fe-tag text-gray px-1" {{action 'showAddTags'}}></i>
                         </span>
+                        <span class="d-inline-flex">
+                            {{#bs-tooltip placement="top" }}Add Widgets{{/bs-tooltip}}
+                            <i class="fe fe-layers text-gray px-1" {{action 'showWidgetCreator'}}></i>
+                        </span>
                         {{#if (gt question.snapshots.length 0)}}
                             <span class="d-inline-flex" {{action 'viewSnapshots' question}}>
                                 {{#bs-tooltip placement="top" }}view {{question.snapshots.length}} snapshot(s){{/bs-tooltip}}
@@ -71,4 +75,4 @@
     </div>
 </div> {{delete-dialogue entityName="question" open=toggleDeleteDialogue entity=question delete="deleteQuestion"}} {{share-entity entityName="Question" entity=question open=toggleShareModal}}
 {{add-tag entityName="Question" entity=question open=toggleTagsModal}} {{add-to-dashboard question=question addToDashboard='addToDashboard' open=toggleAddToDashboardModal }}
-{{snapshot-creator question=question open=toggleSnapshotModal}}
+{{snapshot-creator question=question open=toggleSnapshotModal}} {{widget-creator question=question open=toggleWidgetModal}}
