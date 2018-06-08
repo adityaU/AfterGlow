@@ -11,11 +11,11 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
       password: config["password"],
       database: config["db_name"],
       port: config["host_port"],
-      timeout: 120_000,
-      connect_timeout: 120_000,
-      handshake_timeout: 120_000,
-      ownership_timeout: 120_000,
-      pool_timeout: 120_000,
+      timeout: 1_200_000,
+      connect_timeout: 1_200_000,
+      handshake_timeout: 1_200_000,
+      ownership_timeout: 1_200_000,
+      pool_timeout: 1_200_000,
       pool: DBConnection.Poolboy,
       pool_size: 10
     )
