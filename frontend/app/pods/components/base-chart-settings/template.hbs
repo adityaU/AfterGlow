@@ -32,7 +32,7 @@
                     <div class="row py-5 px-1">
                         <div class="col-6"> {{circular-checkbox   checked=y.separateYaxis dataTooltip="Separate Y axis"}} </div>
                         <div class="col-6">
-                            {{#if (eq (or y.chartType defaultChartType) 'line')}}
+                            {{#if (eq (or y.chartType defaultChartType) 'Line')}}
                                 {{#bs-dropdown as |dd|}}
                                     {{#dd.toggle }}
                                         <i class="fe fe-{{if (eq y.lineShape "spline") "git-branch" "activity"}} mt-1 ml-1 text-gray "></i>

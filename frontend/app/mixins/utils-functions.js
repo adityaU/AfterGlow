@@ -402,20 +402,21 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
             width = 1.3;
         }
         if (xLength > 200) {
-            return null;
-        } else {
-            return {
-                symbol: 'circle',
-                opacity: 1,
-                size: size,
-                color: 'white',
-                line: {
-                    color: _this.get('colors')[i + j],
-                    width: width
-                }
-            };
-
+            size = 0.1;
+            width = 0.1;
         }
+
+        return {
+            symbol: 'circle',
+            opacity: 1,
+            size: size,
+            color: 'white',
+            line: {
+                color: _this.get('colors')[i + j],
+                width: width
+            }
+
+        };
 
     },
 

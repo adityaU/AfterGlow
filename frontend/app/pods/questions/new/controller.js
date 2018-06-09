@@ -42,7 +42,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
                 limit: null
             }),
             results_view_settings: {
-                resultsViewType: 'table',
+                resultsViewType: 'Table',
                 numbers: [],
                 dataColumns: [{}]
             },

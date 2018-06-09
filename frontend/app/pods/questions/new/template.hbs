@@ -84,8 +84,8 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                                     {{/if}}
                             </div>
                     {{/if}}
-                    {{/if}}
-                    {{#if results}} {{additional-filters results=results question=question queryObject=queryObject}}
+                    {{/if}} {{additional-filters results=results error=errors question=question queryObject=queryObject}}
+                    {{#if results}}
                         <div class="card {{fullscreenClass}}">
                             <div class="card-header row results-view-selector">
                                 <div class="col-3" bubbles=false> {{searchable-select class="my-2 w-75 d-inline-block" content=availableResultsTypesHash selected=resultsViewTypeTitle prompt="Select

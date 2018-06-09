@@ -4,28 +4,44 @@ export default Ember.Component.extend({
     watchAdditionalFilters: Ember.on('init', Ember.observer('queryObject.additionalFilters', function () {
         if (!this.get('queryObject.additionalFilters')) {
             this.set('queryObject.additionalFilters', Ember.Object.create());
+        } else {
+            this.set('queryObject.additionalFilters.filters', this.get('queryObject.additionalFilters.filters') && this.get('queryObject.additionalFilters.filters').map((item) => {
+                return Ember.Object.create(item);
+            }));
+            this.set('queryObject.additionalFilters.views', this.get('queryObject.additionalFilters.views') && this.get('queryObject.additionalFilters.views').map((item) => {
+                return Ember.Object.create(item);
+            }));
+            this.set('queryObject.additionalFilters.groupBys', this.get('queryObject.additionalFilters.groupBys') && this.get('queryObject.additionalFilters.groupBys').map((item) => {
+                return Ember.Object.create(item);
+            }));
+            this.set('queryObject.additionalFilters.orderBys', this.get('queryObject.additionalFilters.orderBys') && this.get('queryObject.additionalFilters.orderBys').map((item) => {
+                return Ember.Object.create(item);
+            }));
         }
     })),
 
-    columns: Ember.computed(function () {
-        if (this.get('results.additional_filters_applied') &&
-            this.get('queryObject.additionalFilterColumns')) {
-            return this.get('queryObject.additionalFilterColumns');
+    columns: Ember.computed('results', 'error', 'results.additional_filters_applied', function () {
+        if ((this.get('results.additional_filters_applied') &&
+                this.get('queryObject.additionalFilterColumns')) || this.get('error')) {
+
+            return this.get('queryObject.additionalFilterColumns') || [];
         }
-        return this.get('results.columns').map((item, index) => {
+        return this.get('results.columns') && this.get('results.columns').map((item, index) => {
             return {
                 name: item,
                 human_name: item,
                 data_type: this.figureOutDataType(index)
             };
-        });
+        }) || [];
     }),
 
-    columnsObserver: Ember.on('init', Ember.observer('columns', function () {
-        this.set(
-            'queryObject.additionalFilterColumns',
-            this.get('columns')
-        );
+    columnsObserver: Ember.on('init', Ember.observer('columns', 'results', function () {
+        if (this.get('results.columns') && this.get('columns').length > 0) {
+            this.set(
+                'queryObject.additionalFilterColumns',
+                this.get('columns')
+            );
+        }
     })),
 
     figureOutDataType(index) {
@@ -115,7 +131,7 @@ export default Ember.Component.extend({
             }
         },
         remove(type, el) {
-            let arr = this.get('queryObject.additionalFilters').get(type);
+            let arr = Ember.Object.create(this.get('queryObject.additionalFilters')).get(type);
             arr.removeObject(el);
         }
     }

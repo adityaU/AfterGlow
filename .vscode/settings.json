@@ -41,5 +41,6 @@
         "system/**": true,
         "frontend/tmp/**": true,
         "webserver-configs/**": true
-    }
+    },
+    "files.useExperimentalFileWatcher": true
 }
