@@ -1499,3 +1499,21 @@ a:hover {
         margin-bottom: 0px !important;
     }
 }
+
+.grid-stack>.grid-stack-item {
+    $gridstack-columns: 24;
+    @for $i from 1 through $gridstack-columns {
+        &[data-gs-width='#{$i}'] {
+            width: (100% / $gridstack-columns) * $i;
+        }
+        &[data-gs-x='#{$i}'] {
+            left: (100% / $gridstack-columns) * $i;
+        }
+        &[data-gs-min-width='#{$i}'] {
+            min-width: (100% / $gridstack-columns) * $i;
+        }
+        &[data-gs-max-width='#{$i}'] {
+            max-width: (100% / $gridstack-columns) * $i;
+        }
+    }
+}

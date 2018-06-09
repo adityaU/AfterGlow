@@ -24,7 +24,9 @@
     "jake.autoDetect": "off",
     "grunt.autoDetect": "off",
     "gulp.autoDetect": "off",
+    "files.useExperimentalFileWatcher": false,
     "files.watcherExclude": {
+        "**/**": true,
         "**/.git/objects/**": true,
         "**/.git/subtree-cache/**": true,
         "frontend/node_modules/**": true,

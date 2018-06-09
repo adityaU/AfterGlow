@@ -1,6 +1,5 @@
 {{#if dashboard}}
-    {{#grid-stack class="full" options=(hash animate=true width=24 verticalMargin="0em" staticGrid=true ) onChange=(action
-        'change') }}
+    {{#grid-stack class="full" options=(hash animate=true width=24 verticalMargin="0em" ) onChange=(action 'change') }}
         {{#each dashboard.questions as |question|}}
             {{#grid-stack-item class="grid-segment" options=(get (get dashboard "settings") (get question "id"))}}
                 <div class="card h-100" id="js-question-{{question.id}}">

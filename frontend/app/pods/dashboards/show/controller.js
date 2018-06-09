@@ -61,6 +61,9 @@ export default Ember.Controller.extend({
         }, this.get('refreshInterval.value'));
     },
 
+    editModeObserver: Ember.observer('editMode', function () {
+        this.set('dashboard.isEditing', this.get('editMode'));
+    }),
     stopTimer: function () {
         Ember.run.cancel(this.get('timer'));
     },
