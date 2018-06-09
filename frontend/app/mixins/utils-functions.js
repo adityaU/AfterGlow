@@ -37,9 +37,9 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
     },
     downloadAsPNG(gd) {
         Plotly.toImage(gd, {
-            height: 1600,
-            width: 1600
-        })
+                height: 1600,
+                width: 1600
+            })
             .then(
                 function (url) {
                     return Plotly.toImage(gd, {

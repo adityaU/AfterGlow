@@ -4,10 +4,11 @@
             <div class="row">
                 <div class="col-8">
                     <i class="fe fe-chevron-down"></i> Add Additional Filters </div>
-                <div class="col-4">
-                    {{#if hasAdditionalFilter}}
-                        <button class="btn btn-link text-error">Clear Filters</button>
-                    {{/if}}
+                <div class="col-4 text-right">
+                    <span {{action 'resetAdditionalFilters'}}>
+                        {{#bs-tooltip position="top" }} Reset Filters {{/bs-tooltip}}
+                        <i class="fe fe-refresh-cw"></i>
+                    </span>
                 </div>
             </div>
         {{/aitem.title}}

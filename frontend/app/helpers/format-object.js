@@ -19,8 +19,8 @@ export function formatObject(params /*, hash*/ ) {
         let date = Date.parse(params);
         let dateMatch = (params.toString().match('-') != null);
         if (date.toString() != 'NaN' && dateMatch) {
-            date = moment(date).format('LLLL');
-            formattedString = moment.tz(date, moment.tz.guess());
+            date = moment(date);
+            formattedString = moment.tz(date, moment.tz.guess()).format('LLLL');
         }
 
         return formattedString;

@@ -27,7 +27,9 @@ export default Ember.Component.extend(UtilsFunctions, {
         }));
         layout = data && _this.get('layout');
         data && Plotly.newPlot(gd, data, layout, {
-            showLink: false
+            modeBarButtonsToRemove: ['sendDataToCloud'],
+            displaylogo: false,
+            showLine: false
         })
             .then(_this.get('downloadAsPNG'));
         data && gridParent[0] && gridParent[0].addEventListener('plotlyResize', function () {

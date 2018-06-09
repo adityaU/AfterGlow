@@ -78,6 +78,10 @@ export default Ember.Component.extend({
         return selected;
     },
     actions: {
+        resetAdditionalFilters() {
+            this.set('queryObject.additionalFilters', Ember.Object.create());
+            this.set('queryObject.additionalFilterColumns', null);
+        },
 
         addFilter() {
             if (!this.get('queryObject.additionalFilters.filters')) {

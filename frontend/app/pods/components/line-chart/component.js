@@ -26,6 +26,8 @@ export default Ember.Component.extend(UtilsFunctions, {
         }));
         layout = data && _this.get('layout');
         data && Plotly.newPlot(gd, data, layout, {
+            modeBarButtonsToRemove: ['sendDataToCloud'],
+            displaylogo: false,
             showLine: false
         })
             .then(_this.get('downloadAsPNG'));
