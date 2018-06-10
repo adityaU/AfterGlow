@@ -27,13 +27,18 @@ defmodule AfterGlow.SnapshotsTasks do
         end
 
       update_status(snapshot, "success")
+
+      if snapshot.scheduled do
+        create_new_snapshot(snapshot)
+      end
     end
   catch
-    _ -> update_status(snapshot, "failed")
-  after
-    if snapshot.scheduled do
-      create_new_snapshot(snapshot)
-    end
+    _ ->
+      update_status(snapshot, "failed")
+
+      if snapshot.scheduled do
+        create_new_snapshot(snapshot)
+      end
   end
 
   def run do
