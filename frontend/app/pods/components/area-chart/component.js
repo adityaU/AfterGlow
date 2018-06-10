@@ -9,7 +9,7 @@ export default Ember.Component.extend(UtilsFunctions, {
         this.get('getData')(this);
     },
     data: Ember.observer('jsonData', 'type', 'xLabel', 'yLable', 'title', function () {
-        Ember.run.next(function () {
+        Ember.run.next(this, function () {
             this.get('getData')(this);
         });
     }),
@@ -40,10 +40,10 @@ export default Ember.Component.extend(UtilsFunctions, {
         layout = data && _this.get('layout');
         data = data && _this.get('stackedArea')(data);
         data && Plotly.newPlot(gd, data, layout, {
-            modeBarButtonsToRemove: ['sendDataToCloud'],
-            displaylogo: false,
-            showLine: false
-        })
+                modeBarButtonsToRemove: ['sendDataToCloud'],
+                displaylogo: false,
+                showLine: false
+            })
             .then(_this.get('downloadAsPNG'));
         data && gridParent[0] && gridParent[0].addEventListener('plotlyResize', function () {
             let dimensions = _this.get('dimensions')(gridParent);

@@ -1,0 +1,25 @@
+<div class="card h-100">
+    <div class="card-body p-0">
+        {{#if isEditing }} {{textarea id=textareaRandomId  value=note.content class="hidden"}} {{else}}
+            <div class="w-100 p-2 text-right">
+                {{#if (can "edit dashboard")}}
+                    {{#if (not note.dashboard.isEditing)}}
+                        <i class="fe fe-edit text-muted" {{action 'toggleEditNote'}}></i>
+                    {{/if}}
+                    <i class="fe fe-x text-red" {{action 'deleteNote'}}></i>
+                {{/if}}
+            </div>
+            <div class="px-2">
+                <div class="simditor">
+                    <div class="simditor-body py-0"> {{{note.content}}} </div>
+                </div>
+            </div>
+        {{/if}}
+    </div>
+    {{#if isEditing}}
+        <div class="card-footer text-right">
+            <button class="btn btn-red" {{action 'toggleEditNote'}}>Cancel</button>
+            <button class="btn btn-primary" {{action 'saveNote'}}>Save</button>
+        </div>
+    {{/if}}
+</div>

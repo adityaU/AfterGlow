@@ -48,6 +48,9 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
             },
         });
     }),
+    getQuestionfromLocalStorage() {
+        return JSON.parse(localStorage.getItem('AG_NEW_QUESTION') || '{}');
+    },
 
     questionNameObserver: Ember.observer('question.title',
         'queryObject.table.human_name',
@@ -145,6 +148,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
 
     getResultsFunction(queryObject) {
         let question = this.get('question');
+
         let query_variables = question.get('query_variables');
         let changedAttributes = Object.keys(question.changedAttributes()).filter((item) => {
             return item != 'updated_at' && item != 'cached_results';

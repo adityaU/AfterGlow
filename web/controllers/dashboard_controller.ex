@@ -22,6 +22,7 @@ defmodule AfterGlow.DashboardController do
       |> Repo.preload(:questions)
       |> Repo.preload(:tags)
       |> Repo.preload(:variables)
+      |> Repo.preload(:notes)
 
     if dashboard.shareable_link == share_id do
       changeset =
@@ -48,6 +49,7 @@ defmodule AfterGlow.DashboardController do
       |> Repo.preload(:questions)
       |> Repo.preload(:tags)
       |> Repo.preload(:variables)
+      |> Repo.preload(:notes)
 
     render(conn, :show, data: dashboard)
   end
@@ -62,6 +64,7 @@ defmodule AfterGlow.DashboardController do
       |> Repo.preload(:questions)
       |> Repo.preload(:tags)
       |> Repo.preload(:variables)
+      |> Repo.preload(:notes)
 
     conn
     |> render(:index, data: dashboards)
@@ -83,7 +86,11 @@ defmodule AfterGlow.DashboardController do
     case Dashboard.insert(changeset, questions) do
       {:ok, dashboard} ->
         dashboard =
-          dashboard |> Repo.preload(:questions) |> Repo.preload(:tags) |> Repo.preload(:variables)
+          dashboard
+          |> Repo.preload(:questions)
+          |> Repo.preload(:tags)
+          |> Repo.preload(:variables)
+          |> Repo.preload(:notes)
 
         conn
         |> put_status(:created)
@@ -109,6 +116,7 @@ defmodule AfterGlow.DashboardController do
       |> Repo.preload(:questions)
       |> Repo.preload(:tags)
       |> Repo.preload(:variables)
+      |> Repo.preload(:notes)
 
     changeset = Dashboard.changeset(dashboard, prms)
     question_ids = prms["questions_ids"]

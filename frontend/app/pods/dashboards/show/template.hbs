@@ -55,6 +55,11 @@
                                     {{/dd.menu}}
                                 {{/bs-dropdown}}
                             </span>
+                            {{#if (not dashboard.newNote)}}
+                                <span> {{bs-tooltip title="Add a Note"}}
+                                    <i class="fe fe-edit-3 px-1" {{action 'addNewNote'}}></i>
+                                </span>
+                            {{/if}}
                             <span> {{bs-tooltip title="Share"}}
                                 <i class="fe fe-share px-1" {{action 'showShareDialogue'}}></i>
                             </span>

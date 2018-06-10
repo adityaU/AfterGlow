@@ -1517,3 +1517,23 @@ a:hover {
         }
     }
 }
+
+.simditor {
+    border: none !important;
+    & .simditor-body {
+        min-height: 0px !important;
+    }
+    & .simditor-toolbar {
+        width: 100% !important;
+        &>ul>li>.toolbar-item {
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+        }
+    }
+}
+
+.grid-stack-item-content .card-body {
+    overflow: auto;
+    height: inherit;
+}

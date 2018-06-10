@@ -13,9 +13,9 @@ export default Ember.Component.extend(LoadingMessages, CustomEvents, {
             } else {
                 grid && grid.disable();
             }
-            // $('.grid-stack-item').each((i, item) => {
-            //     item.dispatchEvent(this.get('plotlyResize'));
-            // });
+            $('.grid-stack-item').each((i, item) => {
+                item.dispatchEvent(this.get('plotlyResize'));
+            });
         });
     },
     actions: {

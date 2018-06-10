@@ -99,10 +99,27 @@ export default Ember.Controller.extend({
             item.set('updated_at', new Date());
         });
     },
+    editMode: Ember.computed.alias('dashboard.isEditing'),
     actions: {
         editDashboard() {
             this.set('nonEditable', null);
             this.set('editMode', true);
+        },
+        addNewNote() {
+            let dashboard = this.get('dashboard');
+            let note = this.store.createRecord('note', {
+                dashboard: this.get('dashboard')
+            });
+            note.set('isEditing', true);
+            dashboard.set('newNoteSettings', {
+                width: 12,
+                height: 7,
+                noMove: true
+            });
+            dashboard.set('newNote', note);
+            Ember.run.next(this, function () {
+                Ember.$('.grid-stack').data('gridstack').disable();
+            });
         },
         saveDashboard() {
             let dashboard = this.get('dashboard');
@@ -119,6 +136,20 @@ export default Ember.Controller.extend({
                 };
             });
             dashboard.set('settings', Ember.Object.create(settings));
+            settings = {};
+            dashboard.get('notes').forEach((item) => {
+                let el = $('#js-notes-' + item.get('id')).parents('.grid-stack-item');
+
+                settings[item.get('id')] = {
+                    x: el.data('gs-x'),
+                    y: el.data('gs-y'),
+                    width: el.data('gs-width'),
+                    height: el.data('gs-height')
+                    // noMove: this.get('nonEditable'),
+                    // noResize: this.get('nonEditable')
+                };
+            });
+            dashboard.set('notes_settings', Ember.Object.create(settings));
             dashboard.save().then((response) => {
                 dashboard.get('variables').invoke('save');
             }).then((variables) => {

@@ -5,6 +5,7 @@ defmodule AfterGlow.Dashboard do
   alias AfterGlow.DashboardQuestion
   alias AfterGlow.CacheWrapper.Repo
   alias AfterGlow.Variable
+  alias AfterGlow.Notes.Note
   alias AfterGlow.User
 
   schema "dashboards" do
@@ -16,6 +17,7 @@ defmodule AfterGlow.Dashboard do
     field(:shared_to, {:array, :string})
     field(:is_shareable_link_public, :boolean)
     field(:settings, :map)
+    field(:notes_settings, :map)
     belongs_to(:owner, User, foreign_key: :owner_id)
 
     many_to_many(
@@ -35,6 +37,7 @@ defmodule AfterGlow.Dashboard do
     )
 
     has_many(:variables, Variable, on_delete: :delete_all, on_replace: :delete)
+    has_many(:notes, Note, on_delete: :delete_all, on_replace: :delete)
     timestamps()
   end
 
@@ -50,6 +53,7 @@ defmodule AfterGlow.Dashboard do
       :description,
       :is_shareable_link_public,
       :settings,
+      :notes_settings,
       :shared_to,
       :owner_id
     ])
@@ -68,7 +72,7 @@ defmodule AfterGlow.Dashboard do
   end
 
   def default_preloads do
-    [:questions]
+    [:questions, :notes]
   end
 
   def cache_deletable_associations do

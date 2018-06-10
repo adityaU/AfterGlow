@@ -1,5 +1,17 @@
 {{#if dashboard}}
     {{#grid-stack class="full" options=(hash animate=true width=24 verticalMargin="0em" ) onChange=(action 'change') }}
+        {{#if dashboard.newNote}}
+            {{#grid-stack-item class="grid-segment" options=(get dashboard "newNoteSettings")}}
+                <div class="h-100" id="js-notes-new"> {{dashboard-note-card note=dashboard.newNote}} </div>
+            {{/grid-stack-item}}
+        {{/if}}
+        {{#each dashboard.notes as |note|}}
+            {{#if note.id}}
+                {{#grid-stack-item class="grid-segment" options=(get (get dashboard "notes_settings") (get note "id"))}}
+                    <div class="h-100" id="js-notes-{{note.id}}"> {{dashboard-note-card note=note}} </div>
+                {{/grid-stack-item}}
+            {{/if}}
+        {{/each}}
         {{#each dashboard.questions as |question|}}
             {{#grid-stack-item class="grid-segment" options=(get (get dashboard "settings") (get question "id"))}}
                 <div class="card h-100" id="js-question-{{question.id}}">

@@ -20,35 +20,35 @@ export default Ember.Mixin.create({
         },
         'Number': {
             width: 6,
-            height: 6
+            height: 3
         },
         'Table': {
             width: 12,
-            height: 20
+            height: 12
         },
         'Line': {
             width: 12,
-            height: 12
+            height: 6
         },
         'Pie': {
             width: 12,
-            height: 16
+            height: 8
         },
         'Bars': {
             width: 12,
-            height: 12
+            height: 6
         },
         'Area': {
             width: 12,
-            height: 12
+            height: 6
         },
         'Bubble': {
             width: 12,
-            height: 12
+            height: 6
         },
         'PivotTable': {
             width: 12,
-            height: 12
+            height: 6
         }
     },
 

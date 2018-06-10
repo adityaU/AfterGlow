@@ -14,7 +14,8 @@ defmodule AfterGlow.DashboardView do
     :question_count,
     :shared_to,
     :has_permission,
-    :shareable_link
+    :shareable_link,
+    :notes_settings
   ])
 
   has_many(
@@ -42,6 +43,13 @@ defmodule AfterGlow.DashboardView do
     :owner,
     field: :owner_id,
     type: "users"
+  )
+
+  has_many(
+    :notes,
+    field: :notes,
+    type: "notes",
+    include: false
   )
 
   def settings(dashboard, _conn) do

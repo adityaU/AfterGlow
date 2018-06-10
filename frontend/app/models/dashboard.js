@@ -10,38 +10,30 @@ export default DS.Model.extend({
     is_shareable_link_public: DS.attr('boolean'),
     has_permission: DS.attr('boolean'),
     settings: DS.attr('object'),
+    notes_settings: DS.attr('object'),
     question_count: DS.attr('string'),
     questions: DS.hasMany('questions'),
     shared_to: DS.attr(),
     variables: DS.hasMany('variables'),
+    notes: DS.hasMany('notes'),
     tags: DS.hasMany('tags'),
 
     isEditing: false,
 
-    toggleGrid: Ember.on('init', Ember.observer('isEditing', function () {
-        var grid = Ember.$('.grid-stack').data('gridstack');
-        if (this.get('isEditing')) {
-            grid && grid.enable();
-        } else {
-            grid && grid.disable();
-        }
-
-    })),
-
-    gridSettings: Ember.computed('isEditing', 'settings.{}', function () {
-
-        let settings = this.get('settings');
-        // Object.keys(settings).forEach((key) => {
-        //     var setting = settings.get(key);
-        //     if (typeof (setting) === 'object') {
-        //         setting['no-move'] = !this.get('isEditing');
-        //         setting['no-resize'] = !this.get('isEditing');
-        //         setting['resize-handles'] = this.get('isEditing');
-        //         settings.set(key, setting);
-        //     }
-        // });
-        return settings;
+    isEditingObserver: Ember.observer('isEditing', function () {
+        Ember.run.next(() => { // begin loop
+            var grid = Ember.$('.grid-stack').data('gridstack');
+            if (this.get('isEditing')) {
+                grid && grid.enable();
+            } else {
+                grid && grid.disable();
+            }
+            // $('.grid-stack-item').each((i, item) => {
+            //     item.dispatchEvent(this.get('plotlyResize'));
+            // });
+        });
     }),
+
 
     shareable_url: Ember.computed('shareable_link', function () {
         return window.location.origin + this.get('router').urlFor('dashboards.show', {
