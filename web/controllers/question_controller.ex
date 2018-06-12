@@ -117,10 +117,10 @@ defmodule AfterGlow.QuestionController do
       changeset =
         Question.changeset(question, %{
           shared_to:
-            question.shared_to |> Kernel.++([conn.assigns.current_user.email]) |> Enum.uniq()
+            (question.shared_to || []) |> Kernel.++([conn.assigns.current_user.email]) |> Enum.uniq()
         })
 
-      {:ok, question} = Question.update(changeset, nil)
+      {:ok, question} = Question.update(changeset, nil, nil)
       render(conn, :show, data: question)
     else
       send_404_response(conn)
