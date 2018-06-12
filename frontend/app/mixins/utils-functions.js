@@ -9,6 +9,8 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
         var objType = (Object.prototype.toString.call(params).replace(/\[object|\]/g, '').trim());
         if (objType == 'Object') {
             formattedString = JSON.stringify(params);
+        } else if (params == true || params == false) {
+            formattedString = params.toString();
         } else if (objType == 'Array') {
             formattedString = params.map((item) => {
                 if (typeof (item) == 'object') {
@@ -37,9 +39,9 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
     },
     downloadAsPNG(gd) {
         Plotly.toImage(gd, {
-                height: 1600,
-                width: 1600
-            })
+            height: 1600,
+            width: 1600
+        })
             .then(
                 function (url) {
                     return Plotly.toImage(gd, {
@@ -53,52 +55,121 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
     gridParent: Ember.computed(function () {
         return this.$('#' + this.get('randomId')).parents('.grid-stack-item');
     }),
-    dimensions(gridParent) {
-        let dimensions = {};
-        if (gridParent && gridParent[0]) {
-            dimensions = {
-                height: gridParent.innerHeight() - 90,
-                width: gridParent.innerWidth() - 30
-            };
-        }
-        return dimensions;
+
+    dimensions: Ember.computed('jsonData', function () {
+        Ember.$(this);
+        return {
+            width: this.$().parents('.card-body').innerWidth(),
+            height: '500'
+        };
+    }),
+    // dimensions(gridParent) {
+    //     let dimensions = {};
+    //     if (gridParent && gridParent[0]) {
+    //         dimensions = {
+    //             height: gridParent.innerHeight() - 90,
+    //             width: gridParent.innerWidth() - 30
+    //         };
+    //     }
+    //     return dimensions;
+    // },
+    // getNode(_this) {
+    //     var d3 = Plotly.d3;
+    //     let gridParent = _this.get('gridParent');
+    //     if (!_this.get('chosenColor')) {
+    //         _this.set('chosenColor', _this.randomColor());
+    //     }
+    //     let dimensions = _this.get('dimensions')(gridParent);
+    //     dimensions.height && (dimensions.height += 'px');
+    //     dimensions.width && (dimensions.width += 'px');
+    //     var gd3 = d3.select('#' + _this.get('randomId'))
+    //         .style(dimensions);
+
+    //     return gd3.node();
+
+    // },
+    // groupBy(data, type) {
+    //     var result = [];
+
+    //     data.forEach(function (item) {
+    //         var hasType = result.findBy('type', item.get(type));
+
+    //         if (!hasType) {
+    //             result.pushObject(Ember.Object.create({
+    //                 type: item.get(type),
+    //                 contents: []
+
+    //             }));
+
+    //         }
+
+    //         result.findBy('type', item.get(type)).get('contents').pushObject(item);
+    //     });
+    //     return result;
+    // },
+    // hiddenJsonData: Ember.computed('jsonData', function () {
+    //     return 'hidden';
+    // }),
+
+    eChartMapping: {
+        'Line': 'line',
+        'Bars': 'bar',
+        'Area': 'area',
+        'Bubble': 'bubble'
     },
-    getNode(_this) {
-        var d3 = Plotly.d3;
-        let gridParent = _this.get('gridParent');
-        if (!_this.get('chosenColor')) {
-            _this.set('chosenColor', _this.randomColor());
-        }
-        let dimensions = _this.get('dimensions')(gridParent);
-        dimensions.height && (dimensions.height += 'px');
-        dimensions.width && (dimensions.width += 'px');
-        var gd3 = d3.select('#' + _this.get('randomId'))
-            .style(dimensions);
+    chartDimensionsObserver: Ember.on('init', Ember.observer('x1', 'x2',
+        'multipleYs.@each.separateYaxis',
+        'multipleYs.@each.columnName',
+        'multipleYs.@each.chartType',
+        'multipleYs.@each.lineShape',
+        'results',
+        function () {
+            var data = this.get('results');
+            var x1 = this.get('x1');
+            var x2Values = this.get('x2Values');
+            var ogMultipleYs = this.get('multipleYs');
+            if (data && x1 && ogMultipleYs && ogMultipleYs.length >= 0) {
+                var multipleYs = ogMultipleYs.map((y) => {
+                    return y ? data.columns.indexOf(y.columnName) : -1;
+                }).filter((i) => {
+                    return i >= 0;
+                }).map((y) => {
+                    return data.columns[y];
+                });
+                var dimensions = [x1];
+                var series = [];
+                multipleYs.forEach((y) => {
+                    if (x2Values) {
+                        x2Values.forEach((x2Value) => {
+                            series.push({
+                                type: this.eChartMapping[ogMultipleYs.filterBy('columnName', y)[0].chartType || this.get('defaultChartType')]
+                            });
+                            if (multipleYs.length === 1) {
+                                dimensions.push(this.display(x2Value));
+                            } else {
+                                dimensions.push(`${this.display(x2Value)}-${this.display(y)}`);
+                            }
+                        });
+                    } else {
 
-        return gd3.node();
-
-    },
-    groupBy(data, type) {
-        var result = [];
-
-        data.forEach(function (item) {
-            var hasType = result.findBy('type', item.get(type));
-
-            if (!hasType) {
-                result.pushObject(Ember.Object.create({
-                    type: item.get(type),
-                    contents: []
-
-                }));
+                        series.push({
+                            type: this.eChartMapping[ogMultipleYs.filterBy('columnName', y)[0].chartType || this.get('defaultChartType')]
+                        });
+                        dimensions.push(y);
+                    }
+                });
+                this.set('chartDimensions', dimensions);
+                this.set('series', series);
 
             }
-
-            result.findBy('type', item.get(type)).get('contents').pushObject(item);
-        });
-        return result;
-    },
-    hiddenJsonData: Ember.computed('jsonData', function () {
-        return 'hidden';
+        })),
+    x2Values: Ember.computed('x2', 'results', function () {
+        var data = this.get('results');
+        var x2 = this.get('x2');
+        x2 = data.columns.indexOf(x2);
+        return (x2 >= 0) && this.unique(data.rows.map((item) => {
+            return item[x2];
+        }));
     }),
     jsonData: Ember.computed('x1', 'x2',
         'multipleYs.@each.separateYaxis',
@@ -119,20 +190,61 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                 }).filter((i) => {
                     return i >= 0;
                 });
-                data = multipleYs.map((y) => {
-                    let d = data.rows.map((item) => {
-                        return Ember.Object.create({
-                            x1: item[x1],
-                            displayX1: this.get('display')(item[x1]),
-                            x2: item[x2],
-                            displayX2: this.get('display')(item[x2]),
-                            y: item[y],
-                            displayY: this.get('display')(item[y]),
-                        });
+
+                let x2Values = this.get('x2Values');
+
+
+
+                var tableData = [];
+                data.rows.forEach((item) => {
+                    var row = [this.display(item[x1])];
+                    multipleYs.forEach((y) => {
+                        if (x2Values) {
+                            x2Values.forEach((x2Value) => {
+                                if (item[x2] == x2Value) {
+                                    row.push(this.display(item[y]));
+                                } else {
+                                    row.push(null);
+                                }
+                            });
+                        } else {
+                            row.push(this.display(item[y]));
+
+                        }
+
+
                     });
-                    return this.get('groupBy')(d, 'x2');
+                    tableData.push(row);
                 });
-                return data;
+                return tableData;
+                // let xhash = {};
+                // data.rows.forEach((item) => {
+                //     xhash[this.get('display')(item[x1])] = {};
+                //     multipleYs.forEach((y) => {
+                //         xhash[this.get('display')(item[x1])][data.columns[y]] = this.get('display')(item[y]);
+                //     });
+                // });
+                // let jsonData = [];
+                // let x1Dimension = data.columns[x1];
+                // Object.keys(xhash).forEach((key) => {
+                //     xhash[key][x1Dimension] = key;
+                //     jsonData.push(xhash[key]);
+                // });
+                // return jsonData;
+                // data = multipleYs.map((y) => {
+                //     let d = data.rows.map((item) => {
+                //         return Ember.Object.create({
+                //             x1: item[x1],
+                //             displayX1: this.get('display')(item[x1]),
+                //             x2: item[x2],
+                //             displayX2: this.get('display')(item[x2]),
+                //             y: item[y],
+                //             displayY: this.get('display')(item[y]),
+                //         });
+                //     });
+                //     return this.get('groupBy')(d, 'x2');
+                // });
+                // return data;
             }
         }),
     x1: Ember.computed.alias('resultsViewSettings.x1'),
@@ -187,33 +299,33 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
     //         return (item.columnName != x1) || (item.columnName != x2)
     //     }))
     // })),
-    resultsObserverThatSetsX2: Ember.on('init', Ember.observer('results', 'x2', function () {
-        if (!this.get('resultsViewSettings.x1')) {
-            let results = this.get('results');
-            let rows = results && results.rows.length && results.rows[0];
-            let row = rows && rows.length && rows[0];
-            let found = null;
-            if (!(this.get('resultsViewType') == 'Pie')) {
-                if (row) {
-                    for (var i = 0; i < row.length; i++) {
-                        if (!(this.findIfDate(row[i]) || this.findIfNumber(row[i]))) {
-                            let items = rows.map(function (item) {
-                                return item && item[i];
-                            });
-                            let canBeSet = (this.unique(items)).length <= 10;
-                            if (canBeSet) {
-                                (found = i);
-                                break;
-                            }
-                        }
-                    }
-                    if (found == 0 || found) {
-                        this.set('x2', results.columns[i]);
-                    }
-                }
-            }
-        }
-    })),
+    // resultsObserverThatSetsX2: Ember.on('init', Ember.observer('results', 'x2', function () {
+    //     if (!this.get('resultsViewSettings.x1')) {
+    //         let results = this.get('results');
+    //         let rows = results && results.rows.length && results.rows[0];
+    //         let row = rows && rows.length && rows[0];
+    //         let found = null;
+    //         if (!(this.get('resultsViewType') == 'Pie')) {
+    //             if (row) {
+    //                 for (var i = 0; i < row.length; i++) {
+    //                     if (!(this.findIfDate(row[i]) || this.findIfNumber(row[i]))) {
+    //                         let items = rows.map(function (item) {
+    //                             return item && item[i];
+    //                         });
+    //                         let canBeSet = (this.unique(items)).length <= 10;
+    //                         if (canBeSet) {
+    //                             (found = i);
+    //                             break;
+    //                         }
+    //                     }
+    //                 }
+    //                 if (found == 0 || found) {
+    //                     this.set('x2', results.columns[i]);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // })),
 
     resultsObserverThatSetsMultipleYs: Ember.on('init', Ember.observer('results', 'multipleYs', function () {
         let results = this.get('results');
