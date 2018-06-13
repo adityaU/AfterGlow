@@ -20,11 +20,15 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                 }
             });
         }
+        if (!isNaN(+params)) {
+            formattedString = +params;
+        }
         let date = Date.parse(params);
         let dateMatch = (params && params.toString().match('-') != null);
         if (date.toString() != 'NaN' && dateMatch) {
             formattedString = moment(date).format('YYYY-MM-DD HH:mm:ss.SSS');
         }
+
 
         return formattedString;
 
@@ -60,6 +64,8 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
         Ember.$(this);
         let parent = this.$().parents('.card-body');
         return {
+            left: '0%',
+            right: '0%',
             width: Math.round(parent.innerWidth()) - 5,
             height: Math.round(parent.innerHeight() || 500) - 5
         };
@@ -794,12 +800,19 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
         }
         let options = {
             backgroundColor: '#fff',
+            grid: {
+                left: 100,
+                right: 30,
+            },
             legend: {
+                type: 'scroll',
                 formatter: this.formatter,
+                pageIconColor: '#495057',
                 orient: legendOrient,
                 x: legendX,
                 left: '2%',
-                top: '2%'
+                top: '2%',
+                right: 50
             },
             textStyle: {
                 fontFamily: 'Lato'
@@ -841,6 +854,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                 type: this.get('xType'),
                 name: this.get('xName'),
                 nameLocation: 'center',
+                nameGap: 20,
                 nameTextStyle: {
                     padding: 8,
                     color: '#495057',
@@ -866,6 +880,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                 show: showYLine,
                 type: this.get('yType'),
                 name: this.get('yName'),
+                nameGap: 50,
                 nameLocation: 'center',
                 nameTextStyle: {
                     padding: 8,
