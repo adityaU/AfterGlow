@@ -43,9 +43,9 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
     },
     downloadAsPNG(gd) {
         Plotly.toImage(gd, {
-                height: 1600,
-                width: 1600
-            })
+            height: 1600,
+            width: 1600
+        })
             .then(
                 function (url) {
                     return Plotly.toImage(gd, {
@@ -185,7 +185,8 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                                 type: this.eChartMapping[selectedChartType],
                                 name: seriesName,
                                 itemStyle: itemStyle,
-                                stack: this.get('isStacked')
+                                stack: this.get('isStacked'),
+                                barGap: '5%'
                             });
                         });
                     } else {
@@ -194,7 +195,8 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                             type: this.eChartMapping[selectedChartType],
                             name: y,
                             itemStyle: itemStyle,
-                            stack: this.get('isStacked')
+                            stack: this.get('isStacked'),
+                            barGap: '5%'
                         });
                         dimensions.push(y);
                     }
