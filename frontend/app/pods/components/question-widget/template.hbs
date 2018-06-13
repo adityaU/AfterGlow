@@ -1,38 +1,30 @@
 {{#if (not hideMenu)}}
-           
-          {{#if question.updated_at}}
-              <span class="card-body-timer">
-              {{#bs-tooltip placement="left"}}
-              Updated {{moment-from-now question.updated_at timeZone=timeZone interval=1000}}" {{/bs-tooltip}}
-                  <i class="fe fe-clock text-{{question.updatedAgoColor}}"></i>
-              </span>
-          {{/if}}
-          {{#bs-dropdown direction="left"  class="card-body-menu" as |dd|}}
-          {{#dd.toggle class=""}}<i class="fe fe-more-vertical text-gray"></i>{{/dd.toggle}}
-          {{#dd.menu class="dropdown-menu-arrow" as |ddm|}}
-          {{#if question.has_permission}}
-          {{#ddm.item}}
-          {{#link-to 'questions.show' question.id class="dropdown-item"}}
-            View Question
-          {{/link-to}}
-          {{/ddm.item}}
-          {{/if}}
-          {{#ddm.item}}
-          <a class="dropdown-item" {{action 'refresh'}}>
-            Refresh
-          </a>
-          {{/ddm.item}}
-          {{#if (and dashboard.has_permission (can "edit dashboard"))}}
-          {{#ddm.item}}
-
-          <a class="dropdown-item" {{action 'remove'}}>
-            Remove from Dashboard
-          </a>
-          {{/ddm.item}}
-          {{/if}}
-          {{/dd.menu}}
-          {{/bs-dropdown}}
+    {{#if question.updated_at}}
+        <span class="card-body-timer">
+            {{#bs-tooltip placement="left" }} Updated {{moment-from-now question.updated_at timeZone=timeZone interval=1000}}" {{/bs-tooltip}}
+            <i class="fe fe-clock text-{{question.updatedAgoColor}}"></i>
+        </span>
+    {{/if}}
+    {{#bs-dropdown direction="left" class="card-body-menu" as |dd|}}
+        {{#dd.toggle class="" }}
+            <i class="fe fe-more-vertical text-gray"></i>
+        {{/dd.toggle}}
+        {{#dd.menu class="dropdown-menu-arrow" as |ddm|}}
+            {{#if question.has_permission}}
+                {{#ddm.item}}
+                    {{#link-to 'questions.show' question.id class="dropdown-item" }} View Question {{/link-to}}
+                {{/ddm.item}}
+            {{/if}}
+            {{#ddm.item}}
+                <a class="dropdown-item" {{action 'refresh'}}> Refresh </a>
+            {{/ddm.item}}
+            {{#if (and dashboard.has_permission (can "edit dashboard"))}}
+                {{#ddm.item}}
+                    <a class="dropdown-item" {{action 'remove'}}> Remove from Dashboard </a>
+                {{/ddm.item}}
+            {{/if}}
+        {{/dd.menu}}
+    {{/bs-dropdown}}
 {{/if}}
-<div class="renderer-component {{fullscreenClass}}">
-{{component resultsWidgetComponent results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName question=question context=componentContext setState=setState colorway=colorway}}
-</div>
+<div class="renderer-component {{fullscreenClass}}"> {{component resultsWidgetComponent results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName question=question context=componentContext setState=setState colorway=colorway resizeTime=resizeTime}}
+    </div>

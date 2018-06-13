@@ -96,20 +96,12 @@
                     <label class="form-label">Title</label> {{input value=title class="form-control" placeholder="Title" }} </div>
             </div>
         </div>
-        {{#if (eq resultsViewSettings.resultsViewType 'Bars')}}
+        {{#if false}}
             <div class="row">
                 <div class="col-10 offset-2">
                     <div class="form-group">
-                        <label class="form-label">Bar Orientation</label> {{searchable-select content=barOrientations sortBy="title" selected=resultsViewSettings.barOrientation
-                    prompt="Select a Bars Orientation" on-change=(action (mut resultsViewSettings.barOrientation))}}
-                        </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-10 offset-2">
-                    <div class="form-group">
-                        <label class="form-label">Bar Mode</label> {{searchable-select content=barModes sortBy="title" selected=resultsViewSettings.barMode
-                    prompt="Select a Bars Mode" on-change=(action (mut resultsViewSettings.barMode))}}
+                        <label class="form-label">Mode</label> {{searchable-select content=stackModes sortBy="title" selected=resultsViewSettings.isStacked
+                    prompt="Select a Mode" on-change=(action (mut resultsViewSettings.isStacked))}}
                         </div>
                 </div>
             </div>

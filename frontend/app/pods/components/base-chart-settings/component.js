@@ -38,17 +38,17 @@ export default Ember.Component.extend(UtilsFunctions, {
         value: 'linear'
     }
     ],
-    barType: {
+    isStacked: {
         name: 'Group',
-        value: 'group'
+        value: false
     },
-    barModes: [{
+    stackModes: [{
         title: 'Stacked',
-        value: 'stack'
+        value: true
     },
     {
         title: 'Group',
-        value: 'group'
+        value: false
     }
     ],
     x1Name: 'x1',

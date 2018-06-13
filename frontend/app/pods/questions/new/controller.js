@@ -310,6 +310,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
         },
         toggleFullscreen() {
             let plotlyComponent = Ember.$('.js-plotly-plot')[0];
+            this.set('resizeTime', new Date());
             if (this.get('fullscreenClass')) {
                 this.set('fullscreenClass', null);
                 plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize'));

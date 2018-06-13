@@ -1,4 +1,1 @@
-<div class="hidden">
-    {{hiddenJsonData}}
-</div>
-<div id={{randomId}}></div>
+{{#if randomId}} {{echarts-chart option=options opts=opts}} {{/if}}
