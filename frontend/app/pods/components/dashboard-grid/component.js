@@ -13,16 +13,13 @@ export default Ember.Component.extend(LoadingMessages, CustomEvents, {
             } else {
                 grid && grid.disable();
             }
-            $('.grid-stack-item').each((i, item) => {
-                item.dispatchEvent(this.get('plotlyResize'));
-            });
+            this.set('resizeTime', new Date());
         });
     },
     actions: {
         change(args) {
-            $('.grid-stack-item').each((i, item) => {
-                item.dispatchEvent(this.get('plotlyResize'));
-            });
+
+            this.set('resizeTime', new Date());
         },
         showDeleteFromDashboardDialogue(question) {
             this.set('toBeDeleted', question);

@@ -56,6 +56,7 @@
                           question=question
                           results=question.results
                           resultsViewSettings=question.results_view_settings
+                          resizeTime=resizeTime
                           resultsViewType=question.results_view_settings.resultsViewType hideMenu=question.showCardHeader refresh="refreshQuestion" dashboard=dashboard remove="showDeleteFromDashboardDialogue"}}
                             {{else}}
                             {{#if (or question.loading (not question.content.isLoaded))}}
