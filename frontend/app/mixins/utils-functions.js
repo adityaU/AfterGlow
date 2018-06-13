@@ -210,6 +210,8 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
 
                 data = jsonData.map((d) => {
                     return [d[0], d[index + 1]];
+                }).filter((item) => {
+                    return item[1];
                 });
             } else {
                 data = jsonData.map((d) => {
@@ -217,6 +219,8 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                         name: d[0],
                         value: d[index + 1]
                     };
+                }).filter((item) => {
+                    return item['value'];
                 });
 
             }
