@@ -51,9 +51,35 @@ export default Ember.Component.extend(UtilsFunctions, {
         value: false
     }
     ],
-    x1Name: 'x1',
+    x1Name: Ember.computed('defaultChartType', function () {
+        if (this.get('defaultChartType') === 'Pie' || this.get('defaultChartType') === 'Funnel') {
+            return 'Labels';
+        }
+        return 'x1';
+    }),
     x2Name: 'x2',
-    yName: 'y',
+    yName: Ember.computed('defaultChartType', function () {
+        if (this.get('defaultChartType') === 'Pie' || this.get('defaultChartType') === 'Funnel') {
+            return 'Values';
+        }
+        return 'y';
+    }),
+    cordinateChart: Ember.computed('defaultChartType', function () {
+        let defaultChartType = this.get('defaultChartType');
+        if (defaultChartType === 'Pie' || defaultChartType === 'Funnel') {
+            return false;
+        }
+        return true;
+    }),
+    cordinateChartObserver: Ember.on('init', Ember.observer('cordinateChart', function () {
+        let cordinateChart = this.get('cordinateChart');
+        let multipleYs = this.get('multipleYs');
+        if (!cordinateChart) {
+            this.set('resultsViewSettings.x2', null);
+            this.set('resultsViewSettings.x1', null);
+            this.set('resultsViewSettings.multipleYs', multipleYs && multipleYs.slice(0, 1));
+        }
+    })),
     actions: {
         clearx2() {
             this.set('x2', null);

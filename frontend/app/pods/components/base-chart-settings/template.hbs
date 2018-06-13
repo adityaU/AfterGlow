@@ -9,17 +9,19 @@
             </div>
             <div class="col-2"></div>
         </div>
-        <div class="row">
-            <div class="col-10">
-                <div class="form-group">
-                    <label class="form-label">{{x2Name}}</label> {{searchable-select class="" content=resultsColumnsHash sortBy="columnName" optionLabelKey="columnName" selected=x2Hash
+        {{#if cordinateChart}}
+            <div class="row">
+                <div class="col-10">
+                    <div class="form-group">
+                        <label class="form-label">{{x2Name}}</label> {{searchable-select class="" content=resultsColumnsHash sortBy="columnName" optionLabelKey="columnName" selected=x2Hash
                     prompt="Select a Column" on-change=(action "updateSelection" 'resultsViewSettings.x2')}}
-                    </div>
+                        </div>
+                </div>
+                <div class="col-2">
+                    <i class="fe fe-x" {{action 'clearx2'}}></i>
+                </div>
             </div>
-            <div class="col-2">
-                <i class="fe fe-x" {{action 'clearx2'}}></i>
-            </div>
-        </div>
+        {{/if}}
         <div class="row">
             {{#each multipleYs as |y index|}}
                 <div class="col-10">
@@ -73,30 +75,36 @@
                     </div>
                 </div>
             {{/each}}
-            <div class="btn btn-link" {{action 'addYColumn'}}>
-                <i class="fe fe-plus"></i> Add another {{yName}} column</div>
+            {{#if cordinateChart}}
+                <div class="btn btn-link" {{action 'addYColumn'}}>
+                    <i class="fe fe-plus"></i> Add another {{yName}} column</div>
+            {{/if}}
         </div>
     </div>
     <div class="col-6">
-        <div class="row">
-            <div class="col-10 offset-2">
-                <div class="form-group">
-                    <label class="form-label">X Label</label> {{input value=xLabel class="form-control" placeholder="X Lable" }} </div>
+        {{#if cordinateChart}}
+            <div class="row">
+                <div class="col-10 offset-2">
+                    <div class="form-group">
+                        <label class="form-label">X Label</label> {{input value=xLabel class="form-control" placeholder="X Lable" }} </div>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-10 offset-2">
-                <div class="form-group">
-                    <label class="form-label">Y Label</label> {{input value=yLabel class="form-control" placeholder="Y Label" }} </div>
+        {{/if}}
+        {{#if cordinateChart}}
+            <div class="row">
+                <div class="col-10 offset-2">
+                    <div class="form-group">
+                        <label class="form-label">Y Label</label> {{input value=yLabel class="form-control" placeholder="Y Label" }} </div>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-10 offset-2">
-                <div class="form-group">
-                    <label class="form-label">Title</label> {{input value=title class="form-control" placeholder="Title" }} </div>
-            </div>
-        </div>
+        {{/if}}
         {{#if false}}
+            <div class="row">
+                <div class="col-10 offset-2">
+                    <div class="form-group">
+                        <label class="form-label">Title</label> {{input value=title class="form-control" placeholder="Title" }} </div>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-10 offset-2">
                     <div class="form-group">

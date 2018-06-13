@@ -43,9 +43,9 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
     },
     downloadAsPNG(gd) {
         Plotly.toImage(gd, {
-            height: 1600,
-            width: 1600
-        })
+                height: 1600,
+                width: 1600
+            })
             .then(
                 function (url) {
                     return Plotly.toImage(gd, {
@@ -62,12 +62,17 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
 
     opts: Ember.computed('jsonData', 'resizeTime', function () {
         Ember.$(this);
+        let isGrid = this.$().parents('.grid-stack-item-content').length;
         let parent = this.$().parents('.card-body');
+        let height = 500;
+        if (isGrid) {
+            height = Math.round(parent.innerHeight() || 500) - 10;
+        }
         return {
             left: '0%',
             right: '0%',
-            width: Math.round(parent.innerWidth()) - 5,
-            height: Math.round(parent.innerHeight() || 500) - 5
+            width: Math.round(parent.innerWidth()) - 10,
+            height: height
         };
     }),
     // dimensions(gridParent) {
@@ -133,7 +138,8 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
         'Bars': 'bar',
         'Area': 'line',
         'Bubble': 'scatter',
-        'Pie': 'pie'
+        'Pie': 'pie',
+        'Funnel': 'funnel'
     },
     chartDimensionsObserver: Ember.on('init', Ember.observer('jsonData',
         function () {
@@ -212,7 +218,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
         let series = this.get('series');
         let seriesWithData = jsonData && series && series.map((item, index) => {
             let data = [];
-            if (item['type'] != 'pie') {
+            if (this.get('defaultChartType') != 'Pie' && this.get('defaultChartType') != 'Funnel') {
 
                 data = jsonData.map((d) => {
                     return [d[0], d[index + 1]];
@@ -238,9 +244,10 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                 item['symbolSize'] = function (value) {
                     return Math.round((value[1] / max) * 100 + 5);
                 };
-            } else if (item['type'] == 'pie') {
-                item['radius'] = ['40%', '70%'];
+            } else if (this.get('defaultChartType') == 'Pie' || this.get('defaultChartType') === 'Funnel') {
+                item['radius'] = ['50%', '80%'];
                 item['center'] = ['60%', '50%'];
+                item['type'] = this.eChartMapping[this.get('defaultChartType')];
                 item['labelLine'] = {
                     normal: {
                         show: true
@@ -262,6 +269,10 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                         shadowColor: 'rgba(0, 0, 0, 0.5)'
                     }
                 };
+                if (this.get('defaultChartType') === 'Funnel') {
+                    item['left'] = '20%';
+                    item['width'] = '60%';
+                }
             }
             return item;
         });
@@ -351,41 +362,41 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
             let rows = results && results.rows.length && results.rows[0];
             let found = null;
 
-            if (this.get('resultsViewType') == 'Pie') {
-                if (rows) {
+            // if (this.get('resultsViewType') == 'Pie' || this.get('resultsViewType') == 'Funnel') {
+            //     if (rows) {
 
-                    for (var i = 0; i < rows.length; i++) {
-                        if (this.findIfNumber(rows[i])) {
-                            (found = i);
-                            break;
-                        }
-                    }
-                    if (found == 0 || found) {
-                        this.set('x1', results.columns[i]);
+            //         for (var i = 0; i < rows.length; i++) {
+            //             if (this.findIfNumber(rows[i])) {
+            //                 (found = i);
+            //                 break;
+            //             }
+            //         }
+            //         if (found == 0 || found) {
+            //             this.set('x1', results.columns[i]);
+            //         }
+            //     }
+            // } else {
+            if (rows) {
+                for (var i = 0; i < rows.length; i++) {
+                    if (this.findIfDate(rows[i])) {
+                        (found = i);
+                        break;
                     }
                 }
-            } else {
-                if (rows) {
-                    for (var i = 0; i < rows.length; i++) {
-                        if (this.findIfDate(rows[i])) {
-                            (found = i);
-                            break;
-                        }
+                if (found == 0 || found) {
+                    return this.set('x1', results.columns[i]);
+                }
+                for (var i = 0; i < rows.length; i++) {
+                    if (this.findIfNumber(rows[i])) {
+                        (found = i);
+                        break;
                     }
-                    if (found == 0 || found) {
-                        return this.set('x1', results.columns[i]);
-                    }
-                    for (var i = 0; i < rows.length; i++) {
-                        if (this.findIfNumber(rows[i])) {
-                            (found = i);
-                            break;
-                        }
-                    }
-                    if (found == 0 || found) {
-                        return this.set('x1', results.columns[i]);
-                    }
+                }
+                if (found == 0 || found) {
+                    return this.set('x1', results.columns[i]);
                 }
             }
+            // }
         }
     })),
     // resultsObserverThatChecksCords: Ember.on('init', Ember.observer('results', 'x2', "multipleYs", "x1", function(){
@@ -435,37 +446,37 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
         }).length;
         if (!multipleYs || lengthMultipleYs == 0) {
             if (rows) {
-                if (this.get('resultsViewType') == 'Pie') {
-                    for (var i = 0; i < rows.length; i++) {
-                        if (!(this.findIfDate(rows[i]) || this.findIfNumber(rows[i]))) {
-                            (found = i);
-                            break;
-                        }
-                    }
-                    if (found == 0 || found) {
-                        this.set('multipleYs', [{
-                            columnName: results.columns[i]
-                        }]);
-                    }
+                // if (this.get('resultsViewType') == 'Pie' || this.get('resultsViewType') == 'Funnel') {
+                //     for (var i = 0; i < rows.length; i++) {
+                //         if (!(this.findIfDate(rows[i]) || this.findIfNumber(rows[i]))) {
+                //             (found = i);
+                //             break;
+                //         }
+                //     }
+                //     if (found == 0 || found) {
+                //         this.set('multipleYs', [{
+                //             columnName: results.columns[i]
+                //         }]);
+                //     }
+                // } else {
+                let count = 0;
+                let multipleYs = rows.filter((item, i) => {
+                    let canBeSet = count < 4 &&
+                        !this.findIfDate(item) &&
+                        this.findIfNumber(item);
+                    canBeSet && (count += 1);
+                    return canBeSet;
+                }).map((item) => {
+                    return {
+                        columnName: results.columns[rows.indexOf(item)]
+                    };
+                });
+                if (multipleYs.length == 0) {
+                    this.set('multipleYs', [{}]);
                 } else {
-                    let count = 0;
-                    let multipleYs = rows.filter((item, i) => {
-                        let canBeSet = count < 4 &&
-                            !this.findIfDate(item) &&
-                            this.findIfNumber(item);
-                        canBeSet && (count += 1);
-                        return canBeSet;
-                    }).map((item) => {
-                        return {
-                            columnName: results.columns[rows.indexOf(item)]
-                        };
-                    });
-                    if (multipleYs.length == 0) {
-                        this.set('multipleYs', [{}]);
-                    } else {
-                        this.set('multipleYs', multipleYs);
-                    }
+                    this.set('multipleYs', multipleYs);
                 }
+                // }
             }
         }
 
@@ -770,147 +781,153 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
         }
     }),
     optionsObserver: Ember.on('init', Ember.observer('seriesWithData', 'xName', 'yName', 'opts', function () {
-        let legendOrient = 'horizontal';
-        let legendX = 'center';
-        let toolTipTrigger = 'axis';
-        let showXline = true;
-        let showYLine = true;
-        let toolTipFormatter = (params) => {
-            return '<b>' + this.titleize(this.get('xName')) + '</b>' +
-                ' : ' + this.formatter(params[0].name) + '<br/>' +
-                params.map((p) => {
-                    return '<b>' + this.titleize(p.seriesName) + '</b>' + ' : ' + this.formatter(p.value[1], 0);
+        Ember.run.debounce(this, function () {
+            if (this.get('seriesWithData')) {
+                let legendOrient = 'horizontal';
+                let legendX = 'center';
+                let toolTipTrigger = 'axis';
+                let showXline = true;
+                let showYLine = true;
+                let toolTipFormatter = (params) => {
+                    return '<b>' + this.titleize(this.get('xName')) + '</b>' +
+                        ' : ' + this.formatter(params[0].name) + '<br/>' +
+                        params.map((p) => {
+                            return '<b>' + this.titleize(p.seriesName) + '</b>' + ' : ' + this.formatter(p.value[1], 0);
 
-                }).join('<br/>');
-        };
-        if (this.get('defaultChartType') == 'Pie') {
-            legendOrient = 'vertical';
-            legendX = 'left';
-            toolTipTrigger = 'item';
-            showXline = false;
-            showYLine = false;
-            toolTipFormatter = (params) => {
-                return '<b>' + this.titleize(this.get('xName')) + '</b>' +
-                    ' : ' + this.formatter(params.name) + '<br/>' + '<b>' +
-                    this.titleize(params.seriesName) +
-                    '</b>' + ' : ' + params.value + '(' + params.percent + '%)';
-            };
+                        }).join('<br/>');
+                };
+                if (this.get('defaultChartType') == 'Pie' || this.get('defaultChartType') == 'Funnel') {
+                    legendOrient = 'vertical';
+                    legendX = 'left';
+                    toolTipTrigger = 'item';
+                    showXline = false;
+                    showYLine = false;
+                    toolTipFormatter = (params) => {
+                        return '<b>' + this.titleize(this.get('xName')) + '</b>' +
+                            ' : ' + this.formatter(params.name) + '<br/>' + '<b>' +
+                            this.titleize(params.seriesName) +
+                            '</b>' + ' : ' + params.value + '(' + params.percent + '%)';
+                    };
 
 
-        }
-        let options = {
-            backgroundColor: '#fff',
-            grid: {
-                left: 100,
-                right: 30,
-            },
-            legend: {
-                type: 'scroll',
-                formatter: this.formatter,
-                pageIconColor: '#495057',
-                orient: legendOrient,
-                x: legendX,
-                left: '2%',
-                top: '2%',
-                right: 50
-            },
-            textStyle: {
-                fontFamily: 'Lato'
-            },
-            tooltip: {
-                show: true,
-                trigger: toolTipTrigger,
-                formatter: toolTipFormatter,
-                backgroundColor: '#fff',
-                borderColor: '#e0e5ec',
-                borderWidth: 1,
-                textStyle: {
-                    color: '#495057',
-                    fontSize: 10
-                },
-                enterable: true,
-                axisPointer: {
-                    lineStyle: {
-                        color: '#e0e5ec'
-                    }
                 }
-            },
-            toolbox: {
-                feature: {
-                    dataZoom: {
+                let options = {
+                    backgroundColor: '#fff',
+                    grid: {
+                        left: 80,
+                        right: 10,
+                    },
+                    legend: {
+                        type: 'scroll',
+                        formatter: this.formatter,
+                        pageIconColor: '#495057',
+                        orient: legendOrient,
+                        x: legendX,
+                        left: '2%',
+                        top: '2%',
+                        right: 50
+                    },
+                    textStyle: {
+                        fontFamily: 'Lato'
+                    },
+                    tooltip: {
                         show: true,
-                        title: {
-                            zoom: 'Zoom',
-                            back: 'Restore Zoom'
+                        trigger: toolTipTrigger,
+                        formatter: toolTipFormatter,
+                        backgroundColor: '#fff',
+                        borderColor: '#e0e5ec',
+                        borderWidth: 1,
+                        textStyle: {
+                            color: '#495057',
+                            fontSize: 10
+                        },
+                        enterable: true,
+                        axisPointer: {
+                            lineStyle: {
+                                color: '#e0e5ec'
+                            }
                         }
+                    },
+                    toolbox: {
+                        feature: {
+                            dataZoom: {
+                                show: true,
+                                title: {
+                                    zoom: 'Zoom',
+                                    back: 'Restore Zoom'
+                                }
+                            }
+                        }
+                    },
+                    color: this.get('colors'),
+                    // Declare X axis, which is a category axis, mapping
+                    // to the first column by default.
+                    xAxis: {
+                        show: showXline,
+                        type: this.get('xType'),
+                        name: this.get('xName'),
+                        nameLocation: 'center',
+                        nameGap: 20,
+                        nameTextStyle: {
+                            padding: 8,
+                            color: '#495057',
+                            fontSize: 12,
+                        },
+                        axisLine: {
+                            onZero: false,
+                            lineStyle: {
+                                color: '#e0e5ec'
+                            }
+                        },
+                        axisLabel: {
+                            formatter: this.formatter,
+                            color: '#495057',
+                            fontSize: 10
+                        },
+                        splitLine: {
+                            show: false
+                        }
+                    },
+                    // Declare Y axis, which is a value axis.
+                    yAxis: {
+                        show: showYLine,
+                        type: this.get('yType'),
+                        name: this.get('yName'),
+                        nameGap: 50,
+                        nameLocation: 'center',
+                        nameTextStyle: {
+                            padding: 8,
+                            color: '#495057',
+                            fontSize: 12
+                        },
+                        axisLine: {
+                            onZero: false,
+                            lineStyle: {
+                                color: '#e0e5ec'
+                            }
+                        },
+                        axisLabel: {
+                            formatter: this.formatter,
+                            color: '#495057',
+                            fontSize: 10,
+                        },
+                        splitLine: {
+                            show: false
+                        }
+                    },
+                    // Declare several series, each of them mapped to a
+                    // column of the dataset by default.
+                    series: this.get('seriesWithData')
+                };
+                this.set('options', options);
+                this.set('randomId', false);
+                Ember.run.next(this, function () {
+                    if (!this.get || !this.get('isDestroyed')) {
+                        this.set('randomId', 100000 * Math.random());
                     }
-                }
-            },
-            color: this.get('colors'),
-            // Declare X axis, which is a category axis, mapping
-            // to the first column by default.
-            xAxis: {
-                show: showXline,
-                type: this.get('xType'),
-                name: this.get('xName'),
-                nameLocation: 'center',
-                nameGap: 20,
-                nameTextStyle: {
-                    padding: 8,
-                    color: '#495057',
-                    fontSize: 12,
-                },
-                axisLine: {
-                    onZero: false,
-                    lineStyle: {
-                        color: '#e0e5ec'
-                    }
-                },
-                axisLabel: {
-                    formatter: this.formatter,
-                    color: '#495057',
-                    fontSize: 10
-                },
-                splitLine: {
-                    show: false
-                }
-            },
-            // Declare Y axis, which is a value axis.
-            yAxis: {
-                show: showYLine,
-                type: this.get('yType'),
-                name: this.get('yName'),
-                nameGap: 50,
-                nameLocation: 'center',
-                nameTextStyle: {
-                    padding: 8,
-                    color: '#495057',
-                    fontSize: 12
-                },
-                axisLine: {
-                    onZero: false,
-                    lineStyle: {
-                        color: '#e0e5ec'
-                    }
-                },
-                axisLabel: {
-                    formatter: this.formatter,
-                    color: '#495057',
-                    fontSize: 10,
-                },
-                splitLine: {
-                    show: false
-                }
-            },
-            // Declare several series, each of them mapped to a
-            // column of the dataset by default.
-            series: this.get('seriesWithData')
-        };
-        this.set('options', options);
-        this.set('randomId', false);
-        Ember.run.next(this, function () {
-            this.set('randomId', 100000 * Math.random());
-        });
+                });
+            }
+        }, 300);
     })),
     formatter(x, index) {
         let date = Date.parse(x);

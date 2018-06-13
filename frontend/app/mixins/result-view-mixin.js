@@ -7,6 +7,7 @@ export default Ember.Mixin.create({
         'table': 'fe fe-list',
         'line': 'fe fe-trending-up',
         'pie': 'fe fe-pie-chart',
+        'funnel': 'fe fe-align-center',
         'bars': 'fe fe-bar-chart',
         'area': 'fe fe-activity',
         'bubble': 'fe fe-circle',
@@ -31,6 +32,10 @@ export default Ember.Mixin.create({
             height: 6
         },
         'Pie': {
+            width: 12,
+            height: 8
+        },
+        'Funnel': {
             width: 12,
             height: 8
         },
