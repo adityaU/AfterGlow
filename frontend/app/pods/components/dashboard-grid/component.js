@@ -8,6 +8,7 @@ export default Ember.Component.extend(LoadingMessages, CustomEvents, {
     didInsertElement() {
         Ember.run.next(() => { // begin loop
             var grid = Ember.$('.grid-stack').data('gridstack');
+            grid.cellHeight(grid.cellWidth());
             if (this.get('dashboard.isEditing')) {
                 grid && grid.enable();
             } else {

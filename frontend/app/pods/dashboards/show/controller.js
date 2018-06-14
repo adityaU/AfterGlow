@@ -112,8 +112,8 @@ export default Ember.Controller.extend({
             });
             note.set('isEditing', true);
             dashboard.set('newNoteSettings', {
-                width: 12,
-                height: 7,
+                width: 24,
+                height: 14,
                 noMove: true
             });
             dashboard.set('newNote', note);

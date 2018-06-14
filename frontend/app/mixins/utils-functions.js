@@ -43,9 +43,9 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
     },
     downloadAsPNG(gd) {
         Plotly.toImage(gd, {
-            height: 1600,
-            width: 1600
-        })
+                height: 1600,
+                width: 1600
+            })
             .then(
                 function (url) {
                     return Plotly.toImage(gd, {
@@ -817,7 +817,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                     backgroundColor: '#fff',
                     grid: {
                         left: 80,
-                        right: 10,
+                        right: 15,
                     },
                     legend: {
                         type: 'scroll',
@@ -836,12 +836,12 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                         show: true,
                         trigger: toolTipTrigger,
                         formatter: toolTipFormatter,
-                        backgroundColor: '#fff',
+                        backgroundColor: this.opacity('#000000', 0.7),
                         borderColor: '#e0e5ec',
                         borderWidth: 1,
                         textStyle: {
-                            color: '#495057',
-                            fontSize: 10
+                            color: this.opacity('#ffffff', 0.9),
+                            fontSize: 12
                         },
                         enterable: true,
                         axisPointer: {

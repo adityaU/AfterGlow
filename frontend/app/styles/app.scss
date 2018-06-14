@@ -1501,7 +1501,7 @@ a:hover {
 }
 
 .grid-stack>.grid-stack-item {
-    $gridstack-columns: 24;
+    $gridstack-columns: 48;
     @for $i from 1 through $gridstack-columns {
         &[data-gs-width='#{$i}'] {
             width: (100% / $gridstack-columns) * $i;

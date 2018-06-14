@@ -16,44 +16,44 @@ export default Ember.Mixin.create({
 
     resultViewDashboardDefaultDimensions: {
         'Calendar': {
-            width: 12,
-            height: 22
+            width: 24,
+            height: 44
         },
         'Number': {
-            width: 6,
-            height: 3
+            width: 12,
+            height: 6
         },
         'Table': {
-            width: 12,
-            height: 12
+            width: 24,
+            height: 24
         },
         'Line': {
-            width: 12,
-            height: 6
+            width: 24,
+            height: 12
         },
         'Pie': {
-            width: 12,
-            height: 8
+            width: 24,
+            height: 16
         },
         'Funnel': {
-            width: 12,
-            height: 8
+            width: 24,
+            height: 16
         },
         'Bars': {
-            width: 12,
-            height: 6
+            width: 24,
+            height: 12
         },
         'Area': {
-            width: 12,
-            height: 6
+            width: 24,
+            height: 12
         },
         'Bubble': {
-            width: 12,
-            height: 6
+            width: 24,
+            height: 12
         },
         'PivotTable': {
-            width: 12,
-            height: 6
+            width: 24,
+            height: 12
         }
     },
 
