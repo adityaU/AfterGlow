@@ -19,49 +19,44 @@ export default Ember.Component.extend({
         };
     }),
     intervals: [{
-            name: '3 minutes',
-            value: 180
-        },
-        {
-            name: '2 hours',
-            value: 7200
-        },
-        {
-            name: '4 hours',
-            value: 14400
-        },
-        {
-            name: '6 hours',
-            value: 21600
-        },
-        {
-            name: '8 hours',
-            value: 28800
-        },
-        {
-            name: '12 hours',
-            value: 43200
-        },
-        {
-            name: '1 day',
-            value: 86400
-        },
-        {
-            name: '2 days',
-            value: 172800
-        },
-        {
-            name: '1 week',
-            value: 604800
-        },
-        {
-            name: '2 weeks',
-            value: 1209600
-        },
+        name: '2 hours',
+        value: 7200
+    },
+    {
+        name: '4 hours',
+        value: 14400
+    },
+    {
+        name: '6 hours',
+        value: 21600
+    },
+    {
+        name: '8 hours',
+        value: 28800
+    },
+    {
+        name: '12 hours',
+        value: 43200
+    },
+    {
+        name: '1 day',
+        value: 86400
+    },
+    {
+        name: '2 days',
+        value: 172800
+    },
+    {
+        name: '1 week',
+        value: 604800
+    },
+    {
+        name: '2 weeks',
+        value: 1209600
+    },
     ],
 
     intervalsReverseMapping: {
-        180: '3 minutes',
         7200: '2 hours',
         14400: '4 hours',
         21600: '6 hours',
