@@ -31,10 +31,18 @@ defmodule AfterGlow.Helpers.CsvHelpers do
 
     data_preview =
       [columns]
-      |> Kernel.++(stream |> Enum.at(0) |> Enum.take(50) |> Enum.to_list())
+      |> Kernel.++(get_preview_rows(stream))
 
     file |> File.close()
     {file_name, data_preview}
+  end
+
+  def get_preview_rows(stream) do
+    preview = stream |> Enum.at(0) |> Enum.take(50) |> Enum.to_list()
+
+    unless preview |> Enum.at(0) do
+      preview = stream |> Enum.at(1) |> Enum.take(50) |> Enum.to_list()
+    end
   end
 
   def upload_file_and_return_url(file_name, file_path) do
