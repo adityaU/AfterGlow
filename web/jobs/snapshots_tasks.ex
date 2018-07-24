@@ -6,39 +6,47 @@ defmodule AfterGlow.SnapshotsTasks do
   import Ecto.Query
 
   def save(snapshot) do
-    unless snapshot.status == "pending" do
-      update_status(snapshot, "in_process")
+    Repo.transaction(fn ->
+      try do
+        snapshot =
+          from(s in Snapshot, where: s.id == ^snapshot.id, lock: "FOR UPDATE NOWAIT")
+          |> Repo.one()
 
-      snapshot =
-        cond do
-          snapshot.should_save_data_to_db and snapshot.should_create_csv ->
-            Snapshots.save_data(snapshot)
-            |> Snapshots.create_and_send_csv(nil)
+        unless snapshot.status == "pending" do
+          update_status(snapshot, "in_process")
 
-            snapshot
+          snapshot =
+            cond do
+              snapshot.should_save_data_to_db and snapshot.should_create_csv ->
+                Snapshots.save_data(snapshot)
+                |> Snapshots.create_and_send_csv(nil)
 
-          snapshot.should_save_data_to_db ->
-            Snapshots.save_data(snapshot)
-            snapshot
+                snapshot
 
-          snapshot.should_create_csv ->
-            Snapshots.create_and_send_csv_from_remote_db(snapshot)
-            snapshot
+              snapshot.should_save_data_to_db ->
+                Snapshots.save_data(snapshot)
+                snapshot
+
+              snapshot.should_create_csv ->
+                Snapshots.create_and_send_csv_from_remote_db(snapshot)
+                snapshot
+            end
+
+          update_status(snapshot, "success")
+
+          if snapshot.scheduled do
+            create_new_snapshot(snapshot)
+          end
         end
+      catch
+        _ ->
+          update_status(snapshot, "failed")
 
-      update_status(snapshot, "success")
-
-      if snapshot.scheduled do
-        create_new_snapshot(snapshot)
+          if snapshot.scheduled do
+            create_new_snapshot(snapshot)
+          end
       end
-    end
-  catch
-    _ ->
-      update_status(snapshot, "failed")
-
-      if snapshot.scheduled do
-        create_new_snapshot(snapshot)
-      end
+    end)
   end
 
   def run do
@@ -66,12 +74,12 @@ defmodule AfterGlow.SnapshotsTasks do
   defp change_attributes(snapshot) do
     parent =
       if snapshot.parent do
-        snapshot.parent
+       snapshot.parent
       else
         snapshot
       end
-
-    name = "#{parent.name}-#{snapshot.children |> length |> Kernel.+(1)}"
+    children_count = Repo.one(from s in Snapshot,where: s.parent_id == ^parent.id,  select: count("*"))
+    name = "#{parent.name}-#{children_count |> Kernel.+(1)}"
 
     %{
       snapshot

@@ -12,7 +12,7 @@ defmodule AfterGlow.Snapshots do
   alias AfterGlow.Snapshots.SnapshotData
   alias AfterGlow.Database
   alias AfterGlow.Question
-  alias AfterGlow.Sql.DbConnection
+  alias AfterGlow.Sql.DConnection
   alias AfterGlow.Async
   alias AfterGlow.SnapshotsTasks
   alias AfterGlow.Helpers.CsvHelpers
@@ -69,9 +69,10 @@ defmodule AfterGlow.Snapshots do
   def create_snapshot(attrs \\ %{}) do
     attrs = attrs |> set_pending_status
 
-    created = %Snapshot{}
-    |> Snapshot.changeset(attrs)
-    |> Repo.insert_with_cache()
+    created =
+      %Snapshot{}
+      |> Snapshot.changeset(attrs)
+      |> Repo.insert_with_cache()
 
     with {:ok, %Snapshot{} = snapshot} <- created do
       Async.perform(&SnapshotsTasks.save/1, [snapshot])
@@ -111,7 +112,7 @@ defmodule AfterGlow.Snapshots do
 
   """
   def delete_snapshot(%Snapshot{} = snapshot) do
-    Repo.delete(snapshot)
+    Repo.delete_with_cache(snapshot)
   end
 
   @doc """
@@ -125,6 +126,11 @@ defmodule AfterGlow.Snapshots do
   """
   def change_snapshot(%Snapshot{} = snapshot) do
     Snapshot.changeset(snapshot, %{})
+  end
+
+  def stop_and_new(%Snapshot{} = snapshot, attrs) do
+    delete_snapshot(snapshot)
+    create_snapshot(attrs)
   end
 
   def save_data(%Snapshot{} = snapshot) do
@@ -169,14 +175,14 @@ defmodule AfterGlow.Snapshots do
     query = Question.replace_variables(snapshot.question.sql, variables, variables, snapshot)
     params = %{raw_query: query, variables: variables}
 
-    url =
+    {url, data_preview} =
       CsvHelpers.fetch_and_upload_wrapper(
         db_record,
         params,
         file_path(snapshot)
       )
 
-    CsvMailer.mail(snapshot.mail_to, url, csv_subject(snapshot))
+    CsvMailer.mail(snapshot.mail_to, url, csv_subject(snapshot), data_preview)
   end
 
   def create_and_send_csv(id) when is_integer(id) do

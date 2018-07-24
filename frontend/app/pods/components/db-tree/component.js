@@ -17,7 +17,7 @@ export default Ember.Component.extend({
                     ).toLowerCase().match(query.toLowerCase());
             });
         }
-        return tables;
+        return tables.slice(0, 10);
     }),
     actions: {
         toggleColumns(table) {

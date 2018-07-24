@@ -14,7 +14,6 @@ defmodule AfterGlow.Helpers.CsvHelpers do
     fetch_and_upload(db_record, query, file_path)
   end
 
-
   def save_to_file_and_upload(stream, columns) do
     file_name = "/tmp/#{SecureRandom.uuid()}.csv"
     file = File.open!(file_name, [:write, :utf8])
@@ -30,8 +29,12 @@ defmodule AfterGlow.Helpers.CsvHelpers do
       |> Enum.each(&IO.write(file, &1))
     end)
 
+    data_preview =
+      [columns]
+      |> Kernel.++(stream |> Enum.at(0) |> Enum.take(50) |> Enum.to_list())
+
     file |> File.close()
-    file_name
+    {file_name, data_preview}
   end
 
   def upload_file_and_return_url(file_name, file_path) do
@@ -45,19 +48,20 @@ defmodule AfterGlow.Helpers.CsvHelpers do
   end
 
   def save_and_upload_from_stream(stream, columns, file_path) do
-    file_name = save_to_file_and_upload(stream, columns)
+    {file_name, _} = save_to_file_and_upload(stream, columns)
     upload_file_and_return_url(file_name, file_path)
   end
 
   defp fetch_and_upload(db_record, query, file_path) do
-    {:ok, file_name} =
+    {:ok, {file_name, data_preview}} =
       DbConnection.execute_with_stream(
         db_record |> Map.from_struct(),
         query,
         &save_to_file_and_upload/2
       )
 
-    upload_file_and_return_url(file_name, file_path)
+    url = upload_file_and_return_url(file_name, file_path)
+    {url, data_preview}
   end
 
   defp delete_file(file_name) do

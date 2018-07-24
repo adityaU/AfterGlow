@@ -40,6 +40,7 @@ config :oauth2,
   }
 
 config :afterglow, AfterGlow.Scheduler,
+  debug_logging: false,
   jobs: [
     [
       name: AfterGlow.SnapshotsTasks,

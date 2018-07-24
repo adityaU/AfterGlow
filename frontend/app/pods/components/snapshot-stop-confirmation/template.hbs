@@ -1,0 +1,7 @@
+{{#bs-modal position="center" open=open onHide=(action 'clearStop') as |modal| }}
+    {{#modal.body}} Are you sure , you don't want this snapshot to run again? {{/modal.body}}
+    {{#modal.footer as |footer|}}
+        {{#bs-button onClick=(action 'clearStop') type="danger" }}No Way{{/bs-button}}
+        {{#bs-button onClick=(action 'stop' entity) class="btn-primary" type="primary" }}Yes, I am Sure{{/bs-button}}
+    {{/modal.footer}}
+{{/bs-modal}}

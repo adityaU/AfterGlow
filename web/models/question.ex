@@ -89,7 +89,7 @@ defmodule AfterGlow.Question do
   end
 
   def default_preloads do
-    [:variables, :snapshots, :tags, :dashboards, :widgets]
+    [:variables, :tags, :dashboards, :widgets, [snapshots: from(s in Snapshot, where: is_nil(s.parent_id))]]
   end
 
   def cache_deletable_associations do

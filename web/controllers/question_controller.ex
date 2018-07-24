@@ -6,14 +6,13 @@ defmodule AfterGlow.QuestionController do
   alias AfterGlow.TagQuestion
   alias AfterGlow.Tag
   alias AfterGlow.Widgets.Widget
-  alias AfterGlow.Async
   alias AfterGlow.QueryView
-  alias AfterGlow.Sql.DbConnection
   alias AfterGlow.QuestionSearchView
   alias JaSerializer.Params
   alias AfterGlow.CacheWrapper
   alias AfterGlow.CacheWrapper.Repo
   import AfterGlow.Sql.QueryRunner
+  alias AfterGlow.Snapshots.Snapshot
 
   import Ecto.Query
 
@@ -36,7 +35,7 @@ defmodule AfterGlow.QuestionController do
         |> Repo.preload(:dashboards)
         |> Repo.preload(:tags)
         |> Repo.preload(:variables)
-        |> Repo.preload(:snapshots)
+      |> Repo.preload(snapshots: from(s in Snapshot, where: is_nil(s.parent_id)))
         |> Repo.preload(:widgets)
 
       conn
@@ -110,14 +109,16 @@ defmodule AfterGlow.QuestionController do
       |> Repo.preload(:tags)
       |> Repo.preload(:dashboards)
       |> Repo.preload(:variables)
-      |> Repo.preload(:snapshots)
+      |> Repo.preload(snapshots: from(s in Snapshot, where: is_nil(s.parent_id)))
       |> Repo.preload(:widgets)
 
     if question.shareable_link == share_id do
       changeset =
         Question.changeset(question, %{
           shared_to:
-            (question.shared_to || []) |> Kernel.++([conn.assigns.current_user.email]) |> Enum.uniq()
+            (question.shared_to || [])
+            |> Kernel.++([conn.assigns.current_user.email])
+            |> Enum.uniq()
         })
 
       {:ok, question} = Question.update(changeset, nil, nil)
@@ -138,7 +139,7 @@ defmodule AfterGlow.QuestionController do
       |> Repo.preload(:dashboards)
       |> Repo.preload(:tags)
       |> Repo.preload(:variables)
-      |> Repo.preload(:snapshots)
+      |> Repo.preload(snapshots: from(s in Snapshot, where: is_nil(s.parent_id)))
       |> Repo.preload(:widgets)
 
     render(conn, :show, data: question)
@@ -172,7 +173,7 @@ defmodule AfterGlow.QuestionController do
           |> Repo.preload(:dashboards)
           |> Repo.preload(:tags)
           |> Repo.preload(:variables)
-          |> Repo.preload(:snapshots)
+      |> Repo.preload(snapshots: from(s in Snapshot, where: is_nil(s.parent_id)))
           |> Repo.preload(:widgets)
 
         conn
@@ -198,7 +199,7 @@ defmodule AfterGlow.QuestionController do
       |> Repo.preload(:dashboards)
       |> Repo.preload(:tags)
       |> Repo.preload(:variables)
-      |> Repo.preload(:snapshots)
+      |> Repo.preload(snapshots: from(s in Snapshot, where: is_nil(s.parent_id)))
       |> Repo.preload(:widgets)
 
     render(conn, :show, data: question)
@@ -216,7 +217,7 @@ defmodule AfterGlow.QuestionController do
       |> Repo.preload(:dashboards)
       |> Repo.preload(:tags)
       |> Repo.preload(:variables)
-      |> Repo.preload(:snapshots)
+      |> Repo.preload(snapshots: from(s in Snapshot, where: is_nil(s.parent_id)))
       |> Repo.preload(:widgets)
 
     changeset = Question.changeset(question, prms)
@@ -302,7 +303,7 @@ defmodule AfterGlow.QuestionController do
       |> Repo.preload(:dashboards)
       |> Repo.preload(:tags)
       |> Repo.preload(:variables)
-      |> Repo.preload(:snapshots)
+      |> Repo.preload(snapshots: from(s in Snapshot, where: is_nil(s.parent_id)))
       |> Repo.preload(:widgets)
 
     json(

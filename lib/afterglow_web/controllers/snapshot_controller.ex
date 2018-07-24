@@ -38,13 +38,24 @@ defmodule AfterGlow.SnapshotController do
     )
   end
 
-  def update(conn, %{"id" => id, "snapshot" => snapshot_params}) do
-    snapshot = Snapshots.get_snapshot!(id)
+  # def update(conn, %{"id" => id, "snapshot" => snapshot_params}) do
+  #   snapshot = Snapshots.get_snapshot!(id)
 
-    with {:ok, %Snapshot{} = snapshot} <- Snapshots.update_snapshot(snapshot, snapshot_params) do
-      render(conn, "show.json", snapshot: snapshot)
+  #   with {:ok, %Snapshot{} = snapshot} <- Snapshots.update_snapshot(snapshot, snapshot_params) do
+  #     render(conn, "show.json", snapshot: snapshot)
+  #   end
+  # end
+
+  def stop_and_new(conn, attrs) do
+    snapshot = Snapshots.get_snapshot!(conn.path_params["id"])
+    attrs = attrs |> Map.merge(%{ "question_id" => attrs["question"]})
+
+   with {:ok, %Snapshot{} = snapshot} <- Snapshots.stop_and_new(snapshot, attrs) do
+    render(conn, "show.json", snapshot: snapshot)
     end
   end
+
+
 
   def delete(conn, %{"id" => id}) do
     snapshot = Snapshots.get_snapshot!(id)

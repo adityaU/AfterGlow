@@ -11,7 +11,8 @@ defmodule AfterGlow.CsvTasks do
   end
 
   def raw_fetch_and_upload(db_record, params, email) do
-    url = CsvHelpers.fetch_and_upload_wrapper(db_record, params)
-    CsvMailer.mail(email, url)
+    {url, data_preview} = CsvHelpers.fetch_and_upload_wrapper(db_record, params)
+    |> IO.inspect(label: "Results: ")
+    CsvMailer.mail(email, url, data_preview)
   end
 end

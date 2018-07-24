@@ -22,8 +22,8 @@ defmodule AfterGlow.Snapshots.Snapshot do
     field(:mail_to, {:array, :string})
     belongs_to(:question, Question)
     belongs_to(:parent, Snapshot, foreign_key: :parent_id)
-    has_many(:children, Snapshot, foreign_key: :parent_id)
-    has_many(:snapshot_data, SnapshotData)
+    has_many(:children, Snapshot, foreign_key: :parent_id,  on_delete: :delete_all, on_replace: :delete)
+    has_many(:snapshot_data, SnapshotData,  on_delete: :delete_all, on_replace: :delete)
 
     timestamps()
   end

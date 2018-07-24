@@ -8,7 +8,14 @@
                     </span>
                     <div>
                         <h5 class="m-0 text-default"> {{snapshot.name}} </h5>
-                        <small class="text-muted"> updated:{{momentize snapshot.updated_at}} </small>
+                        {{#if snapshot.scheduled}}
+                            <small class="text-muted">
+                                <b>Scheduled Every:</b> {{snapshot-time snapshot.interval}},</small>
+                            <small class="text-muted">
+                                <b>Subscribers:</b> {{snapshot.mail_to}}</small>
+                        {{else}}
+                            <small class="text-muted"> updated:{{momentize snapshot.updated_at}} </small>
+                        {{/if}}
                     </div>
                 </div>
             </div>
@@ -18,7 +25,10 @@
                         <button class="btn btn-link text-primary">VIEW </button>
                     {{/link-to}}
                 {{/if}}
-                <button class="btn btn-link text-red" {{action 'showDeleteDialogue' snapshot}}> DELETE </button>
+                {{#if snapshot.scheduled}}
+                    <button class="btn btn-link text-primary" {{action 'editSnapshot' snapshot}}> EDIT </button>
+                {{/if}}
+                <button class="btn btn-link text-red" {{action 'deleteSnapshot' snapshot}}> DELETE </button>
             </div>
         </div>
     </div>
