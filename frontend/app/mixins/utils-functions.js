@@ -43,9 +43,9 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
     },
     downloadAsPNG(gd) {
         Plotly.toImage(gd, {
-                height: 1600,
-                width: 1600
-            })
+            height: 1600,
+            width: 1600
+        })
             .then(
                 function (url) {
                     return Plotly.toImage(gd, {
@@ -226,6 +226,8 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                     return [d[0], d[index + 1]];
                 }).filter((item) => {
                     return item[1];
+                }).sort(function (a, b) {
+                    return a[0] - b[0];
                 });
             } else {
                 data = jsonData.map((d) => {
@@ -235,8 +237,9 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                     };
                 }).filter((item) => {
                     return item['value'];
+                }).sort(function (a, b) {
+                    return a['name'] - b['name'];
                 });
-
             }
             item['data'] = data;
             if (item['type'] == 'scatter') {
