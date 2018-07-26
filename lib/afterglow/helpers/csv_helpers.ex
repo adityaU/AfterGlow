@@ -43,6 +43,8 @@ defmodule AfterGlow.Helpers.CsvHelpers do
     unless preview |> Enum.at(0) do
       preview = stream |> Enum.at(1) |> Enum.take(50) |> Enum.to_list()
     end
+
+    preview
   end
 
   def upload_file_and_return_url(file_name, file_path) do

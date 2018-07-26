@@ -74,11 +74,14 @@ defmodule AfterGlow.SnapshotsTasks do
   defp change_attributes(snapshot) do
     parent =
       if snapshot.parent do
-       snapshot.parent
+        snapshot.parent
       else
         snapshot
       end
-    children_count = Repo.one(from s in Snapshot,where: s.parent_id == ^parent.id,  select: count("*"))
+
+    children_count =
+      Repo.one(from(s in Snapshot, where: s.parent_id == ^parent.id, select: count("*")))
+
     name = "#{parent.name}-#{children_count |> Kernel.+(1)}"
 
     %{
