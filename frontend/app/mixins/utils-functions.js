@@ -215,6 +215,33 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
             return item[x2];
         }));
     }),
+    compareOnType(a, b) {
+        let type = 'category';
+        if (!isNaN(+a) || !isNaN(+b)) {
+            type = 'number';
+        }
+        let date1 = Date.parse(a);
+        let date2 = Date.parse(b);
+        let dateMatch1 = (a && a.toString().match('-') != null);
+        let dateMatch2 = (b && b.toString().match('-') != null);
+        if ((date1.toString() != 'NaN') || (date2.toString() != 'NaN') && (dateMatch1 || dateMatch2)) {
+            type = 'date';
+        }
+
+        if (type === 'category') {
+            if (a < b) {
+                return 1;
+            } else {
+                return -1;
+            }
+
+        } else if (type === 'number') {
+            return a - b;
+        } else {
+            return moment(a) - moment(b);
+        }
+
+    },
     seriesWithData: Ember.computed('jsonData', 'series', function () {
         let jsonData = this.get('jsonData');
         let series = this.get('series');
@@ -235,7 +262,9 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                     };
                 }).filter((item) => {
                     return item['value'];
-                }).sort();
+                }).sort(function (a, b) {
+                    return compareOnType(a, b);
+                });
             }
             item['data'] = data;
             if (item['type'] == 'scatter') {
