@@ -226,9 +226,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                     return [d[0], d[index + 1]];
                 }).filter((item) => {
                     return item[1];
-                }).sort(function (a, b) {
-                    return a[0] - b[0];
-                });
+                }).sort();
             } else {
                 data = jsonData.map((d) => {
                     return {
@@ -237,9 +235,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                     };
                 }).filter((item) => {
                     return item['value'];
-                }).sort(function (a, b) {
-                    return a['name'] - b['name'];
-                });
+                }).sort();
             }
             item['data'] = data;
             if (item['type'] == 'scatter') {
