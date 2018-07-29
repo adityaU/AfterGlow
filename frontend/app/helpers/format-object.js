@@ -1,5 +1,12 @@
 import Ember from 'ember';
-
+const isValidUrl = (string) => {
+    try {
+        new URL(string);
+        return true;
+    } catch (_) {
+        return false;
+    }
+};
 export function formatObject(params /*, hash*/ ) {
     if (params && (params[0] || (params[0] == 0) || (params[0] == false))) {
         var formattedString = params;
@@ -16,11 +23,24 @@ export function formatObject(params /*, hash*/ ) {
                 }
             });
         }
+        if (!isNaN(+params)) {
+            formattedString = (+params).toLocaleString();
+        }
         let date = Date.parse(params);
         let dateMatch = (params.toString().match('-') != null);
         if (date.toString() != 'NaN' && dateMatch) {
             date = moment(date);
-            formattedString = moment.tz(date, moment.tz.guess()).format('LLLL');
+            date = moment.tz(date, moment.tz.guess());
+
+            if (date.hours() || date.minutes() || date.seconds()) {
+                formattedString = date.format('lll');
+
+            } else {
+                formattedString = date.format('ll');
+            }
+        }
+        if (isValidUrl(params)) {
+            formattedString = '<a target="_" href="' + params + '">' + params + '</a>';
         }
 
         return formattedString;

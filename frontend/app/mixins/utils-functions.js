@@ -976,6 +976,9 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                 return date.format('ll');
             }
         }
+        if (!isNaN(+x)) {
+            return (+x).toLocaleString();
+        }
         return x;
     },
 
