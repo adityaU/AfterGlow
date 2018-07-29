@@ -912,7 +912,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                             }
                         },
                         axisLabel: {
-                            formatter: this.formatter,
+                            //formatter: this.formatter,
                             color: '#495057',
                             fontSize: 10
                         },
@@ -951,6 +951,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                     // column of the dataset by default.
                     series: this.get('seriesWithData')
                 };
+                console.log(options);
                 this.set('options', options);
                 this.set('randomId', false);
                 Ember.run.next(this, function () {
@@ -985,7 +986,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                 let date = Date.parse(x);
                 let dateMatch = (x && x.toString().match('-') != null);
                 if (date.toString() != 'NaN' && dateMatch) {
-                    type = 'category';
+                    type = 'time';
                     return false;
                 }
                 if (typeof (x) == 'number') {
