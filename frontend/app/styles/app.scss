@@ -943,12 +943,6 @@ button.toast-close-button {
     overflow-y: hidden;
 }
 
-.wide.column .question-title {
-    font-size: 1em;
-    font-weight: 400;
-    text-transform: capitalize;
-}
-
 .options-dashboard {
     margin-top: 50px;
 }
@@ -1536,4 +1530,8 @@ a:hover {
 .grid-stack-item-content .card-body {
     overflow: auto;
     height: inherit;
+}
+
+.question-title {
+    max-width: 500px;
 }
