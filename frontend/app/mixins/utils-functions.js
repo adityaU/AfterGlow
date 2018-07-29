@@ -887,7 +887,8 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                                 title: {
                                     zoom: 'Zoom',
                                     back: 'Restore Zoom'
-                                }
+                                },
+                                yAxisIndex: false
                             }
                         }
                     },
