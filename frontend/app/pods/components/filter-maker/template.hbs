@@ -1,19 +1,13 @@
-
-<div class="form-control">
-{{#if filter.raw}}
-    <div class="switch" {{action 'switchToBuilder' 'filters' filter false}}>
-      {{bs-tooltip title="Switch To Builder"}}
-      <i class="fe fe-list text-gray" ></i>
-    </div>
-        <div class="form-group">
-            {{input value=filter.value class="form-control my-2" placeholder="joining_table.column = 'something'" }}
+<div class="border p-2">
+    {{#if filter.raw}}
+        <div class="switch" {{action 'switchToBuilder' 'filters' filter false}}> {{bs-tooltip title="Switch To Builder"}}
+            <i class="fe fe-list text-gray"></i>
         </div>
-{{else}}
-    <div class="switch" {{action 'switchToRaw' 'filters' filter}}>
-      {{bs-tooltip title="Switch To Raw"}}
-      <i class="fe fe-code text-gray" ></i>
-    </div>
-          {{searchable-select
+        <div class="form-group"> {{input value=filter.value class="form-control my-2" placeholder="joining_table.column = 'something'" }} </div>
+    {{else}}
+        <div class="switch" {{action 'switchToRaw' 'filters' filter}}> {{bs-tooltip title="Switch To Raw"}}
+            <i class="fe fe-code text-gray"></i>
+        </div> {{searchable-select
               class="my-2"
               content=filteredColumns
               sortBy="human_name"
@@ -21,7 +15,7 @@
               prompt="Select a Column"
               optionLabelKey="human_name"
               on-change=(action (mut filter.column))}}
-          {{searchable-select
+        {{searchable-select
               class="my-2"
               content=operators
               sortBy="name"
@@ -29,7 +23,5 @@
               selected=filter.operator
               optionLabelKey="name"
               on-change=(action (mut filter.operator))}}
-        {{filter-value-selector filter=filter}}
-{{/if}}
-
+        {{filter-value-selector filter=filter}} {{/if}}
 </div>

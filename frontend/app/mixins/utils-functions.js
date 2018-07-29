@@ -43,9 +43,9 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
     },
     downloadAsPNG(gd) {
         Plotly.toImage(gd, {
-                height: 1600,
-                width: 1600
-            })
+            height: 1600,
+            width: 1600
+        })
             .then(
                 function (url) {
                     return Plotly.toImage(gd, {
@@ -822,7 +822,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                 let showYLine = true;
                 let toolTipFormatter = (params) => {
                     return '<b>' + this.titleize(this.get('xName')) + '</b>' +
-                        ' : ' + this.formatter(params[0].name) + '<br/>' +
+                        ' : ' + (this.formatter(params[0].name) || this.xFormatter(this)(params[0].axisValue)) + '<br/>' +
                         params.map((p) => {
                             return '<b>' + this.titleize(p.seriesName) + '</b>' + ' : ' + this.formatter(p.value[1], 0);
 
@@ -912,7 +912,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                             }
                         },
                         axisLabel: {
-                            //formatter: this.formatter,
+                            formatter: this.xFormatter(this),
                             color: '#495057',
                             fontSize: 10
                         },
@@ -939,7 +939,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                             }
                         },
                         axisLabel: {
-                            formatter: this.formatter,
+                            formatter: this.yFormatter(this),
                             color: '#495057',
                             fontSize: 10,
                         },
@@ -951,7 +951,6 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                     // column of the dataset by default.
                     series: this.get('seriesWithData')
                 };
-                console.log(options);
                 this.set('options', options);
                 this.set('randomId', false);
                 Ember.run.next(this, function () {
@@ -963,6 +962,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
         }, 300);
     })),
     formatter(x, index) {
+
         let date = Date.parse(x);
         let dateMatch = (x && x.toString().match('-') != null);
         if (date.toString() != 'NaN' && dateMatch) {
@@ -976,6 +976,31 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
             }
         }
         return x;
+    },
+
+    timeFormatter(x, index) {
+        let date = moment(x);
+        date = moment.tz(date, moment.tz.guess());
+        if (date.hours() || date.minutes() || date.seconds()) {
+            return date.format('lll');
+
+        } else {
+            return date.format('ll');
+        }
+    },
+    yFormatter(context) {
+        if (context.get('yType') === 'time') {
+            return this.timeFormatter;
+        } else {
+            return this.formatter;
+        }
+    },
+    xFormatter(context) {
+        if (context.get('xType') === 'time') {
+            return this.timeFormatter;
+        } else {
+            return this.formatter;
+        }
     },
 
 
