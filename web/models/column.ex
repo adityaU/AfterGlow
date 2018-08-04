@@ -5,6 +5,7 @@ defmodule AfterGlow.Column do
     field(:name, :string)
     field(:data_type, :string)
     field(:description)
+    field(:primary_key, :boolean)
     belongs_to(:table, AfterGlow.Table)
     has_many(:column_values, AfterGlow.ColumnValue, on_delete: :delete_all, on_replace: :delete)
     has_many(:foreign_keys, AfterGlow.ForeignKey, on_delete: :delete_all, on_replace: :delete)
@@ -17,7 +18,7 @@ defmodule AfterGlow.Column do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:name, :data_type, :table_id, :description])
+    |> cast(params, [:name, :data_type, :table_id, :description, :primary_key])
     |> validate_required([:name, :data_type, :table_id])
   end
 

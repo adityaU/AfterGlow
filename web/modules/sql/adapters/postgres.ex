@@ -51,6 +51,24 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/, 
     end)
   end
 
+  def get_primary_keys(conn) do
+    {:ok, result} = Postgrex.query(conn, ~s/SELECT
+    pg_attribute.attname as column_name, concat('"', nspname, '"."',  pg_class.relname, '"') as table_name
+  FROM pg_index, pg_class, pg_attribute, pg_namespace
+  WHERE
+    indrelid = pg_class.oid AND
+    nspname = 'public' AND
+    pg_class.relnamespace = pg_namespace.oid AND
+    pg_attribute.attrelid = pg_class.oid AND
+    pg_attribute.attnum = any(pg_index.indkey)
+   AND indisprimary/, [], opts())
+
+    result.rows
+    |> Enum.map(fn row ->
+      Enum.zip(result.columns, row) |> Map.new()
+    end)
+  end
+
   def get_schema(conn) do
     {:ok, data} = Postgrex.query(conn, ~s/select
       table_catalog,
@@ -73,13 +91,24 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/, 
     sql(query_record, :postgres)
   end
 
-  def make_dependency_raw_query(column, foreign_column, table, value, value_column) do
-    "SELECT #{table.name}.* FROM #{table.name}
+  def make_dependency_raw_query(column, foreign_column, table, value, value_column, primary_keys) do
+    query =
+      "SELECT #{table.name}.* FROM #{table.name}
     INNER JOIN #{value_column.table.name}
     ON #{column.table.name}.\"#{column.name}\" = #{foreign_column.table.name}.\"#{
-      foreign_column.name
-    }\"
+        foreign_column.name
+      }\"
     WHERE #{value_column.table.name}.\"#{value_column.name}\" = '#{value}'"
+
+    if primary_keys |> length > 0 do
+      query <>
+        " GROUP BY " <>
+        (primary_keys
+         |> Enum.map(fn pk -> "#{table.name}.\"#{pk.name}\"" end)
+         |> Enum.join(", "))
+    else
+      query
+    end
   end
 
   def execute(conn, query, options \\ %{})

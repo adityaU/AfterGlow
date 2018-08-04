@@ -17,9 +17,11 @@ defmodule AfterGlow.SchemaTasks do
     schema
     |> save(db_record[:id])
 
-    fkeys =
-      DbConnection.get_fkeys(db_record)
-      |> save_fkeys(og_db_record)
+    DbConnection.get_primary_keys(db_record)
+    |> save_primary_keys(db_record[:id])
+
+    DbConnection.get_fkeys(db_record)
+    |> save_fkeys(og_db_record)
   end
 
   defp save_fkeys(fkeys, db_record) do
@@ -39,6 +41,29 @@ defmodule AfterGlow.SchemaTasks do
 
     fkeys
     |> add_fkeys(columns)
+  end
+
+  defp save_primary_keys(primary_keys, db_id) do
+    primary_keys
+    |> Enum.each(fn pkey_record ->
+      table =
+        from(t in Table, where: t.name == ^pkey_record["table_name"] and t.database_id == ^db_id)
+        |> Repo.all()
+        |> Enum.at(0)
+
+      if table do
+        primary_key_column =
+          from(
+            c in Column,
+            where: c.name == ^pkey_record["column_name"] and c.table_id == ^table.id
+          )
+          |> Repo.one()
+
+        changeset = Column.changeset(primary_key_column, %{primary_key: true})
+
+        Repo.update!(changeset)
+      end
+    end)
   end
 
   defp add_fkeys(fkeys, columns) do

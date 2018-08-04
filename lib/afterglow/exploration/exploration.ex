@@ -40,7 +40,7 @@ defmodule AfterGlow.Explorations do
   end
 
   def get_dependency(column_id, foreign_column_id, table_id, value, value_column_id) do
-    table = Repo.get!(Table, table_id) |> Repo.preload(:database)
+    table = Repo.get!(Table, table_id) |> Repo.preload(:database) |> Repo.preload(:columns)
     column = Repo.get!(Column, column_id) |> Repo.preload(:table)
     value_column = Repo.get!(Column, value_column_id) |> Repo.preload(:table)
     foreign_column = Repo.get!(Column, foreign_column_id) |> Repo.preload(:table)
@@ -53,7 +53,8 @@ defmodule AfterGlow.Explorations do
         foreign_column,
         table,
         value,
-        value_column
+        value_column,
+        Table.primary_keys(table.id)
       )
       |> IO.inspect(label: "join_query")
 

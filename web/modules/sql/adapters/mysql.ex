@@ -72,6 +72,23 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
     end)
   end
 
+  def get_primary_keys(conn) do
+    {:ok, result} = Mariaex.query(conn, ~s/SELECT
+   table_name,
+   column_name
+
+FROM
+   information_schema.columns
+WHERE
+   column_key = 'PRI'
+   and table_schema = DATABASE()/, [], opts())
+
+    result.rows
+    |> Enum.map(fn row ->
+      Enum.zip(result.columns, row) |> Map.new()
+    end)
+  end
+
   def get_schema(conn) do
     {:ok, data} = Mariaex.query(conn, "select table_name,
     column_name as name, column_type as data_type from information_schema.columns where
@@ -90,13 +107,24 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
     QueryMaker.sql(query_record, :mysql)
   end
 
-  def make_dependency_raw_query(column, foreign_column, table, value, value_column) do
-    "SELECT `#{table.name}`.* FROM `#{table.name}`
+  def make_dependency_raw_query(column, foreign_column, table, value, value_column, primary_keys) do
+    query =
+      "SELECT `#{table.name}`.* FROM `#{table.name}`
     INNER JOIN `#{value_column.table.name}`
     ON `#{column.table.name}`.`#{column.name}` = `#{foreign_column.table.name}`.`#{
-      foreign_column.name
-    }`
+        foreign_column.name
+      }`
     WHERE `#{value_column.table.name}`.`#{value_column.name}` = '#{value}'"
+
+    if primary_keys |> length > 0 do
+      query <>
+        " GROUP BY " <>
+        (primary_keys
+         |> Enum.map(fn pk -> "`#{table.name}`.`#{pk.name}`" end)
+         |> Enum.join(", "))
+    else
+      query
+    end
   end
 
   def execute(conn, query, options \\ %{})

@@ -1,6 +1,7 @@
 defmodule AfterGlow.Table do
   use AfterGlow.Web, :model
   alias AfterGlow.Repo
+  alias AfterGlow.Column
   alias AfterGlow.ForeignKey
 
   schema "tables" do
@@ -8,9 +9,13 @@ defmodule AfterGlow.Table do
     field(:readable_table_name, :string)
     field(:description)
     belongs_to(:database, AfterGlow.Database)
-    has_many(:columns, AfterGlow.Column, on_delete: :delete_all, on_replace: :delete)
+    has_many(:columns, Column, on_delete: :delete_all, on_replace: :delete)
 
     timestamps()
+  end
+
+  def primary_keys(table_id) do
+    from(c in Column, where: c.primary_key == true and c.table_id == ^table_id) |> Repo.all()
   end
 
   @doc """
@@ -44,19 +49,31 @@ defmodule AfterGlow.Table do
           table.columns
           |> Enum.map(fn c -> c.id end)
 
-        from(fk in ForeignKey)
-        |> where([fk], fk.column_id in ^column_ids)
-        |> or_where([fk], fk.foreign_column_id in ^column_ids)
-        |> Repo.all()
-        |> Repo.preload(:column)
-        |> Repo.preload(:foreign_column)
-        |> Enum.map(fn fk ->
-          [%{fk.column.name => fk.column.id, fk.foreign_column.name => fk.foreign_column.id}]
-        end)
-        |> List.flatten()
-        |> List.flatten()
-        |> Enum.uniq()
-        |> Enum.reduce(%{}, fn x, acc -> acc |> Map.merge(x) end)
+        foreign_keys =
+          from(fk in ForeignKey)
+          |> where([fk], fk.column_id in ^column_ids)
+          |> or_where([fk], fk.foreign_column_id in ^column_ids)
+          |> Repo.all()
+          |> Repo.preload(:column)
+          |> Repo.preload(:foreign_column)
+          |> Enum.map(fn fk ->
+            if column_ids |> Enum.member?(fk.column.id) do
+              [%{fk.column.name => fk.column.id}]
+            else
+              [%{fk.foreign_column.name => fk.foreign_column.id}]
+            end
+          end)
+          |> List.flatten()
+          |> List.flatten()
+          |> Enum.uniq()
+          |> Enum.reduce(%{}, fn x, acc -> acc |> Map.merge(x) end)
+
+        primary_keys =
+          primary_keys(table.id)
+          |> Enum.map(fn col ->
+            %{col.name => col.id}
+          end)
+          |> Enum.reduce(foreign_keys, fn x, acc -> acc |> Map.merge(x) end)
       end
 
     results

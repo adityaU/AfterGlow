@@ -2,7 +2,6 @@ defmodule AfterGlow.Sql.Adapters.Redshift do
   alias AfterGlow.Sql.Adapters.QueryMakers.Redshift, as: QueryMaker
   use Supervisor
   alias DbConnection
-  require IEx
 
   def create_pool(config) do
     Postgrex.start_link(
@@ -55,11 +54,38 @@ WHERE constraint_type = 'FOREIGN KEY'/, [], opts())
     end)
   end
 
+  def get_primary_keys(conn) do
+    {:ok, result} =
+      Postgrex.query(
+        conn,
+        ~s/SELECT
+        pg_attribute.attname as column_name, '"' + nspname + '"."' +  pg_class.relname + '"' as table_name
+      FROM pg_index, pg_class, pg_attribute, pg_namespace
+      WHERE
+        indrelid = pg_class.oid AND
+        pg_class.relnamespace = pg_namespace.oid AND
+        pg_attribute.attrelid = pg_class.oid AND
+        pg_attribute.attnum =  ANY(string_to_array(textin(int2vectorout(pg_index.indkey)), ' '))
+        and nspname not in ('information_schema', 'pg_catalog', 'pg_toast')
+       AND indisprimary/,
+        [],
+        opts()
+      )
+
+    result.rows
+    |> Enum.map(fn row ->
+      Enum.zip(result.columns, row) |> Map.new()
+    end)
+  end
+
   def get_schema(conn) do
     {:ok, data} =
       Postgrex.query(
         conn,
-        "select tablename as table_name, \"column\"::varchar as name, type::varchar as data_type from pg_table_def",
+        ~s/select '"' + table_schema + '"."' + table_name + '"' as table_name
+        , column_name name, data_type
+        from information_schema.columns where table_schema not in ('information_schema', 'pg_catalog')
+        order by ordinal_position/,
         [],
         opts
       )
