@@ -23,9 +23,6 @@ export function formatObject(params /*, hash*/ ) {
                 }
             });
         }
-        if (!isNaN(+params)) {
-            formattedString = (+params).toLocaleString();
-        }
         let date = Date.parse(params);
         let dateMatch = (params.toString().match('-') != null);
         if (date.toString() != 'NaN' && dateMatch) {

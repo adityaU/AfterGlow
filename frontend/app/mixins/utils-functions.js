@@ -822,7 +822,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                 let showYLine = true;
                 let toolTipFormatter = (params) => {
                     return '<b>' + this.titleize(this.get('xName')) + '</b>' +
-                        ' : ' + (this.formatter(params[0].name) || this.xFormatter(this)(params[0].axisValue)) + '<br/>' +
+                        ' : ' + ((params[0].name && params[0].name != "") ? this.formatter(params[0].name) : this.xFormatter(this)(params[0].axisValue)) + '<br/>' +
                         params.map((p) => {
                             return '<b>' + this.titleize(p.seriesName) + '</b>' + ' : ' + this.formatter(p.value[1], 0);
 
