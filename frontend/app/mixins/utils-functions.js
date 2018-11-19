@@ -161,14 +161,17 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                     let selectedChartType = ogMultipleYs.filter((yObj) => {
                         return yObj && yObj.columnName === y;
                     })[0].chartType || this.get('defaultChartType') || '';
-                    let itemStyle = null;
-                    if (selectedChartType.toLowerCase() == 'area') {
-                        itemStyle = {
-                            normal: {
-                                areaStyle: {
-                                    type: 'default'
-                                }
+                    let itemStyle = itemStyle = {
+                        normal: {
+                            label: {
+                                show: false,
+                                position: 'top'
                             }
+                        }
+                    };
+                    if (selectedChartType.toLowerCase() == 'area') {
+                        itemStyle['normal']['areaStyle'] = {
+                            type: 'default'
                         };
                     }
                     if (x2Values) {
@@ -822,7 +825,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                 let showYLine = true;
                 let toolTipFormatter = (params) => {
                     return '<b>' + this.titleize(this.get('xName')) + '</b>' +
-                        ' : ' + ((params[0].name && params[0].name != "") ? this.formatter(params[0].name) : this.xFormatter(this)(params[0].axisValue)) + '<br/>' +
+                        ' : ' + ((params[0].name && params[0].name != '') ? this.formatter(params[0].name) : this.xFormatter(this)(params[0].axisValue)) + '<br/>' +
                         params.map((p) => {
                             return '<b>' + this.titleize(p.seriesName) + '</b>' + ' : ' + this.formatter(p.value[1], 0);
 

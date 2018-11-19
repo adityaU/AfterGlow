@@ -145,8 +145,10 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
             title: this.get('resultsViewType')
         });
     }),
-
-    getResultsFunction(queryObject) {
+    getResultsWithSelectedTextFunction() {
+        this.getResultsFunction(null, true);
+    },
+    getResultsFunction(queryObject, withSelected) {
         let question = this.get('question');
 
         let query_variables = question.get('query_variables');
@@ -170,6 +172,10 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
         }));
         this.set('loading', true);
         this.set('results', null);
+        if (withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText()) {
+            queryObject = JSON.parse(JSON.stringify(queryObject));
+            queryObject['rawQuery'] = this.get('aceEditor').getSelectedText();
+        }
         this.get('ajax').apiCall({
             url: this.get('apiHost') + this.get('apiNamespace') + '/query_results',
             type: 'POST',
@@ -181,8 +187,11 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
             if (!this.get('resultsViewType')) {
                 this.set('resultsViewType', this.autoDetect(response.data.rows));
             }
-            this.set('validQuestion', true);
-            this.set('queryObject.rawQuery', response.query);
+
+            if (!(withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText())) {
+                this.set('queryObject.rawQuery', response.query);
+                this.set('validQuestion', true);
+            }
             this.set('isQueryLimited', response.data.limited);
             this.set('queryLimit', response.data.limit);
             this.set('limitedQuery', response.data.limited_query);
@@ -193,8 +202,10 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
                 message: 'Something isn\'t right. Please check the query elements.'
             });
             this.set('results', null);
-            this.set('validQuestion', false);
-            this.set('queryObject.rawQuery', error.query);
+            if (!(withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText())) {
+                this.set('validQuestion', false);
+                this.set('queryObject.rawQuery', error.query);
+            }
             this.set('isQueryLimited', null);
             this.set('queryLimit', null);
             this.set('limitQuery', null);
@@ -321,6 +332,9 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
         },
         toggleSqlEditor() {
             this.toggleProperty('collapseSqlEditor');
+        },
+        setEditorWhenReady(editor) {
+            this.set('aceEditor', editor);
         }
 
     }

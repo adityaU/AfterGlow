@@ -1,4 +1,4 @@
- {{question-options questionName=questionName saveQuestion='saveQuestion' validQuestion=validQuestion enableAddToDashboard=enableAddToDashBoard
+{{question-options questionName=questionName saveQuestion='saveQuestion' validQuestion=validQuestion enableAddToDashboard=enableAddToDashBoard
 addToDashboard='addToDashboard' question=question showVariables=showVariables transitionToIndex="transitionToIndex" transitionToSnapshots="transitionToSnapshots"
 canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
 <div class="container p-0 mt-5">
@@ -8,7 +8,7 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                 <div class="{{if (and queryBuilderType canEdit) 'col-3' 'col-12'}}">
                     {{#if (and queryBuilderType canEdit)}} {{query-builder loading=loading getResults='getResults' toggleSql='toggleSql' queryObject=queryObject
                     showGetResults=showGetResults databases=databases}}
-                        {{/if}}
+                    {{/if}}
                 </div>
                 <div class="{{if (and canEdit queryBuilderType) 'col-9' 'col-12'}}">
                     {{#if (and queryBuilderType canEdit)}} {{else}}
@@ -18,7 +18,7 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                                     <div class="card {{if collapseSqlEditor 'card-collapsed'}}">
                                         <div class="row card-header">
                                             <div class="col-2"> {{database-selector queryObject=queryObject showTags=false databases=databases}}
-                                                </div>
+                                            </div>
                                             <div class="card-options">
                                                 <a href="#" {{action 'toggleSqlEditor'}}>
                                                     <i class="fe fe-chevron-up"></i>
@@ -36,8 +36,8 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                                                 {{/if}}
                                                 <div class="{{if queryObject.database 'col-9' 'col-12'}}"> {{ember-ace lines=15 value=queryObject.rawQuery mode=aceMode enableSnippets=true enableDefaultAutocompletion=true enableLiveAutocompletion=true
                                     context=queryObject.database suggestAutoCompletions=suggestAutoCompletions theme=aceTheme
-                                    update=(action (mut queryObject.rawQuery)) }}
-                                                    </div>
+                                    update=(action (mut queryObject.rawQuery)) ready=(action 'setEditorWhenReady')}}
+                                                </div>
                                             </div>
                                         </div>
                                         {{#if showGetResults}}
@@ -48,8 +48,8 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                                                     </div>
                                                 {{else}}
                                                     <div class="content active text-align-center">
-                                                        <button class="btn btn-primary" {{action 'getResults'}}> Get Results
-                                                            <i class="fe fe-arrow-right text-white"></i>
+                                                        <button class="btn btn-primary" {{action 'getResults'}}> Get
+                                                            Results <i class="fe fe-arrow-right text-white"></i>
                                                         </button>
                                                     </div>
                                                 {{/if}}
@@ -63,7 +63,8 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                                         </div>
                                     {{else}}
                                         <div class="content active text-align-center">
-                                            <button class="btn btn-primary" {{action 'getQuestionResults'}}> Refresh </button>
+                                            <button class="btn btn-primary" {{action 'getQuestionResults'}}> Refresh
+                                            </button>
                                         </div>
                                     {{/if}}
                                 {{/if}}
@@ -73,15 +74,14 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                     {{#if canEdit}}
                         {{# if (or variablesReplacedQuery isQueryLimited)}}
                             <div class="mb-5">
-                                {{#if results.final_query}} {{final-query-accordian 
-                                isQueryLimited=isQueryLimited
+                                {{#if results.final_query}} {{final-query-accordian isQueryLimited=isQueryLimited
                                 queryLimit=queryLimit
                                 variablesReplacedQuery=variablesReplacedQuery
                                 aceMode=aceMode
                                 finalQuery=results.final_query 
                                 additionalFiltersApplied=results.additional_filters_applied 
                                 aceTheme=aceTheme}}
-                                    {{/if}}
+                                {{/if}}
                             </div>
                     {{/if}}
                     {{/if}} {{additional-filters results=results error=errors question=question queryObject=queryObject}}
@@ -113,10 +113,10 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                                 </div>
                             </div>
                             {{#if showSettings}} {{component resultsWidgetSettingsComponent resultsViewSettings=resultsViewSettings results=results database=queryParams.database table=queryParams.table }}
-                                {{/if}}
+                            {{/if}}
                             <div class="card-body p-0"> {{question-widget results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName
                             hideMenu=true question=question resizeTime=resizeTime}}
-                                </div>
+                            </div>
                         </div>
                     {{else}}
                         {{#if loading}}
@@ -134,7 +134,8 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                                     <div class="query error section text-red">
                                         <div class="ui big">
                                             <i class="fe fe-x-circle text-red"></i>
-                                        </div> {{errors.message}}</div>
+                                        </div> {{errors.message}}
+                                    </div>
                                 {{else}}
                                     <div class="section">Wanna see something cool? Run a Query!</div>
                                 {{/if}}
@@ -150,7 +151,8 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                 {{#each question.variables as |var|}}
                     <div class="w-100">
                         <div class="card p-4">
-                            <i class="fe fe-x text-gray variable-remove" {{action "removeVariable" var}}></i> {{create-variable entity=question variable=var}} </div>
+                            <i class="fe fe-x text-gray variable-remove" {{action "removeVariable" var}}></i>
+                            {{create-variable entity=question variable=var}} </div>
                     </div>
                 {{/each}}
                 <div class="btn btn-primary w-100" {{action 'addVariable'}}> Add Variable </div>

@@ -57,6 +57,9 @@ export default Ember.Route.extend(CanMixin, KeyboardShortcuts, {
         runQuery() {
             this.get('currentController').getResultsFunction();
         },
+        runQueryWithSelectedText() {
+            this.get('currentController').getResultsWithSelectedTextFunction();
+        },
         goAheadWithNextTransition() {
             this.resetController();
             this.controller.set('retryingTransition', true);
@@ -65,6 +68,7 @@ export default Ember.Route.extend(CanMixin, KeyboardShortcuts, {
     },
 
     keyboardShortcuts: {
-        'ctrl+enter': 'runQuery'
+        'ctrl+enter': 'runQuery',
+        'ctrl+r': 'runQueryWithSelectedText'
     }
 });
