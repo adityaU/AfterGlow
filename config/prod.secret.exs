@@ -19,7 +19,7 @@ config :afterglow, AfterGlow.Repo,
   database: System.get_env("AG_DATABASE_NAME"),
   hostname: System.get_env("AG_DATABASE_HOSTNAME"),
   timeout: :infinity,
-  pool_size: 100
+  pool_size: 20
 
 config :new_relixir,
   application_name: "afterglow",
