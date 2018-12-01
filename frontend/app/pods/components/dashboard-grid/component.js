@@ -24,7 +24,7 @@ export default Ember.Component.extend(LoadingMessages, CustomEvents, {
         },
         showDeleteFromDashboardDialogue(question) {
             this.set('toBeDeleted', question);
-            $('.ui.modal.delete-dialogue.delete-from-dashboard').modal('show');
+            this.set('toggleDeleteDashboardDialogue', true);
         },
         deleteFromDashboard(question) {
             let dashboard = this.get('dashboard');

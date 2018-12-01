@@ -23,7 +23,8 @@
                             <div class="col-4 text-right">
                                 {{#if question.updated_at}}
                                     <span>
-                                        {{#bs-tooltip placement="left" }} Updated {{moment-from-now question.updated_at timeZone=timeZone interval=1000}} {{/bs-tooltip}}
+                                        {{#bs-tooltip placement="left" }} Updated {{moment-from-now question.updated_at timeZone=timeZone interval=1000}}
+                                        {{/bs-tooltip}}
                                         <i class="fe fe-clock text-{{question.updatedAgoColor}}"></i>
                                     </span>
                                 {{/if}}
@@ -34,7 +35,8 @@
                                     {{#dd.menu class="dropdown-menu-arrow" as |ddm|}}
                                         {{#if question.has_permission}}
                                             {{#ddm.item}}
-                                                {{#link-to 'questions.show' question.id class="dropdown-item" }} View Question {{/link-to}}
+                                                {{#link-to 'questions.show' question.id class="dropdown-item" }} View
+                                                    Question {{/link-to}}
                                             {{/ddm.item}}
                                         {{/if}}
                                         {{#ddm.item}}
@@ -42,8 +44,9 @@
                                         {{/ddm.item}}
                                         {{#if (and dashboard.has_permission (can "edit dashboard"))}}
                                             {{#ddm.item}}
-                                                <a class="dropdown-item" {{action 'showDeleteFromDashboardDialogue' question}}>
-                                                Remove from Dashboard </a>
+                                                <a class="dropdown-item"
+                                                    {{action 'showDeleteFromDashboardDialogue' question}}> Remove from
+                                                    Dashboard </a>
                                             {{/ddm.item}}
                                         {{/if}}
                                     {{/dd.menu}}
@@ -52,13 +55,12 @@
                         </div>
                     {{/if}}
                     <div class="card-body m-0 p-0">
-                        {{#if question.results}} {{question-widget
-                          question=question
+                        {{#if question.results}} {{question-widget question=question
                           results=question.results
                           resultsViewSettings=question.results_view_settings
                           resizeTime=resizeTime
                           resultsViewType=question.results_view_settings.resultsViewType hideMenu=question.showCardHeader refresh="refreshQuestion" dashboard=dashboard remove="showDeleteFromDashboardDialogue"}}
-                            {{else}}
+                        {{else}}
                             {{#if (or question.loading (not question.content.isLoaded))}}
                                 <div class="dimmer active">
                                     <div class="loader text-primary"></div>
@@ -71,4 +73,5 @@
             {{/grid-stack-item}}
         {{/each}}
     {{/grid-stack}}
-{{/if}} {{delete-dialogue entityName="question from Dashboard" entity=toBeDeleted delete="deleteFromDashboard" className="delete-from-dashboard"}}
+{{/if}}
+{{delete-dialogue open=toggleDeleteDashboardDialogue entityName="question from Dashboard" entity=toBeDeleted delete="deleteFromDashboard" className="delete-from-dashboard"}}
