@@ -20,6 +20,8 @@ defmodule AfterGlow.Snapshots.Snapshot do
     field(:should_create_csv, :boolean)
     field(:should_send_mail_on_completion, :boolean)
     field(:mail_to, {:array, :string})
+    field(:searchable_columns, {:array, :string})
+    field(:keep_latest, :integer)
     belongs_to(:question, Question)
     belongs_to(:parent, Snapshot, foreign_key: :parent_id)
     has_many(:children, Snapshot, foreign_key: :parent_id,  on_delete: :delete_all, on_replace: :delete)
@@ -48,6 +50,8 @@ defmodule AfterGlow.Snapshots.Snapshot do
       :should_create_csv,
       :should_send_mail_on_completion,
       :mail_to,
+      :searchable_columns,
+      :keep_latest,
       :parent_id
     ])
     |> validate_required([:name, :question_id])

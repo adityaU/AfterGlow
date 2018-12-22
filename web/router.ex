@@ -43,6 +43,8 @@ defmodule AfterGlow.Router do
 
     post("questions/:id/results", QuestionController, :results)
     post("snapshots/:id/stop_and_new", SnapshotController, :stop_and_new)
+    get("snapshots/:snapshot_id/find", SnapshotController, :find)
+    get("snapshots/:snapshot_id/suggest", SnapshotController, :suggest)
     get("/explore", ExploreController, :get_row_view)
     get("/explore/dependency", ExploreController, :get_dependency_view)
     put("databases/:id/sync", DatabaseController, :sync)

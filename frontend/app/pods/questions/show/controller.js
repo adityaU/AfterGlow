@@ -7,6 +7,7 @@ import {
 } from 'ember-can';
 export default QuestionNewController.extend(ResultViewMixin, CanMixin, {
     question: Ember.computed.alias('model'),
+    newQuestion: false,
     enableAddToDashBoard: true,
     results: Ember.computed.alias('question.results'),
     isQueryLimited: Ember.computed.alias('results.limited'),

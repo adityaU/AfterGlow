@@ -10,15 +10,16 @@ defmodule AfterGlow.Snapshots do
 
   alias AfterGlow.Snapshots.Snapshot
   alias AfterGlow.Snapshots.SnapshotData
+  alias AfterGlow.Snapshots.SearchableColumn
   alias AfterGlow.Database
   alias AfterGlow.Question
-  alias AfterGlow.Sql.DConnection
+  alias AfterGlow.Sql.DbConnection
   alias AfterGlow.Async
   alias AfterGlow.SnapshotsTasks
   alias AfterGlow.Helpers.CsvHelpers
   alias AfterGlow.Mailers.CsvMailer
   alias AfterGlow.Mailers.SnapshotMailer
-  import Ecto.Query, only: [from: 2]
+  import Ecto.Query
 
   @doc """
   Returns the list of snapshots.
@@ -52,6 +53,10 @@ defmodule AfterGlow.Snapshots do
 
     Repo.get!(Snapshot, id)
     |> Repo.preload(snapshot_data: snapshot_data_preload_query)
+  end
+
+  def get_only_snapshot!(id) do
+    Repo.get!(Snapshot, id)
   end
 
   @doc """
@@ -115,6 +120,73 @@ defmodule AfterGlow.Snapshots do
     Repo.delete_with_cache(snapshot)
   end
 
+  def find_in_snapshot(nil, _column_name, _value, _from_latest),
+    do: %{error: "snapshot not found"}
+
+  def find_in_snapshot(_snapshot, nil, _value, _from_latest),
+    do: %{error: "column_name is required."}
+
+  def find_in_snapshot(_snapshot, _column_name, nil, _from_latest),
+    do: %{error: "value is required."}
+
+  def find_in_snapshot(snapshot, column_name, value, from_latest) do
+    latest_snapshot = set_latest_snapshot(snapshot, from_latest)
+
+    data =
+      from(
+        sc in SearchableColumn,
+        where:
+          sc.snapshot_id == ^latest_snapshot.id and sc.name == ^column_name and sc.value == ^value,
+        join: sd in SnapshotData,
+        on: sc.snapshot_data_identifier == sd.identifier,
+        select: {sd.row, sd.identifier, sd.snapshot_id}
+      )
+      |> Repo.all()
+      |> Enum.map(fn row ->
+        %{
+          snapshot_id: row |> elem(2),
+          identifier: row |> elem(1),
+          data: Enum.zip(snapshot.columns, row |> elem(0) |> Map.get("values")) |> Map.new()
+        }
+      end)
+
+    %{results: data}
+  end
+
+  def suggest_from_snapshot(nil, _column_name, _query, _from_latest),
+    do: %{error: "snapshot not found"}
+
+  def suggest_from_snapshot(_snapshot, nil, _query, _from_latest),
+    do: %{error: "column_name is required."}
+
+  def suggest_from_snapshot(_snapshot, _column_name, nil, _from_latest),
+    do: %{error: "query is required."}
+
+  def suggest_from_snapshot(snapshot, column_name, query, from_latest) do
+    latest_snapshot = set_latest_snapshot(snapshot, from_latest)
+
+    data =
+      from(
+        sc in SearchableColumn,
+        where:
+          sc.snapshot_id == ^latest_snapshot.id and sc.name == ^column_name and
+            ilike(sc.value, ^"#{query}%"),
+        join: sd in SnapshotData,
+        on: sc.snapshot_data_identifier == sd.identifier,
+        select: {sd.row, sd.identifier, sd.snapshot_id}
+      )
+      |> Repo.all()
+      |> Enum.map(fn row ->
+        %{
+          snapshot_id: row |> elem(2),
+          identifier: row |> elem(1),
+          data: Enum.zip(snapshot.columns, row |> elem(0) |> Map.get("values")) |> Map.new()
+        }
+      end)
+
+    %{results: data}
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking snapshot changes.
 
@@ -131,6 +203,27 @@ defmodule AfterGlow.Snapshots do
   def stop_and_new(%Snapshot{} = snapshot, attrs) do
     delete_snapshot(snapshot)
     create_snapshot(attrs)
+  end
+
+  def set_latest_snapshot(snapshot, from_latest) do
+    latest_snapshot = snapshot
+
+    if from_latest do
+      snap =
+        from(
+          s in Snapshot,
+          where: s.parent_id == ^snapshot.id and s.status == "success",
+          order_by: [desc: s.updated_at],
+          limit: 1
+        )
+        |> Repo.one()
+
+      if snap do
+        latest_snapshot = snap
+      end
+    end
+
+    latest_snapshot
   end
 
   def save_data(%Snapshot{} = snapshot) do
@@ -200,13 +293,13 @@ defmodule AfterGlow.Snapshots do
 
     stream = Repo.stream(query, timeout: 15_000_000)
 
-    {:ok, url} =
+    {:ok, {url, data_preview}} =
       Repo.transaction(fn ->
         stream = stream |> Stream.map(fn x -> x["values"] end)
         CsvHelpers.save_and_upload_from_stream([stream], snapshot.columns, file_path(snapshot))
       end)
 
-    CsvMailer.mail(email_id || snapshot.mail_to, url, csv_subject(snapshot))
+    CsvMailer.mail(email_id || snapshot.mail_to, url, csv_subject(snapshot), data_preview)
   end
 
   defp csv_subject(snapshot) do
@@ -231,22 +324,71 @@ defmodule AfterGlow.Snapshots do
 
   defp insert_snapshot_data_in_bulk(snapshot, rows, columns) do
     snapshot = update_snapshot(snapshot, %{"columns" => columns})
-    query = "insert into snapshot_data (snapshot_id, row, inserted_at, updated_at) values"
+
+    query =
+      "insert into snapshot_data (snapshot_id, row, inserted_at, updated_at, identifier) values"
+
     time_string = Ecto.DateTime.utc() |> Ecto.DateTime.to_string()
 
+    searchable_columns_query =
+      "insert into searchable_columns (name, snapshot_id, value, inserted_at, updated_at, snapshot_data_identifier) values"
+
+    searchable_columns =
+      if snapshot.searchable_columns do
+        snapshot.searchable_columns
+        |> Enum.map(fn col ->
+          %{index: columns |> Enum.find_index(fn x -> x == col end), name: col}
+        end)
+      else
+        []
+      end
+
     rows
-    |> Enum.map(fn chunk ->
+    |> Enum.each(fn chunk ->
       values =
         chunk
         |> Enum.map(fn x ->
+          identifier = Ecto.UUID.generate()
           value = Jason.encode!(%{values: x}) |> String.replace("'", "''")
-          "( #{snapshot.id}, '#{value}', '#{time_string}', '#{time_string}' )"
+
+          data_values =
+            "( #{snapshot.id}, '#{value}', '#{time_string}', '#{time_string}', '#{identifier}')"
+
+          searchable_column_values =
+            searchable_columns
+            |> Enum.map(fn col ->
+              "('#{col[:name]}', '#{snapshot.id}', '#{
+                x |> Enum.at(col[:index]) |> String.replace("'", "''")
+              }', '#{time_string}', '#{time_string}', '#{identifier}' )"
+            end)
+
+          {data_values, searchable_column_values}
+        end)
+
+      data_values =
+        values
+        |> Enum.map(fn x ->
+          x |> elem(0)
         end)
         |> Enum.join(", ")
 
-      if values |> String.first() do
-        query = query <> values
+      if data_values |> String.first() do
+        query = query <> data_values
         Ecto.Adapters.SQL.query!(Repo, query, [])
+      end
+
+      searchable_column_values =
+        values
+        |> Enum.map(fn x ->
+          x |> elem(1)
+        end)
+        |> List.flatten()
+        |> Enum.join(", ")
+
+      if searchable_column_values
+         |> String.first() do
+        searchable_columns_query = searchable_columns_query <> searchable_column_values
+        Ecto.Adapters.SQL.query!(Repo, searchable_columns_query, [])
       end
     end)
 

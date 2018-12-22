@@ -19,6 +19,7 @@ $borderSecondaryColor: #dee5e8;
 $borderRadius: 0.28571429rem;
 $warningColor: #fff700;
 $googleColor: #db4437;
+
 @function box-shadow($color) {
     @return 0px 0px 0px 0px $color !important;
 }
@@ -51,6 +52,7 @@ g.slicetext {
     left: 70%;
     color: white;
     z-index: 80;
+
     & .header {
         background: #515665;
         border-radius: 2px;
@@ -59,12 +61,15 @@ g.slicetext {
         text-transform: uppercase;
         text-align: center;
     }
+
     & .subheader {
         padding: 10px;
     }
+
     & .content {
         padding: 10px;
         background: #515665;
+
         & .shortcut {
             float: right
         }
@@ -78,15 +83,19 @@ g.slicetext {
     left: 0;
     right: 0;
     background: $lightTransparentColor;
+
     .searchbar-content {
         margin: 10% auto;
         width: 500px;
+
         & .content {
             padding: 0px;
         }
+
         & input {
             border: 0px !important;
         }
+
         & .menu .item.active {
             background: $primaryColor !important;
             color: white;
@@ -279,6 +288,7 @@ i {
 .ui.positive.buttons .button,
 .ui.positive.button {
     background-color: $tertiaryColor;
+
     & i {
         color: white;
     }
@@ -287,6 +297,7 @@ i {
 .ui.deny.button {
     background-color: $errorColorShade2;
     color: white;
+
     &:hover {
         background-color: $errorColor
     }
@@ -297,19 +308,24 @@ i {
     font-family: 'Lato', sans-serif;
     font-weight: bold;
     text-transform: uppercase !important;
+
     &.violet {
         box-shadow: box-shadow($primaryColorShade2);
         background-image: linear-gradient(to right bottom, rgba(117, 126, 239, 0.5), rgba(50, 54, 105, 0.7));
     }
+
     &.red {
         box-shadow: box-shadow($errorColor);
     }
+
     &.green {
         box-shadow: box-shadow($tertiaryColor);
     }
+
     &.positive {
         box-shadow: box-shadow($tertiaryColor);
     }
+
     & i {
         color: white;
     }
@@ -318,9 +334,11 @@ i {
 .ui.alert-state {
     padding: 5px 10px;
     font-size: 0.8em;
+
     &.yellow {
         color: $warningColor;
     }
+
     &.red {
         color: $errorColor;
     }
@@ -345,6 +363,7 @@ i {
     &:hover {
         box-shadow: none !important;
     }
+
     box-shadow: none !important;
 }
 
@@ -382,6 +401,7 @@ i {
     border-color: $greyColor;
     margin-top: 8px;
     box-shadow: box-shadow($greyColor);
+
     & .item:hover {
         background: $secondaryColor;
     }
@@ -410,9 +430,11 @@ i {
 .ui.icon.search.input input {
     border: 1px solid $greyColor;
     height: 2.87em;
+
     &:hover {
         border: 1px solid $greyColor;
     }
+
     &:focus {
         border: 1px solid $greyColor;
     }
@@ -452,6 +474,7 @@ i {
     border: 1px solid $greyColor;
     border-bottom: 3px solid $borderSecondaryColor;
     box-shadow: box-shadow($greyColor);
+
     &.outlined {
         border-bottom: none;
         border: 1px solid $greyColor;
@@ -459,7 +482,7 @@ i {
 }
 
 .ui.grid.container {
-    width: calc( 1127px + 8%) !important;
+    width: calc(1127px + 8%) !important;
     margin: 1%;
 }
 
@@ -494,9 +517,11 @@ i {
 
 .number-chart {
     margin: 5% 1%;
+
     & .number {
         font-size: 400%;
     }
+
     .text {
         font-size: 150%;
         margin-top: 30px;
@@ -531,6 +556,7 @@ i {
     padding: 15px 10px;
     box-shadow: box-shadow($primaryColorShade2);
     text-align: center;
+
     &:hover {
         cursor: pointer;
         background: white;
@@ -547,6 +573,7 @@ i {
     text-align: center;
     text-transform: uppercase;
     box-shadow: box-shadow($tertiaryColor);
+
     &:hover {
         cursor: pointer;
         background: white;
@@ -607,6 +634,7 @@ a {
     &:hover {
         background: $secondaryColor !important;
     }
+
     &.active {
         background: $secondaryColor !important;
     }
@@ -620,6 +648,7 @@ a {
 
 .ui.dropdown .menu {
     top: 30px;
+
     &.static {
         position: static;
     }
@@ -641,6 +670,7 @@ a {
     color: $textColor;
     border: 1px solid $greyColor;
     opacity: 1;
+
     &:hover {
         box-shadow: none;
         -webkit-box-shadow: none;
@@ -671,6 +701,7 @@ button.toast-close-button {
     border-radius: $borderRadius;
     padding: 15px 10px;
     box-shadow: box-shadow($primaryColorShade2);
+
     &.selected {
         background-color: $primaryColorShade2;
         color: white;
@@ -679,6 +710,7 @@ button.toast-close-button {
 
 .pagination {
     padding-left: 0px !important;
+
     li {
         &.disabled {
             &:hover {
@@ -688,12 +720,15 @@ button.toast-close-button {
                     color: $primaryColor;
                 }
             }
+
             & a {
                 border: 1px solid $greyColor;
                 background-color: $secondaryColor
             }
         }
+
         display: inline;
+
         & a {
             padding: 10px 15px;
             border: 1px solid $primaryColor;
@@ -702,12 +737,14 @@ button.toast-close-button {
             border-radius: 0.2rem;
             color: $primaryColor;
         }
+
         &.active {
             a {
                 background-color: $primaryColor;
                 color: white;
             }
         }
+
         &:hover {
             a {
                 background-color: $primaryColor;
@@ -739,10 +776,12 @@ button.toast-close-button {
 .ui.vertical.menu {
     width: 15rem;
     box-shadow: box-shadow($greyColor);
+
     & .item {
         &:hover {
             background: $secondaryColor !important;
         }
+
         & .active {
             background: $secondaryColor;
         }
@@ -755,6 +794,7 @@ button.toast-close-button {
 
 .ui.circular.button {
     padding: 8px 11px;
+
     &.alert {
         margin-left: -19px;
         border-radius: 0px 4px 4px 0px;
@@ -814,6 +854,7 @@ button.toast-close-button {
 
 .no-border-radius {
     border-radius: 0px !important;
+
     &.ui.segment.top-header {
         border-bottom: none;
     }
@@ -825,6 +866,7 @@ button.toast-close-button {
 
 .no-padding {
     padding: 0px !important;
+
     &.wide.column {
         padding: 0px !important;
     }
@@ -832,6 +874,7 @@ button.toast-close-button {
 
 .ui.grid .no-padding {
     padding: 0px !important;
+
     &.wide.column {
         padding: 0px !important;
     }
@@ -872,10 +915,12 @@ button.toast-close-button {
 
 .ui.labeled {
     margin-bottom: 5px !important;
+
     & input {
         height: 2.56em;
         border-top-left-radius: 0px !important;
         border-bottom-left-radius: 0px !important;
+
         &:focus {
             border-color: $primaryColor;
         }
@@ -894,6 +939,7 @@ button.toast-close-button {
     bottom: 2px !important;
     left: 2px !important;
     right: 2px !important;
+
     & .title {
         font-weight: bold;
         margin-bottom: 10px;
@@ -949,14 +995,17 @@ button.toast-close-button {
 
 .without-header {
     background: $secondaryColor !important;
+
     &:fullscreen {
         overflow: auto;
         background: $secondaryColor !important;
     }
+
     &:-webkit-full-screen {
         overflow: auto;
         background: $secondaryColor !important;
     }
+
     &:-moz-full-screen {
         overflow: auto;
         background: $secondaryColor !important;
@@ -966,11 +1015,13 @@ button.toast-close-button {
 .results {
     min-height: 500px;
     width: 100%;
+
     & .section {
         text-align: center;
         margin-top: 22%;
         font-size: x-large;
         color: $text-muted;
+
         & i {
             font-size: 5em;
         }
@@ -1029,17 +1080,21 @@ body {
     & .title {
         color: $textColorShade2 !important;
     }
+
     & .content {
         padding-bottom: 0px;
     }
+
     & .multiselect-label {
         margin: 5px;
     }
+
     & .multiselect-checkboxes {
         max-height: 150px;
         overflow: auto;
         margin: 0px;
     }
+
     & .multiselect-selected {
         display: inline-block;
         border: 1px solid $primaryColor;
@@ -1048,6 +1103,7 @@ body {
         padding-right: 0px;
         margin: 2px;
     }
+
     & .selected {
         padding: 10px;
     }
@@ -1055,12 +1111,15 @@ body {
 
 .db-tree {
     height: 240px;
+
     & .tree {
         overflow: auto;
         height: calc(100% - 38px);
+
         .leafs {
             text-indent: 20px;
             background: $body-bg;
+
             &.leaf-name {
                 font-size: 0.9em
             }
@@ -1110,6 +1169,7 @@ table {
 
 @import 'ember-bootstrap/bootstrap';
 @import 'dashboard/dashboard';
+
 .header-brand {
     padding-top: 5px;
 }
@@ -1118,6 +1178,7 @@ table {
     &:hover {
         color: $primary !important;
     }
+
     &:active {
         color: white !important;
     }
@@ -1211,6 +1272,7 @@ table {
     height: 5rem;
     width: 5rem;
     top: 45%;
+
     &:before,
     &:after {
         height: 5rem;
@@ -1222,23 +1284,28 @@ table {
 .card {
     &.long-accordion {
         width: inherit;
+
         & .card {
             box-shadow: none;
             border: 0px;
             border-bottom: $border-width solid $border-color !important;
+
             & .card-body,
             & .card-header,
             & .card-footer {
                 border: 0px;
             }
+
             & .card-header {
                 min-height: 2.5rem;
             }
+
             & h5 {
                 font-weight: normal;
                 width: 100%;
                 font-size: 1em;
                 line-height: 1em;
+
                 & .col-2 {
                     text-align: right;
                 }
@@ -1249,10 +1316,12 @@ table {
 
 .Searchable-select {
     background: $white;
+
     &--multiple a {
         padding: 5px 5px;
         min-height: 0px;
     }
+
     &__selected-pill {
         font-size: px2rem(12px);
         color: $white;
@@ -1269,15 +1338,18 @@ table {
         margin-top: 0px;
         margin-bottom: 0px;
         border: 0px;
+
         @at-root a#{&} {
             text-decoration: none;
             cursor: pointer;
             transition: .3s color, .3s background;
+
             &:hover {
                 background-color: rgba($text-muted-dark, .20);
                 color: inherit;
             }
         }
+
         &-clear {
             display: inline-block;
             padding: 0 .5rem;
@@ -1290,21 +1362,26 @@ table {
             font-size: inherit;
             line-height: inherit;
             font-weight: inherit;
+
             &:last-child {
                 border-top-right-radius: 3px;
                 border-bottom-right-radius: 3px;
             }
+
             &:hover {
                 color: inherit;
             }
+
             i {
                 vertical-align: middle;
                 margin: 0 -.25rem;
             }
+
             @at-root a#{&} {
                 text-decoration: none;
                 cursor: pointer;
                 transition: .3s color, .3s background;
+
                 &:hover {
                     background: rgba(#000, .16);
                     color: inherit;
@@ -1312,36 +1389,45 @@ table {
             }
         }
     }
+
     &__option {
         &:hover {
             background: $light;
             color: $primary;
             cursor: pointer;
         }
+
         &--selected {
             background: $light;
         }
     }
+
     &__clear {
         background: $primary;
+
         &:hover {
             background: $primary;
         }
     }
+
     &__input,
     &__label {
+
         &:focus,
         &:active {
             border-color: $primary;
             box-shadow: none;
         }
     }
+
     &__menu {
         border-color: $border-color;
     }
+
     &__search {
         background: $light;
     }
+
     &__label {
         box-shadow: none;
         border-color: $border-color;
@@ -1349,6 +1435,7 @@ table {
         font-size: 0.9375rem;
         line-height: 1.6;
         padding: 0.375rem 0.75rem;
+
         &:after {
             color: $body-color;
             float: right;
@@ -1378,6 +1465,7 @@ table {
     color: $white;
     background: $primary;
     padding: 2px 5px;
+
     & i:hover {
         color: $white;
     }
@@ -1400,6 +1488,7 @@ a:hover {
     width: 100%;
     font-size: 1em;
     line-height: 1em;
+
     & .col-2 {
         text-align: right;
     }
@@ -1407,6 +1496,7 @@ a:hover {
 
 .dropdown-menu {
     z-index: 10000;
+    padding: 0px !important;
 }
 
 .dropdown-toggle:after,
@@ -1421,6 +1511,7 @@ a:hover {
         position: absolute;
         z-index: 1;
     }
+
     &-timer {
         top: 4px;
         right: 7px;
@@ -1434,13 +1525,16 @@ a:hover {
 }
 
 .row.variable-layer {
+
     .col-4,
     .col-3 {
         padding-left: 5px !important;
         padding-right: 0px !important;
+
         &:first-child {
             padding-left: 0px !important;
         }
+
         &:last-child {
             padding-right: 0px !important;
         }
@@ -1496,16 +1590,20 @@ a:hover {
 
 .grid-stack>.grid-stack-item {
     $gridstack-columns: 48;
+
     @for $i from 1 through $gridstack-columns {
         &[data-gs-width='#{$i}'] {
             width: (100% / $gridstack-columns) * $i;
         }
+
         &[data-gs-x='#{$i}'] {
             left: (100% / $gridstack-columns) * $i;
         }
+
         &[data-gs-min-width='#{$i}'] {
             min-width: (100% / $gridstack-columns) * $i;
         }
+
         &[data-gs-max-width='#{$i}'] {
             max-width: (100% / $gridstack-columns) * $i;
         }
@@ -1514,11 +1612,14 @@ a:hover {
 
 .simditor {
     border: none !important;
+
     & .simditor-body {
         min-height: 0px !important;
     }
+
     & .simditor-toolbar {
         width: 100% !important;
+
         &>ul>li>.toolbar-item {
             width: 30px;
             height: 30px;

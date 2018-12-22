@@ -13,6 +13,7 @@ export default Ember.Component.extend({
             starting_at: new Date(),
             should_save_data_to_db: false,
             should_create_csv: true,
+            keep_latest: 5,
             should_send_mail_on_completion: true,
             mail_to: [this.get('sessionService.user.email')],
             question: this.get('question')
@@ -89,6 +90,22 @@ export default Ember.Component.extend({
             });
         });
     }),
+    selectedColumns: Ember.computed('snapshot.searchable_columns', function () {
+        let searchableColumns = this.get('snapshot.searchable_columns');
+        return searchableColumns && searchableColumns.map(function (column) {
+            return {
+                title: column
+            };
+        });
+    }),
+    searchableColumnsOptions: Ember.computed('question.columns', function () {
+        let columns = this.get('question.columns');
+        return columns && columns.map(function (column) {
+            return {
+                title: column
+            };
+        });
+    }),
     actions: {
 
         clear() {
@@ -100,6 +117,11 @@ export default Ember.Component.extend({
         addToEmails(item) {
             this.set('snapshot.mail_to', item.map(function (it) {
                 return it.title;
+            }));
+        },
+        addToSearchableColumns(values) {
+            this.set('snapshot.searchable_columns', values && values.map((colObj) => {
+                return colObj.title;
             }));
         },
         addNewEmail(text) {

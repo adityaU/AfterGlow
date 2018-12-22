@@ -4,7 +4,8 @@
             <div class="row full">
                 <div class="col">
                     {{#if (and editing canEdit)}}
-                        <div class="form-group my-0"> {{input class="form-control" value=questionName class="ui" placeholder=questionName }} </div>
+                        <div class="form-group my-0"> {{input class="form-control js-question_title" value=questionName class="ui" placeholder=questionName }}
+                        </div>
                     {{else}}
                         <div class="text-default">
                             <i class="{{question.icon}}"></i> {{questionName}} </div>
@@ -17,16 +18,16 @@
                                 {{#bs-tooltip placement="top" }}Save Question{{/bs-tooltip}} SAVE </button>
                         {{/if}}
                         {{#if (and editing canEdit)}}
-                            <button class="btn btn-link text-gray py-0 align-baseline" {{action 'cancelEditingQuestion'}}>
+                            <button class="btn btn-link text-gray py-0 align-baseline"
+                                {{action 'cancelEditingQuestion'}}>
                                 {{#bs-tooltip placement="top" }}Cancel Editing Question{{/bs-tooltip}} CANCEL </button>
-                            <button class="btn btn-link text-red py-0 align-baseline"
-                                {{action 'showDeleteDialogue'}}>
+                            <button class="btn btn-link text-red py-0 align-baseline" {{action 'showDeleteDialogue'}}>
                                 {{#bs-tooltip placement="top" }}Delete Question{{/bs-tooltip}} DELETE </button>
                         {{else}}
                             {{#if canEdit}}
                                 <span class="d-inline-flex">
                                     {{#bs-tooltip placement="top" }}Edit{{/bs-tooltip}}
-                                    <i class="fe fe-edit text-gray px-1" {{action 'editQuestion'}}></i>
+                                    <div class="btn btn-link text-primary py-0" {{action 'editQuestion'}}>EDIT</div>
                                 </span>
                             {{/if}}
                         {{/if}}
@@ -34,45 +35,50 @@
                     {{#if (and validQuestion canEdit)}}
                         <span class="d-inline-flex">
                             {{#bs-tooltip placement="top" }}Share{{/bs-tooltip}}
-                            <i class="fe fe-share text-gray px-1" {{action 'showShareDialogue'}}></i>
+                            <div class="btn btn-link text-primary py-0" {{action 'showShareDialogue'}}>SHARE</div>
                         </span>
                     {{/if}}
-                    {{#if (and (and validQuestion canCreateSnapshot) canEdit)}}
-                        <span class="d-inline-flex">
-                            {{#bs-tooltip placement="top" }}Create A Snapshot{{/bs-tooltip}}
-                            <i class="fe fe-file text-gray px-1" {{action 'showSnapshotMaker'}}></i>
-                        </span>
-                    {{/if}}
-                    {{#if (and (and validQuestion question.id) canEdit)}}
-                        <span class="d-inline-flex">
-                            {{#bs-tooltip placement="top" }}Add Tags{{/bs-tooltip}}
-                            <i class="fe fe-tag text-gray px-1" {{action 'showAddTags'}}></i>
-                        </span>
-                        <span class="d-inline-flex">
-                            {{#bs-tooltip placement="top" }}Add Widgets{{/bs-tooltip}}
-                            <i class="fe fe-layers text-gray px-1" {{action 'showWidgetCreator'}}></i>
-                        </span>
-                        {{#if (gt question.snapshots.length 0)}}
-                            <span class="d-inline-flex" {{action 'viewSnapshots' question}}>
-                                {{#bs-tooltip placement="top" }}view {{question.snapshots.length}} snapshot(s){{/bs-tooltip}}
-                                <i class="fe fe-copy text-gray"></i>
-                            </span>
-                        {{/if}}
-                    {{/if}}
-                    {{#if (and enableAddToDashboard canEdit)}}
-                        <span class="d-inline-flex" {{action 'showAddToDashboard'}}>
-                            {{#bs-tooltip placement="top" }}Add to Dashboard{{/bs-tooltip}}
-                            <i class="fe fe-grid text-gray px-1"></i>
-                        </span>
-                    {{/if}}
-                    <span class="d-inline-flex" {{action 'toggleVariableWindow'}}>
-                        {{#bs-tooltip placement="top" }}Toggle Variable Window{{/bs-tooltip}}
-                        <i class="fe fe-code text-gray"></i>
-                    </span>
+                    {{#bs-dropdown direction="left" class="d-inline" as |dd|}}
+                        {{#dd.toggle class="btn btn-link text-primary py-0"}} MORE {{/dd.toggle}}
+                        {{#dd.menu class="dropdown-menu-arrow" as |ddm|}}
+                            {{#if (and (and validQuestion canCreateSnapshot) canEdit)}}
+                                {{#ddm.item}}
+                                    {{#bs-tooltip placement="top" }}Create A Snapshot{{/bs-tooltip}}
+                                    <a class="dropdown-item border-bottom" {{action 'showSnapshotMaker'}}>Create
+                                        Snapshots/Schedule Report</a>
+                                {{/ddm.item}}
+                            {{/if}}
+                            {{#if (and (and validQuestion question.id) canEdit)}}
+                                {{#ddm.item}}
+                                    <a class="dropdown-item border-bottom" {{action 'showAddTags'}}>Add Tags</a>
+                                {{/ddm.item}}
+                                {{#ddm.item}}
+                                    <a class="dropdown-item border-bottom" {{action 'showWidgetCreator'}}>Add widgets</a>
+                                {{/ddm.item}}
+                                {{#if (gt question.snapshots.length 0)}}
+                                    {{#ddm.item}}
+                                        {{#bs-tooltip placement="top" }}{{/bs-tooltip}}
+                                        <a class="dropdown-item border-bottom">view {{question.snapshots.length}}
+                                            snapshot(s)</a>
+                                    {{/ddm.item}}
+                                {{/if}}
+                            {{/if}}
+                            {{#if (and enableAddToDashboard canEdit)}}
+                                {{#ddm.item}}
+                                    <a class="dropdown-item border-bottom" {{action 'showAddToDashboard'}}> Add
+                                        Question to Dashboard</a>
+                                {{/ddm.item}}
+                            {{/if}}
+                            {{#ddm.item}}
+                                <a class="dropdown-item" {{action 'toggleVariableWindow'}}>Toggle Variable Window</a>
+                            {{/ddm.item}}
+                        {{/dd.menu}}
+                    {{/bs-dropdown}}
                 </div>
             </div>
         </div>
     </div>
-</div> {{delete-dialogue entityName="question" open=toggleDeleteDialogue entity=question delete="deleteQuestion"}} {{share-entity entityName="Question" entity=question open=toggleShareModal}}
+</div> {{delete-dialogue entityName="question" open=toggleDeleteDialogue entity=question delete="deleteQuestion"}}
+{{share-entity entityName="Question" entity=question open=toggleShareModal}}
 {{add-tag entityName="Question" entity=question open=toggleTagsModal}} {{add-to-dashboard question=question addToDashboard='addToDashboard' open=toggleAddToDashboardModal }}
 {{snapshot-creator question=question open=toggleSnapshotModal}} {{widget-creator question=question open=toggleWidgetModal}}

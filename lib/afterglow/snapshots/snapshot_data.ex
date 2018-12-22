@@ -6,6 +6,7 @@ defmodule AfterGlow.Snapshots.SnapshotData do
   schema "snapshot_data" do
     field(:row, :map)
     field(:snapshot_id, :id)
+    field(:identifier, Ecto.UUID)
 
     timestamps()
   end

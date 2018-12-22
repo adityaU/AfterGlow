@@ -15,6 +15,7 @@ defmodule AfterGlow.SnapshotView do
     :should_create_csv,
     :should_send_mail_on_completion,
     :updated_at,
+    :searchable_columns,
     :question_id
   ])
 end

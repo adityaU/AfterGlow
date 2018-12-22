@@ -58,8 +58,9 @@ defmodule AfterGlow.Helpers.CsvHelpers do
   end
 
   def save_and_upload_from_stream(stream, columns, file_path) do
-    {file_name, _} = save_to_file_and_upload(stream, columns)
-    upload_file_and_return_url(file_name, file_path)
+    {file_name, data_preview} = save_to_file_and_upload(stream, columns)
+    url = upload_file_and_return_url(file_name, file_path)
+    {url, data_preview}
   end
 
   defp fetch_and_upload(db_record, query, file_path) do

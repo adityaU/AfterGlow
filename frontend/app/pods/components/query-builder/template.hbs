@@ -1,45 +1,38 @@
 <div class="card long-accordion mr-2">
-  {{#bs-accordion class="text-default" as |acc|}}
-  {{#acc.item class="m-0" as |aitem|}}
-  {{#aitem.title class="py-2"}}
-  <div class="row">
-    <div class="col-10">
-      Database
-    </div>
-    <div class="col-2">
-      <span class="right" data-tooltip="Switch to SQL" data-inverted=""  data-variation="inverted" {{action 'toggleSql'}}><i class="fe fe-terminal"></i></span>
-    </div>
-  </div>
-  {{/aitem.title}}
-  {{#aitem.body class="py-2"}}
-
-  {{database-selector queryObject=queryObject toggleSql='toggleSql' databases=databases acc=acc}}
-  {{/aitem.body}}
-  {{#if showTags}}
-  {{#if queryObject.database.name }}
-  <div class="card-footer py-2">
-    <div class="full"><a href="#" class="tag tag-primary"> {{queryObject.database.name}}</a></div>
-  </div>
-  {{/if}}
-  {{/if}}
-  {{/acc.item}}
-  {{subquery-builder queryObject=queryObject databases=databases acc=acc}}
-  {{#if showGetResults}}
-  {{#if loading}}
-
-  <div class="content active">
-    <button class="btn btn-secondary full rounded-0">
-      Crunching Data ...
-    </button>
-  </div>
-  {{else}}
-  <div class="content active">
-    <button class="btn btn-primary full rounded-0" {{action 'getResults'}}>
-      Get Results
-      <i class="fe fe-arrow-right"></i>
-    </button>
-  </div>
-  {{/if}}
-  {{/if}}
-  {{/bs-accordion}}
+    {{#bs-accordion class="text-default" as |acc|}}
+        {{#acc.item class="m-0" as |aitem|}}
+            {{#aitem.title class="py-2"}}
+                <div class="row">
+                    <div class="col-10"> Database </div>
+                    <div class="col-2">
+                        <span class="right" data-tooltip="Switch to SQL" data-inverted="" data-variation="inverted"
+                            {{action 'toggleSql'}}><i class="fe fe-terminal"></i></span>
+                    </div>
+                </div>
+            {{/aitem.title}}
+            {{#aitem.body class="py-2"}}
+                {{database-selector queryObject=queryObject toggleSql='toggleSql' databases=databases acc=acc}}
+            {{/aitem.body}}
+            {{#if showTags}}
+                {{#if queryObject.database.name }}
+                    <div class="card-footer py-2">
+                        <div class="full"><a href="#" class="tag tag-primary"> {{queryObject.database.name}}</a></div>
+                    </div>
+                {{/if}}
+            {{/if}}
+        {{/acc.item}}
+        {{subquery-builder queryObject=queryObject databases=databases acc=acc}}
+        {{#if showGetResults}}
+            {{#if loading}}
+                <div class="content active">
+                    <button class="btn btn-secondary full rounded-0"> Crunching Data ... </button>
+                </div>
+            {{else}}
+                <div class="content active">
+                    <button class="btn btn-primary full rounded-0" {{action 'getResults'}}> Get Results <i class="fe fe-arrow-right"></i>
+                    </button>
+                </div>
+            {{/if}}
+        {{/if}}
+    {{/bs-accordion}}
 </div>

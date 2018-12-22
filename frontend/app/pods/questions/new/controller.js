@@ -9,7 +9,7 @@ import AceTools from 'frontend/mixins/ace-tools';
 
 export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultViewMixin, AceTools, CustomEvents, {
     ajax: Ember.inject.service(),
-
+    newQuestion: true,
     databases: Ember.computed(function () {
         return this.get('store').findAll('database');
     }),
@@ -245,18 +245,27 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
             this.toggleProperty('showSettings');
         },
         saveQuestion() {
-            let question = this.get('question');
-            question.set('sql', question.get('sql') || question.get('human_sql.rawQuery'));
-            question.set('cached_results', null);
-            question.set('query_type', question.get('human_sql.queryType') == 'raw' ? 'sql' : 'human_sql');
-            question.save().then((response) => {
-                question.get('variables').invoke('save');
+            if (this.get('newQuestion')) {
+                Ember.run.later(this, () => {
+                    $('.js-question_title').focus();
+                }, 150);
+                this.set('newQuestion', false);
 
-                this.set('retryingTransition', true);
-                this.transitionToRoute('questions.show', response.id);
-            }).then((variable) => {
-                question.set('resultsCanBeLoaded', true);
-            });
+            } else {
+                let question = this.get('question');
+                question.set('sql', question.get('sql') || question.get('human_sql.rawQuery'));
+                question.set('cached_results', null);
+                question.set('query_type', question.get('human_sql.queryType') == 'raw' ? 'sql' : 'human_sql');
+                question.save().then((response) => {
+                    question.get('variables').invoke('save');
+
+                    this.set('retryingTransition', true);
+                    this.transitionToRoute('questions.show', response.id);
+                }).then((variable) => {
+                    question.set('resultsCanBeLoaded', true);
+                });
+
+            }
         },
         transitionToDashBoard(dashboard_id) {
             this.transitionToRoute('dashboards.show', dashboard_id);

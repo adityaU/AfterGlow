@@ -5,8 +5,12 @@ export default Ember.Component.extend(CustomEvents, {
     editing: false,
     actions: {
         saveQuestion() {
+            if (this.get('newQuestion')) {
+                this.set('editing', true);
+            } else {
+                this.set('editing', false);
+            }
             this.sendAction('saveQuestion');
-            this.set('editing', false);
         },
         showAddToDashboard() {
             this.set('toggleAddToDashboardModal', true);

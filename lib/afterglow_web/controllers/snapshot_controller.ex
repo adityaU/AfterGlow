@@ -48,20 +48,48 @@ defmodule AfterGlow.SnapshotController do
 
   def stop_and_new(conn, attrs) do
     snapshot = Snapshots.get_snapshot!(conn.path_params["id"])
-    attrs = attrs |> Map.merge(%{ "question_id" => attrs["question"]})
+    attrs = attrs |> Map.merge(%{"question_id" => attrs["question"]})
 
-   with {:ok, %Snapshot{} = snapshot} <- Snapshots.stop_and_new(snapshot, attrs) do
-    render(conn, "show.json", snapshot: snapshot)
+    with {:ok, %Snapshot{} = snapshot} <- Snapshots.stop_and_new(snapshot, attrs) do
+      render(conn, "show.json", snapshot: snapshot)
     end
   end
-
-
 
   def delete(conn, %{"id" => id}) do
     snapshot = Snapshots.get_snapshot!(id)
 
     with {:ok, %Snapshot{}} <- Snapshots.delete_snapshot(snapshot) do
       send_resp(conn, :no_content, "")
+    end
+  end
+
+  def find(conn, params) do
+    snapshot = Snapshots.get_only_snapshot!(params["snapshot_id"])
+    from_latest = params["from_latest"] == "true"
+
+    with data <-
+           Snapshots.find_in_snapshot(
+             snapshot,
+             params["column_name"],
+             params["query"],
+             from_latest
+           ) do
+      json(conn, data)
+    end
+  end
+
+  def suggest(conn, params) do
+    snapshot = Snapshots.get_only_snapshot!(params["snapshot_id"])
+    from_latest = params["from_latest"] == "true"
+
+    with data <-
+           Snapshots.suggest_from_snapshot(
+             snapshot,
+             params["column_name"],
+             params["query"],
+             from_latest
+           ) do
+      json(conn, data)
     end
   end
 end

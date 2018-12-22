@@ -17,6 +17,8 @@ export default DS.Model.extend({
     should_save_data_to_db: DS.attr('boolean'),
     should_create_csv: DS.attr('boolean'),
     should_send_mail_on_completion: DS.attr('boolean'),
+    searchable_columns: DS.attr('array'),
+    keep_latest: DS.attr('number'),
     mail_to: DS.attr('array'),
 
     inserted_at: DS.attr('utc'),
