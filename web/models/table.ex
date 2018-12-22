@@ -32,7 +32,7 @@ defmodule AfterGlow.Table do
   end
 
   def cache_deletable_associations do
-    default_preloads
+    default_preloads()
   end
 
   def update_changeset(struct, params \\ %{}) do

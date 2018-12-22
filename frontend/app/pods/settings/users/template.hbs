@@ -1,7 +1,7 @@
 <div class="pl-3 pt-0">
     {{#each users as |user|}}
         <div class="card mb-3">
-            <div class="card-body p-3">
+            <div class="card-body p-3 {{if user.is_deactivated "bg-gray-lightest"}}">
                 <div class="row">
                     <div class="col-6">
                         <div class="d-flex align-items-center">
@@ -15,7 +15,17 @@
                     </div>
                     <div class="col-6 text-right ">
                         <button data-tooltip="Change User permissions " data-inverted=" " class="btn btn-link text-primary
-                                " {{action 'showChangePermissionDialogue' user}}> EDIT PERMISSIONS </button>
+                                "
+                            {{action 'showChangePermissionDialogue' user}}> EDIT PERMISSIONS </button>
+                        {{#if user.is_deactivated}}
+                            <button data-tooltip="Activate User" data-inverted=" " class="btn btn-link text-red
+                                "
+                                {{action 'activateUser' user}}> ACTIVATE </button>
+                        {{else}}
+                            <button data-tooltip="Deactivate User" data-inverted=" " class="btn btn-link text-red
+                                "
+                                {{action 'deactivateUser' user}}> DEACTIVATE </button>
+                        {{/if}}
                     </div>
                 </div>
             </div>

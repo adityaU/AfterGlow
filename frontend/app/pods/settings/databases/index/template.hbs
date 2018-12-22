@@ -15,8 +15,10 @@
                         </div>
                     </div>
                     <div class="col-6 text-right">
-                        <button data-tooltip="Delete Question" data-inverted="" class="btn btn-link text-red" {{action 'showDeleteDialogue' database}}>
-                        DELETE </button>
+                        {{#link-to 'settings.databases.edit' database.id class="btn btn-link text-primary"}} EDIT
+                        {{/link-to}}
+                        <button data-tooltip="Delete Database" data-inverted="" class="btn btn-link text-red"
+                            {{action 'showDeleteDialogue' database}}> DELETE </button>
                     </div>
                 </div>
             </div>

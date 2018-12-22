@@ -41,6 +41,8 @@ defmodule AfterGlow.Router do
     resources("/widget_items", WidgetItemController)
     resources("/notes", NoteController)
 
+    post("users/:id/activate", UserController, :activate)
+    post("users/:id/deactivate", UserController, :deactivate)
     post("questions/:id/results", QuestionController, :results)
     post("snapshots/:id/stop_and_new", SnapshotController, :stop_and_new)
     get("snapshots/:snapshot_id/find", SnapshotController, :find)

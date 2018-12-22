@@ -1,0 +1,35 @@
+<div class="pl-3 pt-0">
+    <form class="card">
+        <div class="card-body">
+            <div class="form-group">
+                <label class="form-label">Database Type</label>
+                <select class="form-control" onchange= {{action  'selectDbType' value="target.value"}}>
+                    {{#each dbTypes as |dbType|}}
+                        <option value= {{dbType}} selected= {{eq db.db_type dbType}}>{{capitalize dbType}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Name</label> {{input type="text" name="first-name" class="form-control" placeholder="What do you call it?" value=db.name}}
+                </div>
+            <div class="form-group">
+                <label class="form-label">Host Url</label> {{input  class="form-control" type="text" name="first-name" placeholder="Host endpoint" value=db.config.host_url}}
+                </div>
+            <div class="form-group">
+                <label class="form-label">Host Port</label> {{input class="form-control"  type="number" name="first-name" placeholder="Host Port" value=db.config.host_port}}
+                </div>
+            <div class="form-group">
+                <label class="form-label">Database Name</label> {{input class="form-control"  type="text" name="first-name" placeholder="Database Name" value=db.config.db_name}}
+                </div>
+            <div class="form-group">
+                <label class="form-label">Database Username</label> {{input class="form-control"  type="text" name="first-name" placeholder="Username" value=db.config.username}}
+                </div>
+            <div class="form-group">
+                <label class="form-label">Database Password</label> {{input class="form-control" type="password" name="first-name" placeholder="Password" value=db.config.password}}
+                </div>
+        </div>
+        <div class="card-footer text-right">
+            <button class="btn btn-primary" type="submit" {{action 'saveDatabase'}}>SAVE</button>
+        </div>
+    </form>
+</div>

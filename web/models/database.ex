@@ -49,6 +49,31 @@ defmodule AfterGlow.Database do
     response
   end
 
+  def update(changeset) do
+    response =
+      case changeset.errors |> Enum.empty?() do
+        true ->
+          changeset = Ecto.Changeset.change(changeset, unique_identifier: Ecto.UUID.generate())
+
+          {:ok, data} = Repo.update_with_cache(changeset)
+
+          DbConnection.connection(
+            data
+            |> Map.from_struct()
+            |> IO.inspect(label: "changes")
+          )
+
+          {:ok, data}
+
+        false ->
+          {:error, changeset}
+      end
+
+    # save schema in async
+    Async.perform(&SchemaTasks.sync/1, [response |> elem(1)])
+    response
+  end
+
   def default_preloads do
     [:tables]
   end

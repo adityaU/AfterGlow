@@ -13,6 +13,17 @@ export default Ember.Controller.extend({
         saveUser(user) {
             user.save().then((user) => {});
         },
+        activateUser(user) {
+            user.activate({}).then((response) => {
+                this.store.pushPayload('user', response);
+            });
+        },
+        deactivateUser(user) {
+            user.deactivate({}).then((response) => {
+
+                this.store.pushPayload('user', response);
+            });
+        }
 
     }
 });

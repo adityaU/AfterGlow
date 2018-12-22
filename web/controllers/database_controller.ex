@@ -5,14 +5,32 @@ defmodule AfterGlow.DatabaseController do
   alias JaSerializer.Params
   alias AfterGlow.Async
   alias AfterGlow.SchemaTasks
+  alias AfterGlow.DatabaseWithConfigView
   alias AfterGlow.CacheWrapper
   alias AfterGlow.CacheWrapper.Repo
+  import AfterGlow.Policy.Helpers
 
   alias AfterGlow.Plugs.Authorization
   plug(Authorization)
   plug(:authorize!, Database)
   plug(:scrub_params, "data" when action in [:create, :update])
   plug(:verify_authorized)
+
+  def index(conn, %{"id" => id, "include_config" => "true"}) do
+    if has_permission(conn.assigns.current_user, ["Settings.all"]) do
+      database = Repo.get!(Database, id)
+
+      json(
+        conn,
+        DatabaseWithConfigView
+        |> JaSerializer.format(database, conn, type: 'database')
+      )
+    else
+      conn
+      |> put_status(:unauthorized)
+      |> json(%{error: "not_permitted"})
+    end
+  end
 
   def index(conn, _params) do
     databases =
@@ -54,19 +72,23 @@ defmodule AfterGlow.DatabaseController do
     render(conn, :show, data: database)
   end
 
-  # def update(conn, %{"id" => id, "data" => data = %{"type" => "database", "attributes" => _database_params}}) do
-  #   database = Repo.get!(Database, id)
-  #   changeset = Database.changeset(database, Params.to_attributes(data))
+  def update(conn, %{
+        "id" => id,
+        "data" => data = %{"type" => "databases", "attributes" => _database_params}
+      }) do
+    database = Repo.get!(Database, id)
+    changeset = Database.changeset(database, Params.to_attributes(data))
 
-  #   case Repo.update(changeset) do
-  #     {:ok, database} ->
-  #       render(conn, "show.json-api", data: database)
-  #     {:error, changeset} ->
-  #       conn
-  #       |> put_status(:unprocessable_entity)
-  #       |> render(:errors, data: changeset)
-  #   end
-  # end
+    case Database.update(changeset) do
+      {:ok, database} ->
+        render(conn, :show, data: database |> Repo.preload(:tables))
+
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(:errors, data: changeset)
+    end
+  end
 
   def delete(conn, %{"id" => id}) do
     database = Repo.get!(Database, id)

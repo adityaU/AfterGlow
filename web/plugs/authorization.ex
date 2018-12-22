@@ -17,6 +17,7 @@ defmodule AfterGlow.Plugs.Authorization do
     |> sign
     |> get_compact
   end
+
   def verify_token(t) do
     t
     |> token
@@ -26,17 +27,22 @@ defmodule AfterGlow.Plugs.Authorization do
 
   def call(conn, _opts) do
     access_token = get_req_header(conn, "authorization")
+
     case access_token do
-      nil -> raise Bodyguard.NotAuthorizedError, message: "No auth token found"
+      nil ->
+        raise Bodyguard.NotAuthorizedError, message: "No auth token found"
+
       _ ->
         handle_access_token(conn, access_token)
     end
   end
 
   defp handle_access_token(conn, access_token) do
-    verified = access_token
-    |> Enum.at(0)
-    |> verify_token
+    verified =
+      access_token
+      |> Enum.at(0)
+      |> verify_token
+
     case verified.error do
       nil -> set_current_user(conn, verified.claims)
       _ -> raise Bodyguard.NotAuthorizedError, message: "invalid token"
@@ -44,8 +50,14 @@ defmodule AfterGlow.Plugs.Authorization do
   end
 
   defp set_current_user(conn, user) do
-    current_user = CacheWrapper.get_by_id(User, user["id"]) |> Repo.preload([permission_sets: :permissions])
+    current_user =
+      CacheWrapper.get_by_id(User, user["id"]) |> Repo.preload(permission_sets: :permissions)
+
+    if current_user.is_deactivated do
+      raise Bodyguard.NotAuthorizedError, message: "user deactivated"
+    end
+
     conn
-    |> assign(:current_user, current_user )
+    |> assign(:current_user, current_user)
   end
 end

@@ -48,6 +48,9 @@ Router.map(function () {
             this.route('index', {
                 path: '/'
             });
+            this.route('edit', {
+                path: '/:database_id/edit'
+            });
             this.route('new');
         });
 
