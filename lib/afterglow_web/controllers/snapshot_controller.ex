@@ -67,7 +67,7 @@ defmodule AfterGlow.SnapshotController do
     snapshot = Snapshots.get_only_snapshot!(params["snapshot_id"])
     from_latest = params["from_latest"] == "true"
 
-    with data <-
+    with {:ok, data} <-
            Snapshots.find_in_snapshot(
              snapshot,
              params["column_name"],
@@ -82,7 +82,7 @@ defmodule AfterGlow.SnapshotController do
     snapshot = Snapshots.get_only_snapshot!(params["snapshot_id"])
     from_latest = params["from_latest"] == "true"
 
-    with data <-
+    with {:ok, data} <-
            Snapshots.suggest_from_snapshot(
              snapshot,
              params["column_name"],

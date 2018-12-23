@@ -32,11 +32,7 @@ defmodule AfterGlow.QuestionController do
         |> Repo.all()
         |> Enum.map(fn x -> x.id end)
         |> CacheWrapper.get_by_ids(Question)
-        |> Repo.preload(:dashboards)
-        |> Repo.preload(:tags)
-        |> Repo.preload(:variables)
-      |> Repo.preload(snapshots: from(s in Snapshot, where: is_nil(s.parent_id)))
-        |> Repo.preload(:widgets)
+        |> Repo.preload(Question.default_preloads())
 
       conn
       |> render(:index, data: questions)
@@ -173,7 +169,7 @@ defmodule AfterGlow.QuestionController do
           |> Repo.preload(:dashboards)
           |> Repo.preload(:tags)
           |> Repo.preload(:variables)
-      |> Repo.preload(snapshots: from(s in Snapshot, where: is_nil(s.parent_id)))
+          |> Repo.preload(snapshots: from(s in Snapshot, where: is_nil(s.parent_id)))
           |> Repo.preload(:widgets)
 
         conn

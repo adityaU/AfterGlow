@@ -121,13 +121,13 @@ defmodule AfterGlow.Snapshots do
   end
 
   def find_in_snapshot(nil, _column_name, _value, _from_latest),
-    do: %{error: "snapshot not found"}
+    do: {:error, :bad_request, %{error: "snapshot not found"}}
 
   def find_in_snapshot(_snapshot, nil, _value, _from_latest),
-    do: %{error: "column_name is required."}
+    do: {:error, :bad_request, %{error: "column_name is required."}}
 
   def find_in_snapshot(_snapshot, _column_name, nil, _from_latest),
-    do: %{error: "value is required."}
+    do: {:error, :bad_request, %{error: "value is required."}}
 
   def find_in_snapshot(snapshot, column_name, value, from_latest) do
     latest_snapshot = set_latest_snapshot(snapshot, from_latest)
@@ -150,17 +150,17 @@ defmodule AfterGlow.Snapshots do
         }
       end)
 
-    %{results: data}
+    {:ok, %{results: data}}
   end
 
   def suggest_from_snapshot(nil, _column_name, _query, _from_latest),
-    do: %{error: "snapshot not found"}
+    do: {:error, :bad_request, %{error: "snapshot not found"}}
 
   def suggest_from_snapshot(_snapshot, nil, _query, _from_latest),
-    do: %{error: "column_name is required."}
+    do: {:error, :bad_request, %{error: "column_name is required."}}
 
   def suggest_from_snapshot(_snapshot, _column_name, nil, _from_latest),
-    do: %{error: "query is required."}
+    do: {:error, :bad_request, %{error: "query is required."}}
 
   def suggest_from_snapshot(snapshot, column_name, query, from_latest) do
     latest_snapshot = set_latest_snapshot(snapshot, from_latest)
@@ -184,7 +184,7 @@ defmodule AfterGlow.Snapshots do
         }
       end)
 
-    %{results: data}
+    {:ok, %{results: data}}
   end
 
   @doc """

@@ -31,6 +31,7 @@ defmodule AfterGlow.Router do
     resources("/tables", TableController, except: [:new, :edi])
     resources("/columns", ColumnController, except: [:new, :edit])
     resources("/users", UserController, except: [:new, :edit])
+    resources("/api_actions", ApiActionController)
     resources("/column_values", ColumnValueController, except: [:new, :edit])
     resources("/permission_sets", PermissionSetController, except: [:new, :edit])
     resources("/permissions", PermissionController, except: [:new, :edit])
@@ -41,6 +42,7 @@ defmodule AfterGlow.Router do
     resources("/widget_items", WidgetItemController)
     resources("/notes", NoteController)
 
+    post("api_actions/:id/send_request", ApiActionController, :send_request)
     post("users/:id/activate", UserController, :activate)
     post("users/:id/deactivate", UserController, :deactivate)
     post("questions/:id/results", QuestionController, :results)

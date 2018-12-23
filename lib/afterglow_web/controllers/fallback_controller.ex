@@ -9,12 +9,18 @@ defmodule AfterGlow.Web.FallbackController do
   def call(conn, {:error, %Ecto.Changeset{} = changeset}) do
     conn
     |> put_status(:unprocessable_entity)
-    |> render(AfterGlowWeb.ChangesetView, "error.json", changeset: changeset)
+    |> json(JaSerializer.EctoErrorSerializer.format(changeset))
   end
 
   def call(conn, {:error, :not_found}) do
     conn
     |> put_status(:not_found)
-    |> render(AfterGlowWeb.ErrorView, 404)
+    |> render(AfterGlow.Web.ErrorView, 404)
+  end
+
+  def call(conn, {:error, :bad_request, errorMessage}) do
+    conn
+    |> put_status(:bad_request)
+    |> json(errorMessage)
   end
 end

@@ -54,20 +54,23 @@ defmodule AfterGlow.CacheWrapper do
     get_by_ids(type, [id]) |> Enum.at(0)
   end
 
-  def put(key, value, time) do
-    Cachex.put!(:cache, key |> wrap_key, value, ttl: time)
-  end
+  # def put(key, value, time) do
+  #   Cachex.put!(:cache, key |> wrap_key, value, ttl: time)
+  # end
 
-  def get(key) do
-    Cachex.get!(:cache, key |> wrap_key)
-  end
+  # def get(key) do
+  #   Cachex.get!(:cache, key |> wrap_key)
+  # end
 
   defp delete_associations(struct) do
     assoc = []
 
     if struct.__struct__ |> has_function(:cache_deletable_associations) do
       assoc = struct.__struct__.cache_deletable_associations
-      struct = struct |> Repo.preload(assoc)
+
+      struct =
+        struct
+        |> Repo.preload(assoc)
     end
 
     assoc
@@ -88,6 +91,7 @@ defmodule AfterGlow.CacheWrapper do
 
     if type do
       id = struct.id
+
       Cachex.del(:cache, key(type, id))
     end
   end

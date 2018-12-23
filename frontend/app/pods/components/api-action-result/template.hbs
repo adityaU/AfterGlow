@@ -1,0 +1,28 @@
+{{#bs-modal position="center" size="lg" open=open onHide=(action 'clear') as |modal|}}
+    {{#modal.header}}
+        <div class="row w-100">
+            <div class="col-9">
+                <h4 class="modal-title"> Result</h4>
+            </div>
+            <div class="col-3 text-right">
+                <a href="#" class="tag bg-{{status.color}} text-white">{{status.text}}</a>
+            </div>
+        </div>
+    {{/modal.header}}
+    {{#modal.body}}
+        {{#if canDebug}}
+            {{#bs-accordion as |acc|}}
+                {{#acc.item value=1 title="Debug info"}}
+                    {{ember-ace lines=20 value=debugResponse mode='json' 
+                                    theme=aceTheme readOnly=true useWrapMode=true
+                                    showLineNumbers=false
+                                   }}
+                {{/acc.item}}
+            {{/bs-accordion}}
+        {{/if}}
+        {{ember-ace lines=20 value=responseBody mode='json' 
+                                    theme=aceTheme readOnly=true useWrapMode=true
+                                    showLineNumbers=false
+                                   }}
+    {{/modal.body}}
+{{/bs-modal}}

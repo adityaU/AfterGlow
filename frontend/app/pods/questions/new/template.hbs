@@ -35,7 +35,7 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                                                     <div class="col-3"> {{db-tree database=queryObject.database}} </div>
                                                 {{/if}}
                                                 <div class="{{if queryObject.database 'col-9' 'col-12'}}"> {{ember-ace lines=15 value=queryObject.rawQuery mode=aceMode enableSnippets=true enableDefaultAutocompletion=true enableLiveAutocompletion=true
-                                    context=queryObject.database suggestAutoCompletions=suggestAutoCompletions theme=aceTheme
+                                    context=queryObject.database suggestAutoCompletions=suggestAutoCompletions theme=aceTheme useWrapMode=true
                                     update=(action (mut queryObject.rawQuery)) ready=(action 'setEditorWhenReady')}}
                                                 </div>
                                             </div>
@@ -112,7 +112,7 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                                     </span>
                                 </div>
                             </div>
-                            {{#if showSettings}} {{component resultsWidgetSettingsComponent resultsViewSettings=resultsViewSettings results=results database=queryParams.database table=queryParams.table }}
+                            {{#if showSettings}} {{component resultsWidgetSettingsComponent  resultsViewSettings=resultsViewSettings results=results database=queryParams.database table=queryParams.table }}
                             {{/if}}
                             <div class="card-body p-0"> {{question-widget results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName
                             hideMenu=true question=question resizeTime=resizeTime}}

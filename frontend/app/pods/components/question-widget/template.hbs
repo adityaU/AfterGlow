@@ -1,7 +1,8 @@
 {{#if (not hideMenu)}}
     {{#if question.updated_at}}
         <span class="card-body-timer">
-            {{#bs-tooltip placement="left" }} Updated {{moment-from-now question.updated_at timeZone=timeZone interval=1000}}" {{/bs-tooltip}}
+            {{#bs-tooltip placement="left" }} Updated {{moment-from-now question.updated_at timeZone=timeZone interval=1000}}"
+            {{/bs-tooltip}}
             <i class="fe fe-clock text-{{question.updatedAgoColor}}"></i>
         </span>
     {{/if}}
@@ -26,5 +27,5 @@
         {{/dd.menu}}
     {{/bs-dropdown}}
 {{/if}}
-<div class="renderer-component {{fullscreenClass}}"> {{component resultsWidgetComponent results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName question=question context=componentContext setState=setState colorway=colorway resizeTime=resizeTime}}
-    </div>
+<div class="renderer-component {{fullscreenClass}}"> {{component resultsWidgetComponent canEdit=(can "edit question") results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName question=question context=componentContext setState=setState colorway=colorway resizeTime=resizeTime}}
+</div>

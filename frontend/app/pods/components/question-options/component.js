@@ -4,6 +4,16 @@ import CustomEvents from 'frontend/mixins/custom-events';
 export default Ember.Component.extend(CustomEvents, {
     editing: false,
     actions: {
+        showApiActionModal() {
+            let apiAction = this.get('store').createRecord('apiAction', {
+                color: 'indigo',
+                method: 'GET',
+                headers: [],
+                question: this.get('question')
+            });
+            this.set('apiAction', apiAction);
+            this.set('toggleApiActionModal', true);
+        },
         saveQuestion() {
             if (this.get('newQuestion')) {
                 this.set('editing', true);

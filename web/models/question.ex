@@ -9,7 +9,9 @@ defmodule AfterGlow.Question do
   alias AfterGlow.TagQuestion
   alias AfterGlow.Widgets.Widget
   alias AfterGlow.Snapshots.Snapshot
+  alias AfterGlow.ApiActions.ApiAction
   alias AfterGlow.CacheWrapper.Repo
+  import Ecto.Query
   defenum(QueryTypeEnum, human_sql: 0, sql: 1)
 
   schema "questions" do
@@ -51,6 +53,7 @@ defmodule AfterGlow.Question do
 
     has_many(:variables, Variable, on_delete: :delete_all, on_replace: :delete)
     has_many(:snapshots, Snapshot, on_delete: :delete_all, on_replace: :delete)
+    has_many(:api_actions, ApiAction, on_delete: :delete_all, on_replace: :delete)
 
     timestamps()
   end
@@ -89,11 +92,19 @@ defmodule AfterGlow.Question do
   end
 
   def default_preloads do
-    [:variables, :tags, :dashboards, :widgets, [snapshots: from(s in Snapshot, where: is_nil(s.parent_id))]]
+    [
+      :variables,
+      :tags,
+      :dashboards,
+      :widgets,
+      # :api_actions,
+      [api_actions: from(aa in ApiAction, where: fragment("? is not ?", aa.hidden, true))],
+      [snapshots: from(s in Snapshot, where: is_nil(s.parent_id))]
+    ]
   end
 
   def cache_deletable_associations do
-    [:variables, :tags, :dashboards, :widgets]
+    [:variables, :tags, :dashboards, :widgets, :api_actions]
   end
 
   def update_columns(question, columns, cached_results) do

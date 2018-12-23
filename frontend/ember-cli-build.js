@@ -2,48 +2,47 @@
 /* global require, module */
 var EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
-module.exports = function(defaults) {
+module.exports = function (defaults) {
     var app = new EmberApp(defaults, {
-      sourcemaps: {
-        enabled: false
-      },
+        sourcemaps: {
+            enabled: false
+        },
 
-      // Add options here
-      ace: {
-          themes: ['chrome', 'ambiance'],
-          modes: ['pgsql', 'mysql', 'sql'],
-          workers: ['pgsql', 'mysql', 'sql'],
-          exts: ["language_tools", "beautify", "text", "sql"],
-          basePath: "/ace/"
+        // Add options here
+        ace: {
+            themes: ['chrome', 'ambiance'],
+            modes: ['pgsql', 'mysql', 'sql', 'JSON'],
+            workers: ['pgsql', 'mysql', 'sql', 'JSON'],
+            exts: ['language_tools', 'beautify', 'text', 'sql', 'JSON'],
+            basePath: '/ace/'
 
-      },
+        },
 
-      'ember-bootstrap': {
-        'bootstrapVersion': 4,
-        'importBootstrapFont': false,
-        'importBootstrapCSS': false
-      }
+        'ember-bootstrap': {
+            'bootstrapVersion': 4,
+            'importBootstrapFont': false,
+            'importBootstrapCSS': false
+        }
 
     });
-    app.import('./bower_components/lodash/dist/lodash.min.js')
-    app.import('./bower_components/ace-builds/src-noconflict/theme-ambiance.js')
-    app.import('./bower_components/ace-builds/src-noconflict/mode-sql.js')
-    app.import('./bower_components/ace-builds/src-noconflict/ext-beautify.js')
-    app.import('./bower_components/ace-builds/src-noconflict/ext-language_tools.js')
-    app.import('./bower_components/popper.js/dist/popper.min.js')
-    app.import('./bower_components/ace-builds/src-noconflict/snippets/text.js',
-    {
-      type: 'vendor'
-    })
-    app.import('./bower_components/ace-builds/src-noconflict/snippets/sql.js',
-    {
-      type: 'vendor'
-    })
+    app.import('./bower_components/lodash/dist/lodash.min.js');
+    app.import('./bower_components/ace-builds/src-noconflict/theme-ambiance.js');
+    app.import('./bower_components/ace-builds/src-noconflict/mode-sql.js');
+    app.import('./bower_components/ace-builds/src-noconflict/mode-json.js');
+    app.import('./bower_components/ace-builds/src-noconflict/ext-beautify.js');
+    app.import('./bower_components/ace-builds/src-noconflict/ext-language_tools.js');
+    app.import('./bower_components/popper.js/dist/popper.min.js');
+    app.import('./bower_components/ace-builds/src-noconflict/snippets/text.js', {
+        type: 'vendor'
+    });
+    app.import('./bower_components/ace-builds/src-noconflict/snippets/sql.js', {
+        type: 'vendor'
+    });
     app.import('./bower_components/lodash/dist/lodash.js', {
         type: 'vendor',
         prepend: true,
 
-    })
+    });
 
     // Use `app.import` to add additional libraries to the generated
     // output files.

@@ -43,17 +43,17 @@
                         {{#dd.menu class="dropdown-menu-arrow" as |ddm|}}
                             {{#if (and (and validQuestion canCreateSnapshot) canEdit)}}
                                 {{#ddm.item}}
-                                    {{#bs-tooltip placement="top" }}Create A Snapshot{{/bs-tooltip}}
                                     <a class="dropdown-item border-bottom" {{action 'showSnapshotMaker'}}>Create
                                         Snapshots/Schedule Report</a>
                                 {{/ddm.item}}
                             {{/if}}
                             {{#if (and (and validQuestion question.id) canEdit)}}
                                 {{#ddm.item}}
-                                    <a class="dropdown-item border-bottom" {{action 'showAddTags'}}>Add Tags</a>
+                                    <a class="dropdown-item border-bottom" {{action 'showApiActionModal'}}>Add an API
+                                        Action</a>
                                 {{/ddm.item}}
                                 {{#ddm.item}}
-                                    <a class="dropdown-item border-bottom" {{action 'showWidgetCreator'}}>Add widgets</a>
+                                    <a class="dropdown-item border-bottom" {{action 'showAddTags'}}>Add Tags</a>
                                 {{/ddm.item}}
                                 {{#if (gt question.snapshots.length 0)}}
                                     {{#ddm.item}}
@@ -82,3 +82,4 @@
 {{share-entity entityName="Question" entity=question open=toggleShareModal}}
 {{add-tag entityName="Question" entity=question open=toggleTagsModal}} {{add-to-dashboard question=question addToDashboard='addToDashboard' open=toggleAddToDashboardModal }}
 {{snapshot-creator question=question open=toggleSnapshotModal}} {{widget-creator question=question open=toggleWidgetModal}}
+{{api-action-modal apiAction=apiAction open=toggleApiActionModal}}
