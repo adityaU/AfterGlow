@@ -24,7 +24,7 @@ defmodule AfterGlow.QuestionView do
     :dashboards,
     field: :dashboards,
     type: "dashboards",
-    include: true
+    include: false
   )
 
   has_many(
