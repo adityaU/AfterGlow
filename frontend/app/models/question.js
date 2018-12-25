@@ -53,7 +53,7 @@ export default DS.Model.extend(ResultViewMixin, {
         if (this.get('resultsCanBeLoaded') && !this.get('loading')) {
             this.set('loading', true);
             this.set('results', null);
-            let variables = this.get('query_variables');
+            let variables = this.get('mergedVariables');
             variables = variables && variables.map((item) => {
                 return {
                     name: item.get('name'),
@@ -84,6 +84,16 @@ export default DS.Model.extend(ResultViewMixin, {
             this.set('results', this.get('cached_results'));
         }
     })),
+
+    mergedVariables: Ember.computed('dashboardVariables.@each', 'query_variables', function () {
+        this.get('dashboardVariables') && this.get('dashboardVariables').forEach((item) => {
+            let query_var = this.get('query_variables').findBy('name', item.get('name'));
+            query_var && this.get('query_variables').removeObject(query_var);
+            query_var && this.get('query_variables').pushObject(item);
+        });
+        return this.get('query_variables');
+    }),
+    dashboardVariables: [],
 
     updatedAgoColor: Ember.computed('updated_at', 'updatedAgoColorChangeTime', function () {
         let updated_at = this.get('updated_at');

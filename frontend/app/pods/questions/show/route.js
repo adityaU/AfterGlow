@@ -3,9 +3,12 @@ import {
     CanMixin
 } from 'ember-can';
 
+import DynamicQueryParamsRoutesMixin from 'frontend/mixins/dynamic-query-params-routes-mixin';
+
 import KeyboardShortcuts from 'ember-keyboard-shortcuts/mixins/route';
-export default Ember.Route.extend(CanMixin, KeyboardShortcuts, {
+export default Ember.Route.extend(CanMixin, KeyboardShortcuts, DynamicQueryParamsRoutesMixin, {
     toast: Ember.inject.service(),
+
     afterModel() {
         if (!this.can('show question')) {
             this.get('toast').error(
@@ -35,10 +38,6 @@ export default Ember.Route.extend(CanMixin, KeyboardShortcuts, {
         this.controller.get('question').reload();
 
         this.set('retryingTransition', false);
-    },
-    setupController(controller, model) {
-        this._super(...arguments);
-        this.set('currentController', controller);
     },
     templateName: 'questions/new',
     actions: {

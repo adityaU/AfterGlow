@@ -193,6 +193,7 @@ defmodule AfterGlow.QuestionController do
 
     question =
       scope(conn, Question)
+      |> Repo.get!(id)
       |> Repo.preload(Question.default_preloads())
 
     changeset = Question.changeset(question, prms)

@@ -5,8 +5,9 @@ import {
 } from 'ember-can';
 
 
+import DynamicQueryParamsRoutesMixin from 'frontend/mixins/dynamic-query-params-routes-mixin';
 import KeyboardShortcuts from 'ember-keyboard-shortcuts/mixins/route';
-export default Ember.Route.extend(AuthenticationMixin, CanMixin, KeyboardShortcuts, {
+export default Ember.Route.extend(AuthenticationMixin, CanMixin, KeyboardShortcuts, DynamicQueryParamsRoutesMixin, {
     toast: Ember.inject.service(),
     queryParams: {
         share_id: {

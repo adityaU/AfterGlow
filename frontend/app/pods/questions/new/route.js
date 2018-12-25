@@ -4,16 +4,11 @@ import {
 } from 'ember-can';
 
 import KeyboardShortcuts from 'ember-keyboard-shortcuts/mixins/route';
+import DynamicQueryParamsRoutesMixin from 'frontend/mixins/dynamic-query-params-routes-mixin';
 
-export default Ember.Route.extend(CanMixin, KeyboardShortcuts, {
+export default Ember.Route.extend(CanMixin, KeyboardShortcuts, DynamicQueryParamsRoutesMixin, {
     toast: Ember.inject.service(),
-    beforeModel() {
-        this._super(...arguments);
-    },
-    setupController(controller, model) {
-        this._super(...arguments);
-        this.set('currentController', controller);
-    },
+
     resetController() {
         this.controller.set('validQuestion', true);
         this.controller.set('queryObject.rawQuery', null);

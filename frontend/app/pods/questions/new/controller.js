@@ -6,9 +6,16 @@ import LoadingMessages from 'frontend/mixins/loading-messages';
 import ResultViewMixin from 'frontend/mixins/result-view-mixin';
 import CustomEvents from 'frontend/mixins/custom-events';
 import AceTools from 'frontend/mixins/ace-tools';
+import DynamicQueryParamsControllerMixin from 'frontend/mixins/dynamic-query-params-controller-mixin';
 
-export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultViewMixin, AceTools, CustomEvents, {
+
+export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultViewMixin, AceTools, CustomEvents, DynamicQueryParamsControllerMixin, {
     ajax: Ember.inject.service(),
+    queryParamsVariables: Ember.computed.alias('question.variables'),
+    reloadBasedOnQueryParamsObserver: Ember.observer('reloadBasedOnQueryParams', function () {
+        this.set('question.resultsCanBeLoaded', true);
+    }),
+
     newQuestion: true,
     databases: Ember.computed(function () {
         return this.get('store').findAll('database');
@@ -170,6 +177,8 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
                 default_options: item.get('default_options')
             };
         }));
+
+        this.changeQueryParamsInUrl(queryObject.get('variables'), queryObject.get('name'));
         this.set('loading', true);
         this.set('results', null);
         if (withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText()) {

@@ -1,7 +1,14 @@
 import Ember from 'ember';
 
-export default Ember.Controller.extend({
+import DynamicQueryParamsControllerMixin from 'frontend/mixins/dynamic-query-params-controller-mixin';
+export default Ember.Controller.extend(DynamicQueryParamsControllerMixin, {
     dashboard: Ember.computed.alias('model'),
+
+    queryParamsVariables: Ember.computed.alias('dashboard.variables'),
+
+    reloadBasedOnQueryParamsObserver: Ember.observer('reloadBasedOnQueryParams', function () {
+        this.refreshFunction();
+    }),
     questionObserver: Ember.on('init', Ember.observer('dashboard', function () {
         let questions = this.get('dashboard.questions');
         if (questions) {
@@ -69,19 +76,12 @@ export default Ember.Controller.extend({
     },
 
     startTimer: function () {
-        let questions = this.get('dashboard.questions');
-        questions && questions.forEach((item) => {
-            item.set('resultsCanBeLoaded', true);
-            item.set('updated_at', new Date());
-        });
+        this.refreshFunction();
         this.set('timer', this.schedule(this.get('onPoll')));
     },
 
     onPoll: function () {
-        this.get('dashboard.questions').forEach((item) => {
-            item.set('updated_at', new Date());
-            item.set('resultsCanBeLoaded', true);
-        });
+        this.refreshFunction();
     },
     refreshIntervalObserver: Ember.observer('refreshInterval', function () {
         let refreshInterval = this.get('refreshInterval');
@@ -93,6 +93,7 @@ export default Ember.Controller.extend({
         }
     }),
     refreshFunction() {
+        this.changeQueryParamsInUrl(this.get('dashboard.variables'), this.get('dashboard.title'));
         let questions = this.get('dashboard.questions');
         questions && questions.forEach((item) => {
             item.set('resultsCanBeLoaded', true);
