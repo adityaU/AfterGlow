@@ -13,14 +13,15 @@
                                     <h4 class="m-0">
                                         <a href="javascript:void(0)">
                                             {{#link-to 'questions.show' question.id}}
-                                                <div class="h6 text-primary mb-0 question-title"> {{question.title}} </div>
+                                                <div class="h6 text-primary mb-0 question-title"> {{question.title}}
+                                                </div>
                                             {{/link-to}}
                                         </a>
                                     </h4>
-                                    <small class="text-muted"> from
-                                        <span class="table-name">{{question.human_sql.table.human_name}}</span>
+                                    <small class="text-muted"> from <span class="table-name">{{question.human_sql.table.human_name}}</span>
                                         {{#if question.human_sql.table.human_name
-                                            }} in {{/if}}
+                                            }}
+                                            in {{/if}}
                                         <span class="database-name">{{question.human_sql.database.name}}</span>
                                     </small>
                                 </div>
@@ -51,7 +52,8 @@
                         <div class="col-2 text-right">
                             {{#if question.updated_at}}
                                 <span>
-                                    {{#bs-tooltip placement="left" }} Updated {{moment-from-now question.updated_at timeZone=timeZone interval=1000}} {{/bs-tooltip}}
+                                    {{#bs-tooltip placement="left" }} Updated {{moment-from-now question.updated_at timeZone=timeZone interval=1000}}
+                                    {{/bs-tooltip}}
                                     <i class="fe fe-clock text-{{question.updatedAgoColor}}"></i>
                                 </span>
                             {{/if}}
@@ -62,19 +64,19 @@
                                 {{#bs-tooltip placement="top" }}view {{question.snapshots.length}} snapshot(s){{/bs-tooltip}}
                                 <i class="fe fe-copy text-gray"></i>
                             </span>
-                            <button class="btn btn-link text-red px-0" {{action 'showDeleteDialogue' question}}> {{bs-tooltip placement="top" title="Delete Question"}} DELETE </button>
+                            <button class="btn btn-link text-red px-0" {{action 'showDeleteDialogue' question}}>
+                                {{bs-tooltip placement="top" title="Delete Question"}} DELETE </button>
                         </div>
                     </div>
                 {{/aitem.title}}
                 {{#aitem.body class="border-top p-0" }}
                     {{#if question.showQuestionWidgetOnListPage}}
-                        {{#if question.results}} {{question-widget
-                          question=question
+                        {{#if question.results}} {{question-widget question=question
                           results=question.results
                           resultsViewSettings=question.results_view_settings
                           hideMenu=true
                           resultsViewType=question.results_view_settings.resultsViewType }}
-                            {{else}}
+                        {{else}}
                             {{#if (or question.loading (not question.content.isLoaded))}}
                                 <div class="dimmer active">
                                     <div class="loader text-primary"></div>
@@ -92,12 +94,13 @@
                             </span>
                         </div>
                         <div class="col text-right">
-                            <small class="text-muted"> Created {{moment-from-now question.updated_at timeZone=timeZone interval=1000}}</small>
+                            <small class="text-muted"> Updated {{moment-from-now question.updated_at timeZone=timeZone interval=1000}}</small>
                         </div>
                     </div>
                 </div>
             {{/acc.item}}
         {{/if}}
     {{/each}}
-{{/bs-accordion}} {{delete-dialogue entityName="question" open=toggleDeleteDialogue entity=questionToBeDeleted delete="deleteQuestion"}} {{add-tag entityName="Question" tags=tags entity=addTagToQuestion open=toggleTagsModal}}
+{{/bs-accordion}} {{delete-dialogue entityName="question" open=toggleDeleteDialogue entity=questionToBeDeleted delete="deleteQuestion"}}
+{{add-tag entityName="Question" tags=tags entity=addTagToQuestion open=toggleTagsModal}}
 {{create-tag entityName="questions" entity=addTagToQuestion getData='getData'}}
