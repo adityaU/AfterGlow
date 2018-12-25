@@ -102,11 +102,7 @@ defmodule AfterGlow.QuestionController do
   def index(conn, %{"id" => id, "share_id" => share_id}) when share_id != nil do
     question =
       CacheWrapper.get_by_id(id |> Integer.parse() |> elem(0), Question)
-      |> Repo.preload(:tags)
-      |> Repo.preload(:dashboards)
-      |> Repo.preload(:variables)
-      |> Repo.preload(snapshots: from(s in Snapshot, where: is_nil(s.parent_id)))
-      |> Repo.preload(:widgets)
+      |> Repo.preload(Question.default_preloads())
 
     if question.shareable_link == share_id do
       changeset =
@@ -132,11 +128,7 @@ defmodule AfterGlow.QuestionController do
 
     question =
       CacheWrapper.get_by_id(question.id, Question)
-      |> Repo.preload(:dashboards)
-      |> Repo.preload(:tags)
-      |> Repo.preload(:variables)
-      |> Repo.preload(snapshots: from(s in Snapshot, where: is_nil(s.parent_id)))
-      |> Repo.preload(:widgets)
+      |> Repo.preload(Question.default_preloads())
 
     render(conn, :show, data: question)
   end
@@ -166,11 +158,7 @@ defmodule AfterGlow.QuestionController do
       {:ok, question} ->
         question =
           question
-          |> Repo.preload(:dashboards)
-          |> Repo.preload(:tags)
-          |> Repo.preload(:variables)
-          |> Repo.preload(snapshots: from(s in Snapshot, where: is_nil(s.parent_id)))
-          |> Repo.preload(:widgets)
+          |> Repo.preload(Question.default_preloads())
 
         conn
         |> put_status(:created)
@@ -192,11 +180,7 @@ defmodule AfterGlow.QuestionController do
 
     question =
       CacheWrapper.get_by_id(question.id, Question)
-      |> Repo.preload(:dashboards)
-      |> Repo.preload(:tags)
-      |> Repo.preload(:variables)
-      |> Repo.preload(snapshots: from(s in Snapshot, where: is_nil(s.parent_id)))
-      |> Repo.preload(:widgets)
+      |> Repo.preload(Question.default_preloads())
 
     render(conn, :show, data: question)
   end
@@ -209,12 +193,7 @@ defmodule AfterGlow.QuestionController do
 
     question =
       scope(conn, Question)
-      |> Repo.get!(id)
-      |> Repo.preload(:dashboards)
-      |> Repo.preload(:tags)
-      |> Repo.preload(:variables)
-      |> Repo.preload(snapshots: from(s in Snapshot, where: is_nil(s.parent_id)))
-      |> Repo.preload(:widgets)
+      |> Repo.preload(Question.default_preloads())
 
     changeset = Question.changeset(question, prms)
     tag_ids = prms["tags_ids"]
@@ -234,10 +213,7 @@ defmodule AfterGlow.QuestionController do
       {:ok, question} ->
         question =
           question
-          |> Repo.preload(:dashboards)
-          |> Repo.preload(:tags)
-          |> Repo.preload(:variables)
-          |> Repo.preload(:widgets)
+          |> Repo.preload(Question.default_preloads())
 
         render(conn, :show, data: question)
 
@@ -296,11 +272,7 @@ defmodule AfterGlow.QuestionController do
       |> Repo.all()
       |> Enum.map(fn x -> x.id end)
       |> CacheWrapper.get_by_ids(Question)
-      |> Repo.preload(:dashboards)
-      |> Repo.preload(:tags)
-      |> Repo.preload(:variables)
-      |> Repo.preload(snapshots: from(s in Snapshot, where: is_nil(s.parent_id)))
-      |> Repo.preload(:widgets)
+      |> Repo.preload(Question.default_preloads())
 
     json(
       conn,
