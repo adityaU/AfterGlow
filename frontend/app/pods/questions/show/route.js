@@ -63,6 +63,11 @@ export default Ember.Route.extend(CanMixin, KeyboardShortcuts, DynamicQueryParam
             this.resetController();
             this.controller.set('retryingTransition', true);
             this.get('nextTransition').retry();
+        },
+        didTransition() {
+            this._super(...arguments);
+
+            this.set('currentController.question.resultsCanBeLoaded', new Date());
         }
     },
 

@@ -287,7 +287,7 @@ defmodule AfterGlow.QuestionController do
       id: id,
       raw_query: sql,
       additional_filters: additionalFilters,
-      variables: variables
+      variables: variables |> Enum.filter(fn x -> x |> Map.has_key?("name") end)
     }
   end
 

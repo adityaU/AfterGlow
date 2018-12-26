@@ -6,8 +6,23 @@ export default Ember.Controller.extend(DynamicQueryParamsControllerMixin, {
 
     queryParamsVariables: Ember.computed.alias('dashboard.variables'),
 
-    reloadBasedOnQueryParamsObserver: Ember.observer('reloadBasedOnQueryParams', function () {
-        this.refreshFunction();
+    variablesFulfilled: Ember.computed('dashboard.questions.@each.variablesUpdated', function () {
+        let variablesFulfilled = true;
+        this.get('dashboard.questions').forEach((item) => {
+            item.get('variables').forEach((variable) => {
+                if (!variable.get('isLoaded')) {
+                    variablesFulfilled = false;
+                }
+            });
+        });
+        return variablesFulfilled;
+    }),
+
+    reloadBasedOnQueryParamsObserver: Ember.observer('reloadBasedOnQueryParams', 'variablesFulfilled', function () {
+        let variablesFulfilled = this.get('variablesFulfilled');
+        if (variablesFulfilled) {
+            this.refreshFunction();
+        }
     }),
     questionObserver: Ember.on('init', Ember.observer('dashboard', function () {
         let questions = this.get('dashboard.questions');
@@ -92,8 +107,15 @@ export default Ember.Controller.extend(DynamicQueryParamsControllerMixin, {
             this.stopTimer();
         }
     }),
+    setQuestionDashboardVariables() {
+        let questions = this.get('dashboard.questions');
+        questions && questions.forEach((item) => {
+            item.set('dashboardVariables', this.get('dashboard.variables'));
+        });
+    },
     refreshFunction() {
         this.changeQueryParamsInUrl(this.get('dashboard.variables'), this.get('dashboard.title'));
+        this.setQuestionDashboardVariables();
         let questions = this.get('dashboard.questions');
         questions && questions.forEach((item) => {
             item.set('resultsCanBeLoaded', true);

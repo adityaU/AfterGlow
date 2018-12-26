@@ -34,6 +34,11 @@ export default DS.Model.extend(ResultViewMixin, {
         });
     }),
 
+    nameObserver: Ember.on('init', Ember.observer('name', function () {
+
+        this.get('name') && this.get('question.isLoaded') && this.set('question.variablesUpdated', new Date());
+    })),
+
     questionFilterObserver: Ember.on('init', Ember.observer('question_filter', 'questionFilterOptions', function () {
         let question_filter = this.get('question_filter');
         if (question_filter &&
@@ -49,15 +54,15 @@ export default DS.Model.extend(ResultViewMixin, {
 
 
 
-    setQuestionVariables: Ember.observer('dashboard', 'dashboard.question.isFulfilled', 'value', 'default_options.[]', function () {
-        let dashboard = this.get('dashboard');
-        if (dashboard.get('content')) {
-            dashboard.get('questions.isFulfilled') && dashboard.get('questions').forEach((item) => {
-                item.get('dashboardVariables').pushObject(this);
-                // let variable = item.get('variables').findBy('name', this.get('name'));
-                // variable && variable.set('value', this.get('value'));
-                // variable && variable.set('default_options', this.get('default_options'));
-            });
-        }
-    })
+    // setQuestionVariables: Ember.observer('dashboard', 'dashboard.question.isFulfilled', 'value', 'default_options.[]', function () {
+    //     let dashboard = this.get('dashboard');
+    //     if (dashboard.get('content')) {
+    //         dashboard.get('questions.isFulfilled') && dashboard.get('questions').forEach((item) => {
+    //             item.set('dashboardVariables', this.get('dashboard.variables'));
+    //             // let variable = item.get('variables').findBy('name', this.get('name'));
+    //             // variable && variable.set('value', this.get('value'));
+    //             // variable && variable.set('default_options', this.get('default_options'));
+    //         });
+    //     }
+    // })
 });

@@ -99,6 +99,8 @@ defmodule AfterGlow.Variable do
     end
   end
 
+  def default_option_values(nil), do: nil
+
   def default_option_values(variable) do
     if variable.default_options |> length > 0 do
       variable.default_options

@@ -61,6 +61,8 @@ export default DS.Model.extend(ResultViewMixin, {
                     var_type: item.get('var_type'),
                     default_options: item.get('default_options')
                 };
+            }).filter((item) => {
+                return item.hasOwnProperty('name') && item['name'];
             });
             this.resultsCall({
                 variables: variables
