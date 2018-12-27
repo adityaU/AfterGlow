@@ -75,7 +75,7 @@ defmodule AfterGlow.ApiActions do
       variable_name = variable["name"] |> String.trim()
 
       string
-      |> String.replace(~r({{.*#{variable_name}.*}}), variable["value"] |> to_string() || "")
+      |> String.replace(~r({{\W*#{variable_name}\W*}}), variable["value"] |> to_string() || "")
     end)
   end
 
