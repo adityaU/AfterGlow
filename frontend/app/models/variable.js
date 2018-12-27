@@ -54,15 +54,15 @@ export default DS.Model.extend(ResultViewMixin, {
 
 
 
-    // setQuestionVariables: Ember.observer('dashboard', 'dashboard.question.isFulfilled', 'value', 'default_options.[]', function () {
-    //     let dashboard = this.get('dashboard');
-    //     if (dashboard.get('content')) {
-    //         dashboard.get('questions.isFulfilled') && dashboard.get('questions').forEach((item) => {
-    //             item.set('dashboardVariables', this.get('dashboard.variables'));
-    //             // let variable = item.get('variables').findBy('name', this.get('name'));
-    //             // variable && variable.set('value', this.get('value'));
-    //             // variable && variable.set('default_options', this.get('default_options'));
-    //         });
-    //     }
-    // })
+    setQuestionVariables: Ember.observer('dashboard', 'dashboard.questions.@each.variablesUpdated', 'value', 'default_options.[]', function () {
+        let dashboard = this.get('dashboard');
+        if (dashboard.get('content')) {
+            dashboard.get('questions.isFulfilled') && dashboard.get('questions').forEach((item) => {
+                //item.set('dashboardVariables', this.get('dashboard.variables'));
+                let variable = item.get('variables').findBy('name', this.get('name'));
+                variable && variable.set('value', this.get('value'));
+                variable && variable.set('default_options', this.get('default_options'));
+            });
+        }
+    })
 });

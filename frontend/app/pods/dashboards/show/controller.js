@@ -107,15 +107,17 @@ export default Ember.Controller.extend(DynamicQueryParamsControllerMixin, {
             this.stopTimer();
         }
     }),
-    setQuestionDashboardVariables() {
-        let questions = this.get('dashboard.questions');
-        questions && questions.forEach((item) => {
-            item.set('dashboardVariables', this.get('dashboard.variables'));
-        });
-    },
+    // setQuestionDashboardVariables() {
+    //     let questions = this.get('dashboard.questions');
+    //     questions && questions.forEach((item) => {
+    //         let variable = item.get('variables').findBy('name', this.get('name'));
+    //         variable && variable.set('value', this.get('value'));
+    //         variable && variable.set('default_options', this.get('default_options'));
+    //     });
+    // },
     refreshFunction() {
         this.changeQueryParamsInUrl(this.get('dashboard.variables'), this.get('dashboard.title'));
-        this.setQuestionDashboardVariables();
+        // this.setQuestionDashboardVariables();
         let questions = this.get('dashboard.questions');
         questions && questions.forEach((item) => {
             item.set('resultsCanBeLoaded', true);
