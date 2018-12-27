@@ -25,7 +25,8 @@ export default Ember.Route.extend(CanMixin, KeyboardShortcuts, DynamicQueryParam
         this._super(...arguments);
         this.set('currentController', controller);
     },
-    afterModel(model) {
+    afterModel(model, transition) {
+        this._super(...arguments);
         if (!this.can('show dashboard')) {
             this.get('toast').error(
                 'You are not authorized to perform this action',
@@ -37,6 +38,8 @@ export default Ember.Route.extend(CanMixin, KeyboardShortcuts, DynamicQueryParam
             );
 
             return this.transitionTo('index');
+        } else {
+            this.set('title', `Afterglow Dashboard - ${model.get('title')}`);
         }
     },
 

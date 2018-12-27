@@ -9,7 +9,9 @@ import KeyboardShortcuts from 'ember-keyboard-shortcuts/mixins/route';
 export default Ember.Route.extend(CanMixin, KeyboardShortcuts, DynamicQueryParamsRoutesMixin, {
     toast: Ember.inject.service(),
 
-    afterModel() {
+    afterModel(model, transition) {
+
+        this._super(...arguments);
         if (!this.can('show question')) {
             this.get('toast').error(
                 'You are not authorized to perform this action',
@@ -21,7 +23,10 @@ export default Ember.Route.extend(CanMixin, KeyboardShortcuts, DynamicQueryParam
             );
 
             this.transitionTo('index');
+        } else {
+            this.set('title', `Afterglow Question - ${model.get('title')}`);
         }
+
     },
     queryParams: {
         share_id: {

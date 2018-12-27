@@ -8,6 +8,7 @@ import DynamicQueryParamsRoutesMixin from 'frontend/mixins/dynamic-query-params-
 
 export default Ember.Route.extend(CanMixin, KeyboardShortcuts, DynamicQueryParamsRoutesMixin, {
     toast: Ember.inject.service(),
+    title: 'Afterglow New Question',
 
     resetController() {
         this.controller.set('validQuestion', true);
