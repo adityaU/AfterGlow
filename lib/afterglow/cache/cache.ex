@@ -31,13 +31,15 @@ defmodule AfterGlow.CacheWrapper do
         |> Repo.preload(type.default_preloads || [])
       end)
 
-    if not_found_in_cache |> length > 0 do
-      from_database =
+   from_database = if not_found_in_cache |> length > 0 do
+       save_in_cache(type, 
         from(t in type, where: t.id in ^not_found_in_cache)
         |> Repo.all()
         |> Repo.preload(type.default_preloads || [])
+       )
 
-      save_in_cache(type, from_database)
+   else 
+     nil
     end
 
     from_cache ++ (from_database || [])

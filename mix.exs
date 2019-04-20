@@ -5,7 +5,7 @@ defmodule AfterGlow.Mixfile do
     [
       app: :afterglow,
       version: "0.0.1",
-      elixir: "~> 1.6.0-rc.0",
+      elixir: "~> 1.8.1",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       build_embedded: Mix.env() == :prod,
