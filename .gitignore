@@ -1,6 +1,5 @@
 _build/
 deps/
-frontend/dist/
 frontend/tmp/
 .elixir_ls/
 erl_crash.dump
