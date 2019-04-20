@@ -97,7 +97,7 @@ defmodule AfterGlow.Mixfile do
       {:sweet_xml, "~> 0.6.0"},
       {:bamboo, "~> 0.8.0"},
       {:bamboo_smtp, "~> 1.4.0"},
-      {:distillery, "~> 1.5", runtime: false},
+      {:distillery, "~> 2.0", runtime: false},
       {:jason, "~> 1.0"},
       {:cachex, git: "https://github.com/whitfin/cachex.git"},
       {:quantum, "~> 2.2"},
