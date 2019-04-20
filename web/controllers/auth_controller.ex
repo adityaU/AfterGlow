@@ -8,13 +8,13 @@ defmodule AfterGlow.AuthController do
   alias AfterGlow.Plugs.Authorization
   alias AfterGlow.CacheWrapper
   alias AfterGlow.CacheWrapper.Repo
-  
+
 
   def google_auth_path(conn, _params) do
     conn
     |> json %{path: authorize_url!("google")}
   end
-  
+
   def verify_token(conn, t) do
     verified = t["token"]
     |> Authorization.verify_token
@@ -79,19 +79,19 @@ defmodule AfterGlow.AuthController do
   defp get_token!(_, _) do
     raise "No matching provider available"
   end
-  
+
   defp save_or_update_user(user) do
     saved_user = Repo.one(from u in User, where: u.email == ^user["email"])
-    if saved_user do
+     {:ok ,user} =if saved_user do
       changeset = User.changeset(saved_user, %{email: user["email"], first_name: user["given_name"], last_name: user["family_name"], profile_pic: user["picture"], metadata: user, full_name: user[ "name" ]})
-       {:ok ,user} = Repo.update_with_cache(changeset)
+       Repo.update_with_cache(changeset)
     else
       changeset = User.changeset(%User{}, %{email: user["email"], first_name: user["given_name"], last_name: user["family_name"], profile_pic: user["picture"], metadata: user, full_name: user[ "name" ]})
-      {:ok, user} = Repo.insert_with_cache(changeset)
+      {:ok, u} = Repo.insert_with_cache(changeset)
       permission_set = Repo.one(from ps in PermissionSet, where: ps.name == "Viewer")
       user_permission_set = Repo.insert_with_cache(UserPermissionSet.changeset(%UserPermissionSet{}, %{user_id: user.id, permission_set_id: permission_set.id}))
+      {:ok, u}
     end
-    {:ok, user}
   end
 
   defp get_user!("google", token) do
