@@ -1,0 +1,17 @@
+<div class="pl-3 pt-0">
+    <form class="card">
+        <div class="card-body">
+            <div class="form-group">
+                <label class="form-label">Name</label>
+                {{input type="text" name="first-name" class="form-control" placeholder="What do you call it?" value=team.name}}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                {{input  class="form-control" type="text" name="first-name" placeholder="Host endpoint" value=team.description}}
+            </div>
+        </div>
+        <div class="card-footer text-right">
+            <button class="btn btn-primary" type="submit" {{action 'saveTeam'}}>SAVE</button>
+        </div>
+    </form>
+</div>

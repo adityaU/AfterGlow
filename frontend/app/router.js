@@ -56,7 +56,15 @@ Router.map(function () {
 
         this.route('email');
         this.route('sms');
-        this.route('pagerduty');
+        this.route('teams', function () {
+            this.route('index', {
+                path: '/'
+            });
+            this.route('edit', {
+                path: '/:team_id/edit'
+            });
+            this.route('new');
+        });
         this.route('users');
         this.route('permissions');
     });

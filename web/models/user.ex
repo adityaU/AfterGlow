@@ -5,6 +5,8 @@ defmodule AfterGlow.User do
 
   alias AfterGlow.PermissionSet
   alias AfterGlow.Permission
+  alias AfterGlow.Teams.UserTeam
+  alias AfterGlow.Teams.Team
   alias AfterGlow.UserPermissionSet
   alias AfterGlow.CacheWrapper.Repo
 
@@ -26,6 +28,8 @@ defmodule AfterGlow.User do
     )
 
     many_to_many(:permissions, Permission, join_through: PermissionSet, on_delete: :nothing)
+    many_to_many(:teams, Team, join_through: UserTeam, on_delete: :nothing)
+
     timestamps()
   end
 

@@ -41,6 +41,7 @@ defmodule AfterGlow.Router do
     resources("/widgets", WidgetController)
     resources("/widget_items", WidgetItemController)
     resources("/notes", NoteController)
+    resources("/teams", TeamController)
 
     post("api_actions/:id/send_request", ApiActionController, :send_request)
     post("users/:id/activate", UserController, :activate)
