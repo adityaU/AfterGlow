@@ -4406,11 +4406,35 @@ define('frontend/models/tag', ['exports', 'ember-data'], function (exports, _emb
 
     });
 });
-define('frontend/models/team', ['exports', 'ember-data'], function (exports, _emberData) {
+define('frontend/models/team', ['exports', 'ember-data', 'ember-api-actions'], function (exports, _emberData, _emberApiActions) {
     exports['default'] = _emberData['default'].Model.extend({
         name: _emberData['default'].attr('string'),
         inserted_at: _emberData['default'].attr('utc'),
-        updated_at: _emberData['default'].attr('utc')
+        updated_at: _emberData['default'].attr('utc'),
+        users: _emberData['default'].hasMany('user'),
+        accessible_databases: _emberData['default'].hasMany('database'),
+
+        addUser: (0, _emberApiActions.memberAction)({
+            path: 'add_user',
+            type: 'post',
+            urlType: 'findRecord'
+        }),
+        removeUser: (0, _emberApiActions.memberAction)({
+            path: 'remove_user',
+            type: 'post',
+            urlType: 'findRecord'
+        }),
+        removeDatabase: (0, _emberApiActions.memberAction)({
+            path: 'remove_database',
+            type: 'post',
+            urlType: 'findRecord'
+        }),
+        addDatabase: (0, _emberApiActions.memberAction)({
+            path: 'add_database',
+            type: 'post',
+            urlType: 'findRecord'
+        })
+
     });
 });
 define('frontend/models/user', ['exports', 'ember-data', 'ember', 'ember-api-actions'], function (exports, _emberData, _ember, _emberApiActions) {
@@ -9125,13 +9149,67 @@ define("frontend/pods/settings/sms/template", ["exports"], function (exports) {
 define('frontend/pods/settings/teams/edit/controller', ['exports', 'ember'], function (exports, _ember) {
     exports['default'] = _ember['default'].Controller.extend({
         team: _ember['default'].computed.alias('model'),
+        users: _ember['default'].computed(function () {
+            return this.store.findAll('user');
+        }),
+        databases: _ember['default'].computed(function () {
+            return this.store.findAll('database');
+        }),
+        selectedUsers: _ember['default'].computed('team.users', function () {
+            var _this = this;
+
+            return this.get('team.users') && this.get('team.users').map(function (item) {
+                return _this.get('store').peekRecord('user', item.get('id'));
+            });
+        }),
+        selectedDatabases: _ember['default'].computed('team.accessible_databases', function () {
+            var _this2 = this;
+
+            return this.get('team.accessible_databases') && this.get('team.accessible_databases').map(function (item) {
+                return _this2.get('store').peekRecord('database', item.get('id'));
+            });
+        }),
 
         actions: {
+            mutDatabase: function mutDatabase(databases) {
+                var alreadyAddedDatabaseIDs = this.get('team.accessible_database').map(function (db) {
+                    return db.id;
+                });
+                var databaseIds = databases && databases.map(function (db) {
+                    return db.id;
+                });
+                var newDatabases = databaseIds && databaseIds.filter(function (dbid) {
+                    return !alreadyAddedDatabaseIDs.contains(dbid);
+                });
+                var toBeRemovedDatabases = alreadyAddedDatabaseIDs && alreadyAddedDatabaseIDs.filter(function (dbid) {
+                    return !databaseIds.contains(dbid);
+                });
+
+                this.get('team').addDatabase({
+                    database_id: newDatabases[0]
+                });
+                this.get('team').removeDatabase({
+                    database_id: toBeRemovedDatabases[0]
+                });
+                this.set('team.accessible_databases', databases);
+            },
+            mutUser: function mutUser(users) {
+                var alreadyAddedUsersIDs = this.get('team.users').map(function (user) {
+                    return user.id;
+                });
+                var newUsers = users && users.filter(function (user) {
+                    return !alreadyAddedUsersIDs.contains(user.id);
+                });
+                this.get('team').addUser({
+                    user_id: newUsers[0].id
+                });
+                this.set('team.users', users);
+            },
             saveDatabase: function saveDatabase() {
-                var _this = this;
+                var _this3 = this;
 
                 this.get('team').save().then(function (response) {
-                    _this.transitionToRoute('settings.teams.index');
+                    _this3.transitionToRoute('settings.teams.index');
                 });
             }
         }
@@ -9140,9 +9218,7 @@ define('frontend/pods/settings/teams/edit/controller', ['exports', 'ember'], fun
 define('frontend/pods/settings/teams/edit/route', ['exports', 'ember', 'frontend/mixins/authentication-mixin'], function (exports, _ember, _frontendMixinsAuthenticationMixin) {
     exports['default'] = _ember['default'].Route.extend(_frontendMixinsAuthenticationMixin['default'], {
         model: function model(params) {
-            return this.store.queryRecord('team', {
-                id: params.team_id
-            });
+            return this.store.find('team', params.team_id);
         },
         setupController: function setupController(controller, model) {
             this._super.apply(this, arguments);
@@ -9152,7 +9228,7 @@ define('frontend/pods/settings/teams/edit/route', ['exports', 'ember', 'frontend
     });
 });
 define("frontend/pods/settings/teams/edit/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "z5Kw4U2Z", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n    \"],[6,\"form\"],[9,\"class\",\"card\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-body\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Name\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"type\",\"name\",\"class\",\"placeholder\",\"value\"],[\"text\",\"first-name\",\"form-control\",\"What do you call it?\",[20,[\"team\",\"name\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Description\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"placeholder\",\"value\"],[\"form-control\",\"text\",\"first-name\",\"Host endpoint\",[20,[\"team\",\"description\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-footer text-right\"],[7],[0,\"\\n            \"],[6,\"button\"],[9,\"class\",\"btn btn-primary\"],[9,\"type\",\"submit\"],[3,\"action\",[[19,0,[]],\"saveTeam\"]],[7],[0,\"SAVE\"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/teams/edit/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "UkAPXWj8", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n    \"],[6,\"form\"],[9,\"class\",\"card\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-body\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Name\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"type\",\"name\",\"class\",\"placeholder\",\"value\"],[\"text\",\"first-name\",\"form-control\",\"What do you call it?\",[20,[\"team\",\"name\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Description\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"placeholder\",\"value\"],[\"form-control\",\"text\",\"first-name\",\"Host endpoint\",[20,[\"team\",\"description\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Users\"],[8],[0,\"\\n                \"],[1,[25,\"searchable-select\",null,[[\"content\",\"multiple\",\"sortBy\",\"optionLabelKey\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-change\"],[[20,[\"users\"]],true,\"email\",\"email\",[20,[\"selectedUsers\"]],false,\"Add Users\",[25,\"action\",[[19,0,[]],\"mutUser\"],null]]]],false],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Accessible Databases\"],[8],[0,\"\\n                \"],[1,[25,\"searchable-select\",null,[[\"content\",\"multiple\",\"sortBy\",\"optionLabelKey\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-change\"],[[20,[\"databases\"]],true,\"name\",\"name\",[20,[\"selectedDatabases\"]],false,\"Select Databases that should be accessible to this team\",[25,\"action\",[[19,0,[]],\"mutDatabase\"],null]]]],false],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-footer text-right\"],[7],[0,\"\\n            \"],[6,\"button\"],[9,\"class\",\"btn btn-primary\"],[9,\"type\",\"submit\"],[3,\"action\",[[19,0,[]],\"saveTeam\"]],[7],[0,\"SAVE\"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/teams/edit/template.hbs" } });
 });
 define('frontend/pods/settings/teams/index/controller', ['exports', 'ember'], function (exports, _ember) {
     exports['default'] = _ember['default'].Controller.extend({
@@ -9791,5 +9867,5 @@ catch(err) {
 });
 
 if (!runningTests) {
-  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0+2044f393"});
+  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0+a309879a"});
 }

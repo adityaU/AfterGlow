@@ -4,7 +4,7 @@ defmodule AfterGlow.Teams.TeamDatabase do
   alias AfterGlow.Teams.Team
   alias AfterGlow.Database
 
-  schema("user_teams") do
+  schema("team_databases") do
     belongs_to(:team, Team)
     belongs_to(:database, Database)
     timestamps()

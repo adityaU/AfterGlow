@@ -5635,7 +5635,7 @@ define('frontend/tests/pods/settings/teams/edit/controller.jshint.lint-test', []
   QUnit.module('JSHint | pods/settings/teams/edit/controller.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'pods/settings/teams/edit/controller.js should pass jshint.\npods/settings/teams/edit/controller.js: line 10, col 24, \'response\' is defined but never used.\n\n1 error');
+    assert.ok(false, 'pods/settings/teams/edit/controller.js should pass jshint.\npods/settings/teams/edit/controller.js: line 61, col 24, \'response\' is defined but never used.\n\n1 error');
   });
 });
 define('frontend/tests/pods/settings/teams/edit/route.jshint.lint-test', [], function () {
@@ -5644,7 +5644,7 @@ define('frontend/tests/pods/settings/teams/edit/route.jshint.lint-test', [], fun
   QUnit.module('JSHint | pods/settings/teams/edit/route.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'pods/settings/teams/edit/route.js should pass jshint.\npods/settings/teams/edit/route.js: line 10, col 44, \'model\' is defined but never used.\npods/settings/teams/edit/route.js: line 10, col 32, \'controller\' is defined but never used.\n\n2 errors');
+    assert.ok(false, 'pods/settings/teams/edit/route.js should pass jshint.\npods/settings/teams/edit/route.js: line 8, col 44, \'model\' is defined but never used.\npods/settings/teams/edit/route.js: line 8, col 32, \'controller\' is defined but never used.\n\n2 errors');
   });
 });
 define('frontend/tests/pods/settings/teams/index/controller.jshint.lint-test', [], function () {

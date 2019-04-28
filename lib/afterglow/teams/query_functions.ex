@@ -12,17 +12,21 @@ defmodule AfterGlow.Teams.QueryFunctions do
   end
 
   def list() do
-    Team |> Repo.all()
+    Team
+    |> Repo.all()
+    |> preload_defaults
   end
 
   def get(id) do
     Repo.get!(Team, id)
+    |> preload_defaults
   end
 
   def update(id, attrs) do
     get(id)
     |> Team.changeset(attrs)
     |> Repo.update()
+    |> preload_defaults
   end
 
   def add_database_to_team(database_id, team_id)
@@ -58,7 +62,7 @@ defmodule AfterGlow.Teams.QueryFunctions do
   end
 
   defp preload_defaults({:ok, queryable}) do
-    {:ok, queryable |> Repo.preload([:users, :accessible_databases])}
+    {:ok, queryable |> Repo.preload(users: :users, accessible_databases: :accessible_databases)}
   end
 
   defp preload_defaults(error = {:error, _anything}) do
@@ -66,6 +70,6 @@ defmodule AfterGlow.Teams.QueryFunctions do
   end
 
   defp preload_defaults(queryable) do
-    queryable |> Repo.preload(:users, :accessible_databases)
+    queryable |> Repo.preload(users: :users, accessible_databases: :accessible_databases)
   end
 end

@@ -3,9 +3,7 @@ import AuthenticationMixin from 'frontend/mixins/authentication-mixin';
 
 export default Ember.Route.extend(AuthenticationMixin, {
     model(params) {
-        return this.store.queryRecord('team', {
-            id: params.team_id,
-        });
+        return this.store.find('team', params.team_id);
     },
     setupController: function (controller, model) {
         this._super(...arguments);

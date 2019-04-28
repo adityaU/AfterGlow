@@ -7,7 +7,29 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Description</label>
-                {{input  class="form-control" type="text" name="first-name" placeholder="Host endpoint" value=team.description}}
+                {{input class="form-control" type="text" name="first-name" placeholder="Host endpoint" value=team.description}}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Users</label>
+                {{searchable-select content=users
+            multiple=true
+            sortBy="email"
+            optionLabelKey="email"
+            selected=selectedUsers
+            closeOnSelection=false
+            prompt="Add Users"
+            on-change=(action 'mutUser')}}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Accessible Databases</label>
+                {{searchable-select content=databases
+            multiple=true
+            sortBy="name"
+            optionLabelKey="name"
+            selected=selectedDatabases
+            closeOnSelection=false
+            prompt="Select Databases that should be accessible to this team"
+            on-change=(action 'mutDatabase')}}
             </div>
         </div>
         <div class="card-footer text-right">

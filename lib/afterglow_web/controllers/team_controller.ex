@@ -16,6 +16,11 @@ defmodule AfterGlow.TeamController do
     render(conn, "index.json", teams: teams)
   end
 
+  def show(conn, %{"id" => id}) do
+    team = Teams.get(id)
+    render(conn, "show.json", team: team)
+  end
+
   def create(conn, %{"data" => data = %{"type" => "teams", "attributes" => _teams_params}}) do
     prms = Params.to_attributes(data)
 
