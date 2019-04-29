@@ -29,40 +29,41 @@ defmodule AfterGlow.Teams.QueryFunctions do
     |> preload_defaults
   end
 
-  def add_database_to_team(database_id, team_id)
-      when is_integer(database_id) and is_integer(team_id) do
+  def delete(id) do
+    get(id)
+    |> Repo.delete()
+  end
+
+  def add_database_to_team(database_id, team_id) do
     TeamDatabase.changeset(%TeamDatabase{}, %{database_id: database_id, team_id: team_id})
     |> Repo.insert()
+
+    get(team_id)
   end
 
-  def remove_database_from_team(database_id, team_id)
-      when is_integer(database_id) and is_integer(team_id) do
+  def remove_database_from_team(database_id, team_id) do
     from(td in TeamDatabase, where: td.team_id == ^team_id and td.database_id == ^database_id)
     |> Repo.delete_all()
-  end
 
-  def list_database_for_team(team_id) when is_integer(team_id) do
     get(team_id)
-    |> Repo.preload(:accessible_databases)
   end
 
-  def add_user_to_team(user_id, team_id) when is_integer(user_id) and is_integer(team_id) do
+  def add_user_to_team(user_id, team_id) do
     UserTeam.changeset(%UserTeam{}, %{user_id: user_id, team_id: team_id})
     |> Repo.insert()
+
+    get(team_id)
   end
 
-  def remove_user_from_team(user_id, team_id) when is_integer(user_id) and is_integer(team_id) do
+  def remove_user_from_team(user_id, team_id) do
     from(ut in UserTeam, where: ut.team_id == ^team_id and ut.user_id == ^user_id)
     |> Repo.delete_all()
-  end
 
-  def list_users_for_team(team_id) when is_integer(team_id) do
     get(team_id)
-    |> Repo.preload(:users)
   end
 
   defp preload_defaults({:ok, queryable}) do
-    {:ok, queryable |> Repo.preload(users: :users, accessible_databases: :accessible_databases)}
+    {:ok, queryable |> Repo.preload([:users, :accessible_databases])}
   end
 
   defp preload_defaults(error = {:error, _anything}) do
@@ -70,6 +71,6 @@ defmodule AfterGlow.Teams.QueryFunctions do
   end
 
   defp preload_defaults(queryable) do
-    queryable |> Repo.preload(users: :users, accessible_databases: :accessible_databases)
+    queryable |> Repo.preload([:users, :accessible_databases])
   end
 end

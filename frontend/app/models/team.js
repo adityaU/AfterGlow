@@ -1,3 +1,4 @@
+import Ember from 'ember';
 import DS from 'ember-data';
 
 import {
@@ -6,10 +7,23 @@ import {
 
 export default DS.Model.extend({
     name: DS.attr('string'),
+    description: DS.attr('string'),
     inserted_at: DS.attr('utc'),
     updated_at: DS.attr('utc'),
     users: DS.hasMany('user'),
     accessible_databases: DS.hasMany('database'),
+
+    autoSave() {
+        Ember.run.debounce(this, () => {
+            this.save()
+        }, 2000)
+    },
+
+    autoSaveObserver: Ember.observer('name', 'description', function () {
+        if (this.get('id')) {
+            this.autoSave()
+        }
+    }),
 
     addUser: memberAction({
         path: 'add_user',

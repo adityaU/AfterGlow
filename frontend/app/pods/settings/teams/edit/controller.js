@@ -22,7 +22,7 @@ export default Ember.Controller.extend({
 
     actions: {
         mutDatabase(databases) {
-            let alreadyAddedDatabaseIDs = this.get('team.accessible_database').map((db) => {
+            let alreadyAddedDatabaseIDs = this.get('team.accessible_databases').map((db) => {
                 return db.id;
             });
             let databaseIds = databases && databases.map((db) => {
@@ -34,26 +34,42 @@ export default Ember.Controller.extend({
             let toBeRemovedDatabases = alreadyAddedDatabaseIDs && alreadyAddedDatabaseIDs.filter((dbid) => {
                 return !databaseIds.contains(dbid);
             });
-
-            this.get('team').addDatabase({
-                database_id: newDatabases[0]
-            });
-            this.get('team').removeDatabase({
-                database_id: toBeRemovedDatabases[0]
-            });
+            if (newDatabases[0]) {
+                this.get('team').addDatabase({
+                    database_id: +newDatabases[0]
+                });
+            }
+            if (toBeRemovedDatabases[0]) {
+                this.get('team').removeDatabase({
+                    database_id: +toBeRemovedDatabases[0]
+                });
+            }
             this.set('team.accessible_databases', databases);
 
         },
         mutUser(users) {
-            let alreadyAddedUsersIDs = this.get('team.users').map((user) => {
+            let alreadyAddedUserIDs = this.get('team.users').map((user) => {
                 return user.id;
             });
-            let newUsers = users && users.filter((user) => {
-                return !alreadyAddedUsersIDs.contains(user.id);
+            let userIds = users && users.map((user) => {
+                return user.id;
             });
-            this.get('team').addUser({
-                user_id: newUsers[0].id
+            let newUsers = userIds && userIds.filter((userid) => {
+                return !alreadyAddedUserIDs.contains(userid);
             });
+            let toBeRemovedUsers = alreadyAddedUserIDs && alreadyAddedUserIDs.filter((userid) => {
+                return !userIds.contains(userid);
+            });
+            if (newUsers[0]) {
+                this.get('team').addUser({
+                    user_id: +newUsers[0]
+                });
+            }
+            if (toBeRemovedUsers[0]) {
+                this.get('team').removeUser({
+                    user_id: +toBeRemovedUsers[0]
+                });
+            }
             this.set('team.users', users);
         },
         saveDatabase() {

@@ -27,8 +27,54 @@ defmodule AfterGlow.TeamController do
     with {:ok, %Team{} = team} <- Teams.create(prms) do
       conn
       |> put_status(:created)
-      |> put_resp_header("location", snapshot_path(conn, :show, team))
+      |> put_resp_header("location", team_path(conn, :show, team))
       |> render("show.json", team: team)
     end
+  end
+
+  def update(conn, %{
+        "data" => data = %{"id" => id, "type" => "teams", "attributes" => _teams_params}
+      }) do
+    prms = Params.to_attributes(data)
+
+    with {:ok, %Team{} = team} <- Teams.update(id, prms) do
+      conn
+      |> put_resp_header("location", team_path(conn, :show, team))
+      |> render("show.json", team: team)
+    end
+  end
+
+  def delete(conn, %{"id" => id}) do
+    Teams.delete(id)
+
+    send_resp(conn, :no_content, "")
+  end
+
+  def add_user(conn, %{"id" => team_id, "user_id" => user_id}) do
+    team = Teams.add_user_to_team(user_id, team_id)
+
+    conn
+    |> render("show.json", team: team)
+  end
+
+  def remove_user(conn, %{"id" => team_id, "user_id" => user_id}) do
+    team = Teams.remove_user_from_team(user_id, team_id)
+
+    conn
+    |> render("show.json", team: team)
+  end
+
+  def add_database(conn, %{"id" => team_id, "database_id" => database_id}) do
+    team = Teams.add_database_to_team(database_id, team_id)
+
+    conn
+    |> render("show.json", team: team)
+  end
+
+  def remove_database(conn, %{"id" => team_id, "database_id" => database_id}) do
+    team = Teams.remove_database_from_team(database_id, team_id)
+
+    conn
+    |> render("show.json", team: team)
   end
 end

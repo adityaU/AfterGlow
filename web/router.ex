@@ -56,6 +56,12 @@ defmodule AfterGlow.Router do
     get("auth/google", AuthController, :google_auth_path)
     post("callback/google", AuthController, :callback)
     post("verify-token", AuthController, :verify_token)
+
+    post("/teams/:id/add_user", TeamController, :add_user)
+    post("/teams/:id/add_database", TeamController, :add_database)
+
+    post("/teams/:id/remove_user", TeamController, :remove_user)
+    post("/teams/:id/remove_database", TeamController, :remove_database)
   end
 
   # Other scopes may use custom stacks.

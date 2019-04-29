@@ -1,27 +1,46 @@
 <div class="pl-3 pt-0">
-    {{#each databases as |database|}}
-        <div class="card mb-3">
-            <div class="card-body p-3">
-                <div class="row">
-                    <div class="col-6">
-                        <div class="d-flex align-items-center">
-                            <span class="avatar mr-2 text-white bg-primary">
-                                <i class="fe fe-database"></i>
-                            </span>
-                            <div>
-                                <h5 class="m-0 text-default"> {{capitalize database.name}} </h5>
-                                <small class="text-muted"> type: {{database.db_type}} </small>
-                            </div>
+    {{#each teams as |team|}}
+    <div class="card mb-3">
+        <div class="card-body p-3">
+            <div class="row">
+                <div class="col-4">
+                    <div class="d-flex align-items-center">
+                        <span class="avatar mr-2 text-white bg-primary">
+                            <i class="fe fe-users"></i>
+                        </span>
+                        <div>
+                            <h5 class="m-0 text-default"> {{capitalize team.name}} </h5>
+                            <small class="text-muted"> {{team.description}} </small>
                         </div>
                     </div>
-                    <div class="col-6 text-right">
-                        {{#link-to 'settings.databases.edit' database.id class="btn btn-link text-primary"}} EDIT
-                        {{/link-to}}
-                        <button data-tooltip="Delete Database" data-inverted="" class="btn btn-link text-red"
-                            {{action 'showDeleteDialogue' database}}> DELETE </button>
-                    </div>
+                </div>
+                <div class="col-4">
+                    <small class="text-muted"> {{team.users.length}} Users</small>
+                    <br />
+                    <small class="text-muted"> {{team.accessible_databases.length}} Accessible Databases
+                    </small>
+
+                </div>
+                <div class="col-4 text-right">
+                    {{#link-to 'settings.teams.edit' team.id class="btn btn-link text-primary"}} EDIT
+                    {{/link-to}}
+                    <button data-tooltip="Delete Team" data-inverted="" class="btn btn-link text-red"
+                        {{action 'showDeleteDialogue' team}}> DELETE </button>
                 </div>
             </div>
         </div>
+    </div>
+    {{else}}
+    <div class="card">
+        <div class="card-body text-center">
+            You do not have any team yet.
+            <div>
+                {{#link-to 'settings.teams.new'}}
+                <div class="btn btn-link p-0">
+                    <i class="fe fe-plus"></i> ADD NEW TEAM </div>
+                {{/link-to}}
+            </div>
+        </div>
+    </div>
     {{/each}}
-</div> {{delete-dialogue entityName="database" open=toggleDeleteDialogue entity=databaseToBeDeleted delete="deleteDatabase"}}
+</div> {{delete-dialogue entityName="team" open=toggleDeleteDialogue entity=teamToBeDeleted delete="deleteTeam"}}

@@ -4406,13 +4406,28 @@ define('frontend/models/tag', ['exports', 'ember-data'], function (exports, _emb
 
     });
 });
-define('frontend/models/team', ['exports', 'ember-data', 'ember-api-actions'], function (exports, _emberData, _emberApiActions) {
+define('frontend/models/team', ['exports', 'ember', 'ember-data', 'ember-api-actions'], function (exports, _ember, _emberData, _emberApiActions) {
     exports['default'] = _emberData['default'].Model.extend({
         name: _emberData['default'].attr('string'),
+        description: _emberData['default'].attr('string'),
         inserted_at: _emberData['default'].attr('utc'),
         updated_at: _emberData['default'].attr('utc'),
         users: _emberData['default'].hasMany('user'),
         accessible_databases: _emberData['default'].hasMany('database'),
+
+        autoSave: function autoSave() {
+            var _this = this;
+
+            _ember['default'].run.debounce(this, function () {
+                _this.save();
+            }, 2000);
+        },
+
+        autoSaveObserver: _ember['default'].observer('name', 'description', function () {
+            if (this.get('id')) {
+                this.autoSave();
+            }
+        }),
 
         addUser: (0, _emberApiActions.memberAction)({
             path: 'add_user',
@@ -9005,7 +9020,7 @@ define('frontend/pods/settings/databases/edit/route', ['exports', 'ember', 'fron
         },
         setupController: function setupController(controller, model) {
             this._super.apply(this, arguments);
-            this.controllerFor('settings').set('pageTitle', 'New Database');
+            this.controllerFor('settings').set('pageTitle', 'Edit Database');
         }
 
     });
@@ -9037,6 +9052,12 @@ define('frontend/pods/settings/databases/index/route', ['exports', 'ember', 'fro
             this._super.apply(this, arguments);
             this.controllerFor('settings').set('pageTitle', 'Databases');
             this.controllerFor('settings').set('showAddDatabase', true);
+        },
+
+        actions: {
+            willTransition: function willTransition() {
+                this.controllerFor('settings').set('showAddDatabase', false);
+            }
         }
     });
 });
@@ -9172,7 +9193,7 @@ define('frontend/pods/settings/teams/edit/controller', ['exports', 'ember'], fun
 
         actions: {
             mutDatabase: function mutDatabase(databases) {
-                var alreadyAddedDatabaseIDs = this.get('team.accessible_database').map(function (db) {
+                var alreadyAddedDatabaseIDs = this.get('team.accessible_databases').map(function (db) {
                     return db.id;
                 });
                 var databaseIds = databases && databases.map(function (db) {
@@ -9184,25 +9205,41 @@ define('frontend/pods/settings/teams/edit/controller', ['exports', 'ember'], fun
                 var toBeRemovedDatabases = alreadyAddedDatabaseIDs && alreadyAddedDatabaseIDs.filter(function (dbid) {
                     return !databaseIds.contains(dbid);
                 });
-
-                this.get('team').addDatabase({
-                    database_id: newDatabases[0]
-                });
-                this.get('team').removeDatabase({
-                    database_id: toBeRemovedDatabases[0]
-                });
+                if (newDatabases[0]) {
+                    this.get('team').addDatabase({
+                        database_id: +newDatabases[0]
+                    });
+                }
+                if (toBeRemovedDatabases[0]) {
+                    this.get('team').removeDatabase({
+                        database_id: +toBeRemovedDatabases[0]
+                    });
+                }
                 this.set('team.accessible_databases', databases);
             },
             mutUser: function mutUser(users) {
-                var alreadyAddedUsersIDs = this.get('team.users').map(function (user) {
+                var alreadyAddedUserIDs = this.get('team.users').map(function (user) {
                     return user.id;
                 });
-                var newUsers = users && users.filter(function (user) {
-                    return !alreadyAddedUsersIDs.contains(user.id);
+                var userIds = users && users.map(function (user) {
+                    return user.id;
                 });
-                this.get('team').addUser({
-                    user_id: newUsers[0].id
+                var newUsers = userIds && userIds.filter(function (userid) {
+                    return !alreadyAddedUserIDs.contains(userid);
                 });
+                var toBeRemovedUsers = alreadyAddedUserIDs && alreadyAddedUserIDs.filter(function (userid) {
+                    return !userIds.contains(userid);
+                });
+                if (newUsers[0]) {
+                    this.get('team').addUser({
+                        user_id: +newUsers[0]
+                    });
+                }
+                if (toBeRemovedUsers[0]) {
+                    this.get('team').removeUser({
+                        user_id: +toBeRemovedUsers[0]
+                    });
+                }
                 this.set('team.users', users);
             },
             saveDatabase: function saveDatabase() {
@@ -9222,25 +9259,25 @@ define('frontend/pods/settings/teams/edit/route', ['exports', 'ember', 'frontend
         },
         setupController: function setupController(controller, model) {
             this._super.apply(this, arguments);
-            this.controllerFor('settings').set('pageTitle', 'New Database');
+            this.controllerFor('settings').set('pageTitle', 'Edit Team');
         }
 
     });
 });
 define("frontend/pods/settings/teams/edit/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "UkAPXWj8", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n    \"],[6,\"form\"],[9,\"class\",\"card\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-body\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Name\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"type\",\"name\",\"class\",\"placeholder\",\"value\"],[\"text\",\"first-name\",\"form-control\",\"What do you call it?\",[20,[\"team\",\"name\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Description\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"placeholder\",\"value\"],[\"form-control\",\"text\",\"first-name\",\"Host endpoint\",[20,[\"team\",\"description\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Users\"],[8],[0,\"\\n                \"],[1,[25,\"searchable-select\",null,[[\"content\",\"multiple\",\"sortBy\",\"optionLabelKey\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-change\"],[[20,[\"users\"]],true,\"email\",\"email\",[20,[\"selectedUsers\"]],false,\"Add Users\",[25,\"action\",[[19,0,[]],\"mutUser\"],null]]]],false],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Accessible Databases\"],[8],[0,\"\\n                \"],[1,[25,\"searchable-select\",null,[[\"content\",\"multiple\",\"sortBy\",\"optionLabelKey\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-change\"],[[20,[\"databases\"]],true,\"name\",\"name\",[20,[\"selectedDatabases\"]],false,\"Select Databases that should be accessible to this team\",[25,\"action\",[[19,0,[]],\"mutDatabase\"],null]]]],false],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-footer text-right\"],[7],[0,\"\\n            \"],[6,\"button\"],[9,\"class\",\"btn btn-primary\"],[9,\"type\",\"submit\"],[3,\"action\",[[19,0,[]],\"saveTeam\"]],[7],[0,\"SAVE\"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/teams/edit/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "57QmpRSr", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n    \"],[6,\"form\"],[9,\"class\",\"card\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-body\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Name\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"type\",\"name\",\"class\",\"placeholder\",\"value\"],[\"text\",\"first-name\",[25,\"if\",[[20,[\"team\",\"errors\",\"name\"]],\"form-control is-invalid\",\"form-control\"],null],\"What do you call it?\",[20,[\"team\",\"name\"]]]]],false],[0,\"\\n                \"],[4,\"if\",[[20,[\"team\",\"errors\",\"name\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"invalid-feedback\"],[7],[1,[20,[\"team\",\"errors\",\"name\",\"0\",\"message\"]],false],[0,\" \"],[8]],\"parameters\":[]},null],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Description\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"placeholder\",\"value\"],[\"form-control\",\"text\",\"first-name\",\"two words about this team?\",[20,[\"team\",\"description\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Users\"],[8],[0,\"\\n                \"],[1,[25,\"searchable-select\",null,[[\"content\",\"multiple\",\"sortBy\",\"optionLabelKey\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-change\"],[[20,[\"users\"]],true,\"email\",\"email\",[20,[\"selectedUsers\"]],false,\"Add Users\",[25,\"action\",[[19,0,[]],\"mutUser\"],null]]]],false],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Accessible Databases\"],[8],[0,\"\\n                \"],[1,[25,\"searchable-select\",null,[[\"content\",\"multiple\",\"sortBy\",\"optionLabelKey\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-change\"],[[20,[\"databases\"]],true,\"name\",\"name\",[20,[\"selectedDatabases\"]],false,\"Select Databases that should be accessible to this team\",[25,\"action\",[[19,0,[]],\"mutDatabase\"],null]]]],false],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/teams/edit/template.hbs" } });
 });
 define('frontend/pods/settings/teams/index/controller', ['exports', 'ember'], function (exports, _ember) {
     exports['default'] = _ember['default'].Controller.extend({
-        databases: _ember['default'].computed.alias('model'),
+        teams: _ember['default'].computed.alias('model'),
 
         actions: {
-            showDeleteDialogue: function showDeleteDialogue(databaseToBeDeleted) {
-                this.set('databaseToBeDeleted', databaseToBeDeleted);
+            showDeleteDialogue: function showDeleteDialogue(teamToBeDeleted) {
+                this.set('teamToBeDeleted', teamToBeDeleted);
                 this.set('toggleDeleteDialogue', true);
             },
-            deleteDatabase: function deleteDatabase(database) {
-                database.destroyRecord().then(function (database) {});
+            deleteTeam: function deleteTeam(team) {
+                team.destroyRecord().then(function (team) {});
             }
         }
     });
@@ -9248,30 +9285,36 @@ define('frontend/pods/settings/teams/index/controller', ['exports', 'ember'], fu
 define('frontend/pods/settings/teams/index/route', ['exports', 'ember', 'frontend/mixins/authentication-mixin'], function (exports, _ember, _frontendMixinsAuthenticationMixin) {
     exports['default'] = _ember['default'].Route.extend(_frontendMixinsAuthenticationMixin['default'], {
         model: function model() {
-            return this.store.findAll('database');
+            return this.store.findAll('team');
         },
+
         setupController: function setupController(controller, model) {
             this._super.apply(this, arguments);
-            this.controllerFor('settings').set('pageTitle', 'Databases');
+            this.controllerFor('settings').set('pageTitle', 'Teams');
             this.controllerFor('settings').set('showAddTeam', true);
+        },
+
+        actions: {
+            willTransition: function willTransition() {
+                this.controllerFor('settings').set('showAddTeam', false);
+            }
         }
     });
 });
 define("frontend/pods/settings/teams/index/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "6eXqyd9l", "block": "{\"symbols\":[\"database\"],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"databases\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"card mb-3\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"card-body p-3\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"col-6\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"d-flex align-items-center\"],[7],[0,\"\\n                            \"],[6,\"span\"],[9,\"class\",\"avatar mr-2 text-white bg-primary\"],[7],[0,\"\\n                                \"],[6,\"i\"],[9,\"class\",\"fe fe-database\"],[7],[8],[0,\"\\n                            \"],[8],[0,\"\\n                            \"],[6,\"div\"],[7],[0,\"\\n                                \"],[6,\"h5\"],[9,\"class\",\"m-0 text-default\"],[7],[0,\" \"],[1,[25,\"capitalize\",[[19,1,[\"name\"]]],null],false],[0,\" \"],[8],[0,\"\\n                                \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\" type: \"],[1,[19,1,[\"db_type\"]],false],[0,\" \"],[8],[0,\"\\n                            \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"col-6 text-right\"],[7],[0,\"\\n                        \"],[4,\"link-to\",[\"settings.databases.edit\",[19,1,[\"id\"]]],[[\"class\"],[\"btn btn-link text-primary\"]],{\"statements\":[[0,\" EDIT\\n\"]],\"parameters\":[]},null],[0,\"                        \"],[6,\"button\"],[9,\"data-tooltip\",\"Delete Database\"],[9,\"data-inverted\",\"\"],[9,\"class\",\"btn btn-link text-red\"],[3,\"action\",[[19,0,[]],\"showDeleteDialogue\",[19,1,[]]]],[7],[0,\" DELETE \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[8],[0,\" \"],[1,[25,\"delete-dialogue\",null,[[\"entityName\",\"open\",\"entity\",\"delete\"],[\"database\",[20,[\"toggleDeleteDialogue\"]],[20,[\"databaseToBeDeleted\"]],\"deleteDatabase\"]]],false]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/teams/index/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "wmrHzVsI", "block": "{\"symbols\":[\"team\"],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"teams\"]]],null,{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"card mb-3\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-body p-3\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-4\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"d-flex align-items-center\"],[7],[0,\"\\n                        \"],[6,\"span\"],[9,\"class\",\"avatar mr-2 text-white bg-primary\"],[7],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-users\"],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n                        \"],[6,\"div\"],[7],[0,\"\\n                            \"],[6,\"h5\"],[9,\"class\",\"m-0 text-default\"],[7],[0,\" \"],[1,[25,\"capitalize\",[[19,1,[\"name\"]]],null],false],[0,\" \"],[8],[0,\"\\n                            \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\" \"],[1,[19,1,[\"description\"]],false],[0,\" \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-4\"],[7],[0,\"\\n                    \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\" \"],[1,[19,1,[\"users\",\"length\"]],false],[0,\" Users\"],[8],[0,\"\\n                    \"],[6,\"br\"],[7],[8],[0,\"\\n                    \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\" \"],[1,[19,1,[\"accessible_databases\",\"length\"]],false],[0,\" Accessible Databases\\n                    \"],[8],[0,\"\\n\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-4 text-right\"],[7],[0,\"\\n                    \"],[4,\"link-to\",[\"settings.teams.edit\",[19,1,[\"id\"]]],[[\"class\"],[\"btn btn-link text-primary\"]],{\"statements\":[[0,\" EDIT\\n\"]],\"parameters\":[]},null],[0,\"                    \"],[6,\"button\"],[9,\"data-tooltip\",\"Delete Team\"],[9,\"data-inverted\",\"\"],[9,\"class\",\"btn btn-link text-red\"],[3,\"action\",[[19,0,[]],\"showDeleteDialogue\",[19,1,[]]]],[7],[0,\" DELETE \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[1]},{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"card\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-body text-center\"],[7],[0,\"\\n            You do not have any team yet.\\n            \"],[6,\"div\"],[7],[0,\"\\n\"],[4,\"link-to\",[\"settings.teams.new\"],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"btn btn-link p-0\"],[7],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\" ADD NEW TEAM \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[8],[0,\" \"],[1,[25,\"delete-dialogue\",null,[[\"entityName\",\"open\",\"entity\",\"delete\"],[\"team\",[20,[\"toggleDeleteDialogue\"]],[20,[\"teamToBeDeleted\"]],\"deleteTeam\"]]],false]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/teams/index/template.hbs" } });
 });
 define('frontend/pods/settings/teams/new/controller', ['exports', 'ember'], function (exports, _ember) {
     exports['default'] = _ember['default'].Controller.extend({
-        team: {
-            name: null,
-            description: null
-        },
+        team: _ember['default'].computed(function () {
+            return this.store.createRecord('team', {});
+        }),
 
         actions: {
             saveTeam: function saveTeam() {
                 var _this = this;
 
-                this.store.createRecord('team', this.get('team')).save().then(function (response) {
+                this.get('team').save().then(function (response) {
                     _this.transitionToRoute('settings.teams.edit', response.id);
                 });
             }
@@ -9282,13 +9325,21 @@ define('frontend/pods/settings/teams/new/route', ['exports', 'ember', 'frontend/
     exports['default'] = _ember['default'].Route.extend(_frontendMixinsAuthenticationMixin['default'], {
         setupController: function setupController(controller, model) {
             this._super.apply(this, arguments);
-            this.controllerFor('settings').set('pageTitle', 'New Database');
+            this.controllerFor('settings').set('pageTitle', 'New Team');
+        },
+        actions: {
+            willTransition: function willTransition(transition) {
+                var team = this.controller.get('team');
+                if (!team.id) {
+                    team.destroyRecord();
+                }
+            }
         }
 
     });
 });
 define("frontend/pods/settings/teams/new/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "vrNG/Tdr", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n    \"],[6,\"form\"],[9,\"class\",\"card\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-body\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Name\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"type\",\"name\",\"class\",\"placeholder\",\"value\"],[\"text\",\"first-name\",\"form-control\",\"What do you call it?\",[20,[\"team\",\"name\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Description\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"placeholder\",\"value\"],[\"form-control\",\"text\",\"first-name\",\"Host endpoint\",[20,[\"team\",\"description\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-footer text-right\"],[7],[0,\"\\n            \"],[6,\"button\"],[9,\"class\",\"btn btn-primary\"],[9,\"type\",\"submit\"],[3,\"action\",[[19,0,[]],\"saveTeam\"]],[7],[0,\"SAVE\"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/teams/new/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "oXpN6YN7", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n    \"],[6,\"form\"],[9,\"class\",\"card\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-body\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Name\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"type\",\"name\",\"class\",\"placeholder\",\"value\"],[\"text\",\"first-name\",[25,\"if\",[[20,[\"team\",\"errors\",\"name\"]],\"form-control is-invalid\",\"form-control\"],null],\"What do you call it?\",[20,[\"team\",\"name\"]]]]],false],[0,\"\\n                \"],[4,\"if\",[[20,[\"team\",\"errors\",\"name\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"invalid-feedback\"],[7],[1,[20,[\"team\",\"errors\",\"name\",\"0\",\"message\"]],false],[0,\" \"],[8]],\"parameters\":[]},null],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Description\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"placeholder\",\"value\"],[\"form-control\",\"text\",\"first-name\",\"two words about this team\",[20,[\"team\",\"description\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-footer text-right\"],[7],[0,\"\\n            \"],[6,\"button\"],[9,\"class\",\"btn btn-primary\"],[9,\"type\",\"submit\"],[3,\"action\",[[19,0,[]],\"saveTeam\"]],[7],[0,\"SAVE\"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/teams/new/template.hbs" } });
 });
 define("frontend/pods/settings/template", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "o/yICA7u", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"header collapse d-lg-flex p-0\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"container\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row justify-content-between w-100\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col text-default\"],[7],[0,\" \"],[1,[18,\"pageTitle\"],false],[0,\" \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"showAddDatabase\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"col text-right\"],[7],[0,\"\\n\"],[4,\"link-to\",[\"settings.databases.new\"],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"btn btn-link p-0\"],[7],[0,\"\\n                        \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\" ADD NEW DATABASE \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"showAddTeam\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"col text-right\"],[7],[0,\"\\n\"],[4,\"link-to\",[\"settings.teams.new\"],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"btn btn-link p-0\"],[7],[0,\"\\n                        \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\" ADD NEW TEAM \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"pt-3 px-5\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col-3\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"card\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card-body p-0\"],[7],[0,\"\\n                    \"],[4,\"link-to\",[\"settings.databases.index\"],[[\"class\"],[\"nav-item p-3 border-bottom text-default\"]],{\"statements\":[[0,\" Databases\\n\"]],\"parameters\":[]},null],[4,\"link-to\",[\"settings.users\"],[[\"class\"],[\"nav-item p-3 border-bottom text-default\"]],{\"statements\":[[0,\"                    Users \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[4,\"link-to\",[\"settings.teams\"],[[\"class\"],[\"nav-item p-3 text-default border-bottom\"]],{\"statements\":[[0,\" Teams \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[4,\"link-to\",[\"settings.permissions\"],[[\"class\"],[\"nav-item p-3 text-default\"]],{\"statements\":[[0,\" User Permissions \"]],\"parameters\":[]},null],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col-9\"],[7],[0,\" \"],[1,[18,\"outlet\"],false],[0,\" \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/template.hbs" } });
@@ -9867,5 +9918,5 @@ catch(err) {
 });
 
 if (!runningTests) {
-  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0+a309879a"});
+  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0+2adaf204"});
 }

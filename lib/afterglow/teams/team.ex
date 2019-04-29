@@ -18,5 +18,6 @@ defmodule AfterGlow.Teams.Team do
     struct
     |> cast(attrs, [:name, :description])
     |> validate_required([:name])
+    |> unique_constraint(:name)
   end
 end

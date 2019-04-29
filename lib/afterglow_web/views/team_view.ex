@@ -1,8 +1,8 @@
 defmodule AfterGlow.TeamView do
   use AfterGlow.Web, :view
   use JaSerializer.PhoenixView
-  alias AfterGlow.UserView
-  alias AfterGlow.DatabaseView
+  alias AfterGlow.UserStrippedView
+  alias AfterGlow.DatabaseStrippedView
 
   attributes([
     :name,
@@ -15,7 +15,7 @@ defmodule AfterGlow.TeamView do
     :users,
     field: :users,
     type: "users",
-    serializer: UserView,
+    serializer: UserStrippedView,
     include: true
   )
 
@@ -23,7 +23,7 @@ defmodule AfterGlow.TeamView do
     :accessible_databases,
     field: :accessible_databases,
     type: "databases",
-    serializer: DatabaseView,
+    serializer: DatabaseStrippedView,
     include: true
   )
 end

@@ -1,18 +1,17 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-    team: {
-        name: null,
-        description: null,
-    },
+    team: Ember.computed(function () {
+        return this.store.createRecord('team', {})
+    }),
 
 
     actions: {
         saveTeam() {
-            this.store.createRecord('team', this.get('team')).save()
-                .then((response) => {
-                    this.transitionToRoute('settings.teams.edit', response.id);
-                });
+
+            this.get('team').save().then((response) => {
+                this.transitionToRoute('settings.teams.edit', response.id);
+            })
 
         }
     }

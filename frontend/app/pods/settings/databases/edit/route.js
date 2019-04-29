@@ -10,8 +10,10 @@ export default Ember.Route.extend(AuthenticationMixin, {
     },
     setupController: function (controller, model) {
         this._super(...arguments);
-        this.controllerFor('settings').set('pageTitle', 'New Database');
+        this.controllerFor('settings').set('pageTitle', 'Edit Database');
 
     }
+
+
 
 });

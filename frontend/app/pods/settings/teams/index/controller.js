@@ -1,15 +1,15 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-    databases: Ember.computed.alias('model'),
+    teams: Ember.computed.alias('model'),
 
     actions: {
-        showDeleteDialogue(databaseToBeDeleted) {
-            this.set('databaseToBeDeleted', databaseToBeDeleted);
+        showDeleteDialogue(teamToBeDeleted) {
+            this.set('teamToBeDeleted', teamToBeDeleted);
             this.set('toggleDeleteDialogue', true);
         },
-        deleteDatabase(database) {
-            database.destroyRecord().then((database) => {})
+        deleteTeam(team) {
+            team.destroyRecord().then((team) => { })
         },
     }
 });
