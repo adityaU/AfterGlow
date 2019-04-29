@@ -14,12 +14,21 @@ export default DS.Model.extend({
     questions: DS.hasMany('questions'),
     is_deactivated: DS.attr('boolean'),
     permission_sets: DS.hasMany('permission_sets'),
+    teams: DS.hasMany('teams'),
+
+    role: Ember.computed('permission_sets', function () {
+        return this.get('permission_sets') && this.get('permission_sets').objectAt(0);
+    }),
 
     inserted_at: DS.attr('utc'),
     updated_at: DS.attr('utc'),
 
     fullInfo: Ember.computed('full_name', 'email', function () {
         return `${this.get('full_name')} - ${this.get('email')}`;
+    }),
+
+    displayableFullName: Ember.computed('full_name', function () {
+        return this.get('full_name') && this.get('full_name').trim();
     }),
     activate: memberAction({
         path: 'activate',

@@ -1,7 +1,13 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-    databases: Ember.computed.alias('model'),
+    databases: Ember.computed.sort('model', function (a, b) {
+        if (a.get('name').toLowerCase() <= b.get('name').toLowerCase()) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }),
 
     actions: {
         showDeleteDialogue(databaseToBeDeleted) {
@@ -9,7 +15,7 @@ export default Ember.Controller.extend({
             this.set('toggleDeleteDialogue', true);
         },
         deleteDatabase(database) {
-            database.destroyRecord().then((database) => {})
+            database.destroyRecord().then((database) => {});
         },
     }
 });

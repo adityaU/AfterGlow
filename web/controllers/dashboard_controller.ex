@@ -54,10 +54,11 @@ defmodule AfterGlow.DashboardController do
     render(conn, :show, data: dashboard)
   end
 
-  def index(conn, _params) do
+  def index(conn, params) do
     dashboards =
       scope(conn, Dashboard)
       |> select([:id])
+      |> limit_by_params(params)
       |> Repo.all()
       |> Enum.map(fn x -> x.id end)
       |> CacheWrapper.get_by_ids(Dashboard)
@@ -160,4 +161,10 @@ defmodule AfterGlow.DashboardController do
     |> put_status(:not_found)
     |> render(:errors, data: %{error: "not-found"})
   end
+
+  defp limit_by_params(query, %{"limit" => limit}) do
+    query |> limit(^limit)
+  end
+
+  defp limit_by_params(query, _params), do: query
 end

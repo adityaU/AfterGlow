@@ -2,6 +2,13 @@ import Ember from 'ember';
 
 export default Ember.Component.extend({
     classNames: ['full'],
+    allQuestions: Ember.computed.sort('questions', function (a, b) {
+        if (a.get('updated_at') >= b.get('updated_at')) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }),
     tags: Ember.computed(function () {
         return this.get('store').findAll('tag');
     }),

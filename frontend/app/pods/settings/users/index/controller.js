@@ -1,18 +1,15 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-    users: Ember.computed.alias('model'),
-    permissionSets: Ember.computed(function () {
-        return this.store.findAll('permission-set');
+    users: Ember.computed.sort('model', function (a, b) {
+        if (a.get('full_name') && a.get('full_name').toLowerCase() <= a.get('full_name') && b.get('full_name').toLowerCase()) {
+            return -1;
+        } else {
+            return 1;
+        }
     }),
+
     actions: {
-        showChangePermissionDialogue(user) {
-            this.set('toBeChangedUser', user);
-            this.set('togglePermissionsModal', true);
-        },
-        saveUser(user) {
-            user.save().then((user) => {});
-        },
         activateUser(user) {
             user.activate({}).then((response) => {
                 this.store.pushPayload('user', response);

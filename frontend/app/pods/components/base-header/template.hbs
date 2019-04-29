@@ -7,7 +7,8 @@
                         {{#link-to "index" class="header-brand" }}{{app-logo logoSize="small"}}{{/link-to}}
                         {{#if (can "show Dashboard")}}
                             {{#bs-dropdown class="nav-item" as |dd|}}
-                                {{#dd.toggle class="nav-link"}}Dashboards <i class="fe fe-chevron-down mt-1 ml-1"></i>{{/dd.toggle}}
+                                {{#dd.toggle class="nav-link"}}Dashboards <i
+                                        class="fe fe-chevron-down mt-1 ml-1"></i>{{/dd.toggle}}
                                 {{#dd.menu class="dropdown-menu-arrow" as |ddm|}}
                                     {{#each dashboards as |dashboard|}}
                                         {{#ddm.item}}
@@ -16,6 +17,10 @@
                                             </a>
                                         {{/ddm.item}}
                                     {{/each}}
+                                    {{#ddm.item}}
+                                        {{#link-to 'dashboards.index' class="dropdown-item bg-primary text-white"}} All
+                                            Dashboards {{/link-to}}
+                                    {{/ddm.item}}
                                 {{/dd.menu}}
                             {{/bs-dropdown}}
                         {{/if}}

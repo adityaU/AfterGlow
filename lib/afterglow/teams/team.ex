@@ -9,6 +9,7 @@ defmodule AfterGlow.Teams.Team do
   schema("teams") do
     field(:name, :string)
     field(:description, :string)
+    has_many(:user_teams, UserTeam)
     many_to_many(:users, User, join_through: UserTeam)
     many_to_many(:accessible_databases, Database, join_through: TeamDatabase)
     timestamps()

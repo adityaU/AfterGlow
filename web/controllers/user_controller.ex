@@ -18,7 +18,10 @@ defmodule AfterGlow.UserController do
 
   def index(conn, %{"filter" => %{"id" => ids}}) do
     ids = ids |> String.split(",")
-    users = CacheWrapper.get_by_ids(User, ids) |> Repo.preload(:permission_sets)
+
+    users =
+      CacheWrapper.get_by_ids(User, ids) |> Repo.preload(:permission_sets) |> Repo.preload(:teams)
+
     render(conn, :index, data: users)
   end
 
@@ -28,6 +31,7 @@ defmodule AfterGlow.UserController do
       |> Enum.map(fn x -> x.id end)
       |> CacheWrapper.get_by_ids(User)
       |> Repo.preload(:permission_sets)
+      |> Repo.preload(:teams)
 
     render(conn, :index, data: users)
   end
@@ -49,7 +53,9 @@ defmodule AfterGlow.UserController do
   # end
 
   def show(conn, %{"id" => id}) do
-    user = CacheWrapper.get_by_id(User, id)
+    user =
+      CacheWrapper.get_by_id(User, id) |> Repo.preload(:permission_sets) |> Repo.preload(:teams)
+
     render(conn, :show, data: user)
   end
 
@@ -58,7 +64,7 @@ defmodule AfterGlow.UserController do
         "data" => data = %{"type" => "users", "attributes" => _user_params}
       }) do
     prms = Params.to_attributes(data)
-    user = Repo.get!(User, id) |> Repo.preload(:permission_sets)
+    user = Repo.get!(User, id) |> Repo.preload(:teams) |> Repo.preload(:permission_sets)
     changeset = User.changeset(user, Params.to_attributes(data))
     permission_set_ids = prms["permission_sets_ids"]
 
@@ -84,7 +90,7 @@ defmodule AfterGlow.UserController do
 
     case User.update(changeset, nil) do
       {:ok, user} ->
-        render(conn, :show, data: user |> Repo.preload(:permission_sets))
+        render(conn, :show, data: user |> Repo.preload(:teams) |> Repo.preload(:permission_sets))
 
       {:error, changeset} ->
         conn
@@ -99,7 +105,7 @@ defmodule AfterGlow.UserController do
 
     case User.update(changeset, nil) do
       {:ok, user} ->
-        render(conn, :show, data: user |> Repo.preload(:permission_sets))
+        render(conn, :show, data: user |> Repo.preload(:teams) |> Repo.preload(:permission_sets))
 
       {:error, changeset} ->
         conn

@@ -1,0 +1,33 @@
+<div class="pl-3 pt-0">
+    <form class="card">
+        <div class="card-body">
+            <div class="d-flex align-items-center mt-auto">
+                <div class="avatar avatar-lg mr-3" style="background-image: url({{user.profile_pic}})"></div>
+                <div>
+                    <h3 class="text-default mb-0">{{or user.full_name user.email}}</h3>
+                    <small class="d-block text-muted">{{#if user.full_name }} {{user.email}}{{/if}}</small>
+                </div>
+                <div class="ml-auto text-muted">
+                    <div class="tag bg-primary text-white">
+                        {{user.role.name}}
+                        <span class="tag-addon text-white">
+                            <i class="fe fe-edit-2" {{action 'showChangePermissionDialogue' user}}></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group mt-5">
+                <label class="form-label">Teams</label>
+                {{searchable-select content=teams
+            multiple=true
+            sortBy="name"
+            optionLabelKey="name"
+            selected=selectedTeams
+            closeOnSelection=false
+            prompt="Select teams"
+            on-change=(action 'mutTeams')}}
+            </div>
+        </div>
+    </form>
+</div>
+{{change-user-permissions-dialogue open=togglePermissionsModal user=toBeChangedUser permissionSets=permissionSets saveUserPermissions='saveUser'}}

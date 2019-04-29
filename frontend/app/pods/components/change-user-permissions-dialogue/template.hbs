@@ -1,18 +1,16 @@
 {{#bs-modal position="center" open=open size="lg" onHide=(action 'clear') as |modal|}}
     {{#modal.header}}
-        <h4 class="modal-title"> Change User Permissions of {{userNameOrEmail}}</h4>
+        <h4 class="modal-title"> Change User Role of {{userNameOrEmail}}</h4>
     {{/modal.header}}
     {{#modal.body}}
-        <div class="mb-2"> Select roles you want to give to this user. </div> {{searchable-select
-            content=permissionSets
-            multiple=true
+        <div class="mb-2"> Select user role. </div> {{searchable-select content=permissionSets
             sortBy="name"
             optionLabelKey="name"
-            selected=selectedPermissionSets
+            selected=user.role
             closeOnSelection=false
             prompt="Select Roles"
-            on-change=(action (mut user.permission_sets))}}
-        {{/modal.body}}
+            on-change=(action "mutUserPermissionSets")}}
+    {{/modal.body}}
     {{#modal.footer as |footer|}}
         {{#bs-button onClick=(action 'clear') type="danger" }}Cancel{{/bs-button}}
         {{#bs-button onClick=(action "saveUserPermissions") class="btn-primary" type="primary" }}Save{{/bs-button}}

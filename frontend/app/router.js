@@ -27,6 +27,9 @@ Router.map(function () {
     });
 
     this.route('dashboards', function () {
+        this.route('index', {
+            path: '/'
+        });
         this.route('show', {
             path: '/:dashboard_id'
         });
@@ -65,7 +68,15 @@ Router.map(function () {
             });
             this.route('new');
         });
-        this.route('users');
+        this.route('users', function () {
+            this.route('index', {
+                path: '/'
+            });
+            this.route('edit', {
+                path: '/:user_id/edit'
+            });
+            this.route('invite');
+        });
         this.route('permissions');
     });
 

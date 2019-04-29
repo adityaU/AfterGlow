@@ -4,6 +4,7 @@ defmodule AfterGlow.Database do
   alias AfterGlow.Async
   alias AfterGlow.SchemaTasks
   alias AfterGlow.CacheWrapper.Repo
+  alias AfterGlow.Teams.TeamDatabase
 
   schema "databases" do
     field(:name, :string)
@@ -12,6 +13,7 @@ defmodule AfterGlow.Database do
     field(:last_accessed_at, Ecto.DateTime)
     field(:unique_identifier, Ecto.UUID)
     has_many(:tables, AfterGlow.Table, on_delete: :delete_all, on_replace: :delete)
+    has_many(:team_databases, TeamDatabase, on_delete: :delete_all)
 
     timestamps()
   end
@@ -53,14 +55,11 @@ defmodule AfterGlow.Database do
     response =
       case changeset.errors |> Enum.empty?() do
         true ->
-          changeset = Ecto.Changeset.change(changeset, unique_identifier: Ecto.UUID.generate())
-
           {:ok, data} = Repo.update_with_cache(changeset)
 
           DbConnection.connection(
             data
             |> Map.from_struct()
-            |> IO.inspect(label: "changes")
           )
 
           {:ok, data}

@@ -6,38 +6,47 @@ defmodule SqlDust.PathUtils do
   end
 
   def prepend_path_aliases(sql, options) when is_list(sql) do
-    Enum.reduce(sql, {[], options}, fn(sql, {list, options}) ->
+    Enum.reduce(sql, {[], options}, fn sql, {list, options} ->
       {sql, options} = prepend_path_aliases(sql, options)
       {List.insert_at(list, -1, sql), options}
     end)
   end
 
   def prepend_path_aliases(sql, options) do
-
     {excluded, aliases} = scan_excluded(sql)
 
-    aliases = aliases
-      |> Enum.map(fn(sql_alias) ->
+    aliases =
+      aliases
+      |> Enum.map(fn sql_alias ->
         String.replace(sql_alias, ~r/^ AS /i, "")
       end)
       |> Enum.concat(options.aliases)
-      |> Enum.uniq
+      |> Enum.uniq()
 
-    excluded = excluded
-      |> Enum.map(fn(excluded) ->
+    excluded =
+      excluded
+      |> Enum.map(fn excluded ->
         regex = ~r/^( AS )(.+)/i
+
         if Regex.match?(regex, excluded) do
           {_, compiled} = Regex.compile(excluded)
-          [compiled, Regex.replace(regex, excluded, fn(_, as, path) ->
-            as <> quote_alias(path, options)
-          end)]
+
+          [
+            compiled,
+            Regex.replace(regex, excluded, fn _, as, path ->
+              as <> quote_alias(path, options)
+            end)
+          ]
         else
           excluded
         end
       end)
-      |> Enum.concat(Enum.map(aliases, fn(sql_alias) ->
-        [~r/([^\.\w])#{sql_alias}([^\.\w])/, quote_alias(sql_alias, options)]
-      end))
+      |> Enum.concat(
+        Enum.map(aliases, fn sql_alias ->
+          [~r/([^\.\w])#{sql_alias}([^\.\w])/, quote_alias(sql_alias, options)]
+        end)
+      )
+
     options = Map.put(options, :aliases, aliases)
 
     sql = numerize_patterns(sql, excluded)
@@ -49,35 +58,37 @@ defmodule SqlDust.PathUtils do
 
   def sanitize_sql(sql) do
     {excluded, _} = scan_excluded(sql)
-    Enum.reduce(excluded, sql, fn(pattern, sql) ->
+
+    Enum.reduce(excluded, sql, fn pattern, sql ->
       String.replace(sql, pattern, "")
     end)
   end
 
   def scan_excluded(sql) do
-
-    excluded = []
+    excluded =
+      []
       |> Enum.concat(scan_quoted(sql))
       |> Enum.concat(scan_variables(sql))
       |> Enum.concat(scan_functions(sql))
       |> Enum.concat(scan_reserved_words(sql))
-      |> Enum.concat(aliases = scan_aliases(sql) |> List.flatten |> Enum.uniq)
-      |> List.flatten
-      |> Enum.uniq
+      |> Enum.concat(aliases = scan_aliases(sql) |> List.flatten() |> Enum.uniq())
+      |> List.flatten()
+      |> Enum.uniq()
 
     {excluded, aliases}
   end
 
   defp scan_and_prepend_path_aliases(sql, options) do
-
     regex = ~r/(?:\.\*|\w+[a-zA-Z]+\w*(?:\.(?:\*|\w{2,}))*)/
 
     paths = Regex.scan(regex, sql)
-    sql = Regex.replace(regex, sql, fn(match) ->
-      "{#{match}}"
-    end)
 
-    Enum.reduce(paths, {sql, options}, fn([path], {sql, options}) ->
+    sql =
+      Regex.replace(regex, sql, fn match ->
+        "{#{match}}"
+      end)
+
+    Enum.reduce(paths, {sql, options}, fn [path], {sql, options} ->
       {path_alias, options} = prepend_path_alias(path, options, true)
       {String.replace(sql, "{#{path}}", path_alias), options}
     end)
@@ -101,7 +112,12 @@ defmodule SqlDust.PathUtils do
 
   def dissect_path(path, options) do
     quotation_mark = quotation_mark(options)
-    split_on_dot_outside_quotation_mark = ~r/\.(?=(?:[^#{quotation_mark}]*#{quotation_mark}[^#{quotation_mark}]*#{quotation_mark})*[^#{quotation_mark}]*$)/
+
+    split_on_dot_outside_quotation_mark =
+      ~r/\.(?=(?:[^#{quotation_mark}]*#{quotation_mark}[^#{quotation_mark}]*#{quotation_mark})*[^#{
+        quotation_mark
+      }]*$)/
+
     segments = String.split(path, split_on_dot_outside_quotation_mark)
     path = Enum.slice(segments, 0..-2)
     column = List.last(segments)
@@ -114,12 +130,14 @@ defmodule SqlDust.PathUtils do
   end
 
   defp cascaded_paths(path) do
-    Enum.reduce(path, [], fn(segment, paths) ->
-      path = []
+    Enum.reduce(path, [], fn segment, paths ->
+      path =
+        []
         |> List.insert_at(-1, List.last(paths))
         |> List.insert_at(-1, segment)
-        |> Enum.reject(fn(x) -> x == nil end)
+        |> Enum.reject(fn x -> x == nil end)
         |> Enum.join(".")
+
       case path do
         "" -> paths
         _ -> List.insert_at(paths, -1, path)
@@ -140,10 +158,12 @@ defmodule SqlDust.PathUtils do
 
   def derive_path_alias_from_table_name(options, index) do
     path = String.downcase(String.at(options.resource.name, index))
+
     unless Regex.match?(~r/[a-zA-z]/, path) do
-      path = derive_path_alias_from_table_name(options, index + 1)
+      derive_path_alias_from_table_name(options, index + 1)
+    else
+      path
     end
-    path
   end
 
   def quotation_mark(%{adapter: :mysql}) do
@@ -162,12 +182,14 @@ defmodule SqlDust.PathUtils do
     quotation_mark = quotation_mark(options)
 
     cond do
-    Regex.match?(~r/from/, sql |> String.downcase) ->
-      "( #{sql} )"
-    Regex.match?(~r/\A#{quotation_mark}.*#{quotation_mark}\z/, sql) ->
-      sql
-    true ->
-      "#{quotation_mark}#{sql}#{quotation_mark}"
+      Regex.match?(~r/from/, sql |> String.downcase()) ->
+        "( #{sql} )"
+
+      Regex.match?(~r/\A#{quotation_mark}.*#{quotation_mark}\z/, sql) ->
+        sql
+
+      true ->
+        "#{quotation_mark}#{sql}#{quotation_mark}"
     end
   end
 end

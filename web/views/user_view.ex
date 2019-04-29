@@ -1,6 +1,7 @@
 defmodule AfterGlow.UserView do
   use AfterGlow.Web, :view
   use JaSerializer.PhoenixView
+  alias AfterGlow.TeamStrippedView
 
   attributes([
     :first_name,
@@ -16,5 +17,12 @@ defmodule AfterGlow.UserView do
     :permission_sets,
     field: :permission_sets,
     type: "permission_set"
+  )
+
+  has_many(
+    :teams,
+    field: :teams,
+    type: "team",
+    serializer: TeamStrippedView
   )
 end
