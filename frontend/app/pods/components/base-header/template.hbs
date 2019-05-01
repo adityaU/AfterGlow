@@ -7,44 +7,40 @@
                         {{#link-to "index" class="header-brand" }}{{app-logo logoSize="small"}}{{/link-to}}
                         {{#if (can "show Dashboard")}}
                             {{#bs-dropdown class="nav-item" as |dd|}}
-                                {{#dd.toggle class="nav-link"}}Dashboards <i
-                                        class="fe fe-chevron-down mt-1 ml-1"></i>{{/dd.toggle}}
-                                {{#dd.menu class="dropdown-menu-arrow" as |ddm|}}
+                                {{#dd.toggle class="nav-link" }}Dashboards
+                                    <i class="fe fe-chevron-down mt-1 ml-1"></i>
+                                {{/dd.toggle}}
+                                {{#dd.menu className="dropdown-menu-arrow" as |ddm|}}
                                     {{#each dashboards as |dashboard|}}
                                         {{#ddm.item}}
-                                            <a class="dropdown-item border-bottom" {{action 'goToDashboard' dashboard}}>
-                                                {{dashboard.title}}
-                                            </a>
+                                            <a class="dropdown-item " {{action 'goToDashboard' dashboard}}> {{dashboard.title}} </a>
                                         {{/ddm.item}}
-                                    {{/each}}
+                                    {{/each}} {{ddm.divider}}
                                     {{#ddm.item}}
-                                        {{#link-to 'dashboards.index' class="dropdown-item bg-primary text-white"}} All
-                                            Dashboards {{/link-to}}
+                                        {{#link-to 'dashboards.index' class="dropdown-item" }} All Dashboards {{/link-to}}
                                     {{/ddm.item}}
                                 {{/dd.menu}}
                             {{/bs-dropdown}}
                         {{/if}}
                         {{#if (can "show question")}}
                             <li class="nav-item">
-                                {{#link-to "questions.all" class="nav-link"}} Questions {{/link-to}}
+                                {{#link-to "questions.all" class="nav-link" }} Questions {{/link-to}}
                             </li>
                         {{/if}}
                         {{#if (can "create question")}}
                             <li class="nav-item">
-                                {{#link-to "questions.new" class="nav-link"}} New Question {{/link-to}}
+                                {{#link-to "questions.new" class="nav-link" }} New Question {{/link-to}}
                             </li>
                         {{/if}}
                         <li class="nav-item">
-                            {{#link-to "data_references.databases.all" class="nav-link"}} Data Reference {{/link-to}}
+                            {{#link-to "data_references.databases.all" class="nav-link" }} Data Reference {{/link-to}}
                         </li>
                         <div class="col-lg-3 ml-auto">
                             <li class="nav-item right px-0">
                                 {{#bs-dropdown direction="left" class="d-inline" as |dd|}}
-                                    {{#dd.toggle class="nav-link"}}
+                                    {{#dd.toggle class="nav-link" }}
                                         <div class="item pp">
-                                            <img class="profile_pic" src="{{sessionService.user.profile_pic}}" />
-                                        </div>
-                                        {{sessionService.user.full_name}}
+                                            <img class="profile_pic" src="{{sessionService.user.profile_pic}}" /> </div> {{sessionService.user.full_name}}
                                         <i class="fe fe-chevron-down mt-1 ml-1"></i>
                                     {{/dd.toggle}}
                                     {{#dd.menu class="dropdown-menu-arrow" as |ddm|}}

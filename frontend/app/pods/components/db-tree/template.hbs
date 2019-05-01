@@ -1,6 +1,5 @@
 <div class="db-tree mx-1">
-    <div class="form-group mb-0"> {{input type="text" value=query class="form-control" placeholder="Search Tables"}}
-    </div>
+    <div class="form-group mb-0"> {{input type="text" value=query class="form-control" placeholder="Search Tables"}} </div>
     <div class="tree text-default">
         {{#each tables as |table|}}
             <div class="node-name d-flex" {{action 'toggleColumns' table}}>
@@ -9,15 +8,14 @@
                 {{else}}
                     <i class="fe fe-chevron-right pt-1 pr-2"></i>
                 {{/if}}
-                <span class="col-8">
-                    {{table.readable_table_name}}
-                </span>
-                <span class="text-right col-2">{{#link-to 'data_references.databases.show.tables.show.explore' database.id table.id  target="_blank" bubbles=false}}
+                <span class="col-8"> {{table.readable_table_name}} </span>
+                <span class="text-right col-2">
+                    {{#link-to 'data_references.databases.show.tables.show.explore' database.id table.id target="_blank" bubbles=false}}
                         <i class="fe fe-zoom-in"></i>
                     {{/link-to}}
                 </span>
             </div>
-            <div class="leafs {{if table.showColumnsInTree '' 'hidden'}}">
+            <div class="leafs pl-4 {{if table.showColumnsInTree '' 'hidden'}}">
                 {{#each table.columns as |column|}}
                     <div class="leaf-name"> {{column.name}} </div>
                 {{/each}}

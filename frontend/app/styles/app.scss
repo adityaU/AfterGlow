@@ -29,6 +29,11 @@ g.slicetext {
     font-weight: bold;
 }
 
+.ace_editor {
+    font-family: 'Source Code Pro', monospace !important;
+    font-size: 13px !important;
+}
+
 .shortcut-button {
     position: fixed;
     bottom: 5%;
@@ -115,21 +120,18 @@ g.slicetext {
     margin-bottom: 50px;
 }
 
-.ace_layer.ace_gutter-layer {
-    background: white;
-    border-right: 1px solid $greyColor;
-}
 
 .ace-editor {
     margin-left: -14px !important;
     margin-right: -14px !important;
     border-bottom: 1px solid $greyColor !important;
     border-top: 1px solid $greyColor !important;
+
+    & pre {
+        margin-bottom: 0px !important;
+    }
 }
 
-.ace_layer.ace_gutter-layer {
-    width: 40px !important;
-}
 
 .calander-data {
     border-radius: 0;
@@ -1114,7 +1116,7 @@ body {
 
     & .tree {
         overflow: auto;
-        height: calc(100% - 38px);
+        height: calc(100% - 22px);
 
         .leafs {
             text-indent: 20px;
@@ -1496,7 +1498,120 @@ a:hover {
 
 .dropdown-menu {
     z-index: 10000;
-    padding: 0px !important;
+    padding: 10px !important;
+
+    &[x-placement^="bottom"] {
+        &:before {
+            position: absolute;
+            top: -8px;
+            left: 12px;
+            display: inline-block;
+            border-right: 7px solid transparent;
+            border-bottom: 7px solid rgba(0, 40, 100, 0.12);
+            border-left: 7px solid transparent;
+            border-bottom-color: rgba(0, 0, 0, 0.2);
+            // background-color: white;
+            content: '';
+
+        }
+
+        &:after {
+            position: absolute;
+            top: -7px;
+            left: 12px;
+            display: inline-block;
+            border-right: 7px solid transparent;
+            border-bottom: 7px solid #fff;
+            border-left: 7px solid transparent;
+            content: '';
+        }
+    }
+
+    &[x-placement^="left"] {
+        &:before {
+            position: absolute;
+            right: -8px;
+            top: 12px;
+            display: inline-block;
+            border-bottom: 7px solid transparent;
+            border-left: 7px solid rgba(0, 40, 100, 0.12);
+            border-top: 7px solid transparent;
+            border-right-color: rgba(0, 0, 0, 0.2);
+            // background-color: white;
+            content: '';
+
+        }
+
+        &:after {
+            position: absolute;
+            right: -7px;
+            top: 12px;
+            display: inline-block;
+            border-bottom: 7px solid transparent;
+            border-left: 7px solid #fff;
+            border-top: 7px solid transparent;
+            content: '';
+        }
+    }
+
+    &[x-placement^="right"] {
+        &:before {
+            position: absolute;
+            left: -8px;
+            top: 12px;
+            display: inline-block;
+            border-top: 7px solid transparent;
+            border-right: 7px solid rgba(0, 40, 100, 0.12);
+            border-bottom: 7px solid transparent;
+            border-right-color: rgba(0, 0, 0, 0.2);
+            // background-color: white;
+            content: '';
+
+        }
+
+        &:after {
+            position: absolute;
+            left: -7px;
+            top: 12px;
+            display: inline-block;
+            border-top: 7px solid transparent;
+            border-right: 7px solid #fff;
+            border-bottom: 7px solid transparent;
+            content: '';
+        }
+    }
+}
+
+.card-body .nav-item {
+    position: inherit;
+
+    &.active {
+
+        &:before {
+            position: absolute;
+            right: -8px;
+            top: 37%;
+            display: inline-block;
+            border-bottom: 7px solid transparent;
+            border-left: 7px solid rgba(0, 40, 100, 0.12);
+            border-top: 7px solid transparent;
+            border-right-color: rgba(0, 0, 0, 0.2);
+            // background-color: white;
+            content: '';
+
+        }
+
+        &:after {
+            position: absolute;
+            right: -7px;
+            top: 37%;
+            display: inline-block;
+            border-bottom: 7px solid transparent;
+            border-left: 7px solid #fff;
+            border-top: 7px solid transparent;
+            content: '';
+        }
+    }
 }
 
 .dropdown-toggle:after,

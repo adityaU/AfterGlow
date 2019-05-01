@@ -1,77 +1,27 @@
-<div class="padded-content ui segment full no-border-radius no-border-top no-bottom-margin">
-  <div class="ui grid">
-    <div class="ten wide column">
-      <div class="ui form">
-        <div class="field">
-          {{#if editing}}
-            {{input value=alert.name class="ui" placeholder="Name" }}
-          {{else}}
-            <div class="alert-title">
-              {{alert.name}}
+<div class="header collapse d-lg-flex p-0">
+    <div class="container">
+        <div class="nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0">
+            <div class="row justify-content-between w-100">
+                <div class="col text-default"> {{pageTitle}} </div>
             </div>
-          {{/if}}
         </div>
-      </div>
     </div>
-    <div class="six wide column text-align-right">
-      {{#if editing}}
-        <button data-tooltip="Save Alert" data-inverted=""  data-variation="inverted" class="ui very basic violet button" {{action 'saveAlert'}}>
-          SAVE
-        </button>
-        <button data-tooltip="Cancel Editing Alert" data-inverted=""  data-variation="inverted" class="ui very basic grey button" {{action 'cancelEditingAlert'}}>
-          CANCEL
-        </button>
-        <button data-tooltip="Delete Alert" data-inverted=""  data-variation="inverted" class="ui very basic red button" {{action 'showDeleteDialogue'}}>
-          DELETE
-        </button>
-      {{else}}
-        <span data-tooltip="Edit" data-inverted=""  data-variation="inverted">
-          <i class="pencil icon" {{action 'editAlert'}}></i>
-        </span>
-      {{/if}}
-
-    </div>
-  </div>
-
 </div>
-<div class="ui basic segment full padded-content full-height">
-  <div class="ui vertically divided grid segment full full-height alert-container">
-    <div class="one column row">
-    <div class="column">
-      <span class="step-number">
-        <button class="ui circular violet icon button alert">
-          STEP 1
-        </button>
-      </span>
-      <span class="alert-simple-text">
-        Get result of the question:
-      </span>
-      <span class="empty-space"></span>
-      <span class="ui form">
-        <span class="field display-inline-block">
-          {{#ui-dropdown class="search selection" selected=alert.question onChange=(action (mut alert.question))  as |execute mapper|}}
-            <div class="default text">Question</div>
-            <i class="fe fe-chevron-down"></i>
-            <div class="menu">
-              {{#each questions as |question|}}
-                <div class="item" data-value="{{map-value mapper question}}">
-                  {{question.title}}
+<div class="pt-3 px-5">
+    <div class="row">
+        <div class="col-3">
+            <div class="card">
+                <div class="card-body p-0">
+                    {{#link-to 'settings.databases.index' class="nav-item p-3 border-bottom text-default" }} Setup Alert {{/link-to}}
+                    {{#link-to 'settings.users' class="nav-item p-3 border-bottom text-default"
+                        }} Setup Alert Levels{{/link-to}}
+                    {{#link-to 'settings.teams' class="nav-item p-3 text-default border-bottom"
+                        }} Setup Notifications {{/link-to}}
+                    {{#link-to 'settings.permissions' class="nav-item p-3 text-default"
+                        }} Done {{/link-to}}
                 </div>
-              {{/each}}
             </div>
-          {{/ui-dropdown}}
-        </span>
-      </span>
+        </div>
+        <div class="col-9"> {{outlet}} </div>
     </div>
-      </div>
-    <div class="one column row">
-    <div class="sixteen wide column">
-      {{alert-expression number="STEP 2" type="WARNING" color="yellow" conf=alert.config.warning columns=alert.question.columns}}
-      <div class="ui horizontal divider">
-        And
-      </div>
-      {{alert-expression number="STEP 3" type="CRITICAL" color="red" conf=alert.config.critical columns=alert.question.columns}}
-    </div>
-    </div>
-  </div>
 </div>

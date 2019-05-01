@@ -113,7 +113,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
     changeSQL: Ember.observer('queryObject.rawQuery', function () {
         this.set('question.sql', this.get('queryObject.rawQuery'));
     }),
-    aceTheme: 'ace/theme/ambiance',
+    aceTheme: 'ace/theme/dracula',
     aceMode: 'ace/mode/sql',
 
     queryObject: Ember.computed.alias('question.human_sql'),

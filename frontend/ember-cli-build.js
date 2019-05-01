@@ -10,7 +10,7 @@ module.exports = function (defaults) {
 
         // Add options here
         ace: {
-            themes: ['chrome', 'ambiance'],
+            themes: ['chrome', 'dracula'],
             modes: ['pgsql', 'mysql', 'sql', 'JSON'],
             workers: ['pgsql', 'mysql', 'sql', 'JSON'],
             exts: ['language_tools', 'beautify', 'text', 'sql', 'JSON'],
@@ -26,7 +26,7 @@ module.exports = function (defaults) {
 
     });
     app.import('./bower_components/lodash/dist/lodash.min.js');
-    app.import('./bower_components/ace-builds/src-noconflict/theme-ambiance.js');
+    app.import('./bower_components/ace-builds/src-noconflict/theme-dracula.js');
     app.import('./bower_components/ace-builds/src-noconflict/mode-sql.js');
     app.import('./bower_components/ace-builds/src-noconflict/mode-json.js');
     app.import('./bower_components/ace-builds/src-noconflict/ext-beautify.js');

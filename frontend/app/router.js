@@ -36,8 +36,21 @@ Router.map(function () {
     });
 
     this.route('alerts', function () {
+        this.route('index', {
+            path: '/'
+        });
         this.route('new');
-        this.route('show');
+        this.route('edit', {
+            path: '/:alert_id/edit'
+        });
+    });
+    this.route('alert_events', function () {
+        this.route('index', {
+            path: '/'
+        });
+        this.route('show', {
+            path: '/:alert_event_id'
+        });
     });
     this.route('login');
 

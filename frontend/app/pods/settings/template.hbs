@@ -4,20 +4,20 @@
             <div class="row justify-content-between w-100">
                 <div class="col text-default"> {{pageTitle}} </div>
                 {{#if showAddDatabase}}
-                <div class="col text-right">
-                    {{#link-to 'settings.databases.new'}}
-                    <div class="btn btn-link p-0">
-                        <i class="fe fe-plus"></i> ADD NEW DATABASE </div>
-                    {{/link-to}}
-                </div>
+                    <div class="col text-right">
+                        {{#link-to 'settings.databases.new'}}
+                            <div class="btn btn-link p-0">
+                                <i class="fe fe-plus"></i> ADD NEW DATABASE </div>
+                        {{/link-to}}
+                    </div>
                 {{/if}}
                 {{#if showAddTeam}}
-                <div class="col text-right">
-                    {{#link-to 'settings.teams.new'}}
-                    <div class="btn btn-link p-0">
-                        <i class="fe fe-plus"></i> ADD NEW TEAM </div>
-                    {{/link-to}}
-                </div>
+                    <div class="col text-right">
+                        {{#link-to 'settings.teams.new'}}
+                            <div class="btn btn-link p-0">
+                                <i class="fe fe-plus"></i> ADD NEW TEAM </div>
+                        {{/link-to}}
+                    </div>
                 {{/if}}
             </div>
         </div>
@@ -28,8 +28,7 @@
         <div class="col-3">
             <div class="card">
                 <div class="card-body p-0">
-                    {{#link-to 'settings.databases.index' class="nav-item p-3 border-bottom text-default" }} Databases
-                    {{/link-to}}
+                    {{#link-to 'settings.databases.index' class="nav-item p-3 border-bottom text-default" }} Databases {{/link-to}}
                     {{#link-to 'settings.users' class="nav-item p-3 border-bottom text-default" }}
                     Users {{/link-to}}
                     {{#link-to 'settings.teams' class="nav-item p-3 text-default border-bottom" }} Teams {{/link-to}}
