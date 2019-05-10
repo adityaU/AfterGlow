@@ -14,10 +14,11 @@ config :afterglow, AfterGlowWeb.Endpoint,
 # Configure your database
 config :afterglow, AfterGlow.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: System.get_env("AG_DATABASE_USERNAME"),
-  password: System.get_env("AG_DATABASE_PASSWORD"),
-  database: System.get_env("AG_DATABASE_NAME"),
-  hostname: System.get_env("AG_DATABASE_HOSTNAME"),
+  url: System.get_env("AG_DATABASE_URL"),
+  # username: System.get_env("AG_DATABASE_USERNAME"),
+  # password: System.get_env("AG_DATABASE_PASSWORD"),
+  # database: System.get_env("AG_DATABASE_NAME"),
+  # hostname: System.get_env("AG_DATABASE_HOSTNAME"),
   timeout: :infinity,
   pool_size: 20
 
