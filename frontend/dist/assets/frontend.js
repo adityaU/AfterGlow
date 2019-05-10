@@ -4002,6 +4002,57 @@ define('frontend/mixins/widget-components', ['exports', 'ember'], function (expo
 
     });
 });
+define('frontend/models/alert-event', ['exports', 'ember-data'], function (exports, _emberData) {
+    exports['default'] = _emberData['default'].Model.extend({
+        alert_level: _emberData['default'].attr('string'),
+        row_numbers: _emberData['default'].attr('array'),
+        data: _emberData['default'].attr('object'),
+        is_data_saved: _emberData['default'].attr('boolean'),
+        alert_level_setting: _emberData['default'].belongsTo('alert_level_setting'),
+        alert_setting: _emberData['default'].belongsTo('alert_setting'),
+        inserted_at: _emberData['default'].attr('utc'),
+        updated_at: _emberData['default'].attr('utc')
+    });
+});
+define('frontend/models/alert-level-setting', ['exports', 'ember-data'], function (exports, _emberData) {
+    exports['default'] = _emberData['default'].Model.extend({
+        value: _emberData['default'].attr('string'),
+        level: _emberData['default'].attr('string'),
+
+        alert_setting: _emberData['default'].belongsTo('alert_setting'),
+        inserted_at: _emberData['default'].attr('utc'),
+        updated_at: _emberData['default'].attr('utc')
+    });
+});
+define('frontend/models/alert-notification-setting', ['exports', 'ember-data'], function (exports, _emberData) {
+    exports['default'] = _emberData['default'].Model.extend({
+        method: _emberData['default'].attr('string'),
+        recipients: _emberData['default'].attr('array'),
+        alert_setting: _emberData['default'].belongsTo('alert_setting'),
+        inserted_at: _emberData['default'].attr('utc'),
+        updated_at: _emberData['default'].attr('utc')
+    });
+});
+define('frontend/models/alert-setting', ['exports', 'ember-data'], function (exports, _emberData) {
+    exports['default'] = _emberData['default'].Model.extend({
+        name: _emberData['default'].attr('string'),
+        aggregation: _emberData['default'].attr('string'),
+        operation: _emberData['default'].attr('string'),
+        number_of_rows: _emberData['default'].attr('number'),
+        column: _emberData['default'].attr('string'),
+        traversal: _emberData['default'].attr('string'),
+        is_active: _emberData['default'].attr('boolean'),
+        frequency_value_in_seconds: _emberData['default'].attr('number'),
+        start_time: _emberData['default'].attr('date'),
+        scheduled_disabled_config: _emberData['default'].attr('object'),
+        silent_till: _emberData['default'].attr('date'),
+        question: _emberData['default'].belongsTo('question'),
+        inserted_at: _emberData['default'].attr('utc'),
+        updated_at: _emberData['default'].attr('utc'),
+        alert_level_settings: _emberData['default'].hasMany('alert_level_settings'),
+        alert_notification_settings: _emberData['default'].hasMany('alert_notification_settings')
+    });
+});
 define('frontend/models/alert', ['exports', 'ember-data'], function (exports, _emberData) {
     exports['default'] = _emberData['default'].Model.extend({
         name: _emberData['default'].attr('string'),
@@ -4593,33 +4644,310 @@ define('frontend/models/widget', ['exports', 'ember', 'ember-data'], function (e
 //         }, 300);
 //     }
 // })
-define('frontend/pods/alerts/new/controller', ['exports', 'ember'], function (exports, _ember) {
-  exports['default'] = _ember['default'].Controller.extend({
-    questions: _ember['default'].computed(function () {
-      return this.store.query('question', { 'with': 'columns' });
-    }),
-    alert: {
-      name: "New Alert",
-      config: _ember['default'].Object.create({
-        question: null,
-        warning: _ember['default'].Object.create({
-          within_type: null,
-          operation: null,
-          within_count: null,
-          column: null,
-          operator: null,
-          value: null
-        }),
+define('frontend/pods/alerts/edit/controller', ['exports', 'ember', 'frontend/pods/alerts/new/controller'], function (exports, _ember, _frontendPodsAlertsNewController) {
+  exports['default'] = _frontendPodsAlertsNewController['default'].extend({
+    pageTitle: "Edit Alert",
+    alert_setting: _ember['default'].computed.alias('model'),
 
-        critical: _ember['default'].Object.create({
-          operation: null,
-          within_type: null,
-          within_count: null,
-          column: null,
-          operator: null,
-          value: null
-        })
-      })
+    timeUnitMultiplierReverse: {
+      60: 'minutes',
+      3600: "hours",
+      86400: "days",
+      604800: "weeks"
+    },
+    criticalLevelObserver: _ember['default'].observer('alert_setting.alert_level_settings.content.isLoaded', function () {
+      this.set('criticalLevel', this.get('alert_setting') && this.get('alert_setting.alert_level_settings').filter(function (item) {
+        return item.get('level') == "critical";
+      }).objectAt(0));
+    }),
+    warningLevelObserver: _ember['default'].observer('alert_setting.alert_level_settings.content.isLoaded', function () {
+      this.set('warningLevel', this.get('alert_setting') && this.get('alert_setting.alert_level_settings').filter(function (item) {
+        return item.get('level') == "warning";
+      }).objectAt(0));
+    }),
+    alertNotificationObserver: _ember['default'].observer('alert_setting.alert_notification_settings.content.isLoaded', function () {
+      this.set('alertNotification', this.get('alert_setting') && this.get('alert_setting.alert_notification_settings') && this.get('alert_setting.alert_notification_settings').objectAt(0));
+    }),
+    selectedAggregation: _ember['default'].computed('alert_setting', function () {
+      return {
+        title: this.get('alert_setting.aggregation')
+      };
+    }),
+    selectedColumn: _ember['default'].computed('alert_setting', function () {
+      return {
+        title: this.get('alert_setting.column')
+      };
+    }),
+    selectedTraversal: _ember['default'].computed('alert_setting', function () {
+      return {
+        title: this.get('alert_setting.traversal')
+      };
+    }),
+
+    selectedOperation: _ember['default'].computed('alert_setting', function () {
+      return {
+        title: this.get('alert_setting.operation')
+      };
+    }),
+
+    timeIntervalObserver: _ember['default'].observer('timeUnit', 'timeInterval', 'alert_setting.frequency_value_in_seconds', function () {
+      if (this.get('timeInterval') || this.get('timeUnit')) {
+        return;
+      }
+      var frequency = this.get('alert_setting.frequency_value_in_seconds');
+
+      var timeUnitMultiplier = [604800, 86400, 3600, 60].filter(function (divident) {
+        return frequency % divident == 0;
+      })[0];
+
+      this.set('timeUnit', { value: this.timeUnitMultiplierReverse[timeUnitMultiplier], title: this.timeUnitMultiplierReverse[timeUnitMultiplier] });
+      this.set('timeInterval', frequency / timeUnitMultiplier);
+    })
+
+  });
+});
+define('frontend/pods/alerts/edit/route', ['exports', 'ember', 'frontend/mixins/authentication-mixin'], function (exports, _ember, _frontendMixinsAuthenticationMixin) {
+    exports['default'] = _ember['default'].Route.extend(_frontendMixinsAuthenticationMixin['default'], {
+        model: function model(params) {
+            return this.store.find('alert_setting', params.alert_id);
+        },
+        templateName: 'alerts/new'
+
+    });
+});
+define("frontend/pods/alerts/edit/template", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "A2Ti7E+S", "block": "{\"symbols\":[],\"statements\":[[1,[18,\"outlet\"],false]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/alerts/edit/template.hbs" } });
+});
+define("frontend/pods/alerts/new/controller", ["exports", "ember"], function (exports, _ember) {
+  exports["default"] = _ember["default"].Controller.extend({
+    pageTitle: "New Alert",
+    step: 1,
+    errors: {},
+    alert_setting: _ember["default"].computed(function () {
+      return this.store.createRecord("alert_setting", {
+        name: null,
+        question: null,
+        aggregation: null,
+        column: null,
+        traversal: null,
+        number_of_rows: 1,
+        operation: null
+      });
+    }),
+    criticalLevel: _ember["default"].computed(function () {
+      return this.store.createRecord('alert_level_setting', {
+        value: null,
+        level: "critical",
+        allert_setting: this.get('alert_setting')
+      });
+    }),
+    warningLevel: _ember["default"].computed(function () {
+      return this.store.createRecord('alert_level_setting', {
+        value: null,
+        level: "warning",
+        allert_setting: this.get('alert_setting')
+      });
+    }),
+    alertNotification: _ember["default"].computed(function () {
+      return this.store.createRecord('alert_notification_setting', {
+        recipients: [],
+        method: "email",
+        allert_setting: this.get('alert_setting')
+      });
+    }),
+
+    timeUnitMultiplier: {
+      'minutes': 60,
+      'hours': 3600,
+      'days': 86400,
+      'weeks': 604800
+    },
+
+    frequencyObserver: _ember["default"].observer('timeInterval', 'timeUnit', function () {
+      if (this.get('timeInterval') && this.get('timeUnit')) {
+        this.set('alert_setting.frequency_value_in_seconds', this.get('timeInterval') * this.get('timeUnitMultiplier')[this.get('timeUnit.value')]);
+      }
+    }),
+    aggregations: [{ value: "raw_value", title: "Raw Value" }, { value: "average", title: "Average" }, { value: "median", title: "Median" }, { value: "min", title: "Min" }, { value: "max", title: "Max" }, { value: "sum", title: "Sum" }, { value: "mean", title: "Mean" }, { value: "percentile_90th", title: "90th percentile" }, { value: "percentile_95th", title: "95th percentile" }, { value: "percentile_99th", title: "99th percentile" }],
+    operations: [{ value: "greater_than", title: "Greater than" }, { value: "greater_than_equal_to", title: "Greater than or equal to" }, { value: "less_than", title: "Less than" }, { value: "less_than_equal_to", title: "Less than or equal to" }, { value: "equal", title: "equal to" }, { value: "not_equal_to", title: "Not equal to" }],
+    traversals: [{ value: "any", title: "Any" }, { value: "all", title: "All" }, { value: "consecutive", title: "Consecutive" }],
+    timeUnits: [{ title: "Minutes", value: "minutes" }, { title: "Hours", value: "hours" }, { title: "Days", value: "days" }, { title: "Week", value: "week" }],
+    questions: _ember["default"].computed(function () {
+      return this.store.query('question', { "with": 'columns' });
+    }),
+    columns: _ember["default"].computed('alert_setting.question', function () {
+      return this.get('alert_setting.question.columns') && this.get('alert_setting.question.columns').filter(function (item) {
+        return item;
+      }).map(function (item) {
+        return { title: item, value: item };
+      });
+    }),
+    validateStep: function validateStep(currentStep) {
+      if (currentStep == 1) {
+        if (this.get('alert_setting.name')) {
+          this.set("errors.name", false);
+          return true;
+        } else {
+          this.set("errors.name", true);
+          return false;
+        }
+      } else if (currentStep == 2) {
+        if (this.get('alert_setting.question.id')) {
+          this.set("errors.question", false);
+          return true;
+        } else {
+          this.set("errors.question", true);
+          return false;
+        }
+      } else if (currentStep == 3) {
+        if (!this.get('alert_setting.aggregation')) {
+          this.set("errors.aggregation", true);
+        } else {
+          this.set("errors.aggregation", false);
+        }
+        if (!this.get('alert_setting.column')) {
+          this.set("errors.column", true);
+        } else {
+          this.set("errors.column", false);
+        }
+
+        if (!this.get('alert_setting.traversal')) {
+          this.set("errors.traversal", true);
+        } else {
+          this.set("errors.traversal", false);
+        }
+
+        if (!this.get('alert_setting.number_of_rows')) {
+          this.set("errors.number_of_rows", true);
+        } else {
+          this.set("errors.number_of_rows", false);
+        }
+
+        if (!this.get('alert_setting.operation')) {
+          this.set("errors.operation", true);
+        } else {
+          this.set("errors.operation", false);
+        }
+
+        if (!this.get('warningLevel.value')) {
+          this.set("errors.warningLevelValue", true);
+        } else {
+          this.set("errors.warningLevelValue", false);
+        }
+
+        if (!this.get('criticalLevel.value')) {
+          this.set("errors.criticalLevelValue", true);
+        } else {
+          this.set("errors.criticalLevelValue", false);
+        }
+
+        if (this.get('errors.criticalLevelValue') || this.get('errors.warningLevelValue') || this.get('errors.aggregation') || this.get('errors.column') || this.get('errors.traversal') || this.get('errors.number_of_rows') || this.get('errors.operation')) {
+          return false;
+        } else {
+          return true;
+        }
+      } else if (currentStep == 4) {
+        if (!this.get('alertNotification.recipients')) {
+          this.set('errors.notificationRecipients', true);
+          return false;
+        } else if (this.get('alertNotification.recipients').length == 0) {
+          this.set('errors.notificationRecipients', true);
+          return false;
+        } else {
+          this.set('errors.notificationRecipients', false);
+          this.set('errors.notificationRecipients', false);
+          return true;
+        }
+      } else if (currentStep == 5) {
+        if (!this.get('alert_setting.frequency_value_in_seconds')) {
+          this.set('errors.frequency_value_in_seconds', true);
+        } else {
+          this.set("errors.frequency_value_in_seconds", false);
+        }
+        if (!this.get('alert_setting.start_time')) {
+          this.set('errors.start_time', true);
+        } else {
+          this.set("errors.start_time", false);
+        }
+
+        if (this.get('errors.start_time') || this.get('errors.frequency_value_in_seconds')) {
+          return false;
+        } else {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    },
+    syncToServer: function syncToServer(currentStep) {
+      var _this = this;
+
+      if (currentStep == 5) {
+        this.get('alert_setting').save().then(function (response) {
+
+          _this.set('warningLevel.alert_setting', response);
+          _this.get('warningLevel').save();
+          _this.set('criticalLevel.alert_setting', response);
+          _this.get('criticalLevel').save();
+          _this.set('alertNotification.alert_setting', response);
+          _this.get('alertNotification').save();
+        });
+      }
+    },
+    selectedRecipients: _ember["default"].computed('alertNotification.recipients', function () {
+      return this.get('alertNotification.recipients') && this.get('alertNotification.recipients').map(function (item) {
+        return _ember["default"].Object.create({
+          title: item
+        });
+      }) || [];
+    }),
+    users: _ember["default"].computed(function () {
+      return this.get('store').findAll('user');
+    }),
+    userEmails: _ember["default"].computed('users', 'users.content.isLoaded', function () {
+      return this.get('users').map(function (item) {
+
+        return _ember["default"].Object.create({
+          title: item.get('email')
+        });
+      });
+    }),
+    sortedUsers: _ember["default"].computed('users.content.isLoaded', function () {
+      return this.get('users').sortBy('label');
+    }),
+    actions: {
+      nextStep: function nextStep(currentStep) {
+        if (this.validateStep(currentStep)) {
+
+          this.syncToServer(currentStep);
+          this.incrementProperty('step');
+        }
+      },
+
+      previousStep: function previousStep() {
+        this.decrementProperty('step');
+      },
+      setStep: function setStep(step) {
+        this.set("step", step);
+      },
+      setProperty: function setProperty(property, obj) {
+        this.set(property, obj.value);
+      },
+
+      addToRecipients: function addToRecipients(item) {
+        this.set('alertNotification.recipients', item.map(function (it) {
+          return it.title;
+        }));
+      },
+      addNewRecipient: function addNewRecipient(text) {
+        var newUser = _ember["default"].Object.create({
+          title: text
+        });
+        this.get('userEmails').addObject(newUser);
+        this.get('selectedRecipients').addObject(newUser);
+        this.get('alertNotification.recipients').addObject(text);
+      }
+
     }
   });
 });
@@ -4627,7 +4955,7 @@ define('frontend/pods/alerts/new/route', ['exports', 'ember', 'frontend/mixins/a
   exports['default'] = _ember['default'].Route.extend(_frontendMixinsAuthenticationMixin['default'], {});
 });
 define("frontend/pods/alerts/new/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "A1QagQ8Z", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"header collapse d-lg-flex p-0\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"container\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row justify-content-between w-100\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col text-default\"],[7],[0,\" \"],[1,[18,\"pageTitle\"],false],[0,\" \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"pt-3 px-5\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col-3\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"card\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card-body p-0\"],[7],[0,\"\\n                    \"],[4,\"link-to\",[\"settings.databases.index\"],[[\"class\"],[\"nav-item p-3 border-bottom text-default\"]],{\"statements\":[[0,\" Setup Alert \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[4,\"link-to\",[\"settings.users\"],[[\"class\"],[\"nav-item p-3 border-bottom text-default\"]],{\"statements\":[[0,\" Setup Alert Levels\"]],\"parameters\":[]},null],[0,\"\\n                    \"],[4,\"link-to\",[\"settings.teams\"],[[\"class\"],[\"nav-item p-3 text-default border-bottom\"]],{\"statements\":[[0,\" Setup Notifications \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[4,\"link-to\",[\"settings.permissions\"],[[\"class\"],[\"nav-item p-3 text-default\"]],{\"statements\":[[0,\" Done \"]],\"parameters\":[]},null],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col-9\"],[7],[0,\" \"],[1,[18,\"outlet\"],false],[0,\" \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/alerts/new/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "Ed0evi28", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"header collapse d-lg-flex p-0\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"container\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row justify-content-between w-100\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col text-default\"],[7],[0,\" \"],[1,[18,\"pageTitle\"],false],[0,\" \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"pt-3 px-5\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col-3\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"card\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card-body p-0\"],[7],[0,\"\\n                    \"],[6,\"a\"],[9,\"href\",\"#\"],[10,\"class\",[26,[\"nav-item p-3 border-bottom text-default \",[25,\"if\",[[25,\"eq\",[[20,[\"step\"]],1],null],\"active\"],null]]]],[3,\"action\",[[19,0,[]],\"setStep\",1]],[7],[0,\" \"],[6,\"i\"],[10,\"class\",[26,[\"fe fe-check-circle  pr-4 \",[25,\"if\",[[20,[\"step1Done\"]],\"text-green\",\"text-gray\"],null]]]],[7],[8],[0,\" Set up Alert\\n                        Name\"],[8],[0,\"\\n                    \"],[6,\"a\"],[9,\"href\",\"#\"],[10,\"class\",[26,[\"nav-item p-3 border-bottom text-default \",[25,\"if\",[[25,\"eq\",[[20,[\"step\"]],2],null],\"active\"],null]]]],[3,\"action\",[[19,0,[]],\"setStep\",2]],[7],[6,\"i\"],[10,\"class\",[26,[\"fe fe-check-circle  pr-4 \",[25,\"if\",[[20,[\"step2Done\"]],\"text-green\",\"text-gray\"],null]]]],[7],[8],[0,\" Set up Data\\n                        Source\"],[8],[0,\"\\n                    \"],[6,\"a\"],[9,\"href\",\"#\"],[10,\"class\",[26,[\"nav-item p-3 border-bottom text-default \",[25,\"if\",[[25,\"eq\",[[20,[\"step\"]],3],null],\"active\"],null]]]],[3,\"action\",[[19,0,[]],\"setStep\",3]],[7],[6,\"i\"],[10,\"class\",[26,[\"fe fe-check-circle  pr-4 \",[25,\"if\",[[20,[\"step3Done\"]],\"text-green\",\"text-gray\"],null]]]],[7],[8],[0,\" Set up Alert\\n                        Condition\"],[8],[0,\"\\n                    \"],[6,\"a\"],[9,\"href\",\"#\"],[10,\"class\",[26,[\"nav-item p-3 border-bottom text-default \",[25,\"if\",[[25,\"eq\",[[20,[\"step\"]],4],null],\"active\"],null]]]],[3,\"action\",[[19,0,[]],\"setStep\",4]],[7],[6,\"i\"],[10,\"class\",[26,[\"fe fe-check-circle  pr-4 \",[25,\"if\",[[20,[\"step4Done\"]],\"text-green\",\"text-gray\"],null]]]],[7],[8],[0,\" Set up\\n                        Notification\"],[8],[0,\"\\n                    \"],[6,\"a\"],[9,\"href\",\"#\"],[10,\"class\",[26,[\"nav-item p-3 border-bottom text-default \",[25,\"if\",[[25,\"eq\",[[20,[\"step\"]],5],null],\"active\"],null]]]],[3,\"action\",[[19,0,[]],\"setStep\",5]],[7],[6,\"i\"],[10,\"class\",[26,[\"fe fe-check-circle pr-4 \",[25,\"if\",[[20,[\"step5Done\"]],\"text-green\",\"text-gray\"],null]]]],[7],[8],[0,\" Set up Alert\\n                        Schedule\"],[8],[0,\"\\n                    \"],[6,\"a\"],[9,\"href\",\"#\"],[10,\"class\",[26,[\"nav-item p-3 border-bottom text-default \",[25,\"if\",[[25,\"eq\",[[20,[\"step\"]],6],null],\"active\"],null]]]],[7],[6,\"i\"],[10,\"class\",[26,[\"fe fe-check-circle  pr-4 \",[25,\"if\",[[20,[\"step6Done\"]],\"text-green\",\"text-gray\"],null]]]],[7],[8],[0,\" Done\"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col-9 pl-4\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"card\"],[7],[0,\"\\n\"],[4,\"if\",[[25,\"eq\",[[20,[\"step\"]],1],null]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"card-body p-4\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"form-label\"],[7],[0,\"\\n                            Name\\n                        \"],[8],[0,\"\\n                        \"],[1,[25,\"input\",null,[[\"value\",\"class\"],[[20,[\"alert_setting\",\"name\"]],\"form-control\"]]],false],[0,\"\\n\\n\"],[4,\"if\",[[20,[\"errors\",\"name\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-block\"],[7],[0,\"Please provide a name.\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                        \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\"This will be sent in the notifications. So please choose a appropriate\\n                            name.\"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card-footer px-4 py-2\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"d-flex p-0\"],[7],[0,\"\\n                        \"],[6,\"button\"],[9,\"class\",\"btn btn-primary ml-auto\"],[3,\"action\",[[19,0,[]],\"nextStep\",1]],[7],[0,\"Next \"],[6,\"i\"],[9,\"class\",\"fe fe-arrow-right\"],[7],[8],[8],[0,\"\\n\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"eq\",[[20,[\"step\"]],2],null]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"card-body p-4\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"form-label\"],[7],[0,\"\\n                            Question\\n                        \"],[8],[0,\"\\n                        \"],[1,[25,\"searchable-select\",null,[[\"content\",\"sortBy\",\"optionLabelKey\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-change\"],[[20,[\"questions\"]],\"title\",\"title\",[20,[\"alert_setting\",\"question\"]],true,\"Select a Question\",[25,\"action\",[[19,0,[]],[25,\"mut\",[[20,[\"alert_setting\",\"question\"]]],null]],null]]]],false],[0,\"\\n\"],[4,\"if\",[[20,[\"errors\",\"question\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-block\"],[7],[0,\"Please select a question\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                        \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\"Result of this Question will be used to evaluate the Condition for\\n                            this alert.\"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card-footer px-4 py-2\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"d-flex p-0\"],[7],[0,\"\\n                        \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"class\",\"btn btn-link btn-secondary\"],[3,\"action\",[[19,0,[]],\"previousStep\"]],[7],[6,\"i\"],[9,\"class\",\"fe fe-arrow-left\"],[7],[8],[0,\"Go Back\"],[8],[0,\"\\n                        \"],[6,\"button\"],[9,\"class\",\"btn btn-primary ml-auto\"],[3,\"action\",[[19,0,[]],\"nextStep\",2]],[7],[0,\"Next \"],[6,\"i\"],[9,\"class\",\"fe fe-arrow-right\"],[7],[8],[8],[0,\"\\n\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"eq\",[[20,[\"step\"]],3],null]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"card-body p-4\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-1 text-center pt-2 mb-2\"],[7],[0,\"\\n                                When\\n                            \"],[8],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-3 mb-2\"],[7],[0,\"\\n                                \"],[1,[25,\"searchable-select\",null,[[\"content\",\"sortBy\",\"optionLabelKey\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-change\"],[[20,[\"aggregations\"]],\"title\",\"title\",[20,[\"selectedAggregation\"]],true,\"Select an aggregation\",[25,\"action\",[[19,0,[]],\"setProperty\",\"alert_setting.aggregation\"],null]]]],false],[0,\"\\n\"],[4,\"if\",[[20,[\"errors\",\"aggregation\"]]],null,{\"statements\":[[0,\"                                \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-block\"],[7],[0,\"Please select an aggregation\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                            \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n\\n                            \"],[6,\"div\"],[9,\"class\",\"col-1 text-center pt-2 mb-2\"],[7],[0,\"\\n                                of\\n                            \"],[8],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-3 mb-2\"],[7],[0,\"\\n                                \"],[1,[25,\"searchable-select\",null,[[\"content\",\"sortBy\",\"optionLabelKey\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-change\"],[[20,[\"columns\"]],\"title\",\"title\",[20,[\"selectedColumn\"]],true,\"Select a Column\",[25,\"action\",[[19,0,[]],\"setProperty\",\"alert_setting.column\"],null]]]],false],[0,\"\\n\"],[4,\"if\",[[20,[\"errors\",\"column\"]]],null,{\"statements\":[[0,\"                                \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-block\"],[7],[0,\"Please select a column\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"\\n                            \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-1 text-center pt-2 mb-2\"],[7],[0,\"\\n                                in\\n                            \"],[8],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-3 mb-2\"],[7],[0,\"\\n                                \"],[1,[25,\"searchable-select\",null,[[\"content\",\"sortBy\",\"optionLabelKey\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-change\"],[[20,[\"traversals\"]],\"title\",\"title\",[20,[\"selectedTraversal\"]],true,\"Select traversal\",[25,\"action\",[[19,0,[]],\"setProperty\",\"alert_setting.traversal\"],null]]]],false],[0,\"\\n\"],[4,\"if\",[[20,[\"errors\",\"traversal\"]]],null,{\"statements\":[[0,\"                                \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-block\"],[7],[0,\"Please select traversal\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"\\n                            \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n\"],[4,\"if\",[[25,\"not-eq\",[[20,[\"alert_setting\",\"traversal\"]],\"all\"],null]],null,{\"statements\":[[0,\"                            \"],[6,\"div\"],[9,\"class\",\"col-2 mb-2\"],[7],[0,\"\\n                                \"],[1,[25,\"input\",null,[[\"type\",\"placeholder\",\"value\",\"class\"],[\"number\",\"Number of rows\",[20,[\"alert_setting\",\"number_of_rows\"]],\"form-control\"]]],false],[0,\"\\n\"],[4,\"if\",[[20,[\"errors\",\"no_of_rows\"]]],null,{\"statements\":[[0,\"                                \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-block\"],[7],[0,\"Please provide number of rows\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"\\n                            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                            \"],[6,\"div\"],[9,\"class\",\"col-1 text-center pt-2 mb-2\"],[7],[0,\"\\n                                rows\\n\\n                            \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-1 text-center pt-2 mb-2\"],[7],[0,\"\\n                                is\\n                            \"],[8],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-3 mb-2\"],[7],[0,\"\\n                                \"],[1,[25,\"searchable-select\",null,[[\"content\",\"sortBy\",\"optionLabelKey\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-change\"],[[20,[\"operations\"]],\"title\",\"title\",[20,[\"selectedOperation\"]],true,\"Select comparator\",[25,\"action\",[[19,0,[]],\"setProperty\",\"alert_setting.operation\"],null]]]],false],[0,\"\\n\"],[4,\"if\",[[20,[\"errors\",\"operation\"]]],null,{\"statements\":[[0,\"                                \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-block\"],[7],[0,\"Please select an comparator\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"\\n\\n                            \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n\\n\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card-footer px-4 py-2\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"col-2\"],[7],[0,\"\\n                            \"],[1,[25,\"input\",null,[[\"type\",\"value\",\"placeholder\",\"class\"],[\"number\",[20,[\"warningLevel\",\"value\"]],\"threshold\",\"form-control\"]]],false],[0,\"\\n\"],[4,\"if\",[[20,[\"errors\",\"warningLevelValue\"]]],null,{\"statements\":[[0,\"                            \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-block\"],[7],[0,\"Please provide a value\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"\\n                        \"],[8],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"col-10 pt-2 pl-2\"],[7],[0,\"\\n                            raise\\n                            \"],[6,\"div\"],[9,\"class\",\"tag bg-yellow-light text-default\"],[7],[0,\"Warning\"],[8],[0,\"\\n                        \"],[8],[0,\"\\n\\n                    \"],[8],[0,\"\\n\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card-footer px-4 py-2\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"col-2\"],[7],[0,\"\\n                            \"],[1,[25,\"input\",null,[[\"type\",\"value\",\"placeholder\",\"class\"],[\"number\",[20,[\"criticalLevel\",\"value\"]],\"threshold\",\"form-control\"]]],false],[0,\"\\n\"],[4,\"if\",[[20,[\"errors\",\"criticalLevelValue\"]]],null,{\"statements\":[[0,\"                            \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-block\"],[7],[0,\"Please provide a value\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"\\n                        \"],[8],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"col-10 pt-2 pl-2\"],[7],[0,\"\\n                            raise\\n                            \"],[6,\"div\"],[9,\"class\",\"tag bg-red text-white\"],[7],[0,\"Critical\"],[8],[0,\"\\n                        \"],[8],[0,\"\\n\\n                    \"],[8],[0,\"\\n\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card-footer px-4 py-2\"],[7],[0,\"\\n\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card-footer px-4 py-2 mb-2\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"d-flex p-0\"],[7],[0,\"\\n                        \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"class\",\"btn btn-link btn-secondary\"],[3,\"action\",[[19,0,[]],\"previousStep\"]],[7],[6,\"i\"],[9,\"class\",\"fe fe-arrow-left\"],[7],[8],[0,\"Go Back\"],[8],[0,\"\\n                        \"],[6,\"button\"],[9,\"class\",\"btn btn-primary ml-auto\"],[3,\"action\",[[19,0,[]],\"nextStep\",3]],[7],[0,\"Next \"],[6,\"i\"],[9,\"class\",\"fe fe-arrow-right\"],[7],[8],[8],[0,\"\\n\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"eq\",[[20,[\"step\"]],4],null]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"card-body p-4\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                        \"],[6,\"small\"],[9,\"class\",\"text-default d-block mb-1\"],[7],[0,\"Notify following People/mailing list/teams:\"],[8],[0,\"\\n                        \"],[1,[25,\"searchable-select\",null,[[\"content\",\"multiple\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-add\",\"on-change\"],[[20,[\"userEmails\"]],true,[20,[\"selectedRecipients\"]],false,\"Select People You want to notify\",[25,\"action\",[[19,0,[]],\"addNewRecipient\"],null],[25,\"action\",[[19,0,[]],\"addToRecipients\"],null]]]],false],[0,\"\\n\\n\"],[4,\"if\",[[20,[\"errors\",\"notificationRecipients\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-block\"],[7],[0,\"Please select people to notify\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card-footer px-4 py-2 mb-2\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"d-flex p-0\"],[7],[0,\"\\n                        \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"class\",\"btn btn-link btn-secondary\"],[3,\"action\",[[19,0,[]],\"previousStep\"]],[7],[6,\"i\"],[9,\"class\",\"fe fe-arrow-left\"],[7],[8],[0,\"Go Back\"],[8],[0,\"\\n                        \"],[6,\"button\"],[9,\"class\",\"btn btn-primary ml-auto\"],[3,\"action\",[[19,0,[]],\"nextStep\",4]],[7],[0,\"Next \"],[6,\"i\"],[9,\"class\",\"fe fe-arrow-right\"],[7],[8],[8],[0,\"\\n\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"eq\",[[20,[\"step\"]],5],null]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"card-body p-4\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-2 text-center pt-2\"],[7],[0,\"\\n                                Run it every:\\n                            \"],[8],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-2\"],[7],[0,\"\\n                                \"],[1,[25,\"input\",[[25,\"-input-type\",[[20,[\"number\"]]],null]],[[\"placeholder\",\"type\",\"value\",\"class\"],[\"time\",[20,[\"number\"]],[20,[\"timeInterval\"]],\"form-control\"]]],false],[0,\"\\n                            \"],[8],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-2 pl-1\"],[7],[0,\"\\n                                \"],[1,[25,\"searchable-select\",null,[[\"content\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-change\"],[[20,[\"timeUnits\"]],[20,[\"timeUnit\"]],false,\"Time Unit\",[25,\"action\",[[19,0,[]],[25,\"mut\",[[20,[\"timeUnit\"]]],null]],null]]]],false],[0,\"\\n                            \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"errors\",\"frequency_value_in_seconds\"]]],null,{\"statements\":[[0,\"                            \"],[6,\"div\"],[9,\"class\",\"col-4 pl-2 pt-2\"],[7],[0,\"\\n\\n                                \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-block\"],[7],[0,\"Please select\"],[8],[0,\"\\n                            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                        \"],[8],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"row mt-2\"],[7],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-2 text-center pt-2\"],[7],[0,\"\\n                                Starting at:\\n                            \"],[8],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-4\"],[7],[0,\"\\n                                \"],[1,[25,\"ui-calendar\",null,[[\"date\",\"onChange\",\"placeholder\"],[[20,[\"alert_setting\",\"start_time\"]],[25,\"action\",[[19,0,[]],[25,\"mut\",[[20,[\"alert_setting\",\"start_time\"]]],null]],null],[20,[\"alert_setting\",\"start_time\"]]]]],false],[0,\"\\n                            \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"errors\",\"start_time\"]]],null,{\"statements\":[[0,\"                            \"],[6,\"div\"],[9,\"class\",\"col-4 pl-2 pt-2\"],[7],[0,\"\\n\\n                                \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-block\"],[7],[0,\"Please select start time\"],[8],[0,\"\\n                            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card-footer px-4 py-2 mb-2\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"d-flex p-0\"],[7],[0,\"\\n                        \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"class\",\"btn btn-link btn-secondary\"],[3,\"action\",[[19,0,[]],\"previousStep\"]],[7],[6,\"i\"],[9,\"class\",\"fe fe-arrow-left\"],[7],[8],[0,\"Go Back\"],[8],[0,\"\\n                        \"],[6,\"button\"],[9,\"class\",\"btn btn-primary ml-auto\"],[3,\"action\",[[19,0,[]],\"nextStep\",5]],[7],[0,\"Next \"],[6,\"i\"],[9,\"class\",\"fe fe-arrow-right\"],[7],[8],[8],[0,\"\\n\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"eq\",[[20,[\"step\"]],6],null]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"row text-center p-8\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n                        \"],[6,\"i\"],[9,\"class\",\"fe fe-check-circle h1 text-green\"],[7],[8],[0,\"\\n                    \"],[8],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"col-12 h3\"],[7],[0,\"\\n                        All Set\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card-footer px-4 py-2\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"d-flex p-0\"],[7],[0,\"\\n                        \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"class\",\"btn btn-link btn-secondary\"],[3,\"action\",[[19,0,[]],\"previousStep\"]],[7],[6,\"i\"],[9,\"class\",\"fe fe-arrow-left\"],[7],[8],[0,\"Go Back\"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/alerts/new/template.hbs" } });
 });
 define('frontend/pods/alerts/show/controller', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Controller.extend({});
@@ -10060,5 +10388,5 @@ catch(err) {
 });
 
 if (!runningTests) {
-  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0+1200d467"});
+  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0+a9d1c4b4"});
 }

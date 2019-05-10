@@ -1,13 +1,13 @@
 defmodule AfterGlow.AlertEventController do
   use AfterGlow.Web, :controller
-  @model_type "alert_events"
+  @model_type "alert-events"
   @model AfterGlow.Alerts.AlertSetting
   @query_functions AfterGlow.Alerts.AlertSettingQueryFunctions
 
   alias AfterGlow.Plugs.Authorization
   plug(Authorization)
-  plug(:authorize!, Team)
-  plug(:verify_authorized)
+  # plug(:authorize!, Team)
+  # plug(:verify_authorized)
 
   action_fallback(AfterGlow.Web.FallbackController)
   use AfterGlow.Utils.Controllers.Crud

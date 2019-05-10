@@ -1,6 +1,6 @@
 defmodule AfterGlow.Alerts.AlertSettingQueryFunctions do
   @model AfterGlow.Alerts.AlertSetting
-  @default_preloads [:alert_notification_settings, :alert_level_settings]
+  @default_preloads [:alert_notification_settings, :alert_level_settings, :question]
   use AfterGlow.Utils.Models.Crud
 
   def delete(:id) do

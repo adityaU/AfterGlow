@@ -3,15 +3,21 @@ defmodule AfterGlow.Utils.Controllers.Crud do
     quote do
       use AfterGlow.Web, :controller
 
-  alias JaSerializer.Params
+      alias JaSerializer.Params
 
-      def index(conn, _params) do
-        results = @query_functions.list()
+      def index(conn, params) do
+        results = @query_functions.list(params)
 
         render(conn, "index.json", %{(@model_type |> String.to_atom()) => results})
       end
 
-      def get(conn, %{"id" => id}) do
+      # def index(conn, _params) do
+      #   results = @query_functions.list()
+
+      #   render(conn, "index.json", %{(@model_type |> String.to_atom()) => results})
+      # end
+
+      def show(conn, %{"id" => id}) do
         result = @query_functions.get(id)
 
         render(conn, "show.json", %{
@@ -22,12 +28,16 @@ defmodule AfterGlow.Utils.Controllers.Crud do
       def create(conn, %{"data" => data = %{"type" => @model_type, "attributes" => _teams_params}}) do
         prms = Params.to_attributes(data)
 
-        with {:ok, %@model{} = result} <- @query_functions.create(prms) do
+        with %@model{} = result <-
+               @query_functions.create(prms) |> IO.inspect(label: "create") do
           conn
           |> put_status(:created)
-          |> render("show.json", %{
-            (@model_type |> Inflex.singularize() |> String.to_atom()) => result
-          })
+          |> render(
+            "show.json",
+            %{
+              (@model_type |> Inflex.singularize() |> String.to_atom()) => result
+            }
+          )
         end
       end
 
@@ -36,7 +46,7 @@ defmodule AfterGlow.Utils.Controllers.Crud do
           }) do
         prms = Params.to_attributes(data)
 
-        with {:ok, %@model{} = result} <- @query_functions.update(id, prms) do
+        with %@model{} = result <- @query_functions.update(id, prms) do
           conn
           |> render("show.json", %{
             (@model_type |> Inflex.singularize() |> String.to_atom()) => result
@@ -50,7 +60,7 @@ defmodule AfterGlow.Utils.Controllers.Crud do
         send_resp(conn, :no_content, "")
       end
 
-      defoverridable index: 2, get: 2, create: 2, update: 2, delete: 2
+      defoverridable index: 2, show: 2, create: 2, update: 2, delete: 2
     end
   end
 end

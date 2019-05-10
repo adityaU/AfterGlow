@@ -14,9 +14,9 @@ defmodule AfterGlow.Alerts.AlertLevelSetting do
   )
 
   schema("alert_level_settings") do
-    field(:level, :integer)
+    field(:level, LevelEnum)
     field(:value, :string)
-    belongs_to(:alert_setting_id, AlertSetting)
+    belongs_to(:alert_setting, AlertSetting)
     timestamps()
   end
 

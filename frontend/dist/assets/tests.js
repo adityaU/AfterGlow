@@ -4126,6 +4126,42 @@ define('frontend/tests/mixins/widget-components.jshint.lint-test', [], function 
     assert.ok(false, 'mixins/widget-components.js should pass jshint.\nmixins/widget-components.js: line 10, col 10, Expected an assignment or function call and instead saw an expression.\n\n1 error');
   });
 });
+define('frontend/tests/models/alert-event.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | models/alert-event.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'models/alert-event.js should pass jshint.');
+  });
+});
+define('frontend/tests/models/alert-level-setting.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | models/alert-level-setting.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'models/alert-level-setting.js should pass jshint.');
+  });
+});
+define('frontend/tests/models/alert-notification-setting.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | models/alert-notification-setting.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'models/alert-notification-setting.js should pass jshint.');
+  });
+});
+define('frontend/tests/models/alert-setting.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | models/alert-setting.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'models/alert-setting.js should pass jshint.');
+  });
+});
 define('frontend/tests/models/alert.jshint.lint-test', [], function () {
   'use strict';
 
@@ -4315,13 +4351,31 @@ define('frontend/tests/models/widget.jshint.lint-test', [], function () {
     assert.ok(true, 'models/widget.js should pass jshint.');
   });
 });
+define('frontend/tests/pods/alerts/edit/controller.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | pods/alerts/edit/controller.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'pods/alerts/edit/controller.js should pass jshint.\npods/alerts/edit/controller.js: line 15, col 34, Expected \'===\' and instead saw \'==\'.\npods/alerts/edit/controller.js: line 15, col 45, Missing semicolon.\npods/alerts/edit/controller.js: line 17, col 6, Missing semicolon.\npods/alerts/edit/controller.js: line 21, col 34, Expected \'===\' and instead saw \'==\'.\npods/alerts/edit/controller.js: line 21, col 44, Missing semicolon.\npods/alerts/edit/controller.js: line 23, col 6, Missing semicolon.\npods/alerts/edit/controller.js: line 27, col 159, Missing semicolon.\npods/alerts/edit/controller.js: line 32, col 6, Missing semicolon.\npods/alerts/edit/controller.js: line 37, col 6, Missing semicolon.\npods/alerts/edit/controller.js: line 42, col 6, Missing semicolon.\npods/alerts/edit/controller.js: line 48, col 6, Missing semicolon.\npods/alerts/edit/controller.js: line 52, col 67, Missing semicolon.\npods/alerts/edit/controller.js: line 53, col 73, Missing semicolon.\npods/alerts/edit/controller.js: line 56, col 37, Expected \'===\' and instead saw \'==\'.\npods/alerts/edit/controller.js: line 56, col 39, Missing semicolon.\npods/alerts/edit/controller.js: line 57, col 10, Missing semicolon.\npods/alerts/edit/controller.js: line 59, col 147, Missing semicolon.\npods/alerts/edit/controller.js: line 60, col 61, Missing semicolon.\n\n18 errors');
+  });
+});
+define('frontend/tests/pods/alerts/edit/route.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | pods/alerts/edit/route.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'pods/alerts/edit/route.js should pass jshint.\npods/alerts/edit/route.js: line 2, col 71, Missing semicolon.\npods/alerts/edit/route.js: line 6, col 65, Missing semicolon.\n\n2 errors');
+  });
+});
 define('frontend/tests/pods/alerts/new/controller.jshint.lint-test', [], function () {
   'use strict';
 
   QUnit.module('JSHint | pods/alerts/new/controller.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'pods/alerts/new/controller.js should pass jshint.\npods/alerts/new/controller.js: line 5, col 59, Missing semicolon.\n\n1 error');
+    assert.ok(false, 'pods/alerts/new/controller.js should pass jshint.\npods/alerts/new/controller.js: line 16, col 7, Missing semicolon.\npods/alerts/new/controller.js: line 23, col 7, Missing semicolon.\npods/alerts/new/controller.js: line 30, col 7, Missing semicolon.\npods/alerts/new/controller.js: line 37, col 7, Missing semicolon.\npods/alerts/new/controller.js: line 49, col 148, Missing semicolon.\npods/alerts/new/controller.js: line 85, col 61, Missing semicolon.\npods/alerts/new/controller.js: line 89, col 18, Missing semicolon.\npods/alerts/new/controller.js: line 91, col 42, Missing semicolon.\npods/alerts/new/controller.js: line 92, col 7, Missing semicolon.\npods/alerts/new/controller.js: line 95, col 23, Expected \'===\' and instead saw \'==\'.\npods/alerts/new/controller.js: line 97, col 39, Missing semicolon.\npods/alerts/new/controller.js: line 98, col 20, Missing semicolon.\npods/alerts/new/controller.js: line 100, col 38, Missing semicolon.\npods/alerts/new/controller.js: line 101, col 21, Missing semicolon.\npods/alerts/new/controller.js: line 103, col 30, Expected \'===\' and instead saw \'==\'.\npods/alerts/new/controller.js: line 105, col 43, Missing semicolon.\npods/alerts/new/controller.js: line 106, col 20, Missing semicolon.\npods/alerts/new/controller.js: line 108, col 42, Missing semicolon.\npods/alerts/new/controller.js: line 109, col 21, Missing semicolon.\npods/alerts/new/controller.js: line 112, col 30, Expected \'===\' and instead saw \'==\'.\npods/alerts/new/controller.js: line 114, col 45, Missing semicolon.\npods/alerts/new/controller.js: line 116, col 46, Missing semicolon.\npods/alerts/new/controller.js: line 119, col 40, Missing semicolon.\npods/alerts/new/controller.js: line 121, col 41, Missing semicolon.\npods/alerts/new/controller.js: line 125, col 43, Missing semicolon.\npods/alerts/new/controller.js: line 127, col 44, Missing semicolon.\npods/alerts/new/controller.js: line 131, col 48, Missing semicolon.\npods/alerts/new/controller.js: line 133, col 49, Missing semicolon.\npods/alerts/new/controller.js: line 137, col 43, Missing semicolon.\npods/alerts/new/controller.js: line 139, col 44, Missing semicolon.\npods/alerts/new/controller.js: line 143, col 51, Missing semicolon.\npods/alerts/new/controller.js: line 145, col 52, Missing semicolon.\npods/alerts/new/controller.js: line 149, col 52, Missing semicolon.\npods/alerts/new/controller.js: line 151, col 53, Missing semicolon.\npods/alerts/new/controller.js: line 162, col 21, Missing semicolon.\npods/alerts/new/controller.js: line 164, col 20, Missing semicolon.\npods/alerts/new/controller.js: line 167, col 30, Expected \'===\' and instead saw \'==\'.\npods/alerts/new/controller.js: line 169, col 56, Missing semicolon.\npods/alerts/new/controller.js: line 170, col 21, Missing semicolon.\npods/alerts/new/controller.js: line 171, col 68, Expected \'===\' and instead saw \'==\'.\npods/alerts/new/controller.js: line 172, col 56, Missing semicolon.\npods/alerts/new/controller.js: line 173, col 21, Missing semicolon.\npods/alerts/new/controller.js: line 176, col 57, Missing semicolon.\npods/alerts/new/controller.js: line 177, col 57, Missing semicolon.\npods/alerts/new/controller.js: line 178, col 20, Missing semicolon.\npods/alerts/new/controller.js: line 180, col 30, Expected \'===\' and instead saw \'==\'.\npods/alerts/new/controller.js: line 182, col 60, Missing semicolon.\npods/alerts/new/controller.js: line 184, col 61, Missing semicolon.\npods/alerts/new/controller.js: line 187, col 44, Missing semicolon.\npods/alerts/new/controller.js: line 189, col 45, Missing semicolon.\npods/alerts/new/controller.js: line 189, col 45, Too many errors. (69% scanned).\n\n51 errors');
   });
 });
 define('frontend/tests/pods/alerts/new/route.jshint.lint-test', [], function () {

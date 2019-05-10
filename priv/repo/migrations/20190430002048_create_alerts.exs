@@ -21,7 +21,6 @@ defmodule AfterGlow.Repo.Migrations.CreateAlerts do
     create table(:alert_notification_settings) do
       add(:method, :integer, null: false)
       add(:recipients, {:array, :string}, null: false)
-      add(:silent_option, :integer, null: false)
       add(:alert_setting_id, references(:alert_settings, on_delete: :delete_all), null: false)
       timestamps()
     end

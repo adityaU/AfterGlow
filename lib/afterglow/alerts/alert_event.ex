@@ -24,8 +24,8 @@ defmodule AfterGlow.Alerts.AlertEvent do
   )
 
   schema("alert_level_settings") do
-    belongs_to(:alert_level_setting_id, AlertLevelSetting)
-    belongs_to(:alert_setting_id, AlertSetting)
+    belongs_to(:alert_level_setting, AlertLevelSetting)
+    belongs_to(:alert_setting, AlertSetting)
     field(:alert_level, :integer)
     field(:row_numbers, {:array, :integer})
     field(:data, :map)

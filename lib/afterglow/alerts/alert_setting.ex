@@ -3,6 +3,8 @@ defmodule AfterGlow.Alerts.AlertSetting do
   alias Ecto.Changeset
   import EctoEnum
   alias AfterGlow.Question
+  alias AfterGlow.Alerts.AlertLevelSetting
+  alias AfterGlow.Alerts.AlertNotificationSetting
 
   defenum(AggregationEnum,
     raw_value: 1,
@@ -51,22 +53,27 @@ defmodule AfterGlow.Alerts.AlertSetting do
 
   schema("alert_settings") do
     field(:name, :string)
-    belongs_to(:question_id, Question)
+    belongs_to(:question, Question)
     field(:column, :string)
-    field(:aggregation, :integer)
+    field(:aggregation, AggregationEnum)
     field(:number_of_rows, :integer)
-    field(:operation, :integer)
-    field(:traversal, :integer)
+    field(:operation, OperationEnum)
+    field(:traversal, TraversalEnum)
     field(:is_active, :boolean, default: true)
     field(:frequency_value_in_seconds, :integer)
     field(:start_time, :utc_datetime)
     field(:scheduled_disabled_config, :map)
     field(:silent_till, :utc_datetime)
+    has_many(:alert_level_settings, AlertLevelSetting, on_delete: :delete_all)
+    has_many(:alert_notification_settings, AlertNotificationSetting, on_delete: :delete_all)
     timestamps()
   end
 
   def changeset(%__MODULE__{} = struct, attrs) do
+    attrs |> IO.inspect(label: "alert attrs")
+
     struct
+    |> IO.inspect(label: "cast alert")
     |> Changeset.cast(attrs, @cast_params)
     |> Changeset.validate_required(@required_params)
   end

@@ -4,19 +4,18 @@ defmodule AfterGlow.Alerts.AlertNotificationSetting do
   alias AfterGlow.Alerts.AlertSetting
   import EctoEnum
 
-  @cast_params [:method, :recipients, :alert_settings_id]
+  @cast_params [:method, :recipients, :alert_setting_id]
 
   @required_params @cast_params
 
-  defenum(LevelEnum,
-    warning: 1,
-    critical: 2
+  defenum(MethodEnum,
+    email: 1
   )
 
-  schema("alert_level_settings") do
-    field(:method, :integer)
+  schema("alert_notification_settings") do
+    field(:method, MethodEnum, default: :email)
     field(:recipients, {:array, :string})
-    belongs_to(:alert_setting_id, AlertSetting)
+    belongs_to(:alert_setting, AlertSetting)
     timestamps()
   end
 

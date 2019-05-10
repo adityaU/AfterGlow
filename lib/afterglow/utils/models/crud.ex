@@ -8,6 +8,11 @@ defmodule AfterGlow.Utils.Models.Crud do
         from(m in @model, order_by: [:id, :asc]) |> Repo.all() |> preload(@default_preloads)
       end
 
+      def list(%{"filter" => %{"id" => ids}}) do
+        ids = ids |> String.split(",") |> Enum.map(&(&1 |> String.to_integer()))
+        from(m in @model, where: m.id in ^ids) |> Repo.all() |> preload(@default_preloads)
+      end
+
       def list(%{}) do
         @model |> Repo.all() |> preload(@default_preloads)
       end
