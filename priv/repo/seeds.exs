@@ -10,55 +10,87 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias AfterGlow.Repo
-alias AfterGlow.PermissionSet
-alias AfterGlow.UserPermissionSet
-alias AfterGlow.Permission
-alias AfterGlow.User
-import Ecto.Query
+defmodule AfterGlow.Repo.Seed do
+  alias AfterGlow.Repo
+  alias AfterGlow.PermissionSet
+  alias AfterGlow.UserPermissionSet
+  alias AfterGlow.Permission
+  alias AfterGlow.User
+  import Ecto.Query
 
+  def find_or_create_permission_set(name) do
+    Repo.get_by(PermissionSet, %{name: name}) ||
+      Repo.insert!(PermissionSet.changeset(%PermissionSet{}, %{name: name}))
+  end
 
-{:ok, admin} = Repo.insert(PermissionSet.changeset(%PermissionSet{}, %{name: "Admin"}))
-{:ok ,viewer} = Repo.insert(PermissionSet.changeset(%PermissionSet{},%{name: "Viewer"}))
-{:ok, maker} = Repo.insert(PermissionSet.changeset(%PermissionSet{},%{name: "Creator"}))
+  def find_or_create_permission(name, permission_set_id) do
+    Repo.get_by(Permission, %{name: name, permission_set_id: permission_set_id}) ||
+      Repo.insert!(
+        Permission.changeset(%Permission{}, %{name: name, permission_set_id: permission_set_id})
+      )
+  end
 
-[admin, viewer]
-|> Enum.each(fn x->
-  Repo.insert(Permission.changeset(%Permission{}, %{name: "Dashboard.show", permission_set_id: x.id}))
-  Repo.insert(Permission.changeset(%Permission{},%{name: "Question.show", permission_set_id: x.id}))
-end)
+  def seed do
+    IO.inspect("Running Seeds...")
 
-[maker]
-|> Enum.each(fn x ->
-  Repo.insert(Permission.changeset(%Permission{}, %{name: "Dashboard.show", permission_set_id: x.id}))
-  Repo.insert(Permission.changeset(%Permission{}, %{name: "Dashboard.edit", permission_set_id: x.id}))
-  Repo.insert(Permission.changeset(%Permission{}, %{name: "Dashboard.create", permission_set_id: x.id}))
-  Repo.insert(Permission.changeset(%Permission{}, %{name: "Dashboard.delete", permission_set_id: x.id}))
+    [admin, viewer, creator] =
+      ["Admin", "Viewer", "Creator"]
+      |> Enum.map(fn x ->
+        find_or_create_permission_set(x)
+      end)
 
-  Repo.insert(Permission.changeset(%Permission{}, %{name: "Question.show", permission_set_id: x.id}))
-  Repo.insert(Permission.changeset(%Permission{}, %{name: "Question.edit", permission_set_id: x.id}))
-  Repo.insert(Permission.changeset(%Permission{}, %{name: "Question.create", permission_set_id: x.id}))
-  Repo.insert(Permission.changeset(%Permission{}, %{name: "Question.delete", permission_set_id: x.id}))
-end)
+    [admin, viewer, creator]
+    |> Enum.each(fn x ->
+      ["Dashboard.show", "Question.show"]
+      |> Enum.each(fn y ->
+        find_or_create_permission(y, x.id)
+      end)
+    end)
 
-[admin]
-|> Enum.each(fn x ->
-  Repo.insert(Permission.changeset(%Permission{}, %{name: "Dashboard.edit", permission_set_id: x.id}))
-  Repo.insert(Permission.changeset(%Permission{}, %{name: "Dashboard.create", permission_set_id: x.id}))
-  Repo.insert(Permission.changeset(%Permission{}, %{name: "Dashboard.delete", permission_set_id: x.id}))
+    [creator, admin]
+    |> Enum.each(fn x ->
+      [
+        "Dashboard.edit",
+        "Dashboard.create",
+        "Dashboard.delete",
+        "Question.edit",
+        "Question.create",
+        "Question.delete"
+      ]
+      |> Enum.each(fn y ->
+        find_or_create_permission(y, x.id)
+      end)
+    end)
 
-  Repo.insert(Permission.changeset(%Permission{}, %{name: "Question.edit", permission_set_id: x.id}))
-  Repo.insert(Permission.changeset(%Permission{}, %{name: "Question.create", permission_set_id: x.id}))
-  Repo.insert(Permission.changeset(%Permission{}, %{name: "Question.delete", permission_set_id: x.id}))
-  Repo.insert(Permission.changeset(%Permission{}, %{name: "Settings.all", permission_set_id: x.id}))
-end)
+    find_or_create_permission("Settings.all", admin.id)
 
+    if Application.get_env(:afterglow, :admin_email) do
+      admin_user =
+        Repo.one(
+          from(u in User, where: u.email == ^Application.get_env(:afterglow, :admin_email))
+        )
 
-admin_user = Repo.one(from u in User, where: u.email ==  ^Application.get_env(:afterglow, :admin_email) )
-admin_user = unless admin_user do
-  Repo.insert(User.changeset(%User{}, %{email:  Application.get_env(:afterglow, :admin_email) }))
-else
-  admin_user
+      admin_user =
+        unless admin_user do
+          Repo.insert!(
+            User.changeset(%User{}, %{email: Application.get_env(:afterglow, :admin_email)})
+          )
+        else
+          admin_user
+        end
+
+      Repo.get_by(UserPermissionSet, %{
+        user_id: admin_user.id,
+        permission_set_id: admin.id
+      }) ||
+        Repo.insert!(
+          UserPermissionSet.changeset(%UserPermissionSet{}, %{
+            user_id: admin_user.id,
+            permission_set_id: admin.id
+          })
+        )
+    end
+  end
 end
-Repo.insert(UserPermissionSet.changeset(%UserPermissionSet{}, %{user_id: admin_user.id, permission_set_id: admin.id}))
 
+AfterGlow.Repo.Seed.seed()

@@ -41,7 +41,7 @@ environment :dev do
 end
 
 environment :prod do
-  set(include_erts: true)
+  set(include_erts: false)
   set(include_src: false)
   set(cookie: :"TcZeEZ.pG.j}C9blv$<y=Mo:f:i!E>~R{ej.pvhwrej,_</]Nm7QK2nUgf=Mh3hC")
   set(vm_args: "rel/vm.args")

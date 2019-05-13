@@ -9,7 +9,7 @@ defmodule AfterGlow.ReleaseTasks do
 
   def seed do
     {:ok, _} = Application.ensure_all_started(:afterglow)
-    path = Application.app_dir(:afterglow, "priv/repo/seeds")
+    path = Application.app_dir(:afterglow, "priv/repo/seeds.exs")
 
     if File.exists?(path) do
       IO.puts("Running seed script..")
