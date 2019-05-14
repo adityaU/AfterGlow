@@ -1,4 +1,4 @@
 service nginx start
-_build/prod/rel/afterglow/bin/afterglow migrate
-_build/prod/rel/afterglow/bin/afterglow seed
-_build/prod/rel/afterglow/bin/afterglow foreground
+PORT=4000 _build/prod/rel/afterglow/bin/afterglow migrate
+PORT=4000 _build/prod/rel/afterglow/bin/afterglow seed
+PORT=4000 _build/prod/rel/afterglow/bin/afterglow foreground
