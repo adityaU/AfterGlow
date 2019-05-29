@@ -34,6 +34,8 @@ defmodule AfterGlow.Alerts.AlertSetting do
     consecutive: 3
   )
 
+  defenum(StatusEnum, idle: 1, running: 2)
+
   @cast_params [
     :name,
     :question_id,
@@ -64,6 +66,8 @@ defmodule AfterGlow.Alerts.AlertSetting do
     field(:start_time, :utc_datetime)
     field(:scheduled_disabled_config, :map)
     field(:silent_till, :utc_datetime)
+    field(:next_run_time, :utc_datetime)
+    field(:status, StatusEnum)
     has_many(:alert_level_settings, AlertLevelSetting, on_delete: :delete_all)
     has_many(:alert_notification_settings, AlertNotificationSetting, on_delete: :delete_all)
     timestamps()
@@ -73,7 +77,6 @@ defmodule AfterGlow.Alerts.AlertSetting do
     attrs |> IO.inspect(label: "alert attrs")
 
     struct
-    |> IO.inspect(label: "cast alert")
     |> Changeset.cast(attrs, @cast_params)
     |> Changeset.validate_required(@required_params)
   end

@@ -14,7 +14,7 @@ defmodule AfterGlow.Snapshots.Snapshot do
     field(:description, :string)
     field(:scheduled, :boolean)
     field(:interval, :integer)
-    field(:starting_at, Ecto.DateTime)
+    field(:starting_at, :utc_datetime)
     field(:status, StatusEnum)
     field(:should_save_data_to_db, :boolean)
     field(:should_create_csv, :boolean)
@@ -24,8 +24,14 @@ defmodule AfterGlow.Snapshots.Snapshot do
     field(:keep_latest, :integer)
     belongs_to(:question, Question)
     belongs_to(:parent, Snapshot, foreign_key: :parent_id)
-    has_many(:children, Snapshot, foreign_key: :parent_id,  on_delete: :delete_all, on_replace: :delete)
-    has_many(:snapshot_data, SnapshotData,  on_delete: :delete_all, on_replace: :delete)
+
+    has_many(:children, Snapshot,
+      foreign_key: :parent_id,
+      on_delete: :delete_all,
+      on_replace: :delete
+    )
+
+    has_many(:snapshot_data, SnapshotData, on_delete: :delete_all, on_replace: :delete)
 
     timestamps()
   end

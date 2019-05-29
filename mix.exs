@@ -29,12 +29,10 @@ defmodule AfterGlow.Mixfile do
         :cowboy,
         :logger,
         :gettext,
-        :phoenix_ecto,
         :postgrex,
         :oauth2,
         :flasked,
         :db_connection,
-        :poolboy,
         :bamboo,
         :bamboo_smtp,
         :cachex,
@@ -56,7 +54,9 @@ defmodule AfterGlow.Mixfile do
         :jason,
         :unsafe,
         :quantum,
-        :timex
+        :ecto_sql,
+        :timex,
+        :numerix
       ]
     ]
   end
@@ -72,15 +72,15 @@ defmodule AfterGlow.Mixfile do
     [
       {:phoenix, "~> 1.3.0"},
       {:phoenix_pubsub, "~> 1.0"},
-      {:phoenix_ecto, "~> 3.0"},
-      {:postgrex, ">= 0.0.0"},
+      {:postgrex, ">= 0.14.0", override: true},
       {:phoenix_html, "~> 2.6"},
+      {:ecto, "~> 3.1"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
       {:cors_plug, "~> 1.2"},
-      {:ja_serializer, "~> 0.11.2"},
+      {:ja_serializer, "~> 0.14.0"},
       {:sql_dust, path: 'web/modules/sql_dust'},
-      {:ecto_enum, "~> 1.0"},
+      {:ecto_enum, "~> 1.2"},
       {:cowboy, "~> 1.0"},
       {:oauth2, "~> 0.9"},
       {:joken, "~> 1.1"},
@@ -98,11 +98,16 @@ defmodule AfterGlow.Mixfile do
       {:bamboo, "~> 0.8.0"},
       {:bamboo_smtp, "~> 1.4.0"},
       {:distillery, "~> 2.0", runtime: false},
-      {:jason, "~> 1.0"},
+      {:jason, "~> 1.1"},
       {:cachex, git: "https://github.com/whitfin/cachex.git"},
-      {:quantum, "~> 2.2"},
+      {:quantum, "~> 2.3"},
       {:timex, "~> 3.0"},
-      {:mariaex, git: "https://github.com/xerions/mariaex.git", override: true}
+      {:oban, "~> 0.2"},
+      {:mariaex, git: "https://github.com/xerions/mariaex.git", override: true},
+      {:db_connection, "~> 2.0", override: true},
+      {:ecto_sql, "~> 3.1.0"},
+      {:plug_cowboy, "~> 1.0"},
+      {:numerix, "~> 0.5.1"}
     ]
   end
 

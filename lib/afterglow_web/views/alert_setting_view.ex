@@ -26,7 +26,8 @@ defmodule AfterGlow.AlertSettingView do
   has_one(
     :question,
     field: :question_id,
-    type: "questions"
+    type: "questions",
+    inclide: true
   )
 
   has_many(

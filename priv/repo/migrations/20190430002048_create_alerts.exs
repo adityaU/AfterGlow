@@ -15,6 +15,8 @@ defmodule AfterGlow.Repo.Migrations.CreateAlerts do
       add(:start_time, :utc_datetime, null: false)
       add(:scheduled_disabled_config, :jsonb)
       add(:silent_till, :utc_datetime)
+      add(:next_run_time, :utc_datetime)
+      add(:status, :integer)
       timestamps()
     end
 
@@ -38,12 +40,19 @@ defmodule AfterGlow.Repo.Migrations.CreateAlerts do
 
     create table(:alert_events, primary_key: false) do
       add(:id, :bigserial, primary_key: true)
-      add(:alert_level_setting_id, references(:alert_level_settings, on_delete: :delete_all))
       add(:alert_setting_id, references(:alert_settings, on_delete: :delete_all), null: false)
       add(:alert_level, :integer, null: false)
-      add(:row_numbers, {:array, :integer})
-      add(:data, :jsonb)
+      add(:original_data, :jsonb)
+      add(:transformed_data_column_name, :string)
       add(:is_data_saved, :boolean, null: false, default: true)
+      timestamps()
+    end
+
+    create table(:alert_events_transformed_data, primary_key: false) do
+      add(:id, :bigserial, primary_key: true)
+      add(:value, :string)
+      add(:level, :integer, null: false)
+      add(:alert_event_id, references(:alert_events, on_delete: :delete_all), null: false)
       timestamps()
     end
   end

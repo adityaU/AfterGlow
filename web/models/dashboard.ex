@@ -11,7 +11,7 @@ defmodule AfterGlow.Dashboard do
   schema "dashboards" do
     field(:title, :string)
     field(:update_interval, :integer)
-    field(:last_updated, Ecto.DateTime)
+    field(:last_updated, :utc_datetime)
     field(:description, :string)
     field(:shareable_link, Ecto.UUID)
     field(:shared_to, {:array, :string})

@@ -4646,23 +4646,23 @@ define('frontend/models/widget', ['exports', 'ember', 'ember-data'], function (e
 // })
 define('frontend/pods/alerts/edit/controller', ['exports', 'ember', 'frontend/pods/alerts/new/controller'], function (exports, _ember, _frontendPodsAlertsNewController) {
   exports['default'] = _frontendPodsAlertsNewController['default'].extend({
-    pageTitle: "Edit Alert",
+    pageTitle: 'Edit Alert',
     alert_setting: _ember['default'].computed.alias('model'),
 
     timeUnitMultiplierReverse: {
       60: 'minutes',
-      3600: "hours",
-      86400: "days",
-      604800: "weeks"
+      3600: 'hours',
+      86400: 'days',
+      604800: 'weeks'
     },
     criticalLevelObserver: _ember['default'].observer('alert_setting.alert_level_settings.content.isLoaded', function () {
       this.set('criticalLevel', this.get('alert_setting') && this.get('alert_setting.alert_level_settings').filter(function (item) {
-        return item.get('level') == "critical";
+        return item.get('level') == 'critical';
       }).objectAt(0));
     }),
     warningLevelObserver: _ember['default'].observer('alert_setting.alert_level_settings.content.isLoaded', function () {
       this.set('warningLevel', this.get('alert_setting') && this.get('alert_setting.alert_level_settings').filter(function (item) {
-        return item.get('level') == "warning";
+        return item.get('level') == 'warning';
       }).objectAt(0));
     }),
     alertNotificationObserver: _ember['default'].observer('alert_setting.alert_notification_settings.content.isLoaded', function () {
@@ -10388,5 +10388,5 @@ catch(err) {
 });
 
 if (!runningTests) {
-  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0+a9d1c4b4"});
+  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0+db78f788"});
 }

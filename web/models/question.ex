@@ -16,7 +16,7 @@ defmodule AfterGlow.Question do
 
   schema "questions" do
     field(:title, :string)
-    field(:last_updated, Ecto.DateTime)
+    field(:last_updated, :utc_datetime)
     field(:sql, :string)
     field(:human_sql, :map)
     field(:results_view_settings, :map)
@@ -88,7 +88,7 @@ defmodule AfterGlow.Question do
     ])
     |> add_shareable_link
     |> save_sql_from_human_sql
-    |> Ecto.Changeset.put_change(:last_updated, Ecto.DateTime.utc())
+    |> Ecto.Changeset.put_change(:last_updated, DateTime.utc_now() |> DateTime.truncate(:second))
   end
 
   def default_preloads do
@@ -178,7 +178,7 @@ defmodule AfterGlow.Question do
     query
     |> String.replace(
       ~r({{.*snapshot_starting_at.*}}),
-      Ecto.DateTime.utc() |> Ecto.DateTime.to_iso8601()
+      DateTime.utc_now() |> to_string()
     )
   end
 

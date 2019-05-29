@@ -53,7 +53,7 @@ defmodule AfterGlow.SnapshotsTasks do
     from(s in Snapshot)
     |> where(
       [s],
-      s.status in ["pending"] and s.starting_at <= ^Ecto.DateTime.utc()
+      s.status in ["pending"] and s.starting_at <= ^DateTime.utc_now()
     )
     |> Repo.all()
     |> Enum.each(fn s ->
@@ -65,7 +65,7 @@ defmodule AfterGlow.SnapshotsTasks do
     from(s in Snapshot)
     |> where(
       [s],
-      s.status == "in_process" and s.starting_at <= ^Ecto.DateTime.utc()
+      s.status == "in_process" and s.starting_at <= ^DateTime.utc_now()
     )
     |> Repo.all()
     |> Enum.map(fn s -> update_status(s, "pending") end)

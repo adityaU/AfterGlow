@@ -11,6 +11,10 @@ config :afterglow,
   namespace: AfterGlow,
   ecto_repos: [AfterGlow.Repo]
 
+config :afterglow, Oban,
+  repo: AfterGlow.Repo,
+  queues: [default: 10, alerts: 50]
+
 # Configures the endpoint
 config :afterglow, AfterGlow.Endpoint,
   url: [host: "localhost"],
@@ -23,6 +27,8 @@ config :afterglow, AfterGlow.Endpoint,
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
+
+config :logger, level: :info
 
 config :ja_serializer, key_format: :underscored
 

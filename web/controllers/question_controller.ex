@@ -27,7 +27,7 @@ defmodule AfterGlow.QuestionController do
 
     if ids != [""] do
       questions =
-        scope(conn, from(q in Question, where: q.id in ^ids))
+        scope(conn, from(q in Question, where: q.id in ^ids), policy: AfterGlow.Question.Policy)
         |> select([:id])
         |> Repo.all()
         |> Enum.map(fn x -> x.id end)
@@ -53,11 +53,11 @@ defmodule AfterGlow.QuestionController do
     if tag_id && tag_id != "" do
       search_query =
         search_query
-        |> join(:left, [q], tq in TagQuestion, q.id == tq.question_id)
+        |> join(:left, [q], tq in TagQuestion, on: q.id == tq.question_id)
         |> where([q, tq], tq.tag_id == ^tag_id)
     end
 
-    scope(conn, search_query)
+    scope(conn, search_query, policy: AfterGlow.Question.Policy)
     |> query_and_send_index_reponse(conn)
   end
 
@@ -76,7 +76,7 @@ defmodule AfterGlow.QuestionController do
         |> where([q], ilike(q.title, ^"%#{query}%"))
     end
 
-    scope(conn, search_query)
+    scope(conn, search_query, policy: AfterGlow.Question.Policy)
     |> query_and_send_index_reponse(conn)
   end
 
@@ -95,7 +95,7 @@ defmodule AfterGlow.QuestionController do
         |> where([q], ilike(q.title, ^"%#{query}%"))
     end
 
-    scope(conn, search_query)
+    scope(conn, search_query, policy: AfterGlow.Question.Policy)
     |> query_and_send_index_reponse(conn)
   end
 
@@ -140,7 +140,8 @@ defmodule AfterGlow.QuestionController do
         q in Question,
         limit: 20,
         order_by: q.updated_at
-      )
+      ),
+      policy: AfterGlow.Question.Policy
     )
     |> query_and_send_index_reponse(conn)
   end
@@ -237,7 +238,7 @@ defmodule AfterGlow.QuestionController do
 
   def results(conn, %{"id" => id, "variables" => variables}) do
     question =
-      scope(conn, from(q in Question, where: q.id == ^id))
+      scope(conn, from(q in Question, where: q.id == ^id), policy: AfterGlow.Question.Policy)
       |> Repo.one()
       |> Repo.preload(:variables)
 

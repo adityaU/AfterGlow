@@ -7,11 +7,10 @@ defmodule AfterGlow.Alerts.AlertEvent do
   alias AfterGlow.Alerts.AlertLevelSetting
 
   @cast_params [
-    :alert_level_setting_id,
     :alert_setting_id,
     :alert_level,
-    :row_numbers,
-    :data,
+    :transformed_data_column_name,
+    :original_data,
     :is_data_saved
   ]
 
@@ -23,12 +22,11 @@ defmodule AfterGlow.Alerts.AlertEvent do
     ok: 3
   )
 
-  schema("alert_level_settings") do
-    belongs_to(:alert_level_setting, AlertLevelSetting)
+  schema("alert_events") do
     belongs_to(:alert_setting, AlertSetting)
-    field(:alert_level, :integer)
-    field(:row_numbers, {:array, :integer})
-    field(:data, :map)
+    field(:alert_level, LevelEnum)
+    field(:original_data, :map)
+    field(:transformed_data_column_name, :string)
     field(:is_data_saved, :boolean, default: true)
     timestamps()
   end

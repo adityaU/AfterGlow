@@ -16,7 +16,7 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
       handshake_timeout: 1_200_000,
       ownership_timeout: 1_200_000,
       pool_timeout: 1_200_000,
-      pool: DBConnection.Poolboy,
+      pool: DBConnection.ConnectionPool,
       pool_size: 10
     )
   end

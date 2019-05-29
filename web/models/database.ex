@@ -10,7 +10,7 @@ defmodule AfterGlow.Database do
     field(:name, :string)
     field(:db_type, :string)
     field(:config, :map)
-    field(:last_accessed_at, Ecto.DateTime)
+    field(:last_accessed_at, :utc_datetime)
     field(:unique_identifier, Ecto.UUID)
     has_many(:tables, AfterGlow.Table, on_delete: :delete_all, on_replace: :delete)
     has_many(:team_databases, TeamDatabase, on_delete: :delete_all)
@@ -82,6 +82,8 @@ defmodule AfterGlow.Database do
   end
 
   defp touch_last_accessed_at(changeset) do
-    Ecto.Changeset.change(changeset, last_accessed_at: Ecto.DateTime.utc())
+    Ecto.Changeset.change(changeset,
+      last_accessed_at: DateTime.utc_now() |> DateTime.truncate(:second)
+    )
   end
 end

@@ -18,7 +18,7 @@ defmodule AfterGlow.ColumnValuesTasks do
       |> Enum.reject(fn x -> is_nil(x) end)
       |> Enum.map(fn v ->
         v
-        |> Map.merge(%{inserted_at: Ecto.DateTime.utc(), updated_at: Ecto.DateTime.utc()})
+        |> Map.merge(%{inserted_at: DateTime.utc_now(), updated_at: DateTime.utc_now()})
       end)
 
     # a uniqueness check on database prevents duplicate entries.

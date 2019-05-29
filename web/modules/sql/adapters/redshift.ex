@@ -15,7 +15,7 @@ defmodule AfterGlow.Sql.Adapters.Redshift do
       handshake_timeout: 120_000,
       ownership_timeout: 120_000,
       pool_timeout: 120_000,
-      pool: DBConnection.Poolboy,
+      pool: DBConnection.ConnectionPool,
       pool_size: 10,
       types: AfterGlow.PostgrexTypes
     )

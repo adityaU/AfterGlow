@@ -50,6 +50,8 @@ defmodule AfterGlow.Web do
       use Phoenix.HTML
 
       import AfterGlow.Router.Helpers
+
+      import Bodyguard.ViewHelpers
       import AfterGlow.ErrorHelpers
       import AfterGlow.Gettext
     end

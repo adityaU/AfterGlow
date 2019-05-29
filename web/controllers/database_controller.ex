@@ -18,7 +18,9 @@ defmodule AfterGlow.DatabaseController do
 
   def index(conn, %{"id" => id, "include_config" => "true"}) do
     if has_permission(conn.assigns.current_user, ["Settings.all"]) do
-      database = scope(conn, from(d in Database, where: d.id == ^id)) |> Repo.one()
+      database =
+        scope(conn, from(d in Database, where: d.id == ^id), policy: AfterGlow.Database.Policy)
+        |> Repo.one()
 
       json(
         conn,
@@ -34,7 +36,7 @@ defmodule AfterGlow.DatabaseController do
 
   def index(conn, _params) do
     databases =
-      scope(conn, from(d in Database, select: [:id]))
+      scope(conn, from(d in Database, select: [:id]), policy: AfterGlow.Database.Policy)
       |> Repo.all()
       |> Enum.map(fn x -> x.id end)
       |> CacheWrapper.get_by_ids(Database)
@@ -64,14 +66,18 @@ defmodule AfterGlow.DatabaseController do
 
   def show(conn, %{"id" => id}) do
     database =
-      scope(conn, from(d in Database, where: d.id == ^id)) |> Repo.one() |> Repo.preload(:tables)
+      scope(conn, from(d in Database, where: d.id == ^id), policy: AfterGlow.Database.Policy)
+      |> Repo.one()
+      |> Repo.preload(:tables)
 
     render(conn, :show, data: database)
   end
 
   def sync(conn, %{"id" => id}) do
     database =
-      scope(conn, from(d in Database, where: d.id == ^id)) |> Repo.one() |> Repo.preload(:tables)
+      scope(conn, from(d in Database, where: d.id == ^id), policy: AfterGlow.Database.Policy)
+      |> Repo.one()
+      |> Repo.preload(:tables)
 
     Async.perform(&SchemaTasks.sync/1, [database])
     render(conn, :show, data: database)

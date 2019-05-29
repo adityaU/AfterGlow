@@ -15,7 +15,7 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
       handshake_timeout: 1_200_000,
       ownership_timeout: 1_200_000,
       pool_timeout: 1_200_000,
-      pool: DBConnection.Poolboy,
+      pool: DBConnection.ConnectionPool,
       pool_size: 10,
       types: AfterGlow.PostgrexTypes
     )
@@ -151,7 +151,7 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/, 
 
       case query do
         {:ok, prepared_query} ->
-          {:ok, results} = Postgrex.execute(conn, prepared_query, [], opts())
+          {:ok, _, results} = Postgrex.execute(conn, prepared_query, [], opts())
 
           {:ok,
            %{

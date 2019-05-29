@@ -328,7 +328,7 @@ defmodule AfterGlow.Snapshots do
     query =
       "insert into snapshot_data (snapshot_id, row, inserted_at, updated_at, identifier) values"
 
-    time_string = Ecto.DateTime.utc() |> Ecto.DateTime.to_string()
+    time_string = DateTime.utc_now() |> to_string()
 
     searchable_columns_query =
       "insert into searchable_columns (name, snapshot_id, value, inserted_at, updated_at, snapshot_data_identifier) values"
