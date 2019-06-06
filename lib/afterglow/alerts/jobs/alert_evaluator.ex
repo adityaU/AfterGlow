@@ -7,27 +7,22 @@ defmodule AfterGlow.Alerts.Jobs.AlertEvaluator do
   alias AfterGlow.Questions.DataFetcher
 
   @operator_methods %{
-    greater_than: &>/2,
-    greater_than_equal_to: &>=/2,
-    less_than: &</2,
-    less_than_equal_to: &<=/2,
-    equal: &==/2,
-    not_equal_to: &!=/2
+    greater_than: &Kernel.>/2,
+    greater_than_equal_to: &Kernel.>=/2,
+    less_than: &Kernel.</2,
+    less_than_equal_to: &Kernel.<=/2,
+    equal: &Kernel.==/2,
+    not_equal_to: &Kernel.!=/2
   }
 
   def perform(alert_setting_id) do
     Repo.transaction(fn ->
-      try do
-        alert_setting = AlertSettings.get(alert_setting_id)
+      alert_setting = AlertSettings.get(alert_setting_id)
 
-        alert_setting.question
-        |> DataFetcher.fetch_via_stream_with_default_variables(fn row, column ->
-          evaluate(alert_setting, row, column)
-        end)
-      catch
-        _ ->
-          nil
-      end
+      alert_setting.question
+      |> DataFetcher.fetch_via_stream_with_default_variables(fn row, column ->
+        evaluate(alert_setting, row, column)
+      end)
     end)
   end
 
@@ -56,12 +51,16 @@ defmodule AfterGlow.Alerts.Jobs.AlertEvaluator do
     |> send_notification(alert_setting.alert_notification_settings)
   end
 
+  defp find_column_value(stream, nil), do: []
+
   defp find_column_value(stream, value_index) do
+    IO.inspect(value_index, label: "value_index")
+
     stream
     |> Stream.map(fn chunk ->
       chunk
-      |> Stream.map(&(&1 |> Enum.at(value_index)))
-      |> Stream.reject(&(!&1))
+      |> Stream.map(&(&1 |> Enum.at(value_index) |> to_float))
+      |> Stream.map(&if &1, do: &1, else: 0)
     end)
   end
 
@@ -69,7 +68,6 @@ defmodule AfterGlow.Alerts.Jobs.AlertEvaluator do
     [
       stream
       |> Stream.flat_map(fn x -> x end)
-      |> IO.inspect(label: "all")
     ]
   end
 
@@ -161,13 +159,13 @@ defmodule AfterGlow.Alerts.Jobs.AlertEvaluator do
     {stream, critical_raised} =
       evaluate_level(stream, traversal, operator, critical_level.value, :critical)
 
-    {event_level(warning_raised, critical_raised), stream}
+    {event_level(warning_raised, critical_raised), stream} |> IO.inspect(label: "error_level")
   end
 
   defp evaluate_level(stream, :all, operator, value, level) do
     raised =
       stream
-      |> Enum.all?(fn {val, _lev} ->
+      |> Enum.all?(fn val ->
         apply(@operator_methods[operator], [val, value |> Float.parse() |> elem(0)])
       end)
 
@@ -182,13 +180,18 @@ defmodule AfterGlow.Alerts.Jobs.AlertEvaluator do
   end
 
   defp evaluate_level(stream, _traversal, operator, value, level) do
+    level |> IO.inspect(label: "level")
+    value |> IO.inspect(label: "value")
+
     stream =
       stream
-      |> Enum.map(fn {val, lev} ->
+      |> Enum.to_list()
+      |> IO.inspect(label: "stream")
+      |> Enum.map(fn val ->
         if apply(@operator_methods[operator], [val, value |> Float.parse() |> elem(0)]) do
           {val, level}
         else
-          {val, lev}
+          {val, :ok}
         end
       end)
 
@@ -237,7 +240,7 @@ defmodule AfterGlow.Alerts.Jobs.AlertEvaluator do
     end
   end
 
-  defp save_transform_data(transformed_data, alert_setting_id) do
+  defp save_transformed_data(transformed_data, alert_event_id) do
     transformed_data =
       transformed_data
       |> Enum.map(fn {val, level} ->
@@ -247,7 +250,15 @@ defmodule AfterGlow.Alerts.Jobs.AlertEvaluator do
     Async.perform(&AlertEventTransformedData.insert_bulk/1, [transformed_data])
   end
 
-  defp send_notification(alert_event) do
-    stream
+  defp send_notification(alert_event, notification_settings) do
+    alert_event
   end
+
+  defp to_float(value) when is_float(value), do: value
+
+  defp to_float(value) when is_integer(value),
+    do: value |> to_string() |> Float.parse() |> elem(0)
+
+  defp to_float(value) when is_binary(value), do: nil
+  defp to_float(value), do: value |> Decimal.to_float()
 end

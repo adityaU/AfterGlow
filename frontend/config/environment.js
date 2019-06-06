@@ -1,6 +1,6 @@
 /* jshint node: true */
 
-module.exports = function(environment) {
+module.exports = function (environment) {
     var ENV = {
         modulePrefix: 'frontend',
         podModulePrefix: 'frontend/pods',
@@ -21,11 +21,11 @@ module.exports = function(environment) {
             includeTimezone: 'all'
         },
         'ember-cli-bootstrap-datetimepicker': {
-          icons: {
-            next: 'fe fe-chevron-right',
-            previous: 'fe fe-chevron-left',
-            date: "fe fe-calendar"
-          }
+            icons: {
+                next: 'fe fe-chevron-right',
+                previous: 'fe fe-chevron-left',
+                date: "fe fe-calendar"
+            }
         },
 
 
@@ -72,8 +72,8 @@ module.exports = function(environment) {
     };
 
     if (environment === 'development') {
-        ENV.host = "http://localhost:4000"
-        
+        ENV.host = "http://192.168.0.6:4000"
+
         // ENV.APP.LOG_RESOLVER = true;
         // ENV.APP.LOG_ACTIVE_GENERATION = true;
         // ENV.APP.LOG_TRANSITIONS = true;

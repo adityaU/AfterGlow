@@ -162,6 +162,9 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/, 
              limited_query: exec_query
            }}
 
+        {:error, %DBConnection.ConnectionError{}} ->
+          {:error, %{message: "database connection timed out"}}
+
         {:error, error} ->
           {:error, error.postgres}
       end
