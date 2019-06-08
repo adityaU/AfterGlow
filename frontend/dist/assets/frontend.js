@@ -10388,5 +10388,5 @@ catch(err) {
 });
 
 if (!runningTests) {
-  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0+88f33c06"});
+  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0+6b83a5a9"});
 }
