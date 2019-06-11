@@ -46,9 +46,12 @@ defmodule AfterGlow.Sql.QueryRunner do
 
     {query, results} = run_raw_query(db_record, permit_prms)
 
-    unless params["table"]["sql"] do
-      results = results |> Table.insert_foreign_key_columns_in_results(permit_prms[:table])
-    end
+    results =
+      unless params["table"]["sql"] do
+        results |> Table.insert_foreign_key_columns_in_results(permit_prms[:table])
+      else
+        results
+      end
 
     save_column_values(results, permit_prms)
     {query, results}

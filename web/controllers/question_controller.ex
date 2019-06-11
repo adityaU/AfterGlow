@@ -236,7 +236,11 @@ defmodule AfterGlow.QuestionController do
     send_resp(conn, :no_content, "")
   end
 
-  def results(conn, %{"id" => id, "variables" => variables}) do
+  def results(conn, %{
+        "id" => id,
+        "variables" => variables,
+        "additionalFilters" => additional_filters
+      }) do
     question =
       scope(conn, from(q in Question, where: q.id == ^id), policy: AfterGlow.Question.Policy)
       |> Repo.one()
@@ -249,7 +253,7 @@ defmodule AfterGlow.QuestionController do
       permitted_params(
         question.id,
         variables,
-        question.human_sql["additionalFilters"],
+        additional_filters || question.human_sql["additionalFilters"],
         question.sql
       )
 

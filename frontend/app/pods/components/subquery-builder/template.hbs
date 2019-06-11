@@ -1,20 +1,44 @@
-{{#acc.item class="m-0" as |aitem|}}
-    {{#aitem.title class="py-2" }}
-        <div class="row">
-            <div class="col-10">
-                {{#if queryObject.fromQuestion}}Question{{else}}Table{{/if}}
+{{#if canShowTableWidget}}
+<div class="card-footer row">
+    <div class="col-11">
+        {{#if queryObject.table.name}}
+        <span class="tag border text-primary border-primary  bg-white">
+            {{#if queryObject.fromQuestion}}Question: {{else}}Table: {{/if}}
+            <div class="tag-addon text-white border-primary bg-primary">
+                {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+                {{#dd.toggle class="text-white "}}
+                {{or queryObject.table.human_name queryObject.table.title}}
+                {{/dd.toggle}}
+                {{#dd.menu as |ddm|}}
+                <div class="menu-content">
+                    {{#if queryObject.fromQuestion}} {{searchable-select
+      content=questions
+      sortBy="title"
+      prompt="Select a Question"
+      selected=queryObject.table
+      on-search=(action "updateQuestionSearch")
+      on-change=(action (mut queryObject.table))}}
+                    {{else}}{{searchable-select
+      content=tables
+      sortBy="human_name"
+      prompt="Select a Table"
+      selected=queryObject.table
+      optionLabelKey="human_name"
+      on-change=(action (mut queryObject.table))}}
+                    {{/if}}
+                </div>
+                {{/dd.menu}}
+                {{/bs-dropdown}}
+
             </div>
-            <div class="col-2">
-                <span class="d-inline-flex" {{action 'toggleFromTable'}}>
-                    {{#bs-tooltip placement="top" }}Switch between Question and Table{{/bs-tooltip}}
-                    <i class="fe fe-toggle-right"></i>
-                </span>
-                <i class="fe fe-chevron-down"></i>
-            </div>
-        </div>
-    {{/aitem.title}}
-    {{#aitem.body class="py-2" }}
-        <div class="content {{tableClass}}">
+        </span>
+        {{else}}
+        {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+        {{#dd.toggle class="btn tag-size datasource-selector btn-secondary text-primary border-primary py-0 px-1"}}
+        <i class="fe fe-plus"></i> {{#if queryObject.fromQuestion}}Question{{else}}Table{{/if}}
+        {{/dd.toggle}}
+        {{#dd.menu as |ddm|}}
+        <div class="menu-content">
             {{#if queryObject.fromQuestion}} {{searchable-select
       content=questions
       sortBy="title"
@@ -22,181 +46,176 @@
       selected=queryObject.table
       on-search=(action "updateQuestionSearch")
       on-change=(action (mut queryObject.table))}}
-                {{else}}{{searchable-select
+            {{else}}{{searchable-select
       content=tables
       sortBy="human_name"
       prompt="Select a Table"
       selected=queryObject.table
       optionLabelKey="human_name"
       on-change=(action (mut queryObject.table))}}
-                {{/if}}
-        </div>
-    {{/aitem.body}}
-    {{#if (or queryObject.table.readable_table_name queryObject.table.title)}}
-        <div class="card-footer py-2">
-            <div class="full right">
-                <a href="#" class="tag tag-primary"> {{or queryObject.table.human_name queryObject.table.title}}</a>
-            </div>
-        </div>
-    {{/if}}
-{{/acc.item}}
-{{#acc.item class="m-0" as |aitem|}}
-    {{#aitem.title class="py-2" }}
-        <div class="row">
-            <div class="col-10"> Filters </div>
-            <div class="col-2">
-                <i class="fe fe-chevron-down"></i>
-            </div>
-        </div>
-    {{/aitem.title}}
-    {{#aitem.body class="py-2" }}
-        {{#each queryObject.filters as |filter|}} {{filter-maker filter=filter columns=columns queryObject=queryObject switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
-            {{/each}}
-        <button class="btn btn-primary mr-2 mt-2 full" {{action 'addFilter'}}>
-            <i class="fe fe-plus text-white"></i> Add More </button>
-    {{/aitem.body}}
-    {{#if filtersTagsShow }}
-        <div class="card-footer py-2">
-            {{#each queryObject.filters as |filter|}}
-                {{#if filter.label}}
-                    <span class="tag tag-primary">{{filter.label}}
-                        <a href="#" class="tag-addon">
-                            <i class="fe fe-x text-white" {{action 'remove' 'filters' filter}}></i>
-                        </a>
-                    </span>
-                {{/if}}
-            {{/each}}
-        </div>
-    {{/if}}
-{{/acc.item}}
-{{#acc.item class="m-0" as |aitem|}}
-    {{#aitem.title class="py-2" }}
-        <div class="title ks-view">
-            <div class="row">
-                <div class="col-10"> View </div>
-                <div class="col-2">
-                    <i class="fe fe-chevron-down"></i>
-                </div>
-            </div>
-        </div>
-    {{/aitem.title}}
-    {{#aitem.body class="py-2" }}
-        {{#each queryObject.views as |selectView|}} {{selectView.select.name}} {{view-maker selectView=selectView switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
-            {{/each}}
-        <button class="btn btn-primary mr-2 mt-2 full" {{action 'addView'}}>
-            <i class="fe fe-plus text-white"></i> Add More </button>
-    {{/aitem.body}}
-    {{#if queryObject.views }}
-        <div class="card-footer py-2">
-            {{#each queryObject.views as |view|}}
-                {{#if view.label}}
-                    <span class="tag tag-primary">{{view.label}}
-                        <a href="#" class="tag-addon">
-                            <i class="fe fe-x text-white" {{action 'remove' 'views' view}}></i>
-                        </a>
-                    </span>
-                {{/if}}
-            {{/each}}
-        </div>
-    {{/if}}
-{{/acc.item}}
-{{#acc.item class="m-0" as |aitem|}}
-    {{#aitem.title class="py-2" }}
-        <div class="row">
-            <div class="col-10"> Group By </div>
-            <div class="col-2">
-                <i class="fe fe-chevron-down"></i>
-            </div>
-        </div>
-    {{/aitem.title}}
-    {{#aitem.body class="py-2" }}
-        {{#each queryObject.groupBys as |groupBy|}} {{group-by-maker columns=columns groupBy=groupBy switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }} {{/each}}
-        <button class="btn btn-primary mr-2 mt-2 full" {{action 'addGroupBy'}}>
-            <i class="fe fe-plus text-white"></i> Add More </button>
-    {{/aitem.body}}
-    {{#if queryObject.groupBys }}
-        <div class="card-footer py-2">
-            {{#each queryObject.groupBys as |groupBy|}}
-                {{#if groupBy.label}}
-                    <span class="tag tag-primary">{{groupBy.label}}
-                        <a href="#" class="tag-addon">
-                            <i class="fe fe-x text-white" {{action 'remove' 'groupBys' groupBy}}></i>
-                        </a>
-                    </span>
-                {{/if}}
-            {{/each}}
-        </div>
-    {{/if}}
-{{/acc.item}}
-{{#acc.item class="m-0" as |aitem|}}
-    {{#aitem.title class="py-2" }}
-        <div class="row">
-            <div class="col-10"> Sort By </div>
-            <div class="col-2">
-                <i class="fe fe-chevron-down"></i>
-            </div>
-        </div>
-    {{/aitem.title}}
-    {{#aitem.body class="py-2" }}
-        {{#each queryObject.orderBys as |orderBy|}} {{order-by-maker columns=columns orderBy=orderBy}} {{/each}}
-        <button class="btn btn-primary mr-2 mt-2 full" {{action 'addOrderBy'}}>
-            <i class="fe fe-plus text-white"></i> Add More </button>
-    {{/aitem.body}}
-    {{#if queryObject.orderBys }}
-        <div class="card-footer py-2">
-            {{#each queryObject.orderBys as |orderBy|}}
-                {{#if orderBy.column.human_name}}
-                    <span class="tag tag-primary">{{orderBy.label}}
-                        <a href="#" class="tag-addon">
-                            <i class="fe fe-x text-white" {{action 'remove' 'orderBys' orderBy}}></i>
-                        </a>
-                    </span>
-                {{/if}}
-            {{/each}}
-        </div>
-    {{/if}}
-{{/acc.item}}
-{{#acc.item class="m-0" as |aitem|}}
-    {{#aitem.title class="py-2" }}
-        <div class="row">
-            <div class="col-10"> Number of Results </div>
-            <div class="col-2">
-                <i class="fe fe-chevron-down"></i>
-            </div>
-        </div>
-    {{/aitem.title}}
-    {{#aitem.body class="py-2" }}
-        <div class="ui form margin-top-10">
-            <div class="field"> {{input value=queryObject.limit class="ui" placeholder="limit"}} </div>
-        </div>
-    {{/aitem.body}}
-    {{#if queryObject.limit}}
-        <div class="card-footer py-2">
-            {{#if queryObject.limit}}
-                <a href="#" class="tag tag-primary">{{queryObject.limit}}</a>
             {{/if}}
         </div>
+        {{/dd.menu}}
+        {{/bs-dropdown}}
+        {{/if}}
+
+    </div>
+    <div class="col-1 p-1 text-right">
+        <span class="d-inline-flex" {{action 'toggleFromTable'}}>
+            {{#bs-tooltip placement="top" }}Switch between Question and Table{{/bs-tooltip}}
+            <i class="fe fe-toggle-right"></i>
+        </span>
+    </div>
+
+</div>
+{{/if}}
+{{#if canShowFilters}}
+<div class="card-footer">
+
+    {{#each queryObject.filters as |filter|}}
+    {{#if filter.label}}
+    <span class="tag border tag-primary">
+        {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+        {{#dd.toggle class="text-white"}}
+        {{filter.label}}
+        {{/dd.toggle}}
+        {{#dd.menu as |ddm|}}
+        <div class="menu-content">
+            {{filter-maker filter=filter columns=columns switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
+        </div>
+        {{/dd.menu}}
+        {{/bs-dropdown}}
+        <a href="#" class="tag-addon">
+            <i class="fe fe-x text-white" {{action 'remove' 'filters' filter}}></i>
+        </a>
+    </span>
     {{/if}}
-{{/acc.item}}
-{{#acc.item class="m-0" as |aitem|}}
-    {{#aitem.title class="py-2" }}
-        <div class="row">
-            <div class="col-10"> Search After (offset) </div>
-            <div class="col-2">
-                <i class="fe fe-chevron-down"></i>
-            </div>
+    {{/each}}
+    {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+    {{#dd.toggle class="btn tag-size btn-secondary text-primary border-primary py-0 px-1"}}
+    <i class="fe fe-plus"></i> Filter
+    {{/dd.toggle}}
+    {{#dd.menu as |ddm|}}
+    <div class="menu-content">
+        {{filter-maker filter=newFilter columns=columns switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
+        <div class="btn btn-primary mt-2 w-100" {{action "addNewFilter" }}> <i class="fe fe-plus"></i>
+            Add
+            Filter </div>
+    </div>
+    {{/dd.menu}}
+    {{/bs-dropdown}}
+
+</div>
+<div class="card-footer">
+
+    {{#each queryObject.views as |selectView|}}
+    {{#if (label-maker selectView selectView.selected.raw selectView.selected.value selectView.selected.name selectView.selected)}}
+    <span class="tag tag-primary border">
+        {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+        {{#dd.toggle class="text-white"}}
+        {{label-maker selectView selectView.selected selectView.selected.value selectView.selected.raw selectView.selected.name }}
+        {{/dd.toggle}}
+        {{#dd.menu as |ddm|}}
+        <div class="menu-content">
+            {{view-maker selectView=selectView switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
         </div>
-    {{/aitem.title}}
-    {{#aitem.body class="py-2" }}
-        <div class="ui form margin-top-10">
-            <div class="field"> {{input value=queryObject.offset class="ui" placeholder="Search after" }} </div>
-        </div>
-    {{/aitem.body}}
-    {{#if queryObject.offset}}
-        <div class="card-footer py-2">
-            {{#if queryObject.offset}}
-                <a href="#" class="tag tag-primary">{{queryObject.offset}}</a>
-            {{/if}}
-        </div>
+
+        {{/dd.menu}}
+        {{/bs-dropdown}}
+        <a href="#" class="tag-addon">
+            <i class="fe fe-x text-white" {{action 'remove' 'views' selectView}}></i>
+        </a>
+    </span>
     {{/if}}
-{{/acc.item}}
+    {{/each}}
+    {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+    {{#dd.toggle class="btn tag-size btn-secondary text-primary border-primary py-0 px-1"}}
+    <i class="fe fe-plus"></i>View
+    {{/dd.toggle}}
+    {{#dd.menu as |ddm|}}
+    <div class="menu-content">
+        {{view-maker selectView=newView switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
+        <div class="btn btn-primary mt-2 w-100" {{action "addNewView" }}> <i class="fe fe-plus"></i>
+            Add
+            View</div>
+    </div>
+    {{/dd.menu}}
+    {{/bs-dropdown}}
+</div>
+<div class="card-footer">
+
+    {{#each queryObject.groupBys as |groupBy|}}
+    {{#if (label-maker groupBy groupBy.castType groupBy.selected groupBy.selected.value groupBy.selected.raw)}}
+    <span class="tag border tag-primary">
+        {{#bs-dropdown closeOnMenuClick=false  as |dd|}}
+        {{#dd.toggle class="text-white"}}
+        {{label-maker groupBy groupBy.castType groupBy.selected groupBy.selected.value groupBy.selected.raw}}
+        {{/dd.toggle}}
+        {{#dd.menu as |ddm|}}
+        <div class="menu-content">
+            {{group-by-maker columns=columns groupBy=groupBy switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
+
+        </div>
+
+
+        {{/dd.menu}}
+        {{/bs-dropdown}}
+        <a href="#" class="tag-addon">
+            <i class="fe fe-x text-white" {{action 'remove' 'groupBys' groupBy}}></i>
+        </a>
+    </span>
+    {{/if}}
+    {{/each}}
+    {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+    {{#dd.toggle class="btn tag-size btn-secondary text-primary border-primary py-0 px-1"}}
+    <i class="fe fe-plus"></i>Grouping
+    {{/dd.toggle}}
+    {{#dd.menu as |ddm|}}
+    <div class="menu-content">
+        {{group-by-maker columns=columns groupBy=newGroupBy switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
+        <div class="btn btn-primary mt-2 w-100" {{action "addNewGroupBy" }}> <i class="fe fe-plus"></i>
+            Add
+            Grouping</div>
+    </div>
+    {{/dd.menu}}
+    {{/bs-dropdown}}
+</div>
+
+<div class="card-footer">
+
+    {{#each queryObject.orderBys as |orderBy|}}
+    {{#if (label-maker orderBy orderBy.column orderBy.order)}}
+    <span class="tag border tag-primary">
+        {{#bs-dropdown closeOnMenuClick=false  as |dd|}}
+        {{#dd.toggle class="text-white"}}
+        {{label-maker orderBy orderBy.column orderBy.order}}
+        {{/dd.toggle}}
+        {{#dd.menu as |ddm|}}
+        <div class="menu-content">
+
+            {{order-by-maker columns=columns orderBy=orderBy}}
+        </div>
+
+        {{/dd.menu}}
+        {{/bs-dropdown}}
+        <a href="#" class="tag-addon">
+            <i class="fe fe-x text-white" {{action 'remove' 'orderBys' orderBy}}></i>
+        </a>
+    </span>
+    {{/if}}
+    {{/each}}
+    {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+    {{#dd.toggle class="btn tag-size btn-secondary text-primary border-primary py-0 px-1"}}
+    <i class="fe fe-plus"></i>Sort Order
+    {{/dd.toggle}}
+    {{#dd.menu as |ddm|}}
+    <div class="menu-content">
+        {{order-by-maker columns=columns orderBy=newOrderBy}}
+        <div class="btn btn-primary mt-2 w-100" {{action "addNewOrderBy" }}> <i class="fe fe-plus"></i>
+            Add
+            Sort Order</div>
+    </div>
+    {{/dd.menu}}
+    {{/bs-dropdown}}
+</div>
+{{/if}}

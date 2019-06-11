@@ -145,6 +145,7 @@ defmodule AfterGlow.Question do
       |> convert_to_variables
 
     default_variables
+    |> IO.inspect(label: "default variables")
     |> Enum.map(fn var ->
       q_var =
         query_variables
@@ -156,7 +157,10 @@ defmodule AfterGlow.Question do
         |> Enum.at(0)
 
       default_options_values = Variable.default_option_values(q_var)
-      value = if q_var && q_var.value, do: q_var.value, else: var.default
+
+      value =
+        if q_var && Map.has_key?(q_var, :value) && q_var.value, do: q_var.value, else: var.default
+
       value = Variable.format_value(var, value)
       value = if default_options_values, do: default_options_values, else: value
 

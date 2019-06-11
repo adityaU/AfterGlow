@@ -1,43 +1,44 @@
 import Ember from 'ember';
 import KeyboardShortcuts from 'ember-keyboard-shortcuts/mixins/component';
 export default Ember.Component.extend(KeyboardShortcuts, {
+  classNames: ['mr-2'],
 
-  databasesLength:  Ember.computed("databases.@each", function(){
-    if (this.get('databases.length')){
+  databasesLength: Ember.computed("databases.@each", function () {
+    if (this.get('databases.length')) {
       return true
     }
   }),
 
-  selectedDatabase: Ember.computed("queryObject.database","databases.@each", function(){
+  selectedDatabase: Ember.computed("queryObject.database", "databases.@each", function () {
     return this.get('store').peekRecord('database', this.get('queryObject.database.id'))
   }),
   showTags: true,
   actions: {
-    getResults(){
+    getResults() {
       this.sendAction('getResults', this.get('queryObject'));
     },
-    toggleSql(){
+    toggleSql() {
       this.sendAction('toggleSql');
     },
-    changeDatabase(){
+    changeDatabase() {
       $('.ks-database').click()
       $('.ks-database-input').focus()
     },
-    changeTable(){
+    changeTable() {
       $('.ks-table').click()
       $('.ks-table-input').click()
       $('.ks-table-search').focus()
     },
-    changeGroupBys(){
+    changeGroupBys() {
       $('.ks-group_bys').click()
     },
-    changeOrderBys(){
+    changeOrderBys() {
       $('.ks-order_bys').click()
     },
-    changeView(){
+    changeView() {
       $('.ks-view').click()
     },
-    changeFilters(){
+    changeFilters() {
       $('.ks-filters').click()
     }
   },

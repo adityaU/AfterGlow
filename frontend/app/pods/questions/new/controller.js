@@ -32,11 +32,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
                 database: null,
                 table: null,
                 views: [],
-                filters: [Ember.Object.create({
-                    column: null,
-                    operator: null,
-                    value: null
-                })],
+                filters: [],
                 groupBys: [],
                 orderBys: [],
                 offset: null,
@@ -44,7 +40,8 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
                 additionalFilters: {
                     filters: [],
                     groupBys: [],
-                    orderBys: []
+                    orderBys: [],
+                    views: []
                 },
                 limit: null
             }),
@@ -133,6 +130,11 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
             this.set('showGetResults', showGetResults);
         });
     }),
+    errorMessage: Ember.computed('errors', 'question.errorMessage', function () {
+
+        return this.get('errors.message') || this.get('question.errorMessage')
+    }),
+
     resultsWidgetSettingsComponent: Ember.computed('resultsViewType', function () {
         this.set('results', this.get('results'));
         return this.get('resultsWidgets')[this.get('resultsViewType')] + '-settings';
@@ -207,7 +209,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
             this.set('variablesReplacedQuery', response.data.variables_replaced_query);
         }, (error, status) => {
             this.set('loading', false);
-            (error && error.error) ? this.set('errors', error.error): this.set('errors', {
+            (error && error.error) ? this.set('errors', error.error) : this.set('errors', {
                 message: 'Something isn\'t right. Please check the query elements.'
             });
             this.set('results', null);
@@ -235,7 +237,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
             if (queryType == 'query_builder') {
                 this.set('queryObject.queryType', 'raw');
                 (this.get('queryObject.rawQuery') == null) &&
-                this.set('queryObject.rawQuery', '');
+                    this.set('queryObject.rawQuery', '');
             } else {
                 this.set('queryObject.queryType', 'query_builder');
             }
@@ -243,6 +245,8 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
             plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize'));
         },
         getQuestionResults() {
+            this.set('results', null);
+            this.set('errors', null);
             let question = this.get('question');
             question.set('updated_at', new Date());
             question.set('resultsCanBeLoaded', true);

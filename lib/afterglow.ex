@@ -24,7 +24,7 @@ defmodule AfterGlow do
       supervisor(AfterGlow.Sql.DbConnection, []),
       supervisor(AfterGlow.Async, []),
       worker(AfterGlow.Scheduler, []),
-      {Oban, Application.get_env(:afterglow, Oban)},
+      # {Oban, Application.get_env(:afterglow, Oban)},
 
       # Start your own worker by calling: AfterGlow.Worker.start_link(arg1, arg2, arg3)
       worker(Cachex, [:cache, []]),

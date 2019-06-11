@@ -1,5 +1,4 @@
 service nginx start
-mix ecto.create
-mix ecto.migrate
-mix run priv/repo/seed_admin.exs
-PORT=4000 mix phoenix.server
+PORT=4000 _build/prod/rel/afterglow/bin/afterglow migrate
+PORT=4000 _build/prod/rel/afterglow/bin/afterglow seed
+PORT=4000 _build/prod/rel/afterglow/bin/afterglow foreground

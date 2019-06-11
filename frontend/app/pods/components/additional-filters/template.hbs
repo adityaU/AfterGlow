@@ -1,111 +1,161 @@
-{{#bs-accordion class="text-default mb-1" as |acc|}}
-    {{#acc.item class="m-0" as |aitem|}}
-        {{#aitem.title class="py-2" }}
-            <div class="row">
-                <div class="col-8">
-                    <i class="fe fe-chevron-down"></i> Add Additional Filters </div>
-                <div class="col-4 text-right">
-                    <span {{action 'resetAdditionalFilters'}}>
-                        {{#bs-tooltip position="top" }} Reset Filters {{/bs-tooltip}}
-                        <i class="fe fe-refresh-cw"></i>
-                    </span>
+<div class="row w-100">
+    <div class="col-11">
+        <div class="row">
+
+            <div class="col-auto border-right p-1 min-width-15">
+
+                {{#each queryObject.additionalFilters.filters as |filter|}}
+                {{#if filter.label}}
+                <span class="tag border tag-primary">
+                    {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+                    {{#dd.toggle class="text-white"}}
+                    {{filter.label}}
+                    {{/dd.toggle}}
+                    {{#dd.menu as |ddm|}}
+                    <div class="menu-content">
+                        {{filter-maker filter=filter columns=columns switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
+                    </div>
+                    {{/dd.menu}}
+                    {{/bs-dropdown}}
+                    <a href="#" class="tag-addon">
+                        <i class="fe fe-x text-white" {{action 'remove' 'filters' filter}}></i>
+                    </a>
+                </span>
+                {{/if}}
+                {{/each}}
+                {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+                {{#dd.toggle class="btn tag-size btn-secondary text-primary border-primary py-0 px-1"}}
+                <i class="fe fe-plus"></i> Filter
+                {{/dd.toggle}}
+                {{#dd.menu as |ddm|}}
+                <div class="menu-content">
+                    {{filter-maker filter=newFilter columns=columns switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
+                    <div class="btn btn-primary mt-2 w-100" {{action "addNewFilter" }}> <i class="fe fe-plus"></i>
+                        Add
+                        Filter </div>
                 </div>
+                {{/dd.menu}}
+                {{/bs-dropdown}}
             </div>
-        {{/aitem.title}}
-        {{#aitem.body class="pt-0" }}
-            {{#bs-tab as |tab|}}
-                {{#tab.pane title="Filters" }}
-                    <div class="row ">
-                        {{#each queryObject.additionalFilters.filters as |filter|}}
-                            <div class="col-4 text-center">
-                                <div class="m-4 mt-0">{{filter-maker filter=filter columns=columns queryObject=queryObject switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
-                                    </div>
-                            </div>
-                        {{/each}}
-                        <button class="btn btn-link text-primary" {{action 'addFilter'}}>
-                            <i class="fe fe-plus"></i> Add a Filter</button>
+            <div class="col-auto border-right p-1 min-width-15">
+                {{#each queryObject.additionalFilters.views as |selectView|}}
+                {{#if (label-maker selectView selectView.selected.raw selectView.selected.value selectView.selected.name selectView.selected)}}
+                <span class="tag tag-primary border">
+                    {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+                    {{#dd.toggle class="text-white"}}
+                    {{label-maker selectView selectView.selected selectView.selected.value selectView.selected.raw selectView.selected.name }}
+                    {{/dd.toggle}}
+                    {{#dd.menu as |ddm|}}
+                    <div class="menu-content">
+                        {{view-maker selectView=selectView switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
                     </div>
-                    <div class="row tags pl-4">
-                        {{#each queryObject.additionalFilters.filters as |filter|}}
-                            {{#if filter.label}}
-                                <span class="tag tag-primary">{{filter.label}}
-                                    <a href="#" class="tag-addon">
-                                        <i class="fe fe-x text-white" {{action 'remove' 'filters' filter}}></i>
-                                    </a>
-                                </span>
-                            {{/if}}
-                        {{/each}}
+
+                    {{/dd.menu}}
+                    {{/bs-dropdown}}
+                    <a href="#" class="tag-addon">
+                        <i class="fe fe-x text-white" {{action 'remove' 'views' selectView}}></i>
+                    </a>
+                </span>
+                {{/if}}
+                {{/each}}
+                {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+                {{#dd.toggle class="btn tag-size btn-secondary text-primary border-primary py-0 px-1"}}
+                <i class="fe fe-plus"></i>View
+                {{/dd.toggle}}
+                {{#dd.menu as |ddm|}}
+                <div class="menu-content">
+                    {{view-maker selectView=newView switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
+                    <div class="btn btn-primary mt-2 w-100" {{action "addNewView" }}> <i class="fe fe-plus"></i>
+                        Add
+                        View</div>
+                </div>
+                {{/dd.menu}}
+                {{/bs-dropdown}}
+
+            </div>
+            <div class="col-auto border-right p-1 min-width-15">
+
+
+                {{#each queryObject.additionalFilters.groupBys as |groupBy|}}
+                {{#if (label-maker groupBy groupBy.castType groupBy.selected groupBy.selected.value groupBy.selected.raw)}}
+                <span class="tag border tag-primary">
+                    {{#bs-dropdown closeOnMenuClick=false  as |dd|}}
+                    {{#dd.toggle class="text-white"}}
+                    {{label-maker groupBy groupBy.castType groupBy.selected groupBy.selected.value groupBy.selected.raw}}
+                    {{/dd.toggle}}
+                    {{#dd.menu as |ddm|}}
+                    <div class="menu-content">
+                        {{group-by-maker columns=columns groupBy=groupBy switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
+
                     </div>
-                {{/tab.pane}}
-                {{#tab.pane title="View" }}
-                    <div class="row">
-                        {{#each queryObject.additionalFilters.views as |selectView|}}
-                            <div class="col-4 text-center ">
-                                <div class="m-4 mt-0"> {{view-maker selectView=selectView switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
-                                    </div>
-                            </div>
-                        {{/each}}
-                        <button class="btn btn-link text-primary" {{action 'addView'}}>
-                            <i class="fe fe-plus"></i> Add a View</button>
+
+
+                    {{/dd.menu}}
+                    {{/bs-dropdown}}
+                    <a href="#" class="tag-addon">
+                        <i class="fe fe-x text-white" {{action 'remove' 'groupBys' groupBy}}></i>
+                    </a>
+                </span>
+                {{/if}}
+                {{/each}}
+                {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+                {{#dd.toggle class="btn tag-size btn-secondary text-primary border-primary py-0 px-1"}}
+                <i class="fe fe-plus"></i>Grouping
+                {{/dd.toggle}}
+                {{#dd.menu as |ddm|}}
+                <div class="menu-content">
+                    {{group-by-maker columns=columns groupBy=newGroupBy switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
+                    <div class="btn btn-primary mt-2 w-100" {{action "addNewGroupBy" }}> <i class="fe fe-plus"></i>
+                        Add
+                        Grouping</div>
+                </div>
+                {{/dd.menu}}
+                {{/bs-dropdown}}
+            </div>
+            <div class="col-auto p-1 min-width-15">
+
+                {{#each queryObject.additionalFilters.orderBys as |orderBy|}}
+                {{#if (label-maker orderBy orderBy.column orderBy.order)}}
+                <span class="tag border tag-primary">
+                    {{#bs-dropdown closeOnMenuClick=false  as |dd|}}
+                    {{#dd.toggle class="text-white"}}
+                    {{label-maker orderBy orderBy.column orderBy.order}}
+                    {{/dd.toggle}}
+                    {{#dd.menu as |ddm|}}
+                    <div class="menu-content">
+
+                        {{order-by-maker columns=columns orderBy=orderBy}}
                     </div>
-                    <div class="row tags pl-4">
-                        {{#each queryObject.additionalFilters.views as |view|}}
-                            {{#if view.label}}
-                                <span class="tag tag-primary">{{view.label}}
-                                    <a href="#" class="tag-addon">
-                                        <i class="fe fe-x text-white" {{action 'remove' 'views' view}}></i>
-                                    </a>
-                                </span>
-                            {{/if}}
-                        {{/each}}
-                    </div>
-                {{/tab.pane}}
-                {{#tab.pane title="Grouping" }}
-                    <div class="row">
-                        {{#each queryObject.additionalFilters.groupBys as |groupBy|}}
-                            <div class="col-4 text-center ">
-                                <div class="m-4 mt-0"> {{group-by-maker columns=columns groupBy=groupBy switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
-                                    </div>
-                            </div>
-                        {{/each}}
-                        <button class="btn btn-link text-primary" {{action 'addGroupBy'}}>
-                            <i class="fe fe-plus"></i> Add a Grouping</button>
-                    </div>
-                    <div class="row tags pl-4">
-                        {{#each queryObject.additionalFilters.groupBys as |groupBy|}}
-                            {{#if groupBy.label}}
-                                <span class="tag tag-primary">{{groupBy.label}}
-                                    <a href="#" class="tag-addon">
-                                        <i class="fe fe-x text-white" {{action 'remove' 'groupBys' groupBy}}></i>
-                                    </a>
-                                </span>
-                            {{/if}}
-                        {{/each}}
-                    </div>
-                {{/tab.pane}}
-                {{#tab.pane title="Sort Order" }}
-                    <div class="row">
-                        {{#each queryObject.additionalFilters.orderBys as |orderBy|}}
-                            <div class="col-4 text-center">
-                                <div class="m-4 mt-0"> {{order-by-maker columns=columns orderBy=orderBy}} </div>
-                            </div>
-                        {{/each}}
-                        <button class="btn btn-link text-primary" {{action 'addOrderBy'}}>
-                            <i class="fe fe-plus"></i> Add Sort Order</button>
-                    </div>
-                    <div class="row tags pl-4">
-                        {{#each queryObject.additionalFilters.orderBys as |orderBy|}}
-                            {{#if (and orderBy.column.human_name orderBy.order.name)}}
-                                <span class="tag tag-primary">{{orderBy.column.human_name}} : {{orderBy.order.name}}
-                                    <a href="#" class="tag-addon">
-                                        <i class="fe fe-x text-white" {{action 'remove' 'orderBys' orderBy}}></i>
-                                    </a>
-                                </span>
-                            {{/if}}
-                        {{/each}}
-                    </div>
-                {{/tab.pane}}
-            {{/bs-tab}}
-        {{/aitem.body}}
-    {{/acc.item}}
-{{/bs-accordion}}
+
+                    {{/dd.menu}}
+                    {{/bs-dropdown}}
+                    <a href="#" class="tag-addon">
+                        <i class="fe fe-x text-white" {{action 'remove' 'orderBys' orderBy}}></i>
+                    </a>
+                </span>
+                {{/if}}
+                {{/each}}
+                {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+                {{#dd.toggle class="btn tag-size btn-secondary text-primary border-primary py-0 px-1"}}
+                <i class="fe fe-plus"></i>Sort Order
+                {{/dd.toggle}}
+                {{#dd.menu as |ddm|}}
+                <div class="menu-content">
+                    {{order-by-maker columns=columns orderBy=newOrderBy}}
+                    <div class="btn btn-primary mt-2 w-100" {{action "addNewOrderBy" }}> <i class="fe fe-plus"></i>
+                        Add
+                        Sort Order</div>
+                </div>
+                {{/dd.menu}}
+                {{/bs-dropdown}}
+            </div>
+        </div>
+    </div>
+    <div class="col-1 text-right">
+        <span {{action 'resetAdditionalFilters'}}>
+            <div class="btn btn-link p-0"> Clear
+            </div>
+        </span>
+
+    </div>
+</div>

@@ -1,0 +1,65 @@
+<div class="table-responsive">
+    <table class="table table-hover table-outline table-vcenter text-nowrap card-table table-striped">
+        <tbody>
+            {{#each transposedResults.content as |row|}}
+            <tr>
+                {{#each row as |el index|}}
+                {{#if (eq index 0)}}
+                <th class="">
+                    {{widgets/render-widgets el=(capitalize el) question=question index=index results=results}}
+                </th>
+                {{else}}
+                <td class="">
+                    {{#if (exists-in index results)}}
+                    {{#link-to 'explore.new' (get-column-id index results) el}}
+                    {{widgets/render-widgets el=el question=question index=index results=results}}
+                    {{/link-to}}
+                    {{else}}{{widgets/render-widgets el=el question=question index=index results=results}}
+                    {{/if}}
+                </td>
+                {{/if}}
+                {{/each}}
+
+            </tr>
+            {{else}}
+            {{/each}}
+            {{#each question.api_actions as |apiAction|}}
+            <tr>
+
+                <th>
+                    {{#if canEdit}}
+                    <i class="fe fe-edit text-primary" {{action 'editApiAction' apiAction}}></i>
+                    <i class="fe fe-x-square text-red" {{action 'showDeleteApiActionModal' apiAction}}></i>
+                    {{/if}}
+                </th>
+                {{#each transposedResults.content.[0] as |col col_index|}}
+                {{#unless (eq col_index 0)}}
+                <td>
+                    <div class="btn btn-link text-{{apiAction.color}} text-uppercase p-0"
+                        {{action 'callApiAction' apiAction (get-row results.rows page perPage col_index)}}>
+                        {{apiAction.name}}
+                    </div>
+
+                </td>
+                {{/unless}}
+                {{/each}}
+
+            </tr>
+            {{/each}}
+        </tbody>
+        {{#if showPageNumbers}}
+        <tfoot class="full-width">
+            <tr>
+                <th colspan="100" class="p-0 pt-5">
+                    {{#if showResults}} {{page-numbers content=pagedRows}} {{else}}
+                    <div class="centered"> Looks like your query did not return any result. </div>
+                    {{/if}}
+                </th>
+            </tr>
+        </tfoot>
+        {{/if}}
+    </table>
+</div>
+{{delete-dialogue entityName="Api Action" open=toggleDeleteApiActionModal entity=deletableApiAction delete="deleteApiAction"}}
+{{api-action-modal apiAction=editableApiAction open=toggleEditApiActionModal}}
+{{api-action-result canDebug=canEdit result=apiActionResult open=toggleApiActionResult}}

@@ -56,7 +56,9 @@ defmodule AfterGlow.Mixfile do
         :quantum,
         :ecto_sql,
         :timex,
-        :numerix
+        :numerix,
+        :oban,
+        :plug_cowboy
       ]
     ]
   end

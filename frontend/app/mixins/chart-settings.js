@@ -7,6 +7,7 @@ export default Ember.Mixin.create({
         'Calendar': 'calendar-chart',
         'Number': 'number-chart',
         'Table': 'results-table',
+        'Transposed Table': 'transposed-results-table',
         'Pivot Table': 'pivot-table',
         'Line': 'line-chart',
         'Pie': 'pie-chart',

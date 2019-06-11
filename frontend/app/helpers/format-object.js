@@ -7,7 +7,8 @@ const isValidUrl = (string) => {
         return false;
     }
 };
-export function formatObject(params /*, hash*/ ) {
+export default Ember.Helper.extend({
+    compute(params /*, hash*/ ) {
     if (params && (params[0] || (params[0] == 0) || (params[0] == false))) {
         var formattedString = params;
         params = params[0];
@@ -43,5 +44,5 @@ export function formatObject(params /*, hash*/ ) {
         return formattedString;
     }
 }
+})
 
-export default Ember.Helper.helper(formatObject);

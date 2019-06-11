@@ -1,19 +1,21 @@
 <div class="border-p-2">
     {{#if selectView.selected.raw}}
-        <div class="switch" {{action 'switchToBuilder' 'views' selectView true}}> {{bs-tooltip title="Switch To Builder"}}
-            <i class="fe fe-list text-gray"></i>
-        </div>
-        <div class="form-group"> {{input value=selectView.selected.value class="form-control my-2" placeholder="COUNT(column) As Metric" }} </div>
+    <div class="switch" {{action 'switchToBuilder' 'views' selectView true}}> {{bs-tooltip title="Switch To Builder"}}
+        <i class="fe fe-list text-gray"></i>
+    </div>
+    <div class="form-group">
+        {{input value=selectView.selected.value class="form-control my-2" placeholder="COUNT(column) As Metric" }}
+    </div>
     {{else}}
-        <div class="switch" {{action 'switchToRaw' 'views' selectView true}}> {{bs-tooltip title="Switch To Raw"}}
-            <i class="fe fe-code text-gray"></i>
-        </div> {{searchable-select
+    <div class="switch" {{action 'switchToRaw' 'views' selectView true}}> {{bs-tooltip title="Switch To Raw"}}
+        <i class="fe fe-code text-gray"></i>
+    </div> {{searchable-select
             class="my-2"
             content=viewOptions
             sortBy="name"
             selected=selectView.selected
             prompt="Select a View"
             optionLabelKey="name"
-            on-change=(action (mut selectView.selected))}}
-        {{/if}}
+            on-change=(action 'setSelected')}}
+    {{/if}}
 </div>

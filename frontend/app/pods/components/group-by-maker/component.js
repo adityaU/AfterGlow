@@ -37,7 +37,7 @@ export default Ember.Component.extend({
             } else {
                 this.set('caseType', null);
             }
-            groupBy.set('label', label);
+            this.get('groupBy.label', label)
         }
     })),
 

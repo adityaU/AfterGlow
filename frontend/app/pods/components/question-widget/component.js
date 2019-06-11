@@ -2,11 +2,12 @@ import Ember from 'ember';
 import ChartSettings from '../../../mixins/chart-settings'
 import ColorMixin from '../../../mixins/colors-mixin'
 
-export default Ember.Component.extend(ChartSettings, ColorMixin,{
-  colorway: Ember.computed(function(){
+export default Ember.Component.extend(ChartSettings, ColorMixin, {
+  classNames: ["h-100"],
+  colorway: Ember.computed(function () {
     return this.get('colors').join("")
   }),
-  setState(s, context){
+  setState(s, context) {
     let resultsViewSettings = {
       aggregatorName: s.aggregatorName,
       colOrder: s.colOrder,
@@ -28,16 +29,16 @@ export default Ember.Component.extend(ChartSettings, ColorMixin,{
     context.set('resultsViewSettings', resultsViewSettings)
   },
 
-  componentContext: Ember.computed(function(){
+  componentContext: Ember.computed(function () {
     return this;
   }),
 
   actions: {
-    remove(){
+    remove() {
       this.sendAction('remove', this.get('question'))
     },
 
-    refresh(){
+    refresh() {
       this.sendAction('refresh', this.get('question'))
     },
   }

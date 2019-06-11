@@ -1,10 +1,23 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
+    classNames: ["w-100"],
     watchAdditionalFilters: Ember.on('init', Ember.observer('queryObject.additionalFilters', function () {
         if (!this.get('queryObject.additionalFilters')) {
             this.set('queryObject.additionalFilters', Ember.Object.create());
         } else {
+            if (!this.get('queryObject.additionalFilters.filters')) {
+                this.set('queryObject.additionalFilters.filters', []);
+            }
+            if (!this.get('queryObject.additionalFilters.views')) {
+                this.set('queryObject.additionalFilters.views', []);
+            }
+            if (!this.get('queryObject.additionalFilters.groupBys')) {
+                this.set('queryObject.additionalFilters.groupBys', []);
+            }
+            if (!this.get('queryObject.additionalFilters.orderBys')) {
+                this.set('queryObject.additionalFilters.orderBys', []);
+            }
             this.set('queryObject.additionalFilters.filters', this.get('queryObject.additionalFilters.filters') && this.get('queryObject.additionalFilters.filters').map((item) => {
                 return Ember.Object.create(item);
             }));
@@ -18,11 +31,12 @@ export default Ember.Component.extend({
                 return Ember.Object.create(item);
             }));
         }
+
     })),
 
     columns: Ember.computed('results', 'error', 'results.additional_filters_applied', function () {
         if ((this.get('results.additional_filters_applied') &&
-                this.get('queryObject.additionalFilterColumns')) || this.get('error')) {
+            this.get('queryObject.additionalFilterColumns')) || this.get('error')) {
 
             return this.get('queryObject.additionalFilterColumns') || [];
         }
@@ -56,17 +70,11 @@ export default Ember.Component.extend({
         return dataType;
     },
 
-    rawObject: Ember.computed(function () {
-        return Ember.Object.extend({
-            selected: null,
-            label: Ember.computed('selected', 'selected.value', function () {
-                if (this.get('selected.raw') == true) {
-                    this.set('selected.human_name', null);
-                    this.set('selected.name', null);
-                }
-                return (this.get('selected.human_name') || this.get('selected.name') || this.get('selected.value'));
-            })
-        });
+    rawObject: Ember.Object.extend({
+        selected: null,
+        castType: null,
+        order: null,
+        column: null,
     }),
     rawObjectWithSelected(_this) {
         let selected = _this.get('rawObject').create();
@@ -74,46 +82,51 @@ export default Ember.Component.extend({
             raw: false,
             value: null
         }));
-        selected.set('castType', Ember.Object.create({}));
         return selected;
     },
+    newViewOserver: Ember.observer('newView.selected', function () {
+        console.log(this.get('newView'))
+    }),
+
+    newFilter: Ember.computed('queryObject.additionalFilters.filters.[]', function () {
+        return Ember.Object.create({
+            column: null,
+            operator: null,
+            value: null,
+            valueDateObj: {}
+        })
+    }),
+    newView: Ember.computed('queryObject.additionalFilters.views.[]', function () {
+        console.log('from_computed')
+        return this.get('rawObject').create()
+    }),
+    newGroupBy: Ember.computed('queryObject.additionalFilters.groupBys.@each', function () {
+        return this.get('rawObjectWithSelected')(this)
+    }),
+    newOrderBy: Ember.computed('queryObject.additionalFilters.orderBys.@each', function () {
+        return this.get('rawObjectWithSelected')(this)
+    }),
     actions: {
+        addNewFilter() {
+            this.get('queryObject.additionalFilters.filters').pushObject(this.get('newFilter'));
+        },
+        addNewView() {
+            this.get('queryObject.additionalFilters.views').pushObject(this.get('newView'));
+        },
+
+        addNewGroupBy() {
+            this.get('queryObject.additionalFilters.groupBys').pushObject(this.get('newGroupBy'));
+        },
+        addNewOrderBy() {
+            this.get('queryObject.additionalFilters.orderBys').pushObject(this.get('newOrderBy'));
+        },
+
+
         resetAdditionalFilters() {
             this.set('queryObject.additionalFilters', Ember.Object.create());
             this.set('queryObject.additionalFilterColumns', null);
         },
 
-        addFilter() {
-            if (!this.get('queryObject.additionalFilters.filters')) {
-                this.set('queryObject.additionalFilters.filters', []);
-            }
-            this.get('queryObject.additionalFilters.filters').pushObject(Ember.Object.create({
-                column: null,
-                operator: null,
-                value: null,
-                valueDateObj: {}
-            }));
-        },
-
-        addView() {
-            if (!this.get('queryObject.additionalFilters.views')) {
-                this.set('queryObject.additionalFilters.views', []);
-            }
-            this.get('queryObject.additionalFilters.views').pushObject(Ember.Object.create({}));
-        },
-
-        addGroupBy() {
-            if (!this.get('queryObject.additionalFilters.groupBys')) {
-                this.set('queryObject.additionalFilters.groupBys', []);
-            }
-            this.get('queryObject.additionalFilters.groupBys').pushObject(this.get('rawObjectWithSelected')(this));
-        },
-        addOrderBy() {
-            if (!this.get('queryObject.additionalFilters.orderBys')) {
-                this.set('queryObject.additionalFilters.orderBys', []);
-            }
-            this.get('queryObject.additionalFilters.orderBys').pushObject(Ember.Object.create({}));
-        },
         switchToBuilder(type, el, handleSelected) {
             var items = this.get('queryObject.additionalFilters').get(type);
             if (handleSelected) {

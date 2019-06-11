@@ -31,6 +31,8 @@ defmodule AfterGlow.Repo.Seed do
   end
 
   def seed do
+    IO.inspect("Running Seeds...")
+
     [admin, viewer, creator] =
       ["Admin", "Viewer", "Creator"]
       |> Enum.map(fn x ->
@@ -70,7 +72,7 @@ defmodule AfterGlow.Repo.Seed do
 
       admin_user =
         unless admin_user do
-          Repo.insert(
+          Repo.insert!(
             User.changeset(%User{}, %{email: Application.get_env(:afterglow, :admin_email)})
           )
         else

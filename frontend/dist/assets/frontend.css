@@ -186,6 +186,7 @@ g.slicetext {
       float: right; }
 
 .searchbar.overlay {
+  z-index: 1;
   position: fixed;
   top: 0;
   bottom: 0;
@@ -15397,5 +15398,11 @@ a:hover {
 
 .question-title {
   max-width: 500px; }
+
+.menu-content {
+  width: 300px; }
+
+.min-width-15 {
+  min-width: 15%; }
 
 /*# sourceMappingURL=frontend.css.map */

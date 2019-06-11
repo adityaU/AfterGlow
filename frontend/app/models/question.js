@@ -65,7 +65,8 @@ export default DS.Model.extend(ResultViewMixin, {
                 return item.hasOwnProperty('name') && item['name'];
             });
             this.resultsCall({
-                variables: variables
+                variables: variables,
+                additionalFilters: this.get('human_sql.additionalFilters')
             }).then((response) => {
                 this.set('results', response.data);
                 this.set('cached_results', response.data);
@@ -76,7 +77,7 @@ export default DS.Model.extend(ResultViewMixin, {
                 //     this.set('resultError', error.error)
                 //     this.set("loading", false)
             }).catch((error) => {
-                this.set('errorMessage', error.message);
+                this.set('errorMessage', "Query could not be completed. Please check filters.");
                 this.set('loading', false);
                 this.set('results', null);
                 this.set('cached_results', null);

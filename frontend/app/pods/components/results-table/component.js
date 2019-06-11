@@ -8,6 +8,7 @@ const {
 } = Ember;
 
 export default Ember.Component.extend({
+    classNames: ["h-100"],
     page: 1,
     perPage: 15,
 

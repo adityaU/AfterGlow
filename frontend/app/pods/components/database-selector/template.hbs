@@ -1,7 +1,41 @@
-{{searchable-select
+{{#if queryObject.database.name}}
+<span class="tag border text-primary border-primary  bg-white">
+    Data Source:
+    <div class="tag-addon text-white border-primary bg-primary">
+        {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+        {{#dd.toggle class="text-white "}}
+        {{queryObject.database.name}}
+        {{/dd.toggle}}
+        {{#dd.menu as |ddm|}}
+        <div class="menu-content">
+            {{searchable-select
     content=databases
     sortBy="name"
     prompt="Select a Database"
     selected=queryObject.database
     optionLabelKey="name"
     on-change=(action (mut queryObject.database))}}
+        </div>
+        {{/dd.menu}}
+        {{/bs-dropdown}}
+
+    </div>
+</span>
+{{else}}
+{{#bs-dropdown closeOnMenuClick=false as |dd|}}
+{{#dd.toggle id="datasource-selector" class="btn tag-size  btn-secondary text-primary border-primary py-0 px-1"}}
+<i class="fe fe-plus"></i> Data Source
+{{/dd.toggle}}
+{{#dd.menu as |ddm|}}
+<div class="menu-content">
+    {{searchable-select
+    content=databases
+    sortBy="name"
+    prompt="Select a Database"
+    selected=queryObject.database
+    optionLabelKey="name"
+    on-change=(action (mut queryObject.database))}}
+</div>
+{{/dd.menu}}
+{{/bs-dropdown}}
+{{/if}}

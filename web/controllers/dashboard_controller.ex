@@ -38,6 +38,22 @@ defmodule AfterGlow.DashboardController do
     end
   end
 
+  def show(conn, %{"id" => id}) do
+    dashboard =
+      scope(conn, Dashboard)
+      |> select([:id])
+      |> Repo.get!(id)
+
+    dashboard =
+      CacheWrapper.get_by_id(dashboard.id, Dashboard)
+      |> Repo.preload(:questions)
+      |> Repo.preload(:tags)
+      |> Repo.preload(:variables)
+      |> Repo.preload(:notes)
+
+    render(conn, :show, data: dashboard)
+  end
+
   def index(conn, %{"id" => id}) do
     dashboard =
       scope(conn, Dashboard)
@@ -80,9 +96,11 @@ defmodule AfterGlow.DashboardController do
     question_ids = prms["questions_ids"]
 
     questions =
-      if question_ids && question_ids |> Enum.empty?(),
-        do: nil,
-        else: Repo.all(from(q in Question, where: q.id in ^question_ids))
+      unless question_ids && question_ids |> Enum.empty?() do
+        nil
+      else
+        Repo.all(from(q in Question, where: q.id in ^question_ids))
+      end
 
     case Dashboard.insert(changeset, questions) do
       {:ok, dashboard} ->
