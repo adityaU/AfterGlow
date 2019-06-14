@@ -4272,6 +4272,57 @@ define('frontend/models/note', ['exports', 'ember-data'], function (exports, _em
         content: _emberData['default'].attr('string')
     });
 });
+define('frontend/models/organization', ['exports', 'ember-data'], function (exports, _emberData) {
+    exports['default'] = _emberData['default'].Model.extend({
+        name: _emberData['default'].attr('string'),
+        google_domain: _emberData['default'].attr('string'),
+        is_deactivated: _emberData['default'].attr('boolean'),
+        users: _emberData['default'].hasMany('user'),
+        inserted_at: _emberData['default'].attr('date'),
+        updated_at: _emberData['default'].attr('date'),
+
+        autoSave: function autoSave() {
+            var _this = this;
+
+            Ember.run.debounce(this, function () {
+                _this.save();
+            }, 2000);
+        },
+
+        autoSaveObserver: Ember.observer('name', 'google_domain', function () {
+            if (this.get('id')) {
+                this.autoSave();
+            }
+        })
+
+    });
+});
+define('frontend/models/organization_setting', ['exports', 'ember-data'], function (exports, _emberData) {
+    exports['default'] = _emberData['default'].Model.extend({
+        name: _emberData['default'].attr('string'),
+        value: _emberData['default'].attr('string'),
+        setting_type: _emberData['default'].attr('string'),
+        is_secret: _emberData['default'].attr('boolean'),
+        user: _emberData['default'].belongsTo('user'),
+        api_action: _emberData['default'].belongsTo('api_action'),
+        inserted_at: _emberData['default'].attr('date'),
+        updated_at: _emberData['default'].attr('date'),
+
+        autoSave: function autoSave() {
+            var _this = this;
+
+            Ember.run.debounce(this, function () {
+                _this.save();
+            }, 2000);
+        },
+
+        autoSaveObserver: Ember.observer('name', 'value', function () {
+            if (this.get('id')) {
+                this.autoSave();
+            }
+        })
+    });
+});
 define('frontend/models/permission-set', ['exports', 'ember-data'], function (exports, _emberData) {
     exports['default'] = _emberData['default'].Model.extend({
         name: _emberData['default'].attr('string'),
@@ -4447,6 +4498,29 @@ define('frontend/models/send-alert-config', ['exports', 'ember-data'], function 
         updated_at: _emberData['default'].attr('utc')
     });
 });
+define('frontend/models/setting', ['exports', 'ember-data'], function (exports, _emberData) {
+    exports['default'] = _emberData['default'].Model.extend({
+        name: _emberData['default'].attr('string'),
+        value: _emberData['default'].attr('string'),
+        is_secret: _emberData['default'].attr('boolean'),
+        inserted_at: _emberData['default'].attr('date'),
+        updated_at: _emberData['default'].attr('date'),
+
+        autoSave: function autoSave() {
+            var _this = this;
+
+            Ember.run.debounce(this, function () {
+                _this.save();
+            }, 2000);
+        },
+
+        autoSaveObserver: Ember.observer('name', 'value', function () {
+            if (this.get('id')) {
+                this.autoSave();
+            }
+        })
+    });
+});
 define('frontend/models/snapshot-datum', ['exports', 'ember-data', 'ember'], function (exports, _emberData, _ember) {
     exports['default'] = _emberData['default'].Model.extend({
         row: _emberData['default'].attr('object'),
@@ -4577,6 +4651,7 @@ define('frontend/models/user', ['exports', 'ember-data', 'ember', 'ember-api-act
         is_deactivated: _emberData['default'].attr('boolean'),
         permission_sets: _emberData['default'].hasMany('permission_sets'),
         teams: _emberData['default'].hasMany('teams'),
+        organization: _emberData['default'].belongsTo('organization'),
 
         role: _ember['default'].computed('permission_sets', function () {
             return this.get('permission_sets') && this.get('permission_sets').objectAt(0);
@@ -4601,6 +4676,32 @@ define('frontend/models/user', ['exports', 'ember-data', 'ember', 'ember-api-act
             path: 'deactivate',
             type: 'post',
             urlType: 'findRecord'
+        })
+    });
+});
+define('frontend/models/user_setting', ['exports', 'ember-data'], function (exports, _emberData) {
+    exports['default'] = _emberData['default'].Model.extend({
+        name: _emberData['default'].attr('string'),
+        value: _emberData['default'].attr('string'),
+        is_secret: _emberData['default'].attr('boolean'),
+        setting_type: _emberData['default'].attr('string'),
+        user: _emberData['default'].belongsTo('user'),
+        api_action: _emberData['default'].belongsTo('api_action'),
+        inserted_at: _emberData['default'].attr('date'),
+        updated_at: _emberData['default'].attr('date'),
+
+        autoSave: function autoSave() {
+            var _this = this;
+
+            Ember.run.debounce(this, function () {
+                _this.save();
+            }, 2000);
+        },
+
+        autoSaveObserver: Ember.observer('name', 'value', function () {
+            if (this.get('id')) {
+                this.autoSave();
+            }
         })
     });
 });
@@ -9748,17 +9849,169 @@ define('frontend/pods/settings/databases/new/route', ['exports', 'ember', 'front
 define("frontend/pods/settings/databases/new/template", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "0oLTX4Ik", "block": "{\"symbols\":[\"dbType\"],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n    \"],[6,\"form\"],[9,\"class\",\"card\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-body\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Database Type\"],[8],[0,\"\\n                \"],[6,\"select\"],[9,\"class\",\"form-control\"],[10,\"onchange\",[25,\"action\",[[19,0,[]],\"selectDbType\"],[[\"value\"],[\"target.value\"]]],null],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"dbTypes\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"option\"],[10,\"value\",[19,1,[]],null],[10,\"selected\",[25,\"eq\",[[20,[\"db\",\"db_type\"]],[19,1,[]]],null],null],[7],[1,[25,\"capitalize\",[[19,1,[]]],null],false],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Name\"],[8],[0,\" \"],[1,[25,\"input\",null,[[\"type\",\"name\",\"class\",\"placeholder\",\"value\"],[\"text\",\"first-name\",\"form-control\",\"What do you call it?\",[20,[\"db\",\"name\"]]]]],false],[0,\"\\n                \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Host Url\"],[8],[0,\" \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"placeholder\",\"value\"],[\"form-control\",\"text\",\"first-name\",\"Host endpoint\",[20,[\"db\",\"config\",\"host_url\"]]]]],false],[0,\"\\n                \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Host Port\"],[8],[0,\" \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"placeholder\",\"value\"],[\"form-control\",\"number\",\"first-name\",\"Host Port\",[20,[\"db\",\"config\",\"host_port\"]]]]],false],[0,\"\\n                \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Database Name\"],[8],[0,\" \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"placeholder\",\"value\"],[\"form-control\",\"text\",\"first-name\",\"Database Name\",[20,[\"db\",\"config\",\"db_name\"]]]]],false],[0,\"\\n                \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Database Username\"],[8],[0,\" \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"placeholder\",\"value\"],[\"form-control\",\"text\",\"first-name\",\"Username\",[20,[\"db\",\"config\",\"username\"]]]]],false],[0,\"\\n                \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Database Password\"],[8],[0,\" \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"placeholder\",\"value\"],[\"form-control\",\"password\",\"first-name\",\"Password\",[20,[\"db\",\"config\",\"password\"]]]]],false],[0,\"\\n                \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-footer text-right\"],[7],[0,\"\\n            \"],[6,\"button\"],[9,\"class\",\"btn btn-primary\"],[9,\"type\",\"submit\"],[3,\"action\",[[19,0,[]],\"saveDatabase\"]],[7],[0,\"SAVE\"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/databases/new/template.hbs" } });
 });
-define('frontend/pods/settings/email/route', ['exports', 'ember'], function (exports, _ember) {
+define('frontend/pods/settings/frontend/controller', ['exports'], function (exports) {
+    exports['default'] = Ember.Controller.extend({
+        settings: Ember.computed.alias('model'),
+
+        frontend_limit_setting: Ember.computed("settings.isLoaded", function () {
+            return this.get('settings').filter(function (setting) {
+                return setting.get('name') == "MAX_FRONTEND_LIMIT";
+            })[0];
+        }),
+
+        actions: {}
+
+    });
+});
+define('frontend/pods/settings/frontend/route', ['exports', 'ember'], function (exports, _ember) {
     exports['default'] = _ember['default'].Route.extend({
+        model: function model() {
+            return this.store.findAll('setting');
+        },
         setupController: function setupController(controller, model) {
             this._super.apply(this, arguments);
-            this.controllerFor('settings').set('pageTitle', 'Email Settings');
+            this.controllerFor('settings').set('pageTitle', 'Frontend Configuration');
             this.controllerFor('settings').set('showAddDatabase', false);
         }
     });
 });
-define("frontend/pods/settings/email/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "/X8Ge1kF", "block": "{\"symbols\":[],\"statements\":[[1,[18,\"outlet\"],false],[0,\"\\n\"]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/email/template.hbs" } });
+define("frontend/pods/settings/frontend/template", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "HE9lsPIH", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"card ml-3\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n\\n        \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n            \"],[6,\"label\"],[9,\"class\",\"h5 text-default\"],[7],[0,\"Frontend Settings\"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"frontend_limit_setting\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Maximum Number of Rows on frontend\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"value\"],[[25,\"if\",[[20,[\"report_limit_setting\",\"errors\",\"value\"]],\"form-control is-invalid\",\"form-control\"],null],\"number\",\"first-name\",[20,[\"frontend_limit_setting\",\"value\"]]]]],false],[0,\"\\n                \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\" Limit more than 2000 is ignored. This limit overrides Global Limit for\\n                    frontend.\"],[8],[0,\"\\n\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/frontend/template.hbs" } });
+});
+define('frontend/pods/settings/organizations/edit/controller', ['exports', 'ember'], function (exports, _ember) {
+    exports['default'] = _ember['default'].Controller.extend({
+        organization: _ember['default'].computed.alias('model.organization'),
+        organization_settings: _ember['default'].computed.alias('model.organization_settings'),
+
+        report_limit_setting: _ember['default'].computed('organization', "organization_settings.isLoaded", function () {
+            return this.get('organization_settings').filter(function (setting) {
+                return setting.get('name') == "MAX_DOWNLOAD_LIMIT" && setting.get('setting_type') == "general";
+            })[0];
+        }),
+
+        frontend_limit_setting: _ember['default'].computed('organization', "organization_settings.isLoaded", function () {
+            return this.get('organization_settings').filter(function (setting) {
+                return setting.get('name') == "MAX_FRONTEND_LIMIT" && setting.get('setting_type') == "general";
+            })[0];
+        }),
+
+        download_allowed_setting: _ember['default'].computed('organization', "organization_settings.isLoaded", function () {
+            return this.get('organization_settings').filter(function (setting) {
+                return setting.get('name') == "DOWNLOAD_ALLOWED" && setting.get('setting_type') == "general";
+            })[0];
+        }),
+
+        actions: {
+            setDownloadAllowedSetting: function setDownloadAllowedSetting() {
+                var currentValue = this.get('download_allowed_setting.value');
+                if (currentValue == 'false') {
+                    this.set('download_allowed_setting.value', "true");
+                } else {
+                    this.set('download_allowed_setting.value', "false");
+                }
+            }
+        }
+    });
+});
+define('frontend/pods/settings/organizations/edit/route', ['exports', 'ember', 'frontend/mixins/authentication-mixin'], function (exports, _ember, _frontendMixinsAuthenticationMixin) {
+    exports['default'] = _ember['default'].Route.extend(_frontendMixinsAuthenticationMixin['default'], {
+        model: function model(params) {
+            return _ember['default'].RSVP.hash({
+                organization: this.store.find('organization', params.organization_id),
+                organization_settings: this.store.query('organization_setting', { organization_id: params.organization_id })
+            });
+        },
+        setupController: function setupController(controller, model) {
+            this._super.apply(this, arguments);
+            this.controllerFor('settings').set('pageTitle', 'Edit Organization');
+        }
+
+    });
+});
+define("frontend/pods/settings/organizations/edit/template", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "hD+uhIFY", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n    \"],[6,\"form\"],[9,\"class\",\"card\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Name\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"type\",\"name\",\"class\",\"placeholder\",\"value\"],[\"text\",\"first-name\",[25,\"if\",[[20,[\"organization\",\"errors\",\"name\"]],\"form-control is-invalid\",\"form-control\"],null],\"What do you call it?\",[20,[\"organization\",\"name\"]]]]],false],[0,\"\\n                \"],[4,\"if\",[[20,[\"organization\",\"errors\",\"name\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"invalid-feedback\"],[7],[1,[20,[\"organization\",\"errors\",\"name\",\"0\",\"message\"]],false],[0,\"\\n                \"],[8]],\"parameters\":[]},null],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Domain\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"disabled\",\"class\",\"type\",\"name\",\"placeholder\",\"value\"],[true,[25,\"if\",[[20,[\"organization\",\"errors\",\"name\"]],\"form-control is-invalid\",\"form-control\"],null],\"text\",\"first-name\",\"two words about this organization?\",[20,[\"organization\",\"google_domain\"]]]]],false],[0,\"\\n                \"],[4,\"if\",[[20,[\"organization\",\"errors\",\"google_domain\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"invalid-feedback\"],[7],[0,\"\\n                    \"],[1,[20,[\"organization\",\"errors\",\"google_domain\",\"0\",\"message\"]],false],[0,\" \"],[8]],\"parameters\":[]},null],[0,\"\\n                \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\"Users with this google domain will be able to login on Afterglow. Once they\\n                    login they will be automatically assigned the organization.\"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"h5 text-default\"],[7],[0,\"Settings\"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"report_limit_setting\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                    \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Maximum Number of Rows in Exports/Reports\"],[8],[0,\"\\n                    \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"value\"],[[25,\"if\",[[20,[\"report_limit_setting\",\"errors\",\"value\"]],\"form-control is-invalid\",\"form-control\"],null],\"number\",\"first-name\",[20,[\"report_limit_setting\",\"value\"]]]]],false],[0,\"\\n                    \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\" This limit overrides Global Limit. It can be overriden by User level.\\n                        Empty means no limit.\\n                    \"],[8],[0,\"\\n\\n\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"frontend_limit_setting\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                    \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Maximum Number of Rows on frontend\"],[8],[0,\"\\n                    \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"value\"],[[25,\"if\",[[20,[\"report_limit_setting\",\"errors\",\"value\"]],\"form-control is-invalid\",\"form-control\"],null],\"number\",\"first-name\",[20,[\"frontend_limit_setting\",\"value\"]]]]],false],[0,\"\\n                    \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\" Limit more than 2000 is ignored. This limit overrides Global Limit for\\n                        frontend.\"],[8],[0,\"\\n\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"download_allowed_setting\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                    \"],[6,\"label\"],[9,\"class\",\"custom-switch\"],[7],[0,\"\\n                        \"],[6,\"span\"],[9,\"class\",\"custom-switch-description form-label m-0\"],[7],[0,\"Can Download Reports\"],[8],[0,\"\\n                        \"],[1,[25,\"input\",null,[[\"type\",\"change\",\"checked\",\"name\",\"class\"],[\"checkbox\",[25,\"action\",[[19,0,[]],\"setDownloadAllowedSetting\"],null],[25,\"eq\",[[20,[\"download_allowed_setting\",\"value\"]],\"true\"],null],\"custom-switch-checkbox\",\"custom-switch-input\"]]],false],[0,\"\\n                        \"],[6,\"span\"],[9,\"class\",\"custom-switch-indicator ml-4\"],[7],[8],[0,\"\\n                    \"],[8],[0,\"\\n                    \"],[6,\"small\"],[9,\"class\",\"text-muted d-block\"],[7],[0,\" Use this option to disable downloads for this\\n                        organization. This overrides the Global Value. This is overriden by User Level Value \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/organizations/edit/template.hbs" } });
+});
+define('frontend/pods/settings/organizations/index/controller', ['exports', 'ember'], function (exports, _ember) {
+    exports['default'] = _ember['default'].Controller.extend({
+        organizations: _ember['default'].computed.sort('model', function (a, b) {
+            if (a.get('name').toLowerCase() <= b.get('name').toLowerCase()) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }),
+
+        actions: {
+            deactivate: function deactivate(org) {
+                org.set('is_deactivated', true);
+                org.save();
+            },
+
+            activate: function activate(org) {
+                org.set('is_deactivated', false);
+                org.save();
+            }
+        }
+    });
+});
+define('frontend/pods/settings/organizations/index/route', ['exports', 'ember', 'frontend/mixins/authentication-mixin'], function (exports, _ember, _frontendMixinsAuthenticationMixin) {
+    exports['default'] = _ember['default'].Route.extend(_frontendMixinsAuthenticationMixin['default'], {
+        model: function model() {
+            return this.store.findAll('organization');
+        },
+
+        setupController: function setupController(controller, model) {
+            this._super.apply(this, arguments);
+            this.controllerFor('settings').set('pageTitle', 'Organizations');
+            this.controllerFor('settings').set('showAddOrganization', true);
+        },
+
+        actions: {
+            willTransition: function willTransition() {
+                this.controllerFor('settings').set('showAddOrganization', false);
+            }
+        }
+    });
+});
+define("frontend/pods/settings/organizations/index/template", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "dMUM1J6X", "block": "{\"symbols\":[\"organization\"],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"organizations\"]]],null,{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"card mb-3\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-body p-3\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-4\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"d-flex align-items-center\"],[7],[0,\"\\n                        \"],[6,\"span\"],[9,\"class\",\"avatar mr-2 text-white bg-primary\"],[7],[0,\"\\n                            \"],[6,\"b\"],[9,\"class\",\"text-white\"],[7],[0,\"G\"],[8],[0,\"\\n                        \"],[8],[0,\"\\n                        \"],[6,\"div\"],[7],[0,\"\\n                            \"],[6,\"h6\"],[9,\"class\",\"m-0 text-default\"],[7],[0,\" \"],[1,[25,\"capitalize\",[[19,1,[\"name\"]]],null],false],[0,\" \"],[8],[0,\"\\n                            \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\" \"],[1,[19,1,[\"google_domain\"]],false],[0,\" \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-4\"],[7],[0,\"\\n                    \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\" \"],[1,[19,1,[\"users\",\"length\"]],false],[0,\" Users \"],[8],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-4 text-right\"],[7],[0,\"\\n                    \"],[4,\"link-to\",[\"settings.organizations.edit\",[19,1,[\"id\"]]],[[\"class\"],[\"btn btn-link text-primary\"]],{\"statements\":[[0,\" EDIT\\n\"]],\"parameters\":[]},null],[4,\"if\",[[19,1,[\"is_deactivated\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"button\"],[9,\"data-tooltip\",\"Deactivate Organization\"],[9,\"data-inverted\",\"\"],[9,\"class\",\"btn btn-link text-red\"],[3,\"action\",[[19,0,[]],\"activate\",[19,1,[]]]],[7],[0,\" ACTIVATE \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                    \"],[6,\"button\"],[9,\"data-tooltip\",\"Deactivate Organization\"],[9,\"data-inverted\",\"\"],[9,\"class\",\"btn btn-link text-red\"],[3,\"action\",[[19,0,[]],\"deactivate\",[19,1,[]]]],[7],[0,\" DEACTIVATE \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[1]},{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"card\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-body text-center\"],[7],[0,\" You do not have any organizations yet. \"],[6,\"div\"],[7],[0,\"\\n\"],[4,\"link-to\",[\"settings.organizations.new\"],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"btn btn-link p-0\"],[7],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\" ADD NEW ORGANIZATION \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/organizations/index/template.hbs" } });
+});
+define('frontend/pods/settings/organizations/new/controller', ['exports', 'ember'], function (exports, _ember) {
+    exports['default'] = _ember['default'].Controller.extend({
+        organization: _ember['default'].computed(function () {
+            return this.store.createRecord('organization', {});
+        }),
+
+        actions: {
+            saveOrganization: function saveOrganization() {
+                var _this = this;
+
+                this.get('organization').save().then(function (response) {
+                    _this.transitionToRoute('settings.organizations.edit', response.id);
+                });
+            }
+        }
+    });
+});
+define('frontend/pods/settings/organizations/new/route', ['exports', 'ember', 'frontend/mixins/authentication-mixin'], function (exports, _ember, _frontendMixinsAuthenticationMixin) {
+    exports['default'] = _ember['default'].Route.extend(_frontendMixinsAuthenticationMixin['default'], {
+        setupController: function setupController(controller, model) {
+            this._super.apply(this, arguments);
+            this.controllerFor('settings').set('pageTitle', 'New Organization');
+        },
+        actions: {
+            willTransition: function willTransition(transition) {
+                var organization = this.controller.get('organization');
+                if (!organization.id) {
+                    team.destroyRecord();
+                }
+            }
+        }
+
+    });
+});
+define("frontend/pods/settings/organizations/new/template", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "95e+N4XL", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n    \"],[6,\"form\"],[9,\"class\",\"card\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-body\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Name\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"type\",\"name\",\"class\",\"placeholder\",\"value\"],[\"text\",\"first-name\",[25,\"if\",[[20,[\"organization\",\"errors\",\"name\"]],\"form-control is-invalid\",\"form-control\"],null],\"Localhost Technologies Pvt. Ltd.\",[20,[\"organization\",\"name\"]]]]],false],[0,\"\\n                \"],[4,\"if\",[[20,[\"organization\",\"errors\",\"name\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"invalid-feedback\"],[7],[1,[20,[\"organization\",\"errors\",\"name\",\"0\",\"message\"]],false],[0,\"\\n                \"],[8]],\"parameters\":[]},null],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Google Domain\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"placeholder\",\"value\"],[[25,\"if\",[[20,[\"organization\",\"errors\",\"google_domain\"]],\"form-control is-invalid\",\"form-control\"],null],\"text\",\"first-name\",\"example.com\",[20,[\"organization\",\"google_domain\"]]]]],false],[0,\"\\n\\n                \"],[4,\"if\",[[20,[\"organization\",\"errors\",\"google_domain\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"invalid-feedback\"],[7],[0,\"\\n                    \"],[1,[20,[\"organization\",\"errors\",\"google_domain\",\"0\",\"message\"]],false],[0,\" \"],[8]],\"parameters\":[]},null],[0,\"\\n                \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\"Users with this google domain will be able to login on Afterglow. Once they\\n                    login they will be automatically assigned the organization.\"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-footer text-right\"],[7],[0,\"\\n            \"],[6,\"button\"],[9,\"class\",\"btn btn-primary\"],[9,\"type\",\"submit\"],[3,\"action\",[[19,0,[]],\"saveOrganization\"]],[7],[0,\"SAVE\"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/organizations/new/template.hbs" } });
 });
 define('frontend/pods/settings/permissions/controller', ['exports', 'ember'], function (exports, _ember) {
     exports['default'] = _ember['default'].Controller.extend({
@@ -9779,6 +10032,112 @@ define('frontend/pods/settings/permissions/route', ['exports', 'ember'], functio
 });
 define("frontend/pods/settings/permissions/template", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "y/2WHASd", "block": "{\"symbols\":[\"permissionSet\"],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"permissionSets\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"card mb-3\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"card-body p-3\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"col\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"d-flex align-items-center\"],[7],[0,\"\\n                            \"],[6,\"div\"],[7],[0,\"\\n                                \"],[6,\"h5\"],[9,\"class\",\" m-0 text-default \"],[7],[0,\" \"],[1,[19,1,[\"name\"]],false],[8],[0,\"\\n                                \"],[6,\"small\"],[9,\"class\",\"text-muted \"],[7],[0,\" \"],[1,[19,1,[\"displayPermissions\"]],false],[8],[0,\"\\n                            \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/permissions/template.hbs" } });
+});
+define('frontend/pods/settings/reports/controller', ['exports'], function (exports) {
+    exports['default'] = Ember.Controller.extend({
+        settings: Ember.computed.alias('model'),
+
+        report_limit_setting: Ember.computed("settings.isLoaded", function () {
+            return this.get('settings').filter(function (setting) {
+                return setting.get('name') == "MAX_DOWNLOAD_LIMIT";
+            })[0];
+        }),
+
+        sender_email_id_setting: Ember.computed("settings.isLoaded", function () {
+            return this.get('settings').filter(function (setting) {
+                return setting.get('name') == "SENDER_EMAIL_ID";
+            })[0];
+        }),
+
+        email_server_hostname_setting: Ember.computed("settings.isLoaded", function () {
+            return this.get('settings').filter(function (setting) {
+                return setting.get('name') == "EMAIL_SERVER_HOST_NAME";
+            })[0];
+        }),
+
+        email_server_setting: Ember.computed("settings.isLoaded", function () {
+            return this.get('settings').filter(function (setting) {
+                return setting.get('name') == "EMAIL_SERVER";
+            })[0];
+        }),
+        email_port_setting: Ember.computed("settings.isLoaded", function () {
+            return this.get('settings').filter(function (setting) {
+                return setting.get('name') == "EMAIL_PORT";
+            })[0];
+        }),
+
+        email_username_setting: Ember.computed("settings.isLoaded", function () {
+            return this.get('settings').filter(function (setting) {
+                return setting.get('name') == "EMAIL_USERNAME";
+            })[0];
+        }),
+
+        email_password_setting: Ember.computed("settings.isLoaded", function () {
+            return this.get('settings').filter(function (setting) {
+                return setting.get('name') == "EMAIL_PASSWORD";
+            })[0];
+        }),
+        aws_access_key_id_setting: Ember.computed("settings.isLoaded", function () {
+            return this.get('settings').filter(function (setting) {
+                return setting.get('name') == "AWS_ACCESS_KEY_ID";
+            })[0];
+        }),
+
+        aws_secret_access_key_setting: Ember.computed("settings.isLoaded", function () {
+            return this.get('settings').filter(function (setting) {
+                return setting.get('name') == "AWS_SECRET_ACCESS_KEY";
+            })[0];
+        }),
+
+        s3_bucket_setting: Ember.computed("settings.isLoaded", function () {
+            return this.get('settings').filter(function (setting) {
+                return setting.get('name') == "S3_BUCKET";
+            })[0];
+        }),
+        aws_region_setting: Ember.computed("settings.isLoaded", function () {
+            return this.get('settings').filter(function (setting) {
+                return setting.get('name') == "AWS_REGION";
+            })[0];
+        }),
+
+        frontend_limit_setting: Ember.computed("settings.isLoaded", function () {
+            return this.get('settings').filter(function (setting) {
+                return setting.get('name') == "MAX_FRONTEND_LIMIT";
+            })[0];
+        }),
+
+        download_allowed_setting: Ember.computed("settings.isLoaded", function () {
+            return this.get('settings').filter(function (setting) {
+                return setting.get('name') == "DOWNLOAD_ALLOWED";
+            })[0];
+        }),
+
+        actions: {
+            setDownloadAllowedSetting: function setDownloadAllowedSetting() {
+                var currentValue = this.get('download_allowed_setting.value');
+                if (currentValue == 'false') {
+                    this.set('download_allowed_setting.value', "true");
+                } else {
+                    this.set('download_allowed_setting.value', "false");
+                }
+            }
+        }
+    });
+});
+define('frontend/pods/settings/reports/route', ['exports', 'ember'], function (exports, _ember) {
+    exports['default'] = _ember['default'].Route.extend({
+        model: function model() {
+            return this.store.findAll('setting');
+        },
+        setupController: function setupController(controller, model) {
+            this._super.apply(this, arguments);
+            this.controllerFor('settings').set('pageTitle', 'Reports Configuration');
+            this.controllerFor('settings').set('showAddDatabase', false);
+        }
+    });
+});
+define("frontend/pods/settings/reports/template", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "25eSKXN/", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"card ml-3\"],[7],[0,\"\\n\\n    \"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n\\n        \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n            \"],[6,\"label\"],[9,\"class\",\"h5 text-default\"],[7],[0,\"Email Configuration\"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"email_server_setting\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Email Server\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"value\"],[[25,\"if\",[[20,[\"email_server_setting\",\"errors\",\"value\"]],\"form-control is-invalid\",\"form-control\"],null],\"text\",\"first-name\",[20,[\"email_server_setting\",\"value\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"email_port_setting\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Email Server Port\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"value\"],[[25,\"if\",[[20,[\"email_port_setting\",\"errors\",\"value\"]],\"form-control is-invalid\",\"form-control\"],null],\"text\",\"first-name\",[20,[\"email_port_setting\",\"value\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"email_username_setting\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Email Server Username\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"value\"],[[25,\"if\",[[20,[\"email_username_setting\",\"errors\",\"value\"]],\"form-control is-invalid\",\"form-control\"],null],\"text\",\"first-name\",[20,[\"email_username_setting\",\"value\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"email_password_setting\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Email Server Password\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"value\"],[[25,\"if\",[[20,[\"email_password_setting\",\"errors\",\"value\"]],\"form-control is-invalid\",\"form-control\"],null],\"text\",\"first-name\",[20,[\"email_password_setting\",\"value\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"sender_email_id_setting\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Sender Email Id\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"value\"],[[25,\"if\",[[20,[\"sender_email_id_setting\",\"errors\",\"value\"]],\"form-control is-invalid\",\"form-control\"],null],\"text\",\"first-name\",[20,[\"sender_email_id_setting\",\"value\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"email_server_hostname_setting\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Email Server Hostname\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"value\"],[[25,\"if\",[[20,[\"sender_email_id_setting\",\"errors\",\"value\"]],\"form-control is-invalid\",\"form-control\"],null],\"text\",\"first-name\",[20,[\"email_server_hostname_setting\",\"value\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n\\n        \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n            \"],[6,\"label\"],[9,\"class\",\"h5 text-default\"],[7],[0,\"AWS Configuration\"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"aws_access_key_id_setting\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"AWS ACCESS KEY ID\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"value\"],[[25,\"if\",[[20,[\"aws_access_key_id_setting\",\"errors\",\"value\"]],\"form-control is-invalid\",\"form-control\"],null],\"text\",\"first-name\",[20,[\"aws_access_key_id_setting\",\"value\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"aws_secret_access_key_setting\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"AWS SECRET ACCESS KEY\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"value\"],[[25,\"if\",[[20,[\"aws_secret_access_key_setting\",\"errors\",\"value\"]],\"form-control is-invalid\",\"form-control\"],null],\"text\",\"first-name\",[20,[\"aws_secret_access_key_setting\",\"value\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"aws_region_setting\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"AWS REGION\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"value\"],[[25,\"if\",[[20,[\"aws_region_setting\",\"errors\",\"value\"]],\"form-control is-invalid\",\"form-control\"],null],\"text\",\"first-name\",[20,[\"aws_region_setting\",\"value\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"s3_bucket_setting\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"S3 Bucket\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"value\"],[[25,\"if\",[[20,[\"s3_bucket_setting\",\"errors\",\"value\"]],\"form-control is-invalid\",\"form-control\"],null],\"text\",\"first-name\",[20,[\"s3_bucket_setting\",\"value\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n\\n        \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n            \"],[6,\"label\"],[9,\"class\",\"h5 text-default\"],[7],[0,\"Settings\"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"report_limit_setting\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Maximum Number of Rows in Exports/Reports\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"value\"],[[25,\"if\",[[20,[\"report_limit_setting\",\"errors\",\"value\"]],\"form-control is-invalid\",\"form-control\"],null],\"number\",\"first-name\",[20,[\"report_limit_setting\",\"value\"]]]]],false],[0,\"\\n                \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\" This limit overrides Global Limit. It can be overriden by User level.\\n                    Empty means no limit.\\n                \"],[8],[0,\"\\n\\n\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"download_allowed_setting\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"custom-switch\"],[7],[0,\"\\n                    \"],[6,\"span\"],[9,\"class\",\"custom-switch-description form-label m-0\"],[7],[0,\"Can Download Reports\"],[8],[0,\"\\n                    \"],[1,[25,\"input\",null,[[\"type\",\"change\",\"checked\",\"name\",\"class\"],[\"checkbox\",[25,\"action\",[[19,0,[]],\"setDownloadAllowedSetting\"],null],[25,\"eq\",[[20,[\"download_allowed_setting\",\"value\"]],\"true\"],null],\"custom-switch-checkbox\",\"custom-switch-input\"]]],false],[0,\"\\n                    \"],[6,\"span\"],[9,\"class\",\"custom-switch-indicator ml-4\"],[7],[8],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"small\"],[9,\"class\",\"text-muted d-block\"],[7],[0,\" Use this option to disable downloads for this\\n                    organization. This overrides the Global Value. This is overriden by User Level Value \"],[8],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/reports/template.hbs" } });
 });
 define('frontend/pods/settings/route', ['exports', 'ember', 'frontend/mixins/authentication-mixin', 'ember-can'], function (exports, _ember, _frontendMixinsAuthenticationMixin, _emberCan) {
     exports['default'] = _ember['default'].Route.extend(_frontendMixinsAuthenticationMixin['default'], _emberCan.CanMixin, {
@@ -9990,11 +10349,18 @@ define("frontend/pods/settings/teams/new/template", ["exports"], function (expor
   exports["default"] = Ember.HTMLBars.template({ "id": "oXpN6YN7", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n    \"],[6,\"form\"],[9,\"class\",\"card\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-body\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Name\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"type\",\"name\",\"class\",\"placeholder\",\"value\"],[\"text\",\"first-name\",[25,\"if\",[[20,[\"team\",\"errors\",\"name\"]],\"form-control is-invalid\",\"form-control\"],null],\"What do you call it?\",[20,[\"team\",\"name\"]]]]],false],[0,\"\\n                \"],[4,\"if\",[[20,[\"team\",\"errors\",\"name\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"invalid-feedback\"],[7],[1,[20,[\"team\",\"errors\",\"name\",\"0\",\"message\"]],false],[0,\" \"],[8]],\"parameters\":[]},null],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Description\"],[8],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"placeholder\",\"value\"],[\"form-control\",\"text\",\"first-name\",\"two words about this team\",[20,[\"team\",\"description\"]]]]],false],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-footer text-right\"],[7],[0,\"\\n            \"],[6,\"button\"],[9,\"class\",\"btn btn-primary\"],[9,\"type\",\"submit\"],[3,\"action\",[[19,0,[]],\"saveTeam\"]],[7],[0,\"SAVE\"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/teams/new/template.hbs" } });
 });
 define("frontend/pods/settings/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "GJIY6maG", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"header collapse d-lg-flex p-0\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"container\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row justify-content-between w-100\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col text-default\"],[7],[0,\" \"],[1,[18,\"pageTitle\"],false],[0,\" \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"showAddDatabase\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"col text-right\"],[7],[0,\"\\n\"],[4,\"link-to\",[\"settings.databases.new\"],null,{\"statements\":[[0,\"                            \"],[6,\"div\"],[9,\"class\",\"btn btn-link p-0\"],[7],[0,\"\\n                                \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\" ADD NEW DATABASE \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"showAddTeam\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"col text-right\"],[7],[0,\"\\n\"],[4,\"link-to\",[\"settings.teams.new\"],null,{\"statements\":[[0,\"                            \"],[6,\"div\"],[9,\"class\",\"btn btn-link p-0\"],[7],[0,\"\\n                                \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\" ADD NEW TEAM \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"pt-3 px-5\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col-3\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"card\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card-body p-0\"],[7],[0,\"\\n                    \"],[4,\"link-to\",[\"settings.databases.index\"],[[\"class\"],[\"nav-item p-3 border-bottom text-default\"]],{\"statements\":[[0,\" Databases \"]],\"parameters\":[]},null],[0,\"\\n\"],[4,\"link-to\",[\"settings.users\"],[[\"class\"],[\"nav-item p-3 border-bottom text-default\"]],{\"statements\":[[0,\"                    Users \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[4,\"link-to\",[\"settings.teams\"],[[\"class\"],[\"nav-item p-3 text-default border-bottom\"]],{\"statements\":[[0,\" Teams \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[4,\"link-to\",[\"settings.permissions\"],[[\"class\"],[\"nav-item p-3 text-default\"]],{\"statements\":[[0,\" User Permissions \"]],\"parameters\":[]},null],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col-9\"],[7],[0,\" \"],[1,[18,\"outlet\"],false],[0,\" \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "eOImmgX1", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"header collapse d-lg-flex p-0\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"container\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row justify-content-between w-100\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col text-default\"],[7],[0,\" \"],[1,[18,\"pageTitle\"],false],[0,\" \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"showAddDatabase\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"col text-right\"],[7],[0,\"\\n\"],[4,\"link-to\",[\"settings.databases.new\"],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"btn btn-link p-0\"],[7],[0,\"\\n                        \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\" ADD NEW DATABASE \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"showAddTeam\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"col text-right\"],[7],[0,\"\\n\"],[4,\"link-to\",[\"settings.teams.new\"],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"btn btn-link p-0\"],[7],[0,\"\\n                        \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\" ADD NEW TEAM \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"showAddOrganization\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"col text-right\"],[7],[0,\"\\n\"],[4,\"link-to\",[\"settings.organizations.new\"],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"btn btn-link p-0\"],[7],[0,\"\\n                        \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\" ADD NEW ORGANIZATION \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"pt-3 px-5\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col-3\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"card\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card-body p-0\"],[7],[0,\"\\n                    \"],[4,\"link-to\",[\"settings.databases.index\"],[[\"class\"],[\"nav-item p-3 border-bottom text-default\"]],{\"statements\":[[0,\" Databases\\n\"]],\"parameters\":[]},null],[4,\"link-to\",[\"settings.users\"],[[\"class\"],[\"nav-item p-3 border-bottom text-default\"]],{\"statements\":[[0,\"                    Users \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[4,\"link-to\",[\"settings.organizations\"],[[\"class\"],[\"nav-item p-3 border-bottom text-default\"]],{\"statements\":[[0,\" Organizations\\n\"]],\"parameters\":[]},null],[0,\"                    \"],[4,\"link-to\",[\"settings.teams\"],[[\"class\"],[\"nav-item p-3 text-default border-bottom\"]],{\"statements\":[[0,\" Teams \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[4,\"link-to\",[\"settings.permissions\"],[[\"class\"],[\"nav-item p-3 border-bottom text-default\"]],{\"statements\":[[0,\" User\\n                    Permissions \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[4,\"link-to\",[\"settings.reports\"],[[\"class\"],[\"nav-item p-3 text-default border-bottom\"]],{\"statements\":[[0,\" Reports\\n                    Configuration\\n\"]],\"parameters\":[]},null],[0,\"                    \"],[4,\"link-to\",[\"settings.frontend\"],[[\"class\"],[\"nav-item p-3 text-default\"]],{\"statements\":[[0,\" Frontend Configuration\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col-9\"],[7],[0,\" \"],[1,[18,\"outlet\"],false],[0,\" \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/template.hbs" } });
 });
 define('frontend/pods/settings/users/edit/controller', ['exports', 'ember'], function (exports, _ember) {
     exports['default'] = _ember['default'].Controller.extend({
-        user: _ember['default'].computed.alias('model'),
+        user: _ember['default'].computed.alias('model.user'),
+        user_settings: _ember['default'].computed.alias('model.user_settings'),
+
+        report_limit_setting: _ember['default'].computed('user', "user_settings.isLoaded", function () {
+            return this.get('user_settings').filter(function (setting) {
+                return setting.get('name') == "MAX_DOWNLOAD_LIMIT" && setting.get('setting_type') == "general";
+            })[0];
+        }),
         permissionSets: _ember['default'].computed(function () {
             return this.store.findAll('permission-set');
         }),
@@ -10009,7 +10375,22 @@ define('frontend/pods/settings/users/edit/controller', ['exports', 'ember'], fun
             });
         }),
 
+        download_allowed_setting: _ember['default'].computed('user', "user_settings.isLoaded", function () {
+            return this.get('user_settings').filter(function (setting) {
+                return setting.get('name') == "DOWNLOAD_ALLOWED" && setting.get('setting_type') == "general";
+            })[0];
+        }),
+
         actions: {
+
+            setDownloadAllowedSetting: function setDownloadAllowedSetting() {
+                var currentValue = this.get('download_allowed_setting.value');
+                if (currentValue == 'false') {
+                    this.set('download_allowed_setting.value', "true");
+                } else {
+                    this.set('download_allowed_setting.value', "false");
+                }
+            },
 
             showChangePermissionDialogue: function showChangePermissionDialogue(user) {
                 this.set('toBeChangedUser', user);
@@ -10049,7 +10430,11 @@ define('frontend/pods/settings/users/edit/controller', ['exports', 'ember'], fun
 define('frontend/pods/settings/users/edit/route', ['exports', 'ember', 'frontend/mixins/authentication-mixin'], function (exports, _ember, _frontendMixinsAuthenticationMixin) {
     exports['default'] = _ember['default'].Route.extend(_frontendMixinsAuthenticationMixin['default'], {
         model: function model(params) {
-            return this.store.find('user', params.user_id);
+
+            return _ember['default'].RSVP.hash({
+                user: this.store.find('user', params.user_id),
+                user_settings: this.store.query('user_setting', { user_id: params.user_id })
+            });
         },
         setupController: function setupController(controller, model) {
             this._super.apply(this, arguments);
@@ -10059,7 +10444,7 @@ define('frontend/pods/settings/users/edit/route', ['exports', 'ember', 'frontend
     });
 });
 define("frontend/pods/settings/users/edit/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "XbPi7pJB", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n    \"],[6,\"form\"],[9,\"class\",\"card\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-body\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"d-flex align-items-center mt-auto\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"avatar avatar-lg mr-3\"],[10,\"style\",[26,[\"background-image: url(\",[20,[\"user\",\"profile_pic\"]],\")\"]]],[7],[8],[0,\"\\n                \"],[6,\"div\"],[7],[0,\"\\n                    \"],[6,\"h3\"],[9,\"class\",\"text-default mb-0\"],[7],[1,[25,\"or\",[[20,[\"user\",\"full_name\"]],[20,[\"user\",\"email\"]]],null],false],[8],[0,\"\\n                    \"],[6,\"small\"],[9,\"class\",\"d-block text-muted\"],[7],[4,\"if\",[[20,[\"user\",\"full_name\"]]],null,{\"statements\":[[0,\" \"],[1,[20,[\"user\",\"email\"]],false]],\"parameters\":[]},null],[8],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"ml-auto text-muted\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"tag bg-primary text-white\"],[7],[0,\"\\n                        \"],[1,[20,[\"user\",\"role\",\"name\"]],false],[0,\"\\n                        \"],[6,\"span\"],[9,\"class\",\"tag-addon text-white\"],[7],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-edit-2\"],[3,\"action\",[[19,0,[]],\"showChangePermissionDialogue\",[20,[\"user\"]]]],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-group mt-5\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Teams\"],[8],[0,\"\\n                \"],[1,[25,\"searchable-select\",null,[[\"content\",\"multiple\",\"sortBy\",\"optionLabelKey\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-change\"],[[20,[\"teams\"]],true,\"name\",\"name\",[20,[\"selectedTeams\"]],false,\"Select teams\",[25,\"action\",[[19,0,[]],\"mutTeams\"],null]]]],false],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[1,[25,\"change-user-permissions-dialogue\",null,[[\"open\",\"user\",\"permissionSets\",\"saveUserPermissions\"],[[20,[\"togglePermissionsModal\"]],[20,[\"toBeChangedUser\"]],[20,[\"permissionSets\"]],\"saveUser\"]]],false]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/users/edit/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "v85TAjeB", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n    \"],[6,\"form\"],[9,\"class\",\"card\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"d-flex align-items-center mt-auto\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"avatar avatar-lg mr-3\"],[10,\"style\",[26,[\"background-image: url(\",[20,[\"user\",\"profile_pic\"]],\")\"]]],[7],[8],[0,\"\\n                \"],[6,\"div\"],[7],[0,\"\\n                    \"],[6,\"h3\"],[9,\"class\",\"text-default mb-0\"],[7],[1,[25,\"or\",[[20,[\"user\",\"full_name\"]],[20,[\"user\",\"email\"]]],null],false],[8],[0,\"\\n                    \"],[6,\"small\"],[9,\"class\",\"d-block text-muted\"],[7],[4,\"if\",[[20,[\"user\",\"full_name\"]]],null,{\"statements\":[[0,\" \"],[1,[20,[\"user\",\"email\"]],false]],\"parameters\":[]},null],[8],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"ml-auto text-muted\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"tag bg-primary text-white\"],[7],[0,\"\\n                        \"],[1,[20,[\"user\",\"role\",\"name\"]],false],[0,\"\\n                        \"],[6,\"span\"],[9,\"class\",\"tag-addon text-white\"],[7],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-edit-2\"],[3,\"action\",[[19,0,[]],\"showChangePermissionDialogue\",[20,[\"user\"]]]],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"user\",\"organization\",\"name\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"tag tag-primary\"],[7],[0,\"\\n                        \"],[6,\"b\"],[9,\"class\",\"text-white\"],[7],[0,\"G\"],[8],[0,\"\\n                        \"],[6,\"span\"],[9,\"class\",\"tag-addon text-white\"],[7],[0,\"\\n                            \"],[1,[20,[\"user\",\"organization\",\"name\"]],false],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n\\n            \"],[6,\"div\"],[9,\"class\",\"form-group mt-5\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Teams\"],[8],[0,\"\\n                \"],[1,[25,\"searchable-select\",null,[[\"content\",\"multiple\",\"sortBy\",\"optionLabelKey\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-change\"],[[20,[\"teams\"]],true,\"name\",\"name\",[20,[\"selectedTeams\"]],false,\"Select teams\",[25,\"action\",[[19,0,[]],\"mutTeams\"],null]]]],false],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n\\n            \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                \"],[6,\"label\"],[9,\"class\",\"h5 text-default\"],[7],[0,\"Settings\"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"report_limit_setting\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                    \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Maximum Number of Rows in Exports/Reports\"],[8],[0,\"\\n                    \"],[1,[25,\"input\",null,[[\"class\",\"type\",\"name\",\"value\"],[[25,\"if\",[[20,[\"report_limit_setting\",\"errors\",\"value\"]],\"form-control is-invalid\",\"form-control\"],null],\"number\",\"first-name\",[20,[\"report_limit_setting\",\"value\"]]]]],false],[0,\"\\n\\n\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"\\n\"],[4,\"if\",[[20,[\"download_allowed_setting\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                    \"],[6,\"label\"],[9,\"class\",\"custom-switch\"],[7],[0,\"\\n                        \"],[6,\"span\"],[9,\"class\",\"custom-switch-description form-label m-0\"],[7],[0,\"Can Download Reports\"],[8],[0,\"\\n                        \"],[1,[25,\"input\",null,[[\"type\",\"change\",\"checked\",\"name\",\"class\"],[\"checkbox\",[25,\"action\",[[19,0,[]],\"setDownloadAllowedSetting\"],null],[25,\"eq\",[[20,[\"download_allowed_setting\",\"value\"]],\"true\"],null],\"custom-switch-checkbox\",\"custom-switch-input\"]]],false],[0,\"\\n                        \"],[6,\"span\"],[9,\"class\",\"custom-switch-indicator ml-4\"],[7],[8],[0,\"\\n                    \"],[8],[0,\"\\n                    \"],[6,\"small\"],[9,\"class\",\"text-muted d-block\"],[7],[0,\" Use this option to disable downloads for this\\n                        organization. This overrides the Global Value. This is overriden by User Level Value \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[1,[25,\"change-user-permissions-dialogue\",null,[[\"open\",\"user\",\"permissionSets\",\"saveUserPermissions\"],[[20,[\"togglePermissionsModal\"]],[20,[\"toBeChangedUser\"]],[20,[\"permissionSets\"]],\"saveUser\"]]],false]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/users/edit/template.hbs" } });
 });
 define('frontend/pods/settings/users/index/controller', ['exports', 'ember'], function (exports, _ember) {
     exports['default'] = _ember['default'].Controller.extend({
@@ -10105,7 +10490,7 @@ define('frontend/pods/settings/users/index/route', ['exports', 'ember'], functio
     });
 });
 define("frontend/pods/settings/users/index/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "NOIucwfW", "block": "{\"symbols\":[\"user\"],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"users\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"card mb-3\"],[7],[0,\"\\n            \"],[6,\"div\"],[10,\"class\",[26,[\"card-body p-3 \",[25,\"if\",[[19,1,[\"is_deactivated\"]],\"bg-gray-lightest\"],null]]]],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"col-6\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"d-flex align-items-center mt-auto\"],[7],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"avatar avatar-md mr-3\"],[10,\"style\",[26,[\"background-image: url(\",[19,1,[\"profile_pic\"]],\")\"]]],[7],[0,\"\\n                            \"],[8],[0,\"\\n                            \"],[6,\"div\"],[7],[0,\"\\n                                \"],[6,\"h6\"],[9,\"class\",\"text-default mb-0\"],[7],[1,[25,\"or\",[[19,1,[\"full_name\"]],[19,1,[\"email\"]]],null],false],[8],[0,\"\\n                                \"],[6,\"small\"],[9,\"class\",\"d-block text-muted\"],[7],[4,\"if\",[[19,1,[\"full_name\"]]],null,{\"statements\":[[0,\" \"],[1,[19,1,[\"email\"]],false]],\"parameters\":[]},null],[8],[0,\"\\n                            \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"col-6 text-right \"],[7],[0,\"\\n                        \"],[4,\"link-to\",[\"settings.users.edit\",[19,1,[\"id\"]]],[[\"class\"],[\"btn btn-link text-primary\"]],{\"statements\":[[0,\" EDIT \"]],\"parameters\":[]},null],[0,\"\\n\"],[4,\"if\",[[19,1,[\"is_deactivated\"]]],null,{\"statements\":[[0,\"                            \"],[6,\"button\"],[9,\"data-tooltip\",\"Activate User\"],[9,\"data-inverted\",\" \"],[9,\"class\",\"btn btn-link text-red\\n                                \"],[3,\"action\",[[19,0,[]],\"activateUser\",[19,1,[]]]],[7],[0,\" ACTIVATE \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                            \"],[6,\"button\"],[9,\"data-tooltip\",\"Deactivate User\"],[9,\"data-inverted\",\" \"],[9,\"class\",\"btn btn-link text-red\\n                                \"],[3,\"action\",[[19,0,[]],\"deactivateUser\",[19,1,[]]]],[7],[0,\" DEACTIVATE \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/users/index/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "RQkAX6NW", "block": "{\"symbols\":[\"user\"],\"statements\":[[6,\"div\"],[9,\"class\",\"pl-3 pt-0\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"users\"]]],null,{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"card mb-3\"],[7],[0,\"\\n        \"],[6,\"div\"],[10,\"class\",[26,[\"card-body p-3 \",[25,\"if\",[[19,1,[\"is_deactivated\"]],\"bg-gray-lightest\"],null]]]],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-6\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"d-flex align-items-center mt-auto\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"avatar avatar-md mr-3\"],[10,\"style\",[26,[\"background-image: url(\",[19,1,[\"profile_pic\"]],\")\"]]],[7],[0,\"\\n                        \"],[8],[0,\"\\n                        \"],[6,\"div\"],[7],[0,\"\\n                            \"],[6,\"h6\"],[9,\"class\",\"text-default mb-0\"],[7],[1,[25,\"or\",[[19,1,[\"full_name\"]],[19,1,[\"email\"]]],null],false],[8],[0,\"\\n                            \"],[6,\"small\"],[9,\"class\",\"d-block text-muted\"],[7],[4,\"if\",[[19,1,[\"full_name\"]]],null,{\"statements\":[[0,\" \"],[1,[19,1,[\"email\"]],false]],\"parameters\":[]},null],[8],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-6 text-right \"],[7],[0,\"\\n\\n\\n\"],[4,\"if\",[[19,1,[\"organization\",\"name\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"tag bg-primary\"],[7],[0,\"\\n                        \"],[6,\"b\"],[9,\"class\",\"text-white\"],[7],[0,\"G\"],[8],[0,\"\\n                        \"],[6,\"span\"],[9,\"class\",\"tag-addon text-white\"],[7],[0,\"\\n                            \"],[1,[19,1,[\"organization\",\"name\"]],false],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                    \"],[4,\"link-to\",[\"settings.users.edit\",[19,1,[\"id\"]]],[[\"class\"],[\"btn btn-link text-primary\"]],{\"statements\":[[0,\" EDIT \"]],\"parameters\":[]},null],[0,\"\\n\"],[4,\"if\",[[19,1,[\"is_deactivated\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"button\"],[9,\"data-tooltip\",\"Activate User\"],[9,\"data-inverted\",\" \"],[9,\"class\",\"btn btn-link text-red\\n                                \"],[3,\"action\",[[19,0,[]],\"activateUser\",[19,1,[]]]],[7],[0,\" ACTIVATE \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                    \"],[6,\"button\"],[9,\"data-tooltip\",\"Deactivate User\"],[9,\"data-inverted\",\" \"],[9,\"class\",\"btn btn-link text-red\\n                                \"],[3,\"action\",[[19,0,[]],\"deactivateUser\",[19,1,[]]]],[7],[0,\" DEACTIVATE \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/settings/users/index/template.hbs" } });
 });
 define("frontend/pods/tags/show/controller", ["exports", "ember", "frontend/pods/questions/all/controller"], function (exports, _ember, _frontendPodsQuestionsAllController) {
     exports["default"] = _frontendPodsQuestionsAllController["default"].extend({
@@ -10220,7 +10605,17 @@ define('frontend/router', ['exports', 'ember', 'frontend/config/environment'], f
                 this.route('new');
             });
 
-            this.route('email');
+            this.route('reports');
+            this.route('frontend');
+            this.route('organizations', function () {
+                this.route('index', {
+                    path: '/'
+                });
+                this.route('edit', {
+                    path: '/:organization_id/edit'
+                });
+                this.route('new');
+            });
             this.route('sms');
             this.route('teams', function () {
                 this.route('index', {
@@ -10656,5 +11051,5 @@ catch(err) {
 });
 
 if (!runningTests) {
-  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0+c370505f"});
+  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0+6d2e923d"});
 }

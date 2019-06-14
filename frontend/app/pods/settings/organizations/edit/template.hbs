@@ -1,0 +1,57 @@
+<div class="pl-3 pt-0">
+    <form class="card">
+        <div class="card-footer">
+            <div class="form-group">
+                <label class="form-label">Name</label>
+                {{input type="text" name="first-name" class=(if organization.errors.name "form-control is-invalid" "form-control") placeholder="What do you call it?" value=organization.name}}
+                {{#if organization.errors.name}}<div class="invalid-feedback">{{organization.errors.name.0.message}}
+                </div>{{/if}}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Domain</label>
+                {{input disabled=true class=(if organization.errors.name "form-control is-invalid" "form-control")  type="text" name="first-name" placeholder="two words about this organization?" value=organization.google_domain}}
+                {{#if organization.errors.google_domain}}<div class="invalid-feedback">
+                    {{organization.errors.google_domain.0.message}} </div>{{/if}}
+                <small class="text-muted">Users with this google domain will be able to login on Afterglow. Once they
+                    login they will be automatically assigned the organization.</small>
+            </div>
+        </div>
+        <div class="card-footer">
+
+            <div class="form-group">
+                <label class="h5 text-default">Settings</label>
+                {{#if report_limit_setting}}
+                <div class="form-group">
+                    <label class="form-label">Maximum Number of Rows in Exports/Reports</label>
+                    {{input class=(if report_limit_setting.errors.value "form-control is-invalid" "form-control")  type="number" name="first-name" value=report_limit_setting.value}}
+                    <small class="text-muted"> This limit overrides Global Limit. It can be overriden by User level.
+                        Empty means no limit.
+                    </small>
+
+
+                </div>
+                {{/if}}
+                {{#if frontend_limit_setting}}
+                <div class="form-group">
+                    <label class="form-label">Maximum Number of Rows on frontend</label>
+                    {{input class=(if report_limit_setting.errors.value "form-control is-invalid" "form-control")  type="number" name="first-name" value=frontend_limit_setting.value}}
+                    <small class="text-muted"> Limit more than 2000 is ignored. This limit overrides Global Limit for
+                        frontend.</small>
+
+                </div>
+                {{/if}}
+                {{#if download_allowed_setting}}
+                <div class="form-group">
+                    <label class="custom-switch">
+                        <span class="custom-switch-description form-label m-0">Can Download Reports</span>
+                        {{input type="checkbox"  change=(action 'setDownloadAllowedSetting') checked=(eq download_allowed_setting.value "true") name="custom-switch-checkbox" class="custom-switch-input"}}
+                        <span class="custom-switch-indicator ml-4"></span>
+                    </label>
+                    <small class="text-muted d-block"> Use this option to disable downloads for this
+                        organization. This overrides the Global Value. This is overriden by User Level Value </small>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+    </form>
+</div>

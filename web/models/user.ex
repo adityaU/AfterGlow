@@ -9,6 +9,8 @@ defmodule AfterGlow.User do
   alias AfterGlow.Teams.Team
   alias AfterGlow.UserPermissionSet
   alias AfterGlow.CacheWrapper.Repo
+  alias AfterGlow.Organizations.Organization
+  alias AfterGlow.Organizations.OrganizationsQueryFunctions, as: Organizations
 
   schema "users" do
     field(:first_name, :string)
@@ -18,6 +20,7 @@ defmodule AfterGlow.User do
     field(:profile_pic, :string)
     field(:metadata, :map)
     field(:is_deactivated, :boolean)
+    belongs_to(:organization, Organization)
 
     many_to_many(
       :permission_sets,
@@ -45,13 +48,14 @@ defmodule AfterGlow.User do
       :email,
       :metadata,
       :profile_pic,
-      :is_deactivated
+      :is_deactivated,
+      :organization_id
     ])
     |> validate_required([:email])
   end
 
   def default_preloads do
-    [permission_sets: :permissions]
+    [[permission_sets: :permissions], :organization]
   end
 
   def cache_deletable_associations do
@@ -63,6 +67,62 @@ defmodule AfterGlow.User do
   def update(changeset, permission_sets) do
     changeset = changeset |> update_permission_sets(permission_sets)
     Repo.update_with_cache(changeset)
+  end
+
+  def set_organization(user) do
+    organization =
+      Organizations.find_by_google_domain(user.email |> String.split("@") |> Enum.at(-1))
+
+    if organization do
+      changeset(user, %{organization_id: organization.id})
+      |> Repo.update_with_cache()
+    else
+      {:ok, user}
+    end
+  end
+
+  def save_or_update_user(user) do
+    saved_user = Repo.one(from(u in __MODULE__, where: u.email == ^user["email"]))
+
+    {:ok, user} =
+      if saved_user do
+        changeset =
+          __MODULE__.changeset(saved_user, %{
+            email: user["email"],
+            first_name: user["given_name"],
+            last_name: user["family_name"],
+            profile_pic: user["picture"],
+            metadata: user,
+            full_name: user["name"]
+          })
+
+        Repo.update_with_cache(changeset)
+      else
+        changeset =
+          __MODULE__.changeset(%__MODULE__{}, %{
+            email: user["email"],
+            first_name: user["given_name"],
+            last_name: user["family_name"],
+            profile_pic: user["picture"],
+            metadata: user,
+            full_name: user["name"]
+          })
+
+        {:ok, u} = Repo.insert_with_cache(changeset)
+        permission_set = Repo.one(from(ps in PermissionSet, where: ps.name == "Viewer"))
+        UserSetting.verify_general_settings(u.id)
+
+        Repo.insert_with_cache(
+          UserPermissionSet.changeset(%UserPermissionSet{}, %{
+            user_id: u.id,
+            permission_set_id: permission_set.id
+          })
+        )
+
+        {:ok, u}
+      end
+
+    set_organization(user)
   end
 
   defp update_permission_sets(changeset, permission_sets) do

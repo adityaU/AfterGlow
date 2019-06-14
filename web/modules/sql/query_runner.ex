@@ -20,11 +20,12 @@ defmodule AfterGlow.Sql.QueryRunner do
     {variables_replaced_query, query}
   end
 
-  def run_raw_query(db_record, params), do: run_raw_query(db_record, params, params[:variables])
+  def run_raw_query(db_record, params, frontend_limit),
+    do: run_raw_query(db_record, params, params[:variables], frontend_limit)
 
-  def run_raw_query(db_record, params, question_variables) do
+  def run_raw_query(db_record, params, question_variables, frontend_limit) do
     {variables_replaced_query, query} = make_final_query(db_record, params, question_variables)
-    results = DbConnection.execute(db_record |> Map.from_struct(), query)
+    results = DbConnection.execute(db_record |> Map.from_struct(), query, frontend_limit)
 
     results =
       results
@@ -38,13 +39,13 @@ defmodule AfterGlow.Sql.QueryRunner do
     {params[:raw_query], results}
   end
 
-  def run_query_from_object(db_record, params) do
+  def run_query_from_object(db_record, params, frontend_limit) do
     permit_prms = permit_params(params)
     query = DbConnection.query_string(db_record |> Map.from_struct(), permit_prms)
 
     permit_prms = permit_prms_raw_query(permit_prms, query)
 
-    {query, results} = run_raw_query(db_record, permit_prms)
+    {query, results} = run_raw_query(db_record, permit_prms, frontend_limit)
 
     results =
       unless params["table"]["sql"] do

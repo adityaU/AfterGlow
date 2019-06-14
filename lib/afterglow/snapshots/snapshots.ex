@@ -19,6 +19,7 @@ defmodule AfterGlow.Snapshots do
   alias AfterGlow.Helpers.CsvHelpers
   alias AfterGlow.Mailers.CsvMailer
   alias AfterGlow.Mailers.SnapshotMailer
+  alias AfterGlow.Settings.ApplicableSettings
   import Ecto.Query
 
   @doc """
@@ -232,6 +233,8 @@ defmodule AfterGlow.Snapshots do
     db_identifier = question.human_sql["database"]["unique_identifier"]
     db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
 
+    download_limit = ApplicableSettings.global_max_download_limit()
+
     query =
       Question.replace_variables(question.sql, question.variables, question.variables, snapshot)
 
@@ -239,6 +242,7 @@ defmodule AfterGlow.Snapshots do
       DbConnection.execute_with_stream(
         db_record |> Map.from_struct(),
         query,
+        download_limit,
         &insert_snapshot_data_in_bulk(snapshot, &1, &2)
       )
 
@@ -268,11 +272,14 @@ defmodule AfterGlow.Snapshots do
     query = Question.replace_variables(snapshot.question.sql, variables, variables, snapshot)
     params = %{raw_query: query, variables: variables}
 
+    download_limit = ApplicableSettings.global_max_download_limit()
+
     {url, data_preview} =
       CsvHelpers.fetch_and_upload_wrapper(
         db_record,
         params,
-        file_path(snapshot)
+        file_path(snapshot),
+        download_limit
       )
 
     CsvMailer.mail(snapshot.mail_to, url, csv_subject(snapshot), data_preview)

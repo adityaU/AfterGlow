@@ -4,14 +4,15 @@ defmodule AfterGlow.Helpers.CsvHelpers do
   import AfterGlow.Sql.QueryRunner, only: [make_final_query: 3]
   alias ExAws.S3
 
-  def fetch_and_upload_wrapper(db_record, params) when is_map(params) do
+  def fetch_and_upload_wrapper(db_record, params, download_limit) when is_map(params) do
     {_, query} = make_final_query(db_record, params, params[:variables])
-    fetch_and_upload(db_record, query, nil)
+    fetch_and_upload(db_record, query, nil, download_limit)
   end
 
-  def fetch_and_upload_wrapper(db_record, params, file_path) when is_map(params) do
+  def fetch_and_upload_wrapper(db_record, params, file_path, download_limit)
+      when is_map(params) do
     {_, query} = make_final_query(db_record, params, params[:variables])
-    fetch_and_upload(db_record, query, file_path)
+    fetch_and_upload(db_record, query, file_path, download_limit)
   end
 
   def save_to_file_and_upload(stream, columns) do
@@ -63,11 +64,12 @@ defmodule AfterGlow.Helpers.CsvHelpers do
     {url, data_preview}
   end
 
-  defp fetch_and_upload(db_record, query, file_path) do
+  defp fetch_and_upload(db_record, query, file_path, download_limit) do
     {:ok, {file_name, data_preview}} =
       DbConnection.execute_with_stream(
         db_record |> Map.from_struct(),
         query,
+        download_limit,
         &save_to_file_and_upload/2
       )
 

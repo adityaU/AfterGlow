@@ -1032,7 +1032,7 @@ button.toast-close-button {
 }
 
 body {
-    font-family: 'Lato', sans-serif;
+    font-family: 'Lato', sans-serif !important;
     color: $textColor !important;
     background-color: $secondaryColor;
 }
@@ -1758,4 +1758,7 @@ a:hover {
 }
 .min-width-15{
     min-width: 15%;
+}
+.form-label{
+    color: #6e7687
 }

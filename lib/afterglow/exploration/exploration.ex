@@ -7,7 +7,7 @@ defmodule AfterGlow.Explorations do
   alias AfterGlow.ForeignKey
   import AfterGlow.Sql.QueryRunner
 
-  def get_row_and_dependencies(column_id, value) do
+  def get_row_and_dependencies(column_id, value, frontend_limit) do
     column = Repo.get!(Column, column_id) |> Repo.preload(:table)
     table = column.table |> Repo.preload(:database)
     database = table.database
@@ -26,7 +26,7 @@ defmodule AfterGlow.Explorations do
       "variables" => []
     }
 
-    {_query, results} = run_query_from_object(database, params)
+    {_query, results} = run_query_from_object(database, params, frontend_limit)
     {:ok, results} = results
 
     %{
@@ -39,7 +39,14 @@ defmodule AfterGlow.Explorations do
     }
   end
 
-  def get_dependency(column_id, foreign_column_id, table_id, value, value_column_id) do
+  def get_dependency(
+        column_id,
+        foreign_column_id,
+        table_id,
+        value,
+        value_column_id,
+        frontend_limit
+      ) do
     table = Repo.get!(Table, table_id) |> Repo.preload(:database) |> Repo.preload(:columns)
     column = Repo.get!(Column, column_id) |> Repo.preload(:table)
     value_column = Repo.get!(Column, value_column_id) |> Repo.preload(:table)
@@ -56,7 +63,6 @@ defmodule AfterGlow.Explorations do
         value_column,
         Table.primary_keys(table.id)
       )
-      |> IO.inspect(label: "join_query")
 
     params = %{
       "database" => database,
@@ -64,7 +70,7 @@ defmodule AfterGlow.Explorations do
       :variables => []
     }
 
-    {_q, results} = run_raw_query(database, params)
+    {_q, results} = run_raw_query(database, params, frontend_limit)
     {:ok, results} = Table.insert_foreign_key_columns_in_results(results, table)
     %{results: results}
   end

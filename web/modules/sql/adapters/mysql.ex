@@ -127,12 +127,12 @@ WHERE
     end
   end
 
-  def execute(conn, query, options \\ %{})
+  def execute(conn, query, frontend_limit, options \\ %{})
 
-  def execute(conn, query, options) when is_map(query) do
+  def execute(conn, query, frontend_limit, options) when is_map(query) do
     {limited, exec_query} =
       QueryMaker.sql(query, :mysql)
-      |> QueryMaker.limit_rows_in_query(2000)
+      |> QueryMaker.limit_rows_in_query(frontend_limit)
 
     query = Mariaex.prepare(conn, "", exec_query, opts)
 
@@ -145,7 +145,7 @@ WHERE
            columns: results.columns,
            rows: results.rows,
            limited: limited,
-           limit: 2000,
+           limit: frontend_limit,
            limited_query: exec_query
          }}
 
@@ -154,8 +154,8 @@ WHERE
     end
   end
 
-  def execute(conn, query, options) when is_binary(query) do
-    {limited, exec_query} = query |> QueryMaker.limit_rows_in_query(2000)
+  def execute(conn, query, frontend_limit, options) when is_binary(query) do
+    {limited, exec_query} = query |> QueryMaker.limit_rows_in_query(frontend_limit)
     query = Mariaex.prepare(conn, "", exec_query, opts)
 
     case query do
@@ -167,7 +167,7 @@ WHERE
            columns: results.columns,
            rows: results.rows,
            limited: limited,
-           limit: 2000,
+           limit: frontend_limit,
            limited_query: exec_query
          }}
 

@@ -5,7 +5,7 @@ defmodule AfterGlow.Repo.Migrations.CreateQuestion do
     create table(:questions) do
       add :title, :string
       add :update_interval, :integer
-      add :last_updated, :datetime
+      add :last_updated, :utc_datetime
       add :sql, :text
       add :human_sql, :map
 

@@ -4252,6 +4252,24 @@ define('frontend/tests/models/note.jshint.lint-test', [], function () {
     assert.ok(false, 'models/note.js should pass jshint.\nmodels/note.js: line 5, col 13, \'Ember\' is not defined.\n\n1 error');
   });
 });
+define('frontend/tests/models/organization.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | models/organization.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'models/organization.js should pass jshint.\nmodels/organization.js: line 14, col 24, Missing semicolon.\nmodels/organization.js: line 15, col 17, Missing semicolon.\nmodels/organization.js: line 20, col 28, Missing semicolon.\nmodels/organization.js: line 13, col 9, \'Ember\' is not defined.\nmodels/organization.js: line 18, col 23, \'Ember\' is not defined.\n\n5 errors');
+  });
+});
+define('frontend/tests/models/organization_setting.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | models/organization_setting.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'models/organization_setting.js should pass jshint.\nmodels/organization_setting.js: line 16, col 24, Missing semicolon.\nmodels/organization_setting.js: line 17, col 17, Missing semicolon.\nmodels/organization_setting.js: line 22, col 28, Missing semicolon.\nmodels/organization_setting.js: line 15, col 9, \'Ember\' is not defined.\nmodels/organization_setting.js: line 20, col 23, \'Ember\' is not defined.\n\n5 errors');
+  });
+});
 define('frontend/tests/models/permission-set.jshint.lint-test', [], function () {
   'use strict';
 
@@ -4286,6 +4304,15 @@ define('frontend/tests/models/send-alert-config.jshint.lint-test', [], function 
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'models/send-alert-config.js should pass jshint.');
+  });
+});
+define('frontend/tests/models/setting.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | models/setting.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'models/setting.js should pass jshint.\nmodels/setting.js: line 13, col 24, Missing semicolon.\nmodels/setting.js: line 14, col 17, Missing semicolon.\nmodels/setting.js: line 19, col 28, Missing semicolon.\nmodels/setting.js: line 12, col 9, \'Ember\' is not defined.\nmodels/setting.js: line 17, col 23, \'Ember\' is not defined.\n\n5 errors');
   });
 });
 define('frontend/tests/models/snapshot-datum.jshint.lint-test', [], function () {
@@ -4340,6 +4367,15 @@ define('frontend/tests/models/user.jshint.lint-test', [], function () {
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(false, 'models/user.js should pass jshint.\nmodels/user.js: line 5, col 5, \'collectionAction\' is defined but never used.\n\n1 error');
+  });
+});
+define('frontend/tests/models/user_setting.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | models/user_setting.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'models/user_setting.js should pass jshint.\nmodels/user_setting.js: line 17, col 24, Missing semicolon.\nmodels/user_setting.js: line 18, col 17, Missing semicolon.\nmodels/user_setting.js: line 23, col 28, Missing semicolon.\nmodels/user_setting.js: line 16, col 9, \'Ember\' is not defined.\nmodels/user_setting.js: line 21, col 23, \'Ember\' is not defined.\n\n5 errors');
   });
 });
 define('frontend/tests/models/variable.jshint.lint-test', [], function () {
@@ -5692,13 +5728,76 @@ define('frontend/tests/pods/settings/databases/new/route.jshint.lint-test', [], 
     assert.ok(false, 'pods/settings/databases/new/route.js should pass jshint.\npods/settings/databases/new/route.js: line 2, col 71, Missing semicolon.\npods/settings/databases/new/route.js: line 5, col 43, \'model\' is defined but never used.\npods/settings/databases/new/route.js: line 5, col 31, \'controller\' is defined but never used.\n\n3 errors');
   });
 });
-define('frontend/tests/pods/settings/email/route.jshint.lint-test', [], function () {
+define('frontend/tests/pods/settings/frontend/controller.jshint.lint-test', [], function () {
   'use strict';
 
-  QUnit.module('JSHint | pods/settings/email/route.js');
+  QUnit.module('JSHint | pods/settings/frontend/controller.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'pods/settings/email/route.js should pass jshint.\npods/settings/email/route.js: line 4, col 43, \'model\' is defined but never used.\npods/settings/email/route.js: line 4, col 31, \'controller\' is defined but never used.\n\n2 errors');
+    assert.ok(false, 'pods/settings/frontend/controller.js should pass jshint.\npods/settings/frontend/controller.js: line 8, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/frontend/controller.js: line 8, col 65, Missing semicolon.\npods/settings/frontend/controller.js: line 9, col 14, Missing semicolon.\npods/settings/frontend/controller.js: line 2, col 16, \'Ember\' is not defined.\npods/settings/frontend/controller.js: line 3, col 15, \'Ember\' is not defined.\npods/settings/frontend/controller.js: line 6, col 29, \'Ember\' is not defined.\n\n6 errors');
+  });
+});
+define('frontend/tests/pods/settings/frontend/route.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | pods/settings/frontend/route.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'pods/settings/frontend/route.js should pass jshint.\npods/settings/frontend/route.js: line 5, col 45, Missing semicolon.\npods/settings/frontend/route.js: line 7, col 44, \'model\' is defined but never used.\npods/settings/frontend/route.js: line 7, col 32, \'controller\' is defined but never used.\n\n3 errors');
+  });
+});
+define('frontend/tests/pods/settings/organizations/edit/controller.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | pods/settings/organizations/edit/controller.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'pods/settings/organizations/edit/controller.js should pass jshint.\npods/settings/organizations/edit/controller.js: line 9, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/organizations/edit/controller.js: line 9, col 98, Expected \'===\' and instead saw \'==\'.\npods/settings/organizations/edit/controller.js: line 9, col 109, Missing semicolon.\npods/settings/organizations/edit/controller.js: line 10, col 14, Missing semicolon.\npods/settings/organizations/edit/controller.js: line 15, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/organizations/edit/controller.js: line 15, col 98, Expected \'===\' and instead saw \'==\'.\npods/settings/organizations/edit/controller.js: line 15, col 109, Missing semicolon.\npods/settings/organizations/edit/controller.js: line 16, col 14, Missing semicolon.\npods/settings/organizations/edit/controller.js: line 21, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/organizations/edit/controller.js: line 21, col 96, Expected \'===\' and instead saw \'==\'.\npods/settings/organizations/edit/controller.js: line 21, col 107, Missing semicolon.\npods/settings/organizations/edit/controller.js: line 22, col 14, Missing semicolon.\npods/settings/organizations/edit/controller.js: line 27, col 74, Missing semicolon.\npods/settings/organizations/edit/controller.js: line 28, col 32, Expected \'===\' and instead saw \'==\'.\npods/settings/organizations/edit/controller.js: line 29, col 67, Missing semicolon.\npods/settings/organizations/edit/controller.js: line 31, col 68, Missing semicolon.\n\n16 errors');
+  });
+});
+define('frontend/tests/pods/settings/organizations/edit/route.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | pods/settings/organizations/edit/route.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'pods/settings/organizations/edit/route.js should pass jshint.\npods/settings/organizations/edit/route.js: line 9, col 11, Missing semicolon.\npods/settings/organizations/edit/route.js: line 11, col 44, \'model\' is defined but never used.\npods/settings/organizations/edit/route.js: line 11, col 32, \'controller\' is defined but never used.\n\n3 errors');
+  });
+});
+define('frontend/tests/pods/settings/organizations/index/controller.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | pods/settings/organizations/index/controller.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'pods/settings/organizations/index/controller.js should pass jshint.\npods/settings/organizations/index/controller.js: line 14, col 44, Missing semicolon.\npods/settings/organizations/index/controller.js: line 15, col 23, Missing semicolon.\npods/settings/organizations/index/controller.js: line 19, col 45, Missing semicolon.\npods/settings/organizations/index/controller.js: line 20, col 23, Missing semicolon.\n\n4 errors');
+  });
+});
+define('frontend/tests/pods/settings/organizations/index/route.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | pods/settings/organizations/index/route.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'pods/settings/organizations/index/route.js should pass jshint.\npods/settings/organizations/index/route.js: line 2, col 71, Missing semicolon.\npods/settings/organizations/index/route.js: line 6, col 50, Missing semicolon.\npods/settings/organizations/index/route.js: line 9, col 44, \'model\' is defined but never used.\npods/settings/organizations/index/route.js: line 9, col 32, \'controller\' is defined but never used.\n\n4 errors');
+  });
+});
+define('frontend/tests/pods/settings/organizations/new/controller.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | pods/settings/organizations/new/controller.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'pods/settings/organizations/new/controller.js should pass jshint.\npods/settings/organizations/new/controller.js: line 5, col 59, Missing semicolon.\npods/settings/organizations/new/controller.js: line 14, col 15, Missing semicolon.\n\n2 errors');
+  });
+});
+define('frontend/tests/pods/settings/organizations/new/route.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | pods/settings/organizations/new/route.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'pods/settings/organizations/new/route.js should pass jshint.\npods/settings/organizations/new/route.js: line 2, col 71, Missing semicolon.\npods/settings/organizations/new/route.js: line 5, col 44, \'model\' is defined but never used.\npods/settings/organizations/new/route.js: line 5, col 32, \'controller\' is defined but never used.\npods/settings/organizations/new/route.js: line 12, col 67, Missing semicolon.\npods/settings/organizations/new/route.js: line 14, col 37, Missing semicolon.\npods/settings/organizations/new/route.js: line 11, col 24, \'transition\' is defined but never used.\npods/settings/organizations/new/route.js: line 14, col 17, \'team\' is not defined.\n\n7 errors');
   });
 });
 define('frontend/tests/pods/settings/permissions/controller.jshint.lint-test', [], function () {
@@ -5717,6 +5816,24 @@ define('frontend/tests/pods/settings/permissions/route.jshint.lint-test', [], fu
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(false, 'pods/settings/permissions/route.js should pass jshint.\npods/settings/permissions/route.js: line 5, col 52, Missing semicolon.\npods/settings/permissions/route.js: line 7, col 43, \'model\' is defined but never used.\npods/settings/permissions/route.js: line 7, col 31, \'controller\' is defined but never used.\n\n3 errors');
+  });
+});
+define('frontend/tests/pods/settings/reports/controller.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | pods/settings/reports/controller.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'pods/settings/reports/controller.js should pass jshint.\npods/settings/reports/controller.js: line 7, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/reports/controller.js: line 7, col 65, Missing semicolon.\npods/settings/reports/controller.js: line 8, col 14, Missing semicolon.\npods/settings/reports/controller.js: line 13, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/reports/controller.js: line 13, col 62, Missing semicolon.\npods/settings/reports/controller.js: line 14, col 14, Missing semicolon.\npods/settings/reports/controller.js: line 19, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/reports/controller.js: line 19, col 69, Missing semicolon.\npods/settings/reports/controller.js: line 20, col 14, Missing semicolon.\npods/settings/reports/controller.js: line 25, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/reports/controller.js: line 25, col 59, Missing semicolon.\npods/settings/reports/controller.js: line 26, col 14, Missing semicolon.\npods/settings/reports/controller.js: line 30, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/reports/controller.js: line 30, col 57, Missing semicolon.\npods/settings/reports/controller.js: line 31, col 14, Missing semicolon.\npods/settings/reports/controller.js: line 36, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/reports/controller.js: line 36, col 61, Missing semicolon.\npods/settings/reports/controller.js: line 37, col 14, Missing semicolon.\npods/settings/reports/controller.js: line 42, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/reports/controller.js: line 42, col 61, Missing semicolon.\npods/settings/reports/controller.js: line 43, col 14, Missing semicolon.\npods/settings/reports/controller.js: line 47, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/reports/controller.js: line 47, col 64, Missing semicolon.\npods/settings/reports/controller.js: line 48, col 14, Missing semicolon.\npods/settings/reports/controller.js: line 53, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/reports/controller.js: line 53, col 68, Missing semicolon.\npods/settings/reports/controller.js: line 54, col 14, Missing semicolon.\npods/settings/reports/controller.js: line 59, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/reports/controller.js: line 59, col 56, Missing semicolon.\npods/settings/reports/controller.js: line 60, col 14, Missing semicolon.\npods/settings/reports/controller.js: line 64, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/reports/controller.js: line 64, col 57, Missing semicolon.\npods/settings/reports/controller.js: line 65, col 14, Missing semicolon.\npods/settings/reports/controller.js: line 70, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/reports/controller.js: line 70, col 65, Missing semicolon.\npods/settings/reports/controller.js: line 71, col 14, Missing semicolon.\npods/settings/reports/controller.js: line 76, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/reports/controller.js: line 76, col 63, Missing semicolon.\npods/settings/reports/controller.js: line 77, col 14, Missing semicolon.\npods/settings/reports/controller.js: line 82, col 74, Missing semicolon.\npods/settings/reports/controller.js: line 83, col 32, Expected \'===\' and instead saw \'==\'.\npods/settings/reports/controller.js: line 84, col 67, Missing semicolon.\npods/settings/reports/controller.js: line 86, col 68, Missing semicolon.\npods/settings/reports/controller.js: line 2, col 16, \'Ember\' is not defined.\npods/settings/reports/controller.js: line 3, col 15, \'Ember\' is not defined.\npods/settings/reports/controller.js: line 5, col 27, \'Ember\' is not defined.\npods/settings/reports/controller.js: line 11, col 30, \'Ember\' is not defined.\npods/settings/reports/controller.js: line 17, col 36, \'Ember\' is not defined.\npods/settings/reports/controller.js: line 23, col 27, \'Ember\' is not defined.\npods/settings/reports/controller.js: line 28, col 25, \'Ember\' is not defined.\npods/settings/reports/controller.js: line 28, col 25, Too many errors. (30% scanned).\n\n51 errors');
+  });
+});
+define('frontend/tests/pods/settings/reports/route.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | pods/settings/reports/route.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'pods/settings/reports/route.js should pass jshint.\npods/settings/reports/route.js: line 5, col 45, Missing semicolon.\npods/settings/reports/route.js: line 7, col 44, \'model\' is defined but never used.\npods/settings/reports/route.js: line 7, col 32, \'controller\' is defined but never used.\n\n3 errors');
   });
 });
 define('frontend/tests/pods/settings/route.jshint.lint-test', [], function () {
@@ -5797,7 +5914,7 @@ define('frontend/tests/pods/settings/users/edit/controller.jshint.lint-test', []
   QUnit.module('JSHint | pods/settings/users/edit/controller.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'pods/settings/users/edit/controller.js should pass jshint.\npods/settings/users/edit/controller.js: line 25, col 31, \'user\' is defined but never used.\n\n1 error');
+    assert.ok(false, 'pods/settings/users/edit/controller.js should pass jshint.\npods/settings/users/edit/controller.js: line 9, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/users/edit/controller.js: line 9, col 98, Expected \'===\' and instead saw \'==\'.\npods/settings/users/edit/controller.js: line 9, col 109, Missing semicolon.\npods/settings/users/edit/controller.js: line 10, col 14, Missing semicolon.\npods/settings/users/edit/controller.js: line 26, col 43, Expected \'===\' and instead saw \'==\'.\npods/settings/users/edit/controller.js: line 26, col 96, Expected \'===\' and instead saw \'==\'.\npods/settings/users/edit/controller.js: line 26, col 107, Missing semicolon.\npods/settings/users/edit/controller.js: line 27, col 14, Missing semicolon.\npods/settings/users/edit/controller.js: line 33, col 74, Missing semicolon.\npods/settings/users/edit/controller.js: line 34, col 32, Expected \'===\' and instead saw \'==\'.\npods/settings/users/edit/controller.js: line 35, col 67, Missing semicolon.\npods/settings/users/edit/controller.js: line 37, col 68, Missing semicolon.\npods/settings/users/edit/controller.js: line 46, col 31, \'user\' is defined but never used.\n\n13 errors');
   });
 });
 define('frontend/tests/pods/settings/users/edit/route.jshint.lint-test', [], function () {
@@ -5806,7 +5923,7 @@ define('frontend/tests/pods/settings/users/edit/route.jshint.lint-test', [], fun
   QUnit.module('JSHint | pods/settings/users/edit/route.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'pods/settings/users/edit/route.js should pass jshint.\npods/settings/users/edit/route.js: line 8, col 44, \'model\' is defined but never used.\npods/settings/users/edit/route.js: line 8, col 32, \'controller\' is defined but never used.\n\n2 errors');
+    assert.ok(false, 'pods/settings/users/edit/route.js should pass jshint.\npods/settings/users/edit/route.js: line 10, col 11, Missing semicolon.\npods/settings/users/edit/route.js: line 12, col 44, \'model\' is defined but never used.\npods/settings/users/edit/route.js: line 12, col 32, \'controller\' is defined but never used.\n\n3 errors');
   });
 });
 define('frontend/tests/pods/settings/users/index/controller.jshint.lint-test', [], function () {

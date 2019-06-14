@@ -7,11 +7,17 @@ defmodule AfterGlow.DataFilesController do
   alias AfterGlow.Snapshots
 
   alias AfterGlow.Plugs.Authorization
+  alias AfterGlow.Settings.ApplicableSettings
   import AfterGlow.Sql.QueryRunner, only: [permit_params: 1, permit_prms_raw_query: 2]
   plug(Authorization)
 
   def fetch_and_upload(conn, %{"snapshot_id" => id}) do
-    Snapshots.fetch_and_upload_for_snapshot(id, conn.assigns.current_user.email)
+    Snapshots.fetch_and_upload_for_snapshot(
+      id,
+      conn.assigns.current_user.email,
+      download_limit(conn.assigns.current_user)
+    )
+
     json(conn, %{success: true})
   end
 
@@ -24,17 +30,23 @@ defmodule AfterGlow.DataFilesController do
         Async.perform(&CsvTasks.qb_fetch_and_upload/3, [
           db_record,
           permit_params(params),
-          conn.assigns.current_user.email
+          conn.assigns.current_user.email,
+          download_limit(conn.assigns.current_user)
         ])
 
       "raw" ->
         Async.perform(&CsvTasks.raw_fetch_and_upload/3, [
           db_record,
           params |> permit_params |> permit_prms_raw_query(params["rawQuery"]),
-          conn.assigns.current_user.email
+          conn.assigns.current_user.email,
+          download_limit(conn.assigns.current_user)
         ])
     end
 
     json(conn, %{success: true})
+  end
+
+  defp download_limit(user) do
+    ApplicableSettings.max_download_limit(user)
   end
 end

@@ -111,24 +111,40 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/, 
     end
   end
 
-  def execute(conn, query, options \\ %{})
+  def execute(conn, query, frontend_limit, options \\ %{})
 
-  def execute(conn, query, _options) when is_map(query) do
+  def execute(conn, query, frontend_limit, _options) when is_map(query) do
     {limited, exec_query} =
       sql(query, :postgres)
-      |> limit_rows_in_query(2000)
+      |> limit_rows_in_query(frontend_limit)
+      |> IO.inspect(label: "query")
 
-    run_query(conn, query, exec_query, limited)
+    run_query(conn, query, exec_query, limited, frontend_limit)
   end
 
-  def execute(conn, query, options) when is_binary(query) do
-    {limited, exec_query} = query |> limit_rows_in_query(2000)
-    run_query(conn, query, exec_query, limited)
+  def execute(conn, query, frontend_limit, options) when is_binary(query) do
+    {limited, exec_query} =
+      query
+      |> limit_rows_in_query(frontend_limit)
+
+    run_query(conn, query, exec_query, limited, frontend_limit)
   end
 
-  def execute_with_stream(pid, query, mapper_fn, options \\ %{})
+  def execute_with_stream(pid, query, download_limit, mapper_fn, options \\ %{})
 
-  def execute_with_stream(pid, query, mapper_fn, _options) when is_binary(query) do
+  def execute_with_stream(pid, query, download_limit, mapper_fn, _options)
+      when is_binary(query) do
+    query =
+      if download_limit do
+        {_limited, query} =
+          query
+          |> limit_rows_in_query(download_limit)
+
+        query
+      else
+        query
+      end
+
     Postgrex.transaction(
       pid,
       fn conn ->
@@ -145,7 +161,7 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/, 
     )
   end
 
-  defp run_query(conn, _query, exec_query, limited) do
+  defp run_query(conn, _query, exec_query, limited, frontend_limit) do
     try do
       query = Postgrex.prepare(conn, "", exec_query, opts)
 
@@ -158,7 +174,7 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/, 
              columns: results.columns,
              rows: results.rows,
              limited: limited,
-             limit: 2000,
+             limit: frontend_limit,
              limited_query: exec_query
            }}
 

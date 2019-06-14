@@ -70,7 +70,17 @@ Router.map(function () {
             this.route('new');
         });
 
-        this.route('email');
+        this.route('reports');
+        this.route('frontend');
+        this.route('organizations', function () {
+            this.route('index', {
+                path: '/'
+            });
+            this.route('edit', {
+                path: '/:organization_id/edit'
+            });
+            this.route('new');
+        });
         this.route('sms');
         this.route('teams', function () {
             this.route('index', {

@@ -42,17 +42,23 @@ defmodule AfterGlow.Sql.DbConnection do
     )
   end
 
-  def execute(db_record, query_record) do
+  def execute(db_record, query_record, frontend_limit) do
     {:ok, conn} = connection(db_record)
-    @adapter_modules[db_record[:db_type] |> String.to_atom()].execute(conn, query_record)
+
+    @adapter_modules[db_record[:db_type] |> String.to_atom()].execute(
+      conn,
+      query_record,
+      frontend_limit
+    )
   end
 
-  def execute_with_stream(db_record, query_record, mapper_fn) do
+  def execute_with_stream(db_record, query_record, download_limit, mapper_fn) do
     {:ok, conn} = connection(db_record)
 
     @adapter_modules[db_record[:db_type] |> String.to_atom()].execute_with_stream(
       conn,
       query_record,
+      download_limit,
       mapper_fn
     )
   end

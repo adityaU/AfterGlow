@@ -5,7 +5,7 @@ defmodule AfterGlow.Repo.Migrations.CreateDashboard do
     create table(:dashboards) do
       add :title, :string
       add :update_interval, :integer
-      add :last_updated, :datetime
+      add :last_updated, :utc_datetime
       timestamps()
     end
 

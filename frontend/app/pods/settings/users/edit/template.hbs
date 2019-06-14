@@ -1,6 +1,6 @@
 <div class="pl-3 pt-0">
     <form class="card">
-        <div class="card-body">
+        <div class="card-footer">
             <div class="d-flex align-items-center mt-auto">
                 <div class="avatar avatar-lg mr-3" style="background-image: url({{user.profile_pic}})"></div>
                 <div>
@@ -14,8 +14,19 @@
                             <i class="fe fe-edit-2" {{action 'showChangePermissionDialogue' user}}></i>
                         </span>
                     </div>
+                    {{#if user.organization.name}}
+                    <div class="tag tag-primary">
+                        <b class="text-white">G</b>
+                        <span class="tag-addon text-white">
+                            {{user.organization.name}}
+                        </span>
+                    </div>
+                    {{/if}}
                 </div>
             </div>
+        </div>
+        <div class="card-footer">
+
             <div class="form-group mt-5">
                 <label class="form-label">Teams</label>
                 {{searchable-select content=teams
@@ -28,6 +39,33 @@
             on-change=(action 'mutTeams')}}
             </div>
         </div>
+        <div class="card-footer">
+
+            <div class="form-group">
+                <label class="h5 text-default">Settings</label>
+                {{#if report_limit_setting}}
+                <div class="form-group">
+                    <label class="form-label">Maximum Number of Rows in Exports/Reports</label>
+                    {{input class=(if report_limit_setting.errors.value "form-control is-invalid" "form-control")  type="number" name="first-name" value=report_limit_setting.value}}
+
+
+                </div>
+                {{/if}}
+
+                {{#if download_allowed_setting}}
+                <div class="form-group">
+                    <label class="custom-switch">
+                        <span class="custom-switch-description form-label m-0">Can Download Reports</span>
+                        {{input type="checkbox"  change=(action 'setDownloadAllowedSetting') checked=(eq download_allowed_setting.value "true") name="custom-switch-checkbox" class="custom-switch-input"}}
+                        <span class="custom-switch-indicator ml-4"></span>
+                    </label>
+                    <small class="text-muted d-block"> Use this option to disable downloads for this
+                        organization. This overrides the Global Value. This is overriden by User Level Value </small>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+
     </form>
 </div>
 {{change-user-permissions-dialogue open=togglePermissionsModal user=toBeChangedUser permissionSets=permissionSets saveUserPermissions='saveUser'}}

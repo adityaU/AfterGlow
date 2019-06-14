@@ -5,8 +5,10 @@ defmodule AfterGlow.Utils.Controllers.Crud do
 
       alias JaSerializer.Params
 
+      action_fallback(AfterGlow.Web.FallbackController)
+
       def index(conn, params) do
-        results = @query_functions.list(params)
+        {:ok, results} = @query_functions.list(params)
 
         render(conn, "index.json", %{(@model_type |> String.to_atom()) => results})
       end
@@ -18,7 +20,7 @@ defmodule AfterGlow.Utils.Controllers.Crud do
       # end
 
       def show(conn, %{"id" => id}) do
-        result = @query_functions.get(id)
+        {:ok, result} = @query_functions.get(id)
 
         render(conn, "show.json", %{
           (@model_type |> Inflex.singularize() |> String.to_atom()) => result
@@ -28,7 +30,7 @@ defmodule AfterGlow.Utils.Controllers.Crud do
       def create(conn, %{"data" => data = %{"type" => @model_type, "attributes" => _teams_params}}) do
         prms = Params.to_attributes(data)
 
-        with %@model{} = result <-
+        with {:ok, %@model{} = result} <-
                @query_functions.create(prms) |> IO.inspect(label: "create") do
           conn
           |> put_status(:created)
@@ -46,7 +48,7 @@ defmodule AfterGlow.Utils.Controllers.Crud do
           }) do
         prms = Params.to_attributes(data)
 
-        with %@model{} = result <- @query_functions.update(id, prms) do
+        with {:ok, %@model{} = result} <- @query_functions.update(id, prms) do
           conn
           |> render("show.json", %{
             (@model_type |> Inflex.singularize() |> String.to_atom()) => result

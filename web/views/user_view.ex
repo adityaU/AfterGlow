@@ -10,7 +10,8 @@ defmodule AfterGlow.UserView do
     :email,
     :metadata,
     :profile_pic,
-    :is_deactivated
+    :is_deactivated,
+    :organization_id
   ])
 
   has_many(
@@ -24,5 +25,11 @@ defmodule AfterGlow.UserView do
     field: :teams,
     type: "team",
     serializer: TeamStrippedView
+  )
+
+  has_one(
+    :organization,
+    field: :organization_id,
+    type: "organizations"
   )
 end

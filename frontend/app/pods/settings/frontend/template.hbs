@@ -1,0 +1,16 @@
+<div class="card ml-3">
+    <div class="card-footer">
+
+        <div class="form-group">
+            {{#if frontend_limit_setting}}
+            <div class="form-group">
+                <label class="form-label">Maximum Number of Rows on frontend</label>
+                {{input class=(if report_limit_setting.errors.value "form-control is-invalid" "form-control")  type="number" name="first-name" value=frontend_limit_setting.value}}
+                <small class="text-muted"> Limit more than 2000 is ignored. This limit overrides Global Limit for
+                    frontend.</small>
+
+            </div>
+            {{/if}}
+        </div>
+    </div>
+</div>

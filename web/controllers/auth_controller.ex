@@ -47,7 +47,7 @@ defmodule AfterGlow.AuthController do
 
     case user |> validate_email do
       true ->
-        {:ok, user} = save_or_update_user(user)
+        {:ok, user} = User.save_or_update_user(user)
         auth_token = create_jwt(user)
         perm = user |> Repo.preload(permission_sets: :permissions) |> permissions
 
@@ -98,46 +98,6 @@ defmodule AfterGlow.AuthController do
 
   defp get_token!(_, _) do
     raise "No matching provider available"
-  end
-
-  defp save_or_update_user(user) do
-    saved_user = Repo.one(from(u in User, where: u.email == ^user["email"]))
-
-    if saved_user do
-      changeset =
-        User.changeset(saved_user, %{
-          email: user["email"],
-          first_name: user["given_name"],
-          last_name: user["family_name"],
-          profile_pic: user["picture"],
-          metadata: user,
-          full_name: user["name"]
-        })
-
-      Repo.update_with_cache(changeset)
-    else
-      changeset =
-        User.changeset(%User{}, %{
-          email: user["email"],
-          first_name: user["given_name"],
-          last_name: user["family_name"],
-          profile_pic: user["picture"],
-          metadata: user,
-          full_name: user["name"]
-        })
-
-      {:ok, u} = Repo.insert_with_cache(changeset)
-      permission_set = Repo.one(from(ps in PermissionSet, where: ps.name == "Viewer"))
-
-      Repo.insert_with_cache(
-        UserPermissionSet.changeset(%UserPermissionSet{}, %{
-          user_id: u.id,
-          permission_set_id: permission_set.id
-        })
-      )
-
-      {:ok, u}
-    end
   end
 
   defp get_user!("google", token) do

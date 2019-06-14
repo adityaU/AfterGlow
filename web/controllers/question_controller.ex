@@ -246,6 +246,7 @@ defmodule AfterGlow.QuestionController do
       |> Repo.one()
       |> Repo.preload(:variables)
 
+    frontend_limit = ApplicableSettings.max_download_limit(conn.assigns.current_user)
     db_identifier = question.human_sql["database"]["unique_identifier"]
     db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
 
@@ -257,7 +258,7 @@ defmodule AfterGlow.QuestionController do
         question.sql
       )
 
-    {_query, results} = run_raw_query(db_record, params, question.variables)
+    {_query, results} = run_raw_query(db_record, params, question.variables, frontend_limit)
 
     case results do
       {:ok, results} ->

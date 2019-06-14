@@ -112,19 +112,35 @@ WHERE constraint_type = 'FOREIGN KEY'/, [], opts())
     WHERE #{value_column.table.name}.\"#{value_column.name}\" = '#{value}'"
   end
 
-  def execute(conn, query, options \\ %{})
+  def execute(conn, query, frontned_limit, options \\ %{})
 
-  def execute(conn, query, options) when is_map(query) do
+  def execute(conn, query, frontend_limit, options) when is_map(query) do
     {limited, exec_query} =
       QueryMaker.sql(query, :postgres)
-      |> QueryMaker.limit_rows_in_query(2000)
+      |> QueryMaker.limit_rows_in_query(frontend_limit)
 
-    run_query(conn, query, exec_query, limited)
+    run_query(conn, query, exec_query, limited, frontend_limit)
   end
 
-  def execute_with_stream(pid, query, mapper_fn, options \\ %{})
+  def execute(conn, query, frontend_limit, options) when is_binary(query) do
+    {limited, exec_query} = query |> QueryMaker.limit_rows_in_query(2000)
+    run_query(conn, query, exec_query, limited, frontend_limit)
+  end
 
-  def execute_with_stream(pid, query, mapper_fn, options) when is_binary(query) do
+  def execute_with_stream(pid, query, download_limit, mapper_fn, options \\ %{})
+
+  def execute_with_stream(pid, query, download_limit, mapper_fn, options) when is_binary(query) do
+    query =
+      if download_limit do
+        {_limited, query} =
+          query
+          |> QueryMaker.limit_rows_in_query(download_limit)
+
+        query
+      else
+        query
+      end
+
     Postgrex.transaction(
       pid,
       fn conn ->
@@ -141,12 +157,7 @@ WHERE constraint_type = 'FOREIGN KEY'/, [], opts())
     )
   end
 
-  def execute(conn, query, options) when is_binary(query) do
-    {limited, exec_query} = query |> QueryMaker.limit_rows_in_query(2000)
-    run_query(conn, query, exec_query, limited)
-  end
-
-  defp run_query(conn, query, exec_query, limited) do
+  defp run_query(conn, query, exec_query, limited, frontend_limit) do
     try do
       query = Postgrex.prepare(conn, "", exec_query, opts)
 
@@ -159,7 +170,7 @@ WHERE constraint_type = 'FOREIGN KEY'/, [], opts())
              columns: results.columns,
              rows: results.rows,
              limited: limited,
-             limit: 2000,
+             limit: frontend_limit,
              limited_query: exec_query
            }}
 

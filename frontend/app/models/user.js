@@ -15,6 +15,7 @@ export default DS.Model.extend({
     is_deactivated: DS.attr('boolean'),
     permission_sets: DS.hasMany('permission_sets'),
     teams: DS.hasMany('teams'),
+    organization: DS.belongsTo('organization'),
 
     role: Ember.computed('permission_sets', function () {
         return this.get('permission_sets') && this.get('permission_sets').objectAt(0);

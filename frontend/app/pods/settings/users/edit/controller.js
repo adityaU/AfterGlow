@@ -1,7 +1,14 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
-    user: Ember.computed.alias('model'),
+    user: Ember.computed.alias('model.user'),
+    user_settings: Ember.computed.alias('model.user_settings'),
+
+    report_limit_setting: Ember.computed('user', "user_settings.isLoaded", function () {
+        return this.get('user_settings').filter((setting) => {
+            return (setting.get('name') == "MAX_DOWNLOAD_LIMIT" && setting.get('setting_type') == "general")
+        })[0]
+    }),
     permissionSets: Ember.computed(function () {
         return this.store.findAll('permission-set');
     }),
@@ -14,15 +21,29 @@ export default Ember.Controller.extend({
         });
     }),
 
+    download_allowed_setting: Ember.computed('user', "user_settings.isLoaded", function () {
+        return this.get('user_settings').filter((setting) => {
+            return (setting.get('name') == "DOWNLOAD_ALLOWED" && setting.get('setting_type') == "general")
+        })[0]
+    }),
 
     actions: {
+
+        setDownloadAllowedSetting() {
+            let currentValue = this.get('download_allowed_setting.value')
+            if (currentValue == 'false') {
+                this.set('download_allowed_setting.value', "true")
+            } else {
+                this.set('download_allowed_setting.value', "false")
+            }
+        },
 
         showChangePermissionDialogue(user) {
             this.set('toBeChangedUser', user);
             this.set('togglePermissionsModal', true);
         },
         saveUser(user) {
-            user.save().then((user) => {});
+            user.save().then((user) => { });
         },
         mutTeams(teams) {
             let alreadyAddedTeamIDs = this.get('user.teams').map((team) => {
