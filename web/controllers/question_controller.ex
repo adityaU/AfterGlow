@@ -12,6 +12,7 @@ defmodule AfterGlow.QuestionController do
   alias AfterGlow.CacheWrapper
   alias AfterGlow.CacheWrapper.Repo
   import AfterGlow.Sql.QueryRunner
+  alias AfterGlow.Settings.ApplicableSettings
   alias AfterGlow.Snapshots.Snapshot
 
   import Ecto.Query
@@ -246,7 +247,7 @@ defmodule AfterGlow.QuestionController do
       |> Repo.one()
       |> Repo.preload(:variables)
 
-    frontend_limit = ApplicableSettings.max_download_limit(conn.assigns.current_user)
+    frontend_limit = ApplicableSettings.max_frontend_limit(conn.assigns.current_user)
     db_identifier = question.human_sql["database"]["unique_identifier"]
     db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
 

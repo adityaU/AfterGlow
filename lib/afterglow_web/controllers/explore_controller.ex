@@ -8,7 +8,7 @@ defmodule AfterGlow.ExploreController do
   action_fallback(AfterGlow.Web.FallbackController)
 
   def get_row_view(conn, %{"column_id" => column_id, "value" => value}) do
-    frontend_limit = ApplicableSettings.max_download_limit(conn.assigns.current_user)
+    frontend_limit = ApplicableSettings.max_frontend_limit(conn.assigns.current_user)
 
     conn
     |> json(Explorations.get_row_and_dependencies(column_id, value, frontend_limit))
@@ -21,7 +21,7 @@ defmodule AfterGlow.ExploreController do
         "foreign_column_id" => foreign_column_id,
         "value_column_id" => value_column_id
       }) do
-    frontend_limit = ApplicableSettings.max_download_limit(conn.assigns.current_user)
+    frontend_limit = ApplicableSettings.max_frontend_limit(conn.assigns.current_user)
 
     conn
     |> json(

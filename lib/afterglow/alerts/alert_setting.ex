@@ -74,7 +74,6 @@ defmodule AfterGlow.Alerts.AlertSetting do
   end
 
   def changeset(%__MODULE__{} = struct, attrs) do
-    attrs |> IO.inspect(label: "alert attrs")
 
     struct
     |> Changeset.cast(attrs, @cast_params)

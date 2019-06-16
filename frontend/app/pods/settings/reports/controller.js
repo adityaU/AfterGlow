@@ -16,7 +16,7 @@ export default Ember.Controller.extend({
 
     email_server_hostname_setting: Ember.computed("settings.isLoaded", function () {
         return this.get('settings').filter((setting) => {
-            return (setting.get('name') == "EMAIL_SERVER_HOST_NAME")
+            return (setting.get('name') == "EMAIL_SERVER_HOSTNAME")
         })[0]
     }),
 

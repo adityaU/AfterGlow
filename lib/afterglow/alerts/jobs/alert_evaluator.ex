@@ -34,7 +34,7 @@ defmodule AfterGlow.Alerts.Jobs.AlertEvaluator do
     rows
     |> find_column_value(value_index)
     |> traverse_rows(
-      alert_setting.traversal |> IO.inspect(label: "traversal"),
+      alert_setting.traversal,
       alert_setting.number_of_rows
     )
     |> calculate_aggregation(alert_setting.aggregation)
@@ -54,8 +54,6 @@ defmodule AfterGlow.Alerts.Jobs.AlertEvaluator do
   defp find_column_value(stream, nil), do: []
 
   defp find_column_value(stream, value_index) do
-    IO.inspect(value_index, label: "value_index")
-
     stream
     |> Stream.map(fn chunk ->
       chunk

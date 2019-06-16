@@ -1,7 +1,7 @@
 {{#if canShowTableWidget}}
 <div class="card-footer row">
     <div class="col-11">
-        {{#if queryObject.table.name}}
+        {{#if (or queryObject.table.name queryObject.table.title)}}
         <span class="tag border text-primary border-primary  bg-white">
             {{#if queryObject.fromQuestion}}Question: {{else}}Table: {{/if}}
             <div class="tag-addon text-white border-primary bg-primary">
@@ -46,6 +46,7 @@
       selected=queryObject.table
       on-search=(action "updateQuestionSearch")
       on-change=(action (mut queryObject.table))}}
+
             {{else}}{{searchable-select
       content=tables
       sortBy="human_name"
@@ -53,6 +54,8 @@
       selected=queryObject.table
       optionLabelKey="human_name"
       on-change=(action (mut queryObject.table))}}
+            <small class="text-muted"> If a question is already shared with you and you want to build your query
+                on that question, change source to question by clicking <i class="fe fe-toggle-right"></i></small>
             {{/if}}
         </div>
         {{/dd.menu}}

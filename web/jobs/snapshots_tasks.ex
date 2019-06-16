@@ -12,39 +12,44 @@ defmodule AfterGlow.SnapshotsTasks do
           from(s in Snapshot, where: s.id == ^snapshot.id, lock: "FOR UPDATE NOWAIT")
           |> Repo.one()
 
-        unless snapshot.status == "pending" do
-          update_status(snapshot, "in_process")
+        try do
+          unless snapshot.status == "pending" do
+            update_status(snapshot, "in_process")
 
-          snapshot =
-            cond do
-              snapshot.should_save_data_to_db and snapshot.should_create_csv ->
-                Snapshots.save_data(snapshot)
-                |> Snapshots.create_and_send_csv(nil)
+            snapshot =
+              cond do
+                snapshot.should_save_data_to_db and snapshot.should_create_csv ->
+                  Snapshots.save_data(snapshot)
+                  |> Snapshots.create_and_send_csv(nil)
 
-                snapshot
+                  snapshot
 
-              snapshot.should_save_data_to_db ->
-                Snapshots.save_data(snapshot)
-                snapshot
+                snapshot.should_save_data_to_db ->
+                  Snapshots.save_data(snapshot)
+                  snapshot
 
-              snapshot.should_create_csv ->
-                Snapshots.create_and_send_csv_from_remote_db(snapshot)
-                snapshot
+                snapshot.should_create_csv ->
+                  Snapshots.create_and_send_csv_from_remote_db(snapshot)
+                  snapshot
+              end
+
+            update_status(snapshot, "success")
+
+            if snapshot.scheduled do
+              create_new_snapshot(snapshot)
             end
-
-          update_status(snapshot, "success")
-
-          if snapshot.scheduled do
-            create_new_snapshot(snapshot)
           end
+        catch
+          _ ->
+            update_status(snapshot, "failed")
+
+            if snapshot.scheduled do
+              create_new_snapshot(snapshot)
+            end
         end
       catch
         _ ->
-          update_status(snapshot, "failed")
-
-          if snapshot.scheduled do
-            create_new_snapshot(snapshot)
-          end
+          nil
       end
     end)
   end
@@ -95,7 +100,7 @@ defmodule AfterGlow.SnapshotsTasks do
           snapshot.starting_at
           |> convert_ecto_datetime_to_epoc
           |> Kernel.+(snapshot.interval)
-          |> Ecto.DateTime.from_unix!(:seconds)
+          |> DateTime.from_unix!(:second)
     }
   end
 
@@ -108,7 +113,7 @@ defmodule AfterGlow.SnapshotsTasks do
       |> Repo.preload(:children)
       |> Repo.preload(:snapshot_data)
       |> change_attributes
-      |> Map.delete(:id)
+      |> Map.put(:id, nil)
       |> Repo.insert_with_cache()
 
     # schedule
@@ -131,7 +136,7 @@ defmodule AfterGlow.SnapshotsTasks do
 
   defp convert_ecto_datetime_to_epoc(datetime) do
     datetime
-    |> Ecto.DateTime.to_erl()
+    |> NaiveDateTime.to_erl()
     |> :calendar.datetime_to_gregorian_seconds()
     |> Kernel.-(62_167_219_200)
   end

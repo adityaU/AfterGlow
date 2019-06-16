@@ -120,15 +120,7 @@ export default Ember.Component.extend({
 
     rawObject: Ember.computed(function () {
         return Ember.Object.extend({
-
             selected: null,
-            label: Ember.computed('selected', 'selected.value', function () {
-                if (this.get('selected.raw') == true) {
-                    this.set('selected.human_name', null);
-                    this.set('selected.name', null);
-                }
-                return (this.get('selected.human_name') || this.get('selected.name') || this.get('selected.value'));
-            })
         });
     }),
     rawObjectWithSelected(_this) {
@@ -204,7 +196,7 @@ export default Ember.Component.extend({
         switchToBuilder(type, el, handleSelected) {
             var items = this.get('queryObject').get(type);
             if (handleSelected) {
-                el.set('selected', Ember.Object.create({}));
+                el.set('selected', null);
                 el.set('castType', null);
             } else {
                 el.set('raw', false);
@@ -218,7 +210,7 @@ export default Ember.Component.extend({
                 }));
                 el.set('castType', null);
             } else {
-                el.set('raw', true);
+                el.set('selected', null);
             }
         },
         remove(type, el) {
@@ -229,29 +221,10 @@ export default Ember.Component.extend({
         updateQuestionSearch(text) {
             this.set('questionQuery', text);
         },
-        addFilter() {
-            this.get('queryObject.filters').pushObject(Ember.Object.create({
-                column: null,
-                operator: null,
-                value: null,
-                valueDateObj: {}
-            }));
-        },
-
-        addView() {
-            this.get('queryObject.views').pushObject(Ember.Object.create({}));
-        },
-
-        addGroupBy() {
-            this.get('queryObject.groupBys').pushObject(this.get('rawObjectWithSelected')(this));
-        },
-        addOrderBy() {
-            this.get('queryObject.orderBys').pushObject(Ember.Object.create({}));
-        },
         switchToBuilder(type, el, handleSelected) {
             var items = this.get('queryObject').get(type);
             if (handleSelected) {
-                el.set('selected', Ember.Object.create({}));
+                el.set('selected', null);
                 el.set('castType', null);
             } else {
                 el.set('raw', false);
@@ -273,6 +246,7 @@ export default Ember.Component.extend({
             arr.removeObject(el);
         },
         toggleFromTable() {
+            this.set('queryObject.table', null)
             this.toggleProperty('queryObject.fromQuestion');
         }
     }

@@ -10,6 +10,7 @@ defmodule AfterGlow.User do
   alias AfterGlow.UserPermissionSet
   alias AfterGlow.CacheWrapper.Repo
   alias AfterGlow.Organizations.Organization
+  alias AfterGlow.Settings.UserSettingsQueryFunctions, as: UserSettings
   alias AfterGlow.Organizations.OrganizationsQueryFunctions, as: Organizations
 
   schema "users" do
@@ -55,7 +56,7 @@ defmodule AfterGlow.User do
   end
 
   def default_preloads do
-    [[permission_sets: :permissions], :organization]
+    [[permission_sets: :permissions]]
   end
 
   def cache_deletable_associations do
@@ -110,7 +111,6 @@ defmodule AfterGlow.User do
 
         {:ok, u} = Repo.insert_with_cache(changeset)
         permission_set = Repo.one(from(ps in PermissionSet, where: ps.name == "Viewer"))
-        UserSetting.verify_general_settings(u.id)
 
         Repo.insert_with_cache(
           UserPermissionSet.changeset(%UserPermissionSet{}, %{
@@ -122,7 +122,9 @@ defmodule AfterGlow.User do
         {:ok, u}
       end
 
-    set_organization(user)
+    {:ok, user} = set_organization(user)
+    UserSettings.verify_general_settings(user)
+    {:ok, user}
   end
 
   defp update_permission_sets(changeset, permission_sets) do

@@ -47,8 +47,7 @@
                 <div class="form-group">
                     <label class="form-label">Maximum Number of Rows in Exports/Reports</label>
                     {{input class=(if report_limit_setting.errors.value "form-control is-invalid" "form-control")  type="number" name="first-name" value=report_limit_setting.value}}
-
-
+                    <small class="text-muted d-block"> This overrides the Global and Organization Level Value </small>
                 </div>
                 {{/if}}
 
@@ -60,7 +59,7 @@
                         <span class="custom-switch-indicator ml-4"></span>
                     </label>
                     <small class="text-muted d-block"> Use this option to disable downloads for this
-                        organization. This overrides the Global Value. This is overriden by User Level Value </small>
+                        user. This overrides the Global and Organization Level Value </small>
                 </div>
                 {{/if}}
             </div>

@@ -381,7 +381,7 @@ defmodule AfterGlow.Snapshots do
 
       if data_values |> String.first() do
         query = query <> data_values
-        Ecto.Adapters.SQL.query!(Repo, query, [])
+        Ecto.Adapters.SQL.query!(AfterGlow.Repo, query, [])
       end
 
       searchable_column_values =
@@ -395,7 +395,7 @@ defmodule AfterGlow.Snapshots do
       if searchable_column_values
          |> String.first() do
         searchable_columns_query = searchable_columns_query <> searchable_column_values
-        Ecto.Adapters.SQL.query!(Repo, searchable_columns_query, [])
+        Ecto.Adapters.SQL.query!(AfterGlow.Repo, searchable_columns_query, [])
       end
     end)
 

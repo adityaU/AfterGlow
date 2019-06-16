@@ -1,9 +1,6 @@
-{{base-header goToDashboard="goToDashboard" invalidateSession='invalidateSession'}}
-        {{outlet}}
-        {{keyboard-shortcuts-help}}
-{{#if showDashboardSearch}}
-  {{dashboard-selector goToDashboard='goToDashboard'}}
-{{/if}}
-{{#if showQuestionSearch}}
-{{question-selector goToQuestion='goToQuestion'}}
+{{base-header goToDashboard="goToDashboard" invalidateSession='invalidateSession' openSearch="openSearch"}}
+{{outlet}}
+{{keyboard-shortcuts-help}}
+{{#if showSearch}}
+{{search-box goToDashboard='goToDashboard' goToQuestion='goToQuestion' goToTag='goToTag'}}
 {{/if}}

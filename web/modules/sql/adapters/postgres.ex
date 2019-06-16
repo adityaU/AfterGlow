@@ -117,12 +117,11 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/, 
     {limited, exec_query} =
       sql(query, :postgres)
       |> limit_rows_in_query(frontend_limit)
-      |> IO.inspect(label: "query")
 
     run_query(conn, query, exec_query, limited, frontend_limit)
   end
 
-  def execute(conn, query, frontend_limit, options) when is_binary(query) do
+  def execute(conn, query, frontend_limit, _options) when is_binary(query) do
     {limited, exec_query} =
       query
       |> limit_rows_in_query(frontend_limit)
@@ -163,7 +162,7 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/, 
 
   defp run_query(conn, _query, exec_query, limited, frontend_limit) do
     try do
-      query = Postgrex.prepare(conn, "", exec_query, opts)
+      query = Postgrex.prepare(conn, "", exec_query, opts())
 
       case query do
         {:ok, prepared_query} ->

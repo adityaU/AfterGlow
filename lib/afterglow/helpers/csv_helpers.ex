@@ -1,6 +1,7 @@
 defmodule AfterGlow.Helpers.CsvHelpers do
   alias AfterGlow.Question
   alias AfterGlow.Sql.DbConnection
+  alias AfterGlow.Settings.ApplicableSettings
   import AfterGlow.Sql.QueryRunner, only: [make_final_query: 3]
   alias ExAws.S3
 
@@ -86,17 +87,29 @@ defmodule AfterGlow.Helpers.CsvHelpers do
     |> String.replace("/tmp/", "/afterglow/uploads/")
   end
 
+  defp aws_config() do
+    config = [host: "s3-#{aws_region()}.amazonaws.com", region: aws_region()]
+
+    if ApplicableSettings.aws_access_key_id() && ApplicableSettings.aws_secret_access_key() do
+      config
+      |> Keyword.put(:access_key_id, ApplicableSettings.aws_access_key_id())
+      |> Keyword.put(:secret_access_key, ApplicableSettings.aws_secret_access_key())
+    else
+      config
+    end
+  end
+
   defp upload_file(file_name, file_path) do
     file_name
     |> S3.Upload.stream_file()
     |> S3.upload(
-      Application.get_env(:afterglow, :s3_bucket),
+      ApplicableSettings.s3_bucket() || Application.get_env(:afterglow, :s3_bucket),
       file_path || file_name |> s3_file_name
     )
-    |> ExAws.request!(host: "s3-#{aws_region()}.amazonaws.com", region: aws_region())
+    |> ExAws.request!(aws_config())
   end
 
   defp aws_region do
-    Application.get_env(:afterglow, :aws_region)
+    ApplicableSettings.aws_region() || Application.get_env(:afterglow, :aws_region)
   end
 end

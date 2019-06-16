@@ -6,8 +6,8 @@ defmodule AfterGlow.OrganizationController do
 
   alias AfterGlow.Plugs.Authorization
   plug(Authorization)
-  # plug(:authorize!, Team)
-  # plug(:verify_authorized)
+  plug(:authorize!, @model)
+  plug(:verify_authorized)
 
   action_fallback(AfterGlow.Web.FallbackController)
   use AfterGlow.Utils.Controllers.Crud

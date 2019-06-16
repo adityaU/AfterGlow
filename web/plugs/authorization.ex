@@ -51,7 +51,12 @@ defmodule AfterGlow.Plugs.Authorization do
 
   defp set_current_user(conn, user) do
     current_user =
-      CacheWrapper.get_by_id(User, user["id"]) |> Repo.preload(permission_sets: :permissions)
+      CacheWrapper.get_by_id(User, user["id"])
+      |> Repo.preload([[permission_sets: :permissions], :organization])
+
+    if current_user.organization && current_user.organization.is_deactivated do
+      raise Bodyguard.NotAuthorizedError, message: "organization deactivated"
+    end
 
     if current_user.is_deactivated do
       raise Bodyguard.NotAuthorizedError, message: "user deactivated"

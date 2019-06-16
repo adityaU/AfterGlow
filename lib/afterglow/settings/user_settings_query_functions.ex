@@ -1,12 +1,23 @@
 defmodule AfterGlow.Settings.UserSettingsQueryFunctions do
   @model AfterGlow.Settings.UserSetting
   @default_preloads []
+  alias AfterGlow.Settings.ApplicableSettings
   use AfterGlow.Utils.Models.Crud
 
-  @general_settings [
-    ["MAX_DOWNLOAD_LIMIT", nil],
-    ["DOWNLOAD_ALLOWED", "true"]
-  ]
+  def general_settings(org_id) do
+    [
+      [
+        "MAX_DOWNLOAD_LIMIT",
+        ApplicableSettings.organization_setting_by_name("MAX_DOWNLOAD_LIMIT", org_id) ||
+          ApplicableSettings.global_setting_by_name("MAX_DOWNLOAD_LIMIT")
+      ],
+      [
+        "DOWNLOAD_ALLOWED",
+        ApplicableSettings.organization_setting_by_name("DOWNLOAD_ALLOWED", org_id) ||
+          ApplicableSettings.global_setting_by_name("DOWNLOAD_ALLOWED")
+      ]
+    ]
+  end
 
   def list(%{"user_id" => user_id}) do
     {:ok,
@@ -14,10 +25,10 @@ defmodule AfterGlow.Settings.UserSettingsQueryFunctions do
      |> Repo.all()}
   end
 
-  def verify_general_settings(user_id) do
-    @general_settings
+  def verify_general_settings(user) do
+    general_settings(user.organization_id)
     |> Enum.each(fn [setting_name, value] ->
-      verify_setting(setting_name, value, user_id)
+      verify_setting(setting_name, value, user.id)
     end)
   end
 
@@ -31,7 +42,6 @@ defmodule AfterGlow.Settings.UserSettingsQueryFunctions do
           us.name == ^setting_name and us.setting_type == "general" and us.user_id == ^user_id
       )
       |> Repo.all()
-      |> IO.inspect(label: "setting")
       |> length == 0
     )
   end

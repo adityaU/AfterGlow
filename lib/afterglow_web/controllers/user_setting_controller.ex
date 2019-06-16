@@ -4,8 +4,12 @@ defmodule AfterGlow.UserSettingController do
   @model AfterGlow.Settings.UserSetting
   @query_functions AfterGlow.Settings.UserSettingsQueryFunctions
 
+  alias AfterGlow.Settings.Setting
   alias AfterGlow.Plugs.Authorization
   plug(Authorization)
+
+  plug(:authorize!, Setting)
+  plug(:verify_authorized)
   # plug(:authorize!, Team)
   # plug(:verify_authorized)
 

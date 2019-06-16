@@ -33,9 +33,21 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
     [timeout: 12_000_000, pool: DBConnection.Poolboy, pool_timeout: 12_000_000]
   end
 
-  def execute_with_stream(pid, query, mapper_fn, options \\ %{})
+  def execute_with_stream(pid, query, download_limit, mapper_fn, options \\ %{})
 
-  def execute_with_stream(pid, query, mapper_fn, _options) when is_binary(query) do
+  def execute_with_stream(pid, query, download_limit, mapper_fn, _options)
+      when is_binary(query) do
+    query =
+      if download_limit do
+        {_limited, query} =
+          query
+          |> QueryMaker.limit_rows_in_query(download_limit)
+
+        query
+      else
+        query
+      end
+
     Mariaex.transaction(
       pid,
       fn conn ->

@@ -11,6 +11,9 @@ export default Ember.Component.extend({
         goToDashboard(dashboard) {
             this.sendAction('goToDashboard', dashboard);
         },
+        openSearch() {
+            this.sendAction('openSearch');
+        },
         invalidateSession() {
             this.sendAction('invalidateSession');
         }

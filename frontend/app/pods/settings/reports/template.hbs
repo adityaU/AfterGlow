@@ -19,13 +19,13 @@
             {{#if email_username_setting}}
             <div class="form-group">
                 <label class="form-label">Email Server Username</label>
-                {{input class=(if email_username_setting.errors.value "form-control is-invalid" "form-control")  type="text" name="first-name" value=email_username_setting.value}}
+                {{input class=(if email_username_setting.errors.value "form-control is-invalid" "form-control")  type="password" name="first-name" value=email_username_setting.value}}
             </div>
             {{/if}}
             {{#if email_password_setting}}
             <div class="form-group">
                 <label class="form-label">Email Server Password</label>
-                {{input class=(if email_password_setting.errors.value "form-control is-invalid" "form-control")  type="text" name="first-name" value=email_password_setting.value}}
+                {{input class=(if email_password_setting.errors.value "form-control is-invalid" "form-control")  type="password" name="first-name" value=email_password_setting.value}}
             </div>
             {{/if}}
             {{#if sender_email_id_setting}}
@@ -40,6 +40,7 @@
                 {{input class=(if sender_email_id_setting.errors.value "form-control is-invalid" "form-control")  type="text" name="first-name" value=email_server_hostname_setting.value}}
             </div>
             {{/if}}
+            <small class="text-muted">We only suport email via TLS. You know, because Security. :)</small>
         </div>
     </div>
     <div class="card-footer">
@@ -49,13 +50,13 @@
             {{#if aws_access_key_id_setting}}
             <div class="form-group">
                 <label class="form-label">AWS ACCESS KEY ID</label>
-                {{input class=(if aws_access_key_id_setting.errors.value "form-control is-invalid" "form-control")  type="text" name="first-name" value=aws_access_key_id_setting.value}}
+                {{input class=(if aws_access_key_id_setting.errors.value "form-control is-invalid" "form-control")  type="password" name="first-name" value=aws_access_key_id_setting.value}}
             </div>
             {{/if}}
             {{#if aws_secret_access_key_setting}}
             <div class="form-group">
                 <label class="form-label">AWS SECRET ACCESS KEY</label>
-                {{input class=(if aws_secret_access_key_setting.errors.value "form-control is-invalid" "form-control")  type="text" name="first-name" value=aws_secret_access_key_setting.value}}
+                {{input class=(if aws_secret_access_key_setting.errors.value "form-control is-invalid" "form-control")  type="password" name="first-name" value=aws_secret_access_key_setting.value}}
             </div>
             {{/if}}
             {{#if aws_region_setting}}
@@ -80,7 +81,7 @@
             <div class="form-group">
                 <label class="form-label">Maximum Number of Rows in Exports/Reports</label>
                 {{input class=(if report_limit_setting.errors.value "form-control is-invalid" "form-control")  type="number" name="first-name" value=report_limit_setting.value}}
-                <small class="text-muted"> This limit overrides Global Limit. It can be overriden by User level.
+                <small class="text-muted"> It can be overriden by Organization or User level Limit.
                     Empty means no limit.
                 </small>
 
@@ -94,8 +95,8 @@
                     {{input type="checkbox"  change=(action 'setDownloadAllowedSetting') checked=(eq download_allowed_setting.value "true") name="custom-switch-checkbox" class="custom-switch-input"}}
                     <span class="custom-switch-indicator ml-4"></span>
                 </label>
-                <small class="text-muted d-block"> Use this option to disable downloads for this
-                    organization. This overrides the Global Value. This is overriden by User Level Value </small>
+                <small class="text-muted d-block"> Use this option to disable downloads for this Afterglow Installation.
+                    Tt can be overriden by Organization and User Level Value </small>
             </div>
             {{/if}}
         </div>

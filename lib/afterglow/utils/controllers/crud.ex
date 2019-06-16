@@ -31,7 +31,7 @@ defmodule AfterGlow.Utils.Controllers.Crud do
         prms = Params.to_attributes(data)
 
         with {:ok, %@model{} = result} <-
-               @query_functions.create(prms) |> IO.inspect(label: "create") do
+               @query_functions.create(prms) do
           conn
           |> put_status(:created)
           |> render(

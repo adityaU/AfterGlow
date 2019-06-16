@@ -95,7 +95,7 @@ defmodule AfterGlow.Mixfile do
       {:csv, "~> 2.1.1"},
       {:secure_random, "~> 0.5"},
       {:ex_aws, "~> 2.0"},
-      {:ex_aws_s3, "~> 2.0"},
+      {:ex_aws_s3, "~> 2.0.2"},
       {:sweet_xml, "~> 0.6.0"},
       {:bamboo, "~> 0.8.0"},
       {:bamboo_smtp, "~> 1.4.0"},

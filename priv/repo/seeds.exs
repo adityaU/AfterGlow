@@ -99,7 +99,7 @@ defmodule AfterGlow.Repo.Seed do
     |> Repo.all()
     |> Enum.each(fn user ->
       User.set_organization(user)
-      UserSettings.verify_general_settings(user.id)
+      UserSettings.verify_general_settings(user)
     end)
   end
 end

@@ -1,16 +1,19 @@
 defmodule AfterGlow.Settings.OrganizationSettingsQueryFunctions do
   @model AfterGlow.Settings.OrganizationSetting
+  alias AfterGlow.Settings.ApplicableSettings
   @default_preloads []
   use AfterGlow.Utils.Models.Crud
 
-  @general_settings [
-    ["MAX_DOWNLOAD_LIMIT", nil],
-    ["MAX_FRONTEND_LIMIT", "2000"],
-    ["DOWNLOAD_ALLOWED", "true"]
-  ]
+  def general_settings do
+    [
+      ["MAX_DOWNLOAD_LIMIT", ApplicableSettings.global_setting_by_name("MAX_DOWNLOAD_LIMIT")],
+      ["MAX_FRONTEND_LIMIT", ApplicableSettings.global_setting_by_name("MAX_FRONTEND_LIMIT")],
+      ["DOWNLOAD_ALLOWED", ApplicableSettings.global_setting_by_name("DOWNLOAD_ALLOWED")]
+    ]
+  end
 
   def verify_general_settings(organization_id) do
-    @general_settings
+    general_settings
     |> Enum.each(fn [setting_name, value] ->
       verify_setting(setting_name, value, organization_id)
     end)

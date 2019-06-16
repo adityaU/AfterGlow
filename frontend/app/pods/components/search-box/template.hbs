@@ -1,0 +1,70 @@
+<div class="searchbar overlay">
+  <div class="dashboard-selector searchbar-content">
+    <div class="create-dashboard content">
+      <div class="ui vertical menu full">
+
+        <div class="item">
+          <div class="ui icon input">
+            <i class="search icon"></i>
+            {{input type="text" placeholder="Search Question, Dashboard or Tag" class="item-selector-input" value=query}}
+          </div>
+        </div>
+        {{#each filteredItems as |item index|}}
+        {{#if (eq item.item_type 'question')}}
+        {{#if item.id}}
+        <div class="item {{if (eq selectedIndex index) "active"}}" {{action 'goToQuestionClick' item}}>
+          <div class="d-flex align-items-center">
+            <span class="avatar mr-2 text-white bg-primary">
+              <b class="text-white">Q</b>
+            </span>
+            <div>
+              <h6 class="m-0 text-default"> {{item.title}} </h6>
+              <small class="text-muted"> Question</small>
+            </div>
+          </div>
+        </div>
+        {{/if}}
+        {{/if}}
+        {{#if (eq item.item_type 'dashboard')}}
+        {{#if item.id}}
+        <div class="item {{if (eq selectedIndex index) "active"}}" {{action 'goToDashboardClick' item}}>
+          <div class="d-flex align-items-center">
+            <span class="avatar mr-2 text-white bg-primary">
+              <b class="text-white">D</b>
+            </span>
+            <div>
+              <h6 class="m-0 text-default"> {{item.title}} </h6>
+              <small class="text-muted"> Dashboard</small>
+            </div>
+          </div>
+        </div>
+        {{/if}}
+        {{/if}}
+        {{#if (eq item.item_type 'tag')}}
+        {{#if item.id}}
+        <div class="item {{if (eq selectedIndex index) "active"}}" {{action 'goToTagClick' item}}>
+          <div class="d-flex align-items-center">
+            <span class="avatar mr-2 text-white bg-primary">
+              <b class="text-white">T</b>
+            </span>
+            <div>
+              <h6 class="m-0 text-default"> {{item.title}} </h6>
+              <small class="text-muted"> Tag</small>
+            </div>
+          </div>
+        </div>
+        {{/if}}
+        {{/if}}
+        {{else}}
+
+        <div class="item">
+          No Results
+        </div>
+        {{/each}}
+        <div class="item px-4 py-2 bg-gray">
+          <small class="text-white">Press 'Ctrl + Q' from anywhere to open this dialogue. Press 'Esc' to exit.</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

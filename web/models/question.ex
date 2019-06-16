@@ -145,7 +145,6 @@ defmodule AfterGlow.Question do
       |> convert_to_variables
 
     default_variables
-    |> IO.inspect(label: "default variables")
     |> Enum.map(fn var ->
       q_var =
         query_variables
@@ -190,7 +189,7 @@ defmodule AfterGlow.Question do
     query
     |> String.replace(
       ~r({{.*snapshot_starting_at.*}}),
-      snapshot.starting_at |> Ecto.DateTime.to_iso8601() || ""
+      snapshot.starting_at |> to_string() || ""
     )
   end
 

@@ -8,6 +8,9 @@ defmodule AfterGlow.AuthController do
   alias AfterGlow.Plugs.Authorization
   alias AfterGlow.CacheWrapper
   alias AfterGlow.CacheWrapper.Repo
+  alias AfterGlow.Settings.ApplicableSettings
+
+  import AfterGlow.Utils.DomainChecks
 
   def google_auth_path(conn, _params) do
     conn
@@ -35,9 +38,16 @@ defmodule AfterGlow.AuthController do
   end
 
   def permissions(user) do
-    user.permission_sets
-    |> Enum.map(fn x -> x.permissions |> Enum.map(fn y -> y.name end) end)
-    |> List.flatten()
+    perms =
+      user.permission_sets
+      |> Enum.map(fn x -> x.permissions |> Enum.map(fn y -> y.name end) end)
+      |> List.flatten()
+
+    if ApplicableSettings.can_download_reports(user) == "true" do
+      perms ++ ["Download.enabled"]
+    else
+      perms
+    end
   end
 
   def callback(conn, %{"provider" => provider, "code" => code}) do
@@ -45,7 +55,7 @@ defmodule AfterGlow.AuthController do
     token = get_token!(provider, code)
     user = get_user!(provider, token)
 
-    case user |> validate_email do
+    case match_domain(user["email"]) do
       true ->
         {:ok, user} = User.save_or_update_user(user)
         auth_token = create_jwt(user)
@@ -69,14 +79,9 @@ defmodule AfterGlow.AuthController do
         conn
         |> put_status(:unprocessable_entity)
         |> json(%{
-          error:
-            "Only #{Application.get_env(:afterglow, :allowed_google_domain)} users are allowed "
+          error: "You are not allowed to access this page with email: #{user["email"]}"
         })
     end
-  end
-
-  defp validate_email(user) do
-    Regex.match?(~r/#{Application.get_env(:afterglow, :allowed_google_domain)}/, user["email"])
   end
 
   defp authorize_url!("google") do

@@ -4,6 +4,12 @@ defmodule AfterGlow.Organizations.OrganizationsQueryFunctions do
   use AfterGlow.Utils.Models.Crud
   alias AfterGlow.Settings.OrganizationSettingsQueryFunctions, as: OrganizationSettings
 
+  def active_domains() do
+    from(o in @model, where: o.is_deactivated != true)
+    |> Repo.all()
+    |> Enum.map(& &1.google_domain)
+  end
+
   def find_by_google_domain(domain) do
     Repo.get_by(@model, google_domain: domain)
   end

@@ -19,10 +19,6 @@ export default Ember.Helper.extend({
     compute([obj, prop1, prop2, prop3, prop4]) {
 
 
-        if (obj.get('selected.raw') == true) {
-            obj.set('selected.human_name', null);
-            obj.set('selected.name', null);
-        }
         let label = (obj.get('selected.human_name') || obj.get('selected.name') || obj.get('selected.value') || (obj.get('selected.raw') && obj.get('selected.raw').toString()));
 
         if (isGroupByDateType(obj)) {

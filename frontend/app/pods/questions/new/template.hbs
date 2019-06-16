@@ -117,10 +117,12 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                                 </span>
                             </div>
                             <div class="col-3 offset-6 text-right">
+                                {{#if (can "download question")}}
                                 <span class="px-1" {{action "downloadData"}}>
                                     {{#bs-tooltip placement="top" }}Download Data{{/bs-tooltip}}
                                     <i class="fe fe-save text-gray"></i>
                                 </span>
+                                {{/if}}
                                 {{#if question.updated_at}}
                                 <span class="px-1">
                                     {{#bs-tooltip placement="top" }}Updated

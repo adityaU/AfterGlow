@@ -1762,3 +1762,14 @@ a:hover {
 .form-label{
     color: #6e7687
 }
+.item.active{
+ .bg-primary {
+     background: white !important;
+ }
+ .text-white{
+     color: $primaryColor !important;
+ }
+ .text-default{
+     color: white !important;
+ }
+}

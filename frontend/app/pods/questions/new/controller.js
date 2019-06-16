@@ -37,12 +37,12 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
                 orderBys: [],
                 offset: null,
                 rawQuery: '',
-                additionalFilters: {
+                additionalFilters: Ember.Object.create({
                     filters: [],
                     groupBys: [],
                     orderBys: [],
                     views: []
-                },
+                }),
                 limit: null
             }),
             results_view_settings: {

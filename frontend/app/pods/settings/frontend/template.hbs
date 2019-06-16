@@ -6,8 +6,8 @@
             <div class="form-group">
                 <label class="form-label">Maximum Number of Rows on frontend</label>
                 {{input class=(if report_limit_setting.errors.value "form-control is-invalid" "form-control")  type="number" name="first-name" value=frontend_limit_setting.value}}
-                <small class="text-muted"> Limit more than 2000 is ignored. This limit overrides Global Limit for
-                    frontend.</small>
+                <small class="text-muted"> Limit more than 2000 is ignored. This can be overriden by Organization level
+                    limit.</small>
 
             </div>
             {{/if}}

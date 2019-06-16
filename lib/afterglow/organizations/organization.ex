@@ -12,6 +12,10 @@ defmodule AfterGlow.Organizations.Organization do
     timestamps()
   end
 
+  def cache_deletable_associations do
+    [:users]
+  end
+
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """

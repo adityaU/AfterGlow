@@ -1,4 +1,4 @@
-<div class=" border p-2"> {{searchable-select
+{{searchable-select
             class="my-2"
             content=filteredColumns
             sortBy="human_name"
@@ -6,7 +6,7 @@
             prompt="Select a Column"
             optionLabelKey="human_name"
             on-change=(action (mut orderBy.column))}}
-    {{searchable-select
+{{searchable-select
             class="my-2"
             content=orders
             sortBy="name"
@@ -14,4 +14,3 @@
             prompt="Select Sort Direction"
             optionLabelKey="name"
             on-change=(action (mut orderBy.order))}}
-    </div>

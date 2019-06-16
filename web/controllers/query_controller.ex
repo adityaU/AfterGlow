@@ -11,12 +11,16 @@ defmodule AfterGlow.QueryController do
   def execute(conn, params) do
     db_identifier = params["database"]["unique_identifier"]
     db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
-    frontend_limit = ApplicableSettings.max_download_limit(conn.assigns.current_user)
+    frontend_limit = ApplicableSettings.max_frontend_limit(conn.assigns.current_user)
 
     {query, results} =
       case params["queryType"] do
         "query_builder" ->
-          run_query_from_object(db_record, params, frontend_limit)
+          run_query_from_object(
+            db_record,
+            params,
+            frontend_limit
+          )
 
         "raw" ->
           permit_prms =

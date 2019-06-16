@@ -4,13 +4,13 @@ export default Ember.Component.extend({
     toast: Ember.inject.service(),
     sessionService: Ember.inject.service(),
 
-    snapshot: Ember.computed(function () {
+    snapshot: Ember.computed("startTime", function () {
         return {
             name: `${this.get('question.title')}-${moment().format('LLLL')}`,
             description: `Snapshot of ${this.get('question.title')} on ${moment().format('LLLL')}`,
             scheduled: false,
             interval: 86400,
-            starting_at: new Date(),
+            starting_at: this.get('startTime') || new Date(),
             should_save_data_to_db: false,
             should_create_csv: true,
             keep_latest: 5,
@@ -21,7 +21,7 @@ export default Ember.Component.extend({
     }),
     intervals: [{
         name: '2 hours',
-        value: 7200
+        value: 120
     },
     {
         name: '4 hours',

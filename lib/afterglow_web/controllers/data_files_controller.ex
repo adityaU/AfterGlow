@@ -27,7 +27,7 @@ defmodule AfterGlow.DataFilesController do
 
     case params["queryType"] do
       "query_builder" ->
-        Async.perform(&CsvTasks.qb_fetch_and_upload/3, [
+        Async.perform(&CsvTasks.qb_fetch_and_upload/4, [
           db_record,
           permit_params(params),
           conn.assigns.current_user.email,
@@ -35,7 +35,7 @@ defmodule AfterGlow.DataFilesController do
         ])
 
       "raw" ->
-        Async.perform(&CsvTasks.raw_fetch_and_upload/3, [
+        Async.perform(&CsvTasks.raw_fetch_and_upload/4, [
           db_record,
           params |> permit_params |> permit_prms_raw_query(params["rawQuery"]),
           conn.assigns.current_user.email,

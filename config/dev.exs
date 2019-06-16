@@ -13,7 +13,6 @@ config :afterglow, AfterGlow.Endpoint,
   check_origin: false,
   watchers: []
 
-
 # Watch static and templates for browser reloading.
 config :afterglow, AfterGlow.Endpoint,
   live_reload: [
@@ -38,6 +37,6 @@ config :afterglow, AfterGlow.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "adityau",
   password: "null",
-  database: "afterglow_dev",
+  database: "afterglow_temp",
   hostname: "localhost",
   pool_size: 50

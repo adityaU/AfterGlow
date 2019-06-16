@@ -51,6 +51,7 @@ defmodule AfterGlow.Router do
     resources("/organizations", OrganizationController)
 
     resources("/alert_events", AlertEventController)
+    resources("/search_items", SearchItemController)
 
     post("api_actions/:id/send_request", ApiActionController, :send_request)
     post("users/:id/activate", UserController, :activate)

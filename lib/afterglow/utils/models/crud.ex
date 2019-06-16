@@ -1,8 +1,8 @@
 defmodule AfterGlow.Utils.Models.Crud do
   defmacro __using__(_opts) do
     quote do
-      import Ecto.Query, only: [from: 2, subquery: 1]
       alias AfterGlow.Repo
+      import Ecto.Query, only: [from: 2, subquery: 1]
 
       def list(), do: _list()
       def list(%{"filter" => %{"id" => ids}}), do: _list(%{"filter" => %{"id" => ids}})

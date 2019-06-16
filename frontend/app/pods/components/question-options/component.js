@@ -45,6 +45,7 @@ export default Ember.Component.extend(CustomEvents, {
             this.set('toggleShareModal', 'true');
         },
         showSnapshotMaker() {
+            this.set("snapshotStartTime", new Date())
             this.set('toggleSnapshotModal', true);
         },
         showWidgetCreator() {
