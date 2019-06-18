@@ -36,6 +36,8 @@ export default Ember.Helper.extend({
             } else {
                 formattedString = date.format('ll');
             }
+        } else if (date.toString() != NaN){
+            formattedString = formattedString.toLocaleString()
         }
         if (isValidUrl(params)) {
             formattedString = '<a target="_" href="' + params + '">' + params + '</a>';

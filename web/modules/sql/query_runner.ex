@@ -6,6 +6,7 @@ defmodule AfterGlow.Sql.QueryRunner do
   alias AfterGlow.Repo
   alias AfterGlow.Database
   alias AfterGlow.Table
+  alias AfterGlow.Column
   import Ecto.Query, only: [from: 2]
 
   def make_final_query(db_record, params, question_variables) do
@@ -95,6 +96,13 @@ defmodule AfterGlow.Sql.QueryRunner do
   end
 
   def permit_params(params) do
+    table_record =
+      if table_id = params["table"]["id"] do
+        Table |> Repo.get(table_id)
+      else
+        nil
+      end
+
     table =
       if params["table"]["sql"] do
         {_, sql} = make_final_query_for_question(params["table"]["id"])
@@ -103,11 +111,22 @@ defmodule AfterGlow.Sql.QueryRunner do
         params["table"]
       end
 
+    schema =
+      unless table["id"] do
+        %{}
+      else
+        make_schema(table["id"])
+      end
+
     %{
       id: params["id"],
       database: params["database"],
       table: table,
-      selects: params["views"] && params["views"] |> Enum.map(fn x -> x["selected"] end),
+      selects:
+        params["views"] &&
+          params["views"]
+          |> Enum.map(fn x -> view_maker(x["selected"], table_record) end)
+          |> List.flatten(),
       group_bys:
         params["groupBys"] &&
           params["groupBys"] |> Enum.map(fn x -> [x["selected"], x["castType"]["value"]] end),
@@ -116,8 +135,34 @@ defmodule AfterGlow.Sql.QueryRunner do
       limit: params["limit"],
       offset: params["offset"],
       additional_filters: params["additionalFilters"],
-      variables: params["variables"]
+      variables: params["variables"],
+      schema: schema
     }
+  end
+
+  defp view_maker(view, nil), do: view
+
+  defp view_maker(%{"raw" => true, "value" => "*"}, table) do
+    star_view(table)
+  end
+
+  defp view_maker(%{"name" => _name, "value" => "raw_data"}, table) do
+    star_view(table)
+  end
+
+  defp star_view(table) do
+    table
+    |> Table.preload_columns()
+    |> Map.get(:columns)
+    |> Enum.map(fn x ->
+      %{"raw" => true, "value" => x.name}
+    end)
+  end
+
+  defp view_maker(view, _table), do: view
+
+  defp make_schema(table_id) do
+    Table.make_schema(table_id)
   end
 
   def cache_results(params, results, current_sql) do

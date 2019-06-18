@@ -62,7 +62,9 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
 
       def sql(query_record, adapter) do
         options = options(query_record, adapter)
-        query = SqlDust.from(query_record[:table]["name"], options) |> elem(0)
+
+        query =
+          SqlDust.from(query_record[:table]["name"], options, query_record[:schema]) |> elem(0)
 
         if query_record[:limit] && query_record[:limit] != "" do
           query = query <> " " <> "LIMIT #{query_record[:limit]}"

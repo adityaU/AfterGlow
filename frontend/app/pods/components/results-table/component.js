@@ -39,6 +39,9 @@ export default Ember.Component.extend({
         deleteApiAction(apiAction) {
             apiAction.destroyRecord();
         },
+        apply(){
+            this.sendAction('apply')
+        },
         callApiAction(apiAction, row) {
             let variables = this.get('results.columns').map((item, index) => {
                 return {

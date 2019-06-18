@@ -5,11 +5,11 @@
             <div class="col-auto border-right p-1 min-width-15">
 
                 {{#each queryObject.additionalFilters.filters as |filter|}}
-                {{#if filter.label}}
+                {{#if (label-maker filter filter.column filter.value filter.valueDateObj.value filter.valueDateObj.duration filter.operator filter.valueDateObj.date filter.valueDateObj.dtt.name )}}
                 <span class="tag border tag-primary">
                     {{#bs-dropdown closeOnMenuClick=false as |dd|}}
                     {{#dd.toggle class="text-white"}}
-                    {{filter.label}}
+                    {{label-maker filter filter.column filter.value filter.valueDateObj.value filter.valueDateObj.duration filter.operator filter.valueDateObj.date filter.valueDateObj.dtt.name }}
                     {{/dd.toggle}}
                     {{#dd.menu as |ddm|}}
                     <div class="menu-content">

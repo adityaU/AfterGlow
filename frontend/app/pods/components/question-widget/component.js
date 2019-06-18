@@ -41,5 +41,8 @@ export default Ember.Component.extend(ChartSettings, ColorMixin, {
     refresh() {
       this.sendAction('refresh', this.get('question'))
     },
+    apply(){
+      this.sendAction('apply')
+    }
   }
 });

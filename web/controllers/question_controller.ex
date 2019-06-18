@@ -3,6 +3,7 @@ defmodule AfterGlow.QuestionController do
 
   alias AfterGlow.Question
   alias AfterGlow.Database
+  alias AfterGlow.Table
   alias AfterGlow.TagQuestion
   alias AfterGlow.Tag
   alias AfterGlow.Widgets.Widget
@@ -260,6 +261,14 @@ defmodule AfterGlow.QuestionController do
       )
 
     {_query, results} = run_raw_query(db_record, params, question.variables, frontend_limit)
+
+    results =
+      if question.human_sql && question.human_sql["queryType"] == "query_builder" &&
+           question.human_sql["table"] && !question.human_sql["table"]["sql"] do
+        results |> Table.insert_foreign_key_columns_in_results(question.human_sql["table"])
+      else
+        results
+      end
 
     case results do
       {:ok, results} ->

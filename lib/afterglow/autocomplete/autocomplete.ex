@@ -85,43 +85,105 @@ defmodule AfterGlow.AutoComplete do
     )
   end
 
-  def autocomplete(database_id, prefix) do
-    tables =
-      from(
-        t in Table,
-        where: ilike(t.name, ^"%#{prefix}%") and t.database_id == ^database_id,
-        limit: 5
-      )
-      |> Repo.all()
-      |> Enum.map(fn t ->
-        %{
-          name: t.readable_table_name,
-          value: t.readable_table_name,
-          meta: "table",
-          score: 1000 / (t.name |> String.length())
-        }
-      end)
+  def table_regex do
+    ~r/(?<matched>(from|join)\s+(?<table>\S+)\W*((as){0,1}\W*)(?<alias>(?!(left|right|outer|inner|join|where|group|having|window|union|all|except|distinct|order|limit|offset|fetch|for|with|roleup|grouping|intersect|cube))\S+){0,1})/i
+  end
 
-    columns =
-      from(
-        c in Column,
-        where: ilike(c.name, ^"%#{prefix}%"),
-        left_join: t in Table,
-        on: [id: c.table_id],
-        where: t.database_id == ^database_id,
-        limit: 5
-      )
-      |> Repo.all()
-      |> Repo.preload(:table)
-      |> Enum.map(fn c ->
-        %{
-          name: "#{c.table.readable_table_name}.#{c.name}",
-          value: "#{c.table.readable_table_name}.#{c.name}",
-          meta: "column",
-          score: 1000 / (c.name |> String.length())
-        }
-      end)
+  def table_regex_with_ending do
+    ~r/(?<matched>(from|join)\s+(?<table>\S+)\W*((as){0,1}\W*)(?<alias>(?!(left|right|outer|inner|join|where|group|having|window|union|all|except|distinct|order|limit|offset|fetch|for|with|roleup|grouping|intersect|cube))\S+){0,1})$/i
+  end
 
-    tables ++ columns
+  def find_tables(query, start \\ []) do
+    regex = table_regex()
+
+    found = Regex.named_captures(regex, query)
+
+    new =
+      if found && found["matched"] do
+        found = if found["alias"] == "", do: found |> Map.put("alias", nil), else: found
+        start = start ++ [found]
+        query = query |> String.replace(found["matched"], "")
+
+        find_tables(query, start)
+      else
+        start
+      end
+
+    new
+  end
+
+  defp ending_with_alias(query, tables, prefix) do
+    tables
+    |> Enum.filter(fn x ->
+      Regex.match?(~r/(#{x["alias"]}|#{x["table"]})(\.){0,1}(#{prefix}){0,1}$/, query) ||
+        Regex.match?(~r/^#{prefix}/, x["alias"]) ||
+        Regex.match?(~r/^#{prefix}/, x["table"])
+    end)
+  end
+
+  defp does_end_with_table_prefixes(query) do
+    Regex.match?(~r/(from|join)\W+(\S+){0,1}$/i, query)
+  end
+
+  defp does_ends_with_table_regex(query) do
+    Regex.match?(table_regex_with_ending(), query)
+  end
+
+  defp suggest_only_tables(prefix, database_id) do
+    from(
+      t in Table,
+      where: ilike(t.readable_table_name, ^"#{prefix}%") and t.database_id == ^database_id
+    )
+    |> Repo.all()
+    |> Enum.map(fn t ->
+      %{
+        name: t.readable_table_name,
+        value: t.readable_table_name,
+        meta: "table",
+        score: 1000 / (t.readable_table_name |> String.length())
+      }
+    end)
+  end
+
+  defp suggest_columns(matched_tables, database_id) do
+    matched_tables
+    |> Enum.reduce([], fn matched_table, acc ->
+      acc ++
+        (from(
+           c in Column,
+           left_join: t in Table,
+           on: [id: c.table_id],
+           where:
+             t.database_id == ^database_id and
+               t.readable_table_name == ^matched_table["table"]
+         )
+         |> Repo.all()
+         |> Repo.preload(:table)
+         |> Enum.map(fn c ->
+           name = "#{matched_table["alias"] || matched_table["table"]}.#{c.name}"
+
+           %{
+             name: name,
+             value: name,
+             meta: "column",
+             score: 1000 / (name |> String.length())
+           }
+         end))
+    end)
+  end
+
+  def autocomplete(database_id, prefix, query) do
+    tables = find_tables(query)
+    suggest_tables = does_end_with_table_prefixes(query)
+    matched_tables = ending_with_alias(query, tables, prefix)
+
+    suggestions = if suggest_tables, do: suggest_only_tables(prefix, database_id), else: []
+
+    suggestions ++
+      if matched_tables && !suggest_tables && !does_ends_with_table_regex(query) do
+        suggest_columns(matched_tables, database_id)
+      else
+        []
+      end
   end
 end

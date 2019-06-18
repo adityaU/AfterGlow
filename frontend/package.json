@@ -20,7 +20,7 @@
     "ember-ace": "git+https://github.com/adityaU/ember-ace.git",
     "ember-ajax": "^2.4.1",
     "ember-api-actions": "0.1.6",
-    "ember-bootstrap": "^1.2.1",
+    "ember-bootstrap": "^2.8.0",
     "ember-browserify": "^1.2.1",
     "ember-can": "0.8.4",
     "ember-chartjs": "0.0.0",

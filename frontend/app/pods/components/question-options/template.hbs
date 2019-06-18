@@ -40,39 +40,42 @@
                     {{/if}}
                     {{#bs-dropdown direction="left" class="d-inline" as |dd|}}
                     {{#dd.toggle class="btn btn-link text-primary py-0"}} MORE {{/dd.toggle}}
-                    {{#dd.menu class="dropdown-menu-arrow" as |ddm|}}
-                    {{#if (and (and validQuestion canCreateSnapshot) canEdit)}}
-                    {{#ddm.item}}
-                    <a class="dropdown-item border-bottom" {{action 'showSnapshotMaker'}}>Create
-                        Snapshots/Schedule Report</a>
-                    {{/ddm.item}}
-                    {{/if}}
-                    {{#if (and (and validQuestion question.id) canEdit)}}
-                    {{#ddm.item}}
-                    <a class="dropdown-item border-bottom" {{action 'showApiActionModal'}}>Add an API
-                        Action</a>
-                    {{/ddm.item}}
-                    {{#ddm.item}}
-                    <a class="dropdown-item border-bottom" {{action 'showAddTags'}}>Add Tags</a>
-                    {{/ddm.item}}
-                    {{#if (gt question.snapshots.length 0)}}
-                    {{#ddm.item}}
-                    {{#bs-tooltip placement="top" }}{{/bs-tooltip}}
-                    {{#link-to "questions.show.snapshots.all" question.id class="dropdown-item border-bottom"}}view
-                    {{question.snapshots.length}}
-                    snapshot(s){{/link-to}}
-                    {{/ddm.item}}
-                    {{/if}}
-                    {{/if}}
-                    {{#if (and enableAddToDashboard canEdit)}}
-                    {{#ddm.item}}
-                    <a class="dropdown-item border-bottom" {{action 'showAddToDashboard'}}> Add
-                        Question to Dashboard</a>
-                    {{/ddm.item}}
-                    {{/if}}
-                    {{#ddm.item}}
-                    <a class="dropdown-item" {{action 'toggleVariableWindow'}}>Toggle Variable Window</a>
-                    {{/ddm.item}}
+                    {{#dd.menu as |ddm|}}
+
+                    <div class="menu-content">
+                        {{#if (and (and validQuestion canCreateSnapshot) canEdit)}}
+                        {{#ddm.item}}
+                        <a class="dropdown-item border-bottom" {{action 'showSnapshotMaker'}}>Create
+                            Snapshots/Schedule Report</a>
+                        {{/ddm.item}}
+                        {{/if}}
+                        {{#if (and (and validQuestion question.id) canEdit)}}
+                        {{#ddm.item}}
+                        <a class="dropdown-item border-bottom" {{action 'showApiActionModal'}}>Add an API
+                            Action</a>
+                        {{/ddm.item}}
+                        {{#ddm.item}}
+                        <a class="dropdown-item border-bottom" {{action 'showAddTags'}}>Add Tags</a>
+                        {{/ddm.item}}
+                        {{#if (gt question.snapshots.length 0)}}
+                        {{#ddm.item}}
+                        {{#bs-tooltip placement="top" }}{{/bs-tooltip}}
+                        {{#link-to "questions.show.snapshots.all" question.id class="dropdown-item border-bottom"}}view
+                        {{question.snapshots.length}}
+                        snapshot(s){{/link-to}}
+                        {{/ddm.item}}
+                        {{/if}}
+                        {{/if}}
+                        {{#if (and enableAddToDashboard canEdit)}}
+                        {{#ddm.item}}
+                        <a class="dropdown-item border-bottom" {{action 'showAddToDashboard'}}> Add
+                            Question to Dashboard</a>
+                        {{/ddm.item}}
+                        {{/if}}
+                        {{#ddm.item}}
+                        <a class="dropdown-item" {{action 'toggleVariableWindow'}}>Toggle Variable Window</a>
+                        {{/ddm.item}}
+                    </div>
                     {{/dd.menu}}
                     {{/bs-dropdown}}
                 </div>

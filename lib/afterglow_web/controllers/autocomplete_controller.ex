@@ -6,8 +6,8 @@ defmodule AfterGlow.AutoCompleteController do
 
   action_fallback(AfterGlow.Web.FallbackController)
 
-  def complete(conn, %{"database_id" => database_id, "prefix" => prefix}) do
+  def complete(conn, %{"query" => query, "database_id" => database_id, "prefix" => prefix}) do
     conn
-    |> json(AutoComplete.autocomplete(database_id, prefix))
+    |> json(AutoComplete.autocomplete(database_id, prefix, query))
   end
 end

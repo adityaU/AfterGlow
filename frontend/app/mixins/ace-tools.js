@@ -5,7 +5,7 @@ export default Ember.Mixin.create({
         if (context && context.get('id')){
             this.get('ajax').apiCall({
                 url: this.get('ajax.apiPath') + '/sql_autocomplete' +
-                    "?database_id=" + context.get('id') + "&prefix=" + prefix,
+                    "?database_id=" + context.get('id') + "&prefix=" + prefix+ "&query=" + session.getValue(),
                 type: 'GET',
             },(response, status)=>{
                 callback(null, response)

@@ -3,7 +3,30 @@
         <thead>
             <tr>
                 {{#each results.columns as |column|}}
-                <th>{{capitalize column}}</th>
+                <th>
+                    {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+                    {{#dd.toggle class="text-muted"}}
+                    {{capitalize column}}
+                    {{#if (is-order-applied question.human_sql.additionalFilters.orderBys column 'ASC')}}
+                    <div class="tag tag-primary">
+                        <i class="fe fe-chevron-up"></i>
+                    </div>
+                    {{/if}}
+                    {{#if (is-order-applied question.human_sql.additionalFilters.orderBys column 'DESC')}}
+                    <div class="tag tag-primary">
+
+                        <i class="fe fe-chevron-down"></i>
+                    </div>
+                    {{/if}}
+                    {{/dd.toggle}}
+                    {{#dd.menu renderInPlace=false as |ddm|}}
+                    <div class="menu-content">
+                        {{additional-sort-and-grouping results=results column=column additionalFilters=question.human_sql.additionalFilters apply='apply'}}
+                    </div>
+
+                    {{/dd.menu}}
+                    {{/bs-dropdown}}
+                </th>
                 {{/each}}
                 {{#each question.api_actions as |apiAction|}}
                 <th>
@@ -20,12 +43,18 @@
             <tr>
                 {{#each row as |el index|}}
                 <td class="">
-                    {{#if (exists-in index results)}}
-                    {{#link-to 'explore.new' (get-column-id index results) el}}
+
+                    {{#bs-dropdown direction="left" closeOnMenuClick=false as |dd|}}
+                    {{#dd.toggle class=(if (exists-in index results) "text-primary" "text-default" )}}
                     {{widgets/render-widgets el=el question=question index=index results=results}}
-                    {{/link-to}}
-                    {{else}}{{widgets/render-widgets el=el question=question index=index results=results}}
-                    {{/if}}
+                    {{/dd.toggle}}
+                    {{#dd.menu renderInPlace=false as |ddm|}}
+                    <div class="menu-content">
+                        {{additional-quick-filters results=results index=index value=el additionalFilters=question.human_sql.additionalFilters apply='apply' showQuickFilters=showQuickFilters}}
+                    </div>
+
+                    {{/dd.menu}}
+                    {{/bs-dropdown}}
                 </td>
                 {{/each}}
                 {{#each question.api_actions as |apiAction|}}

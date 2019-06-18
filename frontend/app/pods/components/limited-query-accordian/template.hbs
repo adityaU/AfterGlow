@@ -1,18 +1,19 @@
-  {{#bs-accordion class="text-default mb-1" as |acc|}}
-  {{#acc.item class="m-0" as |aitem|}}
-    <div class="card-status card-status-left bg-warning"></div>
-  {{#aitem.title class="py-2"}}
-        <i class="fe fe-chevron-down"></i>
-        Limit has been set on this query. This happens when you try to load more than {{queryLimit}} rows. You can still download complete data.
-        {{/aitem.title}}
-        {{#aitem.body}}
-        {{ember-ace
+{{#bs-accordion class="text-default mb-1" as |acc|}}
+{{#acc.item class="m-0 w-100" as |aitem|}}
+<div class="card-status card-status-left bg-warning"></div>
+{{#aitem.title class="py-2"}}
+<i class="fe fe-chevron-down"></i>
+Limit has been set on this query. This happens when you try to load more than {{queryLimit}} rows. You can still
+download complete data.
+{{/aitem.title}}
+{{#aitem.body}}
+{{ember-ace
           lines=10
           value=limitedQuery
           mode=aceMode
           theme=aceTheme
           readOnly=true
         }}
-        {{/aitem.body}}
+{{/aitem.body}}
 {{/acc.item}}
 {{/bs-accordion}}

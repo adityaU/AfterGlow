@@ -1,77 +1,78 @@
 {{#if dashboard}}
-    {{#grid-stack class="full" options=(hash animate=true width=48 verticalMargin="0em" ) onChange=(action 'change') }}
-        {{#if dashboard.newNote}}
-            {{#grid-stack-item class="grid-segment" options=(get dashboard "newNoteSettings")}}
-                <div class="h-100" id="js-notes-new"> {{dashboard-note-card note=dashboard.newNote}} </div>
-            {{/grid-stack-item}}
-        {{/if}}
-        {{#each dashboard.notes as |note|}}
-            {{#if note.id}}
-                {{#grid-stack-item class="grid-segment" options=(get (get dashboard "notes_settings") (get note "id"))}}
-                    <div class="h-100" id="js-notes-{{note.id}}"> {{dashboard-note-card note=note}} </div>
-                {{/grid-stack-item}}
+{{#grid-stack class="full" options=(hash animate=true width=48 verticalMargin="0em") onChange=(action 'change') }}
+{{#if dashboard.newNote}}
+{{#grid-stack-item class="grid-segment" options=(get dashboard "newNoteSettings")}}
+<div class="h-100" id="js-notes-new"> {{dashboard-note-card note=dashboard.newNote}} </div>
+{{/grid-stack-item}}
+{{/if}}
+{{#each dashboard.notes as |note|}}
+{{#if note.id}}
+{{#grid-stack-item class="grid-segment" options=(get (get dashboard "notes_settings") (get note "id"))}}
+<div class="h-100" id="js-notes-{{note.id}}"> {{dashboard-note-card note=note}} </div>
+{{/grid-stack-item}}
+{{/if}}
+{{/each}}
+{{#each dashboard.questions as |question|}}
+{{#grid-stack-item class="grid-segment" options=(get (get dashboard "settings") (get question "id"))}}
+<div class="card h-100" id="js-question-{{question.id}}">
+    {{#if question.showCardHeader }}
+    <div class="card-header row question">
+        <div class="col-8">
+            <div class="text-default"> {{question.title}} </div>
+        </div>
+        <div class="col-4 text-right">
+            {{#if question.updated_at}}
+            <span>
+                {{#bs-tooltip placement="left" }} Updated
+                {{moment-from-now question.updated_at timeZone=timeZone interval=1000}}
+                {{/bs-tooltip}}
+                <i class="fe fe-clock text-{{question.updatedAgoColor}}"></i>
+            </span>
             {{/if}}
-        {{/each}}
-        {{#each dashboard.questions as |question|}}
-            {{#grid-stack-item class="grid-segment" options=(get (get dashboard "settings") (get question "id"))}}
-                <div class="card h-100" id="js-question-{{question.id}}">
-                    {{#if question.showCardHeader }}
-                        <div class="card-header row question">
-                            <div class="col-8">
-                                <div class="text-default"> {{question.title}} </div>
-                            </div>
-                            <div class="col-4 text-right">
-                                {{#if question.updated_at}}
-                                    <span>
-                                        {{#bs-tooltip placement="left" }} Updated {{moment-from-now question.updated_at timeZone=timeZone interval=1000}}
-                                        {{/bs-tooltip}}
-                                        <i class="fe fe-clock text-{{question.updatedAgoColor}}"></i>
-                                    </span>
-                                {{/if}}
-                                {{#bs-dropdown direction="left" class="d-inline-block" as |dd|}}
-                                    {{#dd.toggle class="" }}
-                                        <i class="fe fe-more-vertical text-gray"></i>
-                                    {{/dd.toggle}}
-                                    {{#dd.menu class="dropdown-menu-arrow" as |ddm|}}
-                                        {{#if question.has_permission}}
-                                            {{#ddm.item}}
-                                                {{#link-to 'questions.show' question.id class="dropdown-item" }} View
-                                                    Question {{/link-to}}
-                                            {{/ddm.item}}
-                                        {{/if}}
-                                        {{#ddm.item}}
-                                            <a class="dropdown-item" {{action 'refreshQuestion' question}}> Refresh </a>
-                                        {{/ddm.item}}
-                                        {{#if (and dashboard.has_permission (can "edit dashboard"))}}
-                                            {{#ddm.item}}
-                                                <a class="dropdown-item"
-                                                    {{action 'showDeleteFromDashboardDialogue' question}}> Remove from
-                                                    Dashboard </a>
-                                            {{/ddm.item}}
-                                        {{/if}}
-                                    {{/dd.menu}}
-                                {{/bs-dropdown}}
-                            </div>
-                        </div>
-                    {{/if}}
-                    <div class="card-body m-0 p-0">
-                        {{#if question.results}} {{question-widget question=question
+            {{#bs-dropdown direction="left" class="d-inline-block" as |dd|}}
+            {{#dd.toggle class="" }}
+            <i class="fe fe-more-vertical text-gray"></i>
+            {{/dd.toggle}}
+            {{#dd.menu class="dropdown-menu-arrow" as |ddm|}}
+            {{#if question.has_permission}}
+            {{#ddm.item}}
+            {{#link-to 'questions.show' question.id class="dropdown-item" }} View
+            Question {{/link-to}}
+            {{/ddm.item}}
+            {{/if}}
+            {{#ddm.item}}
+            <a class="dropdown-item" {{action 'refreshQuestion' question}}> Refresh </a>
+            {{/ddm.item}}
+            {{#if (and dashboard.has_permission (can "edit dashboard"))}}
+            {{#ddm.item}}
+            <a class="dropdown-item" {{action 'showDeleteFromDashboardDialogue' question}}> Remove from
+                Dashboard </a>
+            {{/ddm.item}}
+            {{/if}}
+            {{/dd.menu}}
+            {{/bs-dropdown}}
+        </div>
+    </div>
+    {{/if}}
+    <div class="card-body m-0 p-0">
+        {{#if question.results}}
+        {{question-widget question=question
                           results=question.results
                           resultsViewSettings=question.results_view_settings
                           resizeTime=resizeTime
                           resultsViewType=question.results_view_settings.resultsViewType hideMenu=question.showCardHeader refresh="refreshQuestion" dashboard=dashboard remove="showDeleteFromDashboardDialogue"}}
-                        {{else}}
-                            {{#if (or question.loading (not question.content.isLoaded))}}
-                                <div class="dimmer active">
-                                    <div class="loader text-primary"></div>
-                                    <div class="dimmer-content"> </div>
-                                </div>
-                            {{/if}}
-                        {{/if}}
-                    </div>
-                </div>
-            {{/grid-stack-item}}
-        {{/each}}
-    {{/grid-stack}}
+        {{else}}
+        {{#if (or question.loading (not question.content.isLoaded))}}
+        <div class="dimmer active">
+            <div class="loader text-primary"></div>
+            <div class="dimmer-content"> </div>
+        </div>
+        {{/if}}
+        {{/if}}
+    </div>
+</div>
+{{/grid-stack-item}}
+{{/each}}
+{{/grid-stack}}
 {{/if}}
 {{delete-dialogue open=toggleDeleteDashboardDialogue entityName="question from Dashboard" entity=toBeDeleted delete="deleteFromDashboard" className="delete-from-dashboard"}}

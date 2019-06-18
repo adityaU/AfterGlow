@@ -1,0 +1,41 @@
+{{#if (exists-in index results)}}
+<div class="dropdown-item">
+    {{#link-to 'explore.new' (get-column-id index results) value target="_"}}
+    View Details
+    {{/link-to}}
+
+</div>
+<div class="dropdown-divider"></div>
+{{/if}}
+
+<div class="dropdown-item">
+
+    {{#copy-button
+  class="btn btn-link p-0"
+  clipboardText=value
+}}
+    Copy Exact Value
+    {{/copy-button}}
+</div>
+
+<div class="dropdown-item">
+    {{#copy-button
+  class="btn btn-link p-0"
+  clipboardText=(format-object value)
+}}
+    Copy Formated Value
+    {{/copy-button}}
+</div>
+{{#if (and showQuickFilters noGroupBysInAdditionalFilters)}}
+<div class="dropdown-divider"></div>
+<div class="dropdown-item">
+    Quick Filters:
+</div>
+<div class="dropdown-divider"></div>
+
+{{#each operators as |operator|}}
+<div class="dropdown-item" {{action 'addFilter' operator}}>
+    {{capitalize column}} {{operator.value}} {{format-object value}}
+</div>
+{{/each}}
+{{/if}}

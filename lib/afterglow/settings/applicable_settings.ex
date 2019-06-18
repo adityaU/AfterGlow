@@ -45,9 +45,7 @@ defmodule AfterGlow.Settings.ApplicableSettings do
   end
 
   def max_frontend_limit(user) do
-    limit =
-      get_by_applicablity_order("MAX_FRONTEND_LIMIT", user)
-      |> IO.inspect(label: "limit")
+    limit = get_by_applicablity_order("MAX_FRONTEND_LIMIT", user)
 
     if !limit || limit > 2000, do: 2000, else: limit
   end

@@ -357,7 +357,17 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
         },
         setEditorWhenReady(editor) {
             this.set('aceEditor', editor);
-        }
+        },
+    apply(){
+      if (this.get('canEdit')){
+        this.getResultsFunction(this.get('queryObject'))
+      }else{
+            let question = this.get('question');
+            question.set('resultsCanBeLoaded', true);
+            question.set('updated_at', new Date());
+      }
+    }
+
 
     }
 });

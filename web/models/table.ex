@@ -35,9 +35,69 @@ defmodule AfterGlow.Table do
     default_preloads()
   end
 
+  def make_schema(id) do
+    table = __MODULE__ |> Repo.get(id) |> Repo.preload(:columns)
+    column_ids = column_ids(table)
+
+    schema =
+      foreign_keys(column_ids)
+      |> Enum.reduce(%{}, fn fkey, acc ->
+        if column_ids |> Enum.member?(fkey.column_id) do
+          acc
+          |> Map.put(fkey.foreign_column.table.name |> String.to_atom(), %{
+            cardinality: :belongs_to,
+            table_name: fkey.foreign_column.table.name,
+            primary_key: fkey.foreign_column.name,
+            foreign_key: fkey.column.name
+          })
+          |> Map.put(fkey.foreign_column.table.readable_table_name |> String.to_atom(), %{
+            cardinality: :belongs_to,
+            table_name: fkey.foreign_column.table.name,
+            primary_key: fkey.foreign_column.name,
+            foreign_key: fkey.column.name
+          })
+        else
+          acc
+          |> Map.put(fkey.column.table.name |> String.to_atom(), %{
+            table_name: fkey.column.table.name,
+            cardinality: :has_many,
+            primary_key: fkey.foreign_column.name,
+            foreign_key: fkey.column.name
+          })
+          |> Map.put(fkey.column.table.readable_table_name |> String.to_atom(), %{
+            cardinality: :has_many,
+            table_name: fkey.column.table.name,
+            primary_key: fkey.foreign_column.name,
+            foreign_key: fkey.column.name
+          })
+        end
+      end)
+
+    %{("#{table.name}" |> String.to_atom()) => schema}
+  end
+
   def update_changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:description])
+  end
+
+  def column_ids(table) do
+    table.columns
+    |> Enum.map(fn c -> c.id end)
+  end
+
+  def foreign_keys(column_ids) do
+    from(fk in ForeignKey)
+    |> where([fk], fk.column_id in ^column_ids)
+    |> or_where([fk], fk.foreign_column_id in ^column_ids)
+    |> Repo.all()
+    |> Repo.preload(column: :table)
+    |> Repo.preload(foreign_column: :table)
+  end
+
+  def preload_columns(table) do
+    table
+    |> Repo.preload(columns: from(c in Column, order_by: c.primary_key))
   end
 
   def insert_foreign_key_columns_in_results(results, %__MODULE__{} = table) do
@@ -45,17 +105,10 @@ defmodule AfterGlow.Table do
       if table do
         table = table |> Repo.preload(:columns)
 
-        column_ids =
-          table.columns
-          |> Enum.map(fn c -> c.id end)
+        column_ids = column_ids(table)
 
         foreign_keys =
-          from(fk in ForeignKey)
-          |> where([fk], fk.column_id in ^column_ids)
-          |> or_where([fk], fk.foreign_column_id in ^column_ids)
-          |> Repo.all()
-          |> Repo.preload(:column)
-          |> Repo.preload(:foreign_column)
+          foreign_keys(column_ids)
           |> Enum.map(fn fk ->
             if column_ids |> Enum.member?(fk.column.id) do
               [%{fk.column.name => fk.column.id}]

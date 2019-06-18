@@ -1,0 +1,30 @@
+{{#if showGroupBy}}
+<div class="dropdown-item px-0">
+    {{#unless (eq columnObj.data_type 'datetime')}}
+    <a href="#" {{action 'addGroupBy'}}>
+        Group by {{capitalize column}}
+    </a>
+    {{else}}
+    {{searchable-select
+            class="my-2"
+            content=groupByDateTypes
+            sortBy="name"
+            selected=groupBy.castType
+            prompt="Select a time Grouping"
+            optionLabelKey="name"
+            on-change=(action 'addGroupBy')}}
+
+    {{/unless}}
+</div>
+<div class="dropdown-divider"></div>
+{{/if}}
+{{#unless ascendingOrderObj}}
+<div class="dropdown-item px-0">
+    <a href="#" {{action 'addAscendingOrder'}}>Sort by {{capitalize column}} (lower to higher)</a>
+</div>
+{{/unless}}
+{{#unless descendingOrderObj}}
+<div class="dropdown-item px-0">
+    <a href="#" {{action 'addDescendingOrder'}}>Sort by {{capitalize column}} (higher to lower)</a>
+</div>
+{{/unless}}

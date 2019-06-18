@@ -1,4 +1,19 @@
 # Changelog
+### 0.8.27
+  - Fix Ember.Logger deprecations (#266)
+  - Add the ability to `yield forever` to pause a task indefinitely (#274)
+  - Better error messaging for later versions of Ember (#270)
+
+### 0.8.24
+  - cancelAll({ resetState: true }) can remove existing derived state (#253)
+  - fix issue with Ember 3.6.0+ when IE11 is not being targeted (#261)
+
+### 0.8.22
+  - Fixes ember-metal related issues on Ember Canary.
+
+### 0.8.21
+  - Fixes ES5 getter syntax on Ember Canary (#248)
+
 ### 0.8.18
   - Adds `.evented()` task modifier and task lifecycle events.
 

@@ -1178,6 +1178,9 @@ table {
 }
 
 .dropdown-item {
+    text-transform: none !important;
+    font-weight: bold;
+    white-space: normal;
     &:hover {
         color: $primary !important;
     }
@@ -1527,6 +1530,32 @@ a:hover {
             content: '';
         }
     }
+    &[x-placement^="top"] {
+        &:before {
+            position: absolute;
+            bottom: -8px;
+            left: 12px;
+            display: inline-block;
+            border-right: 7px solid transparent;
+            border-top: 7px solid rgba(0, 40, 100, 0.12);
+            border-left: 7px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.2);
+            // background-color: white;
+            content: '';
+
+        }
+
+        &:after {
+            position: absolute;
+            bottom: -7px;
+            left: 12px;
+            display: inline-block;
+            border-right: 7px solid transparent;
+            border-top: 7px solid #fff;
+            border-left: 7px solid transparent;
+            content: '';
+        }
+    }
 
     &[x-placement^="left"] {
         &:before {
@@ -1772,4 +1801,38 @@ a:hover {
  .text-default{
      color: white !important;
  }
+}
+th{
+    font-weight: bold !important;
+
+}
+
+.nav-item a{
+    font-weight: bold;
+}
+.overflow-initial{
+    overflow: initial !important;
+}
+.overflow-x-auto{
+    overflow-x: auto !important;
+}
+td{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 350px;
+}
+.w-100 button{
+    width: 100%;
+    &.px-0{
+        width: initial;
+    }
+}
+.btn-link{
+    &:hover{
+        text-decoration: none;
+    }
+    &:focus{
+        text-decoration: none;
+    }
 }

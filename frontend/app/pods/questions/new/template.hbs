@@ -139,8 +139,9 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                         {{#if showSettings}}
                         {{component resultsWidgetSettingsComponent  resultsViewSettings=resultsViewSettings results=results database=queryParams.database table=queryParams.table }}
                         {{/if}}
-                        <div class="card-body p-0"> {{question-widget results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName
-                            hideMenu=true question=question resizeTime=resizeTime}}
+                        <div class="card-body p-0">
+                            {{question-widget results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName
+                            hideMenu=true question=question resizeTime=resizeTime apply='apply' showQuickFilters=true}}
                         </div>
                     </div>
                     {{else}}

@@ -171,7 +171,7 @@ defmodule SqlDust.PathUtils do
   end
 
   def quotation_mark(_) do
-    '"'
+    "\""
   end
 
   def quote_alias("*" = sql, _) do
@@ -187,9 +187,20 @@ defmodule SqlDust.PathUtils do
 
       Regex.match?(~r/\A#{quotation_mark}.*#{quotation_mark}\z/, sql) ->
         sql
+        |> path_with_schema(quotation_mark)
 
       true ->
         "#{quotation_mark}#{sql}#{quotation_mark}"
+        |> path_with_schema(quotation_mark)
     end
+  end
+
+  def path_with_schema(path, quotation_mark) do
+    path
+    |> String.split(".")
+    |> Enum.map(fn sql ->
+      "#{quotation_mark}#{sql |> String.trim(quotation_mark)}#{quotation_mark}"
+    end)
+    |> Enum.join(".")
   end
 end
