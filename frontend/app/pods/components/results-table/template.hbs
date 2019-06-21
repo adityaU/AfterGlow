@@ -3,6 +3,18 @@
         <thead>
             <tr>
                 {{#each results.columns as |column|}}
+
+                {{#if  (replace-column-with-api-action question.api_actions column question.apiActionsChanged)}}
+                <th>
+                    {{#if  canEdit}}
+                    {{capitalize column}}
+                    <i class="fe fe-edit text-primary"
+                        {{action 'editApiAction'  (replace-column-with-api-action question.api_actions column  question.apiActionsChanged)}}></i>
+                    <i class="fe fe-x-square text-red"
+                        {{action 'showDeleteApiActionModal' (replace-column-with-api-action question.api_actions column question.apiActionsChanged)}}></i>
+                    {{/if}}
+                </th>
+                {{else}}
                 <th>
                     {{#bs-dropdown closeOnMenuClick=false as |dd|}}
                     {{#dd.toggle class="text-muted"}}
@@ -27,14 +39,17 @@
                     {{/dd.menu}}
                     {{/bs-dropdown}}
                 </th>
+                {{/if}}
                 {{/each}}
                 {{#each question.api_actions as |apiAction|}}
+                {{#if  (not apiAction.column)}}
                 <th>
-                    {{#if canEdit}}
+                    {{#if  canEdit}}
                     <i class="fe fe-edit text-primary" {{action 'editApiAction' apiAction}}></i>
                     <i class="fe fe-x-square text-red" {{action 'showDeleteApiActionModal' apiAction}}></i>
                     {{/if}}
                 </th>
+                {{/if}}
                 {{/each}}
             </tr>
         </thead>
@@ -42,6 +57,15 @@
             {{#each pagedRows as |row|}}
             <tr>
                 {{#each row as |el index|}}
+
+                {{#if  (replace-column-with-api-action question.api_actions (get-in results.columns index) question.apiActionsChanged)}}
+                <td>
+                    <div class="btn btn-link text-{{get (replace-column-with-api-action question.api_actions (get-in results.columns index) question.apiActionsChanged) "color"}} text-uppercase p-0"
+                        {{action 'callApiAction' (replace-column-with-api-action question.api_actions (get-in results.columns index) question.apiActionsChanged)row}}>
+                        {{get-api-action-display-name row results.columns (get (replace-column-with-api-action question.api_actions (get-in results.columns index) question.apiActionsChanged) "name") }}
+                    </div>
+                </td>
+                {{else}}
                 <td class="">
 
                     {{#bs-dropdown direction="left" closeOnMenuClick=false as |dd|}}
@@ -56,12 +80,16 @@
                     {{/dd.menu}}
                     {{/bs-dropdown}}
                 </td>
+                {{/if}}
                 {{/each}}
                 {{#each question.api_actions as |apiAction|}}
+                {{#if (not apiAction.column)}}
                 <td>
                     <div class="btn btn-link text-{{apiAction.color}} text-uppercase p-0"
-                        {{action 'callApiAction' apiAction row}}>{{apiAction.name}}</div>
+                        {{action 'callApiAction' apiAction row}}>
+                        {{get-api-action-display-name row results.columns apiAction.name}}</div>
                 </td>
+                {{/if}}
                 {{/each}}
             </tr>
             {{else}}
@@ -70,7 +98,7 @@
         {{#if showPageNumbers}}
         <tfoot class="full-width">
             <tr>
-                <th colspan="100" class="p-0 pt-5">
+                <th colspan="100" class="p-0 py-5">
                     {{#if showResults}} {{page-numbers content=pagedRows}} {{else}}
                     <div class="centered"> Looks like your query did not return any result. </div>
                     {{/if}}
@@ -81,5 +109,5 @@
     </table>
 </div>
 {{delete-dialogue entityName="Api Action" open=toggleDeleteApiActionModal entity=deletableApiAction delete="deleteApiAction"}}
-{{api-action-modal apiAction=editableApiAction open=toggleEditApiActionModal}}
+{{api-action-modal apiAction=editableApiAction open=toggleEditApiActionModal results=results question=question}}
 {{api-action-result canDebug=canEdit result=apiActionResult open=toggleApiActionResult}}

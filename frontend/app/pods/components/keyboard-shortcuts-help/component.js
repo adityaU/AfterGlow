@@ -5,7 +5,7 @@ import KeyboardShortcuts from 'ember-keyboard-shortcuts/mixins/component';
 export default Ember.Component.extend( KeyboardShortcuts, {
   init(){
     this._super(...arguments)
-    let showKeyboardShortcutsButton = localStorage.getItem('AG_showKeyboardShortcutsButton') == null ? true : (localStorage.getItem('AG_showKeyboardShortcutsButton') == 'true') 
+    let showKeyboardShortcutsButton = localStorage.getItem('AG_showKeyboardShortcutsButton') == null ? true : (localStorage.getItem('AG_showKeyboardShortcutsButton') == 'true')
     this.set('showKeyboardShortcutsButton', showKeyboardShortcutsButton )
   },
   showKeyboardShortcutsButton: true,
@@ -24,6 +24,6 @@ export default Ember.Component.extend( KeyboardShortcuts, {
 
   keyboardShortcuts: {
     "ctrl+k": 'toggleKeyboardShortcuts',
-    "ctrl+shift+k": 'toggleKeyboardShortcutsButton'
+    "ctrl+l": 'toggleKeyboardShortcutsButton'
   }
 });

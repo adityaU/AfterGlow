@@ -57,6 +57,7 @@
     "ember-light-table": "1.8.3",
     "ember-load-initializers": "^0.6.0",
     "ember-lodash": "^4.17.2",
+    "ember-masonry-grid": "^1.1.0",
     "ember-moment": "7.3.0",
     "ember-multiselect-checkboxes": "^0.10.3",
     "ember-popper": "0.9.0",

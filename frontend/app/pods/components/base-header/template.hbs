@@ -11,14 +11,17 @@
                     <i class="fe fe-chevron-down mt-1 ml-1"></i>
                     {{/dd.toggle}}
                     {{#dd.menu className="dropdown-menu-arrow" as |ddm|}}
-                    {{#each dashboards as |dashboard|}}
-                    {{#ddm.item}}
-                    <a class="dropdown-item " {{action 'goToDashboard' dashboard}}> {{dashboard.title}} </a>
-                    {{/ddm.item}}
-                    {{/each}} {{ddm.divider}}
-                    {{#ddm.item}}
-                    {{#link-to 'dashboards.index' class="dropdown-item" }} All Dashboards {{/link-to}}
-                    {{/ddm.item}}
+                    <div class="menu-content">
+                        {{#each dashboards as |dashboard|}}
+                        {{#ddm.item}}
+                        <a class="dropdown-item " {{action 'goToDashboard' dashboard}}> {{dashboard.title}} </a>
+                        {{/ddm.item}}
+                        {{/each}} {{ddm.divider}}
+                        {{#ddm.item}}
+                        {{#link-to 'dashboards.index' class="dropdown-item" }} All Dashboards {{/link-to}}
+                        {{/ddm.item}}
+
+                    </div>
                     {{/dd.menu}}
                     {{/bs-dropdown}}
                     {{/if}}

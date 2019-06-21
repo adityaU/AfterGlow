@@ -7,12 +7,12 @@ defmodule AfterGlow.TableController do
   alias AfterGlow.CacheWrapper
   alias AfterGlow.CacheWrapper.Repo
 
-  plug Authorization
-  plug :authorize!, Table
-  plug :scrub_params, "data" when action in [:create, :update]
-  plug :verify_authorized
+  plug(Authorization)
+  plug(:authorize!, Table)
+  plug(:scrub_params, "data" when action in [:create, :update])
+  plug(:verify_authorized)
 
-  def index(conn, %{"filter" => %{"id" =>ids}}) do
+  def index(conn, %{"filter" => %{"id" => ids}}) do
     ids = ids |> String.split(",")
     tables = CacheWrapper.get_by_ids(Table, ids) |> Repo.preload(:columns)
     render(conn, :index, data: tables)
@@ -44,14 +44,18 @@ defmodule AfterGlow.TableController do
     render(conn, :show, data: table)
   end
 
-  def update(conn, %{"id" => id, "data" => data = %{"type" => "tables", "attributes" => _table_params}}) do
-    table =  CacheWrapper.get_by_id(Table, [id])
+  def update(conn, %{
+        "id" => id,
+        "data" => data = %{"type" => "tables", "attributes" => _table_params}
+      }) do
+    table = CacheWrapper.get_by_id(Table, [id])
     changeset = Table.update_changeset(table, Params.to_attributes(data))
 
     case Repo.update_with_cache(changeset) do
       {:ok, table} ->
         table = table |> Repo.preload(:columns)
         render(conn, :show, data: table)
+
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -68,5 +72,4 @@ defmodule AfterGlow.TableController do
 
   #   send_resp(conn, :no_content, "")
   # end
-
 end

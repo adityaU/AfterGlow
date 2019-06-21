@@ -10,31 +10,28 @@
     </div>
 </div>
 <div class="container mt-5">
-    <div class="row row-cards">
-        {{#each databases as |database|}}
-            <div class="col-3 database-cards">
-                <div class="card p-3 mx-2">
-                    <div class="d-flex align-items-center">
-                        <span class="stamp stamp-md bg-primary mr-3">
-                            <i class="fe fe-database"></i>
-                        </span>
-                        <div class="row justify-content-between w-100">
-                            <div class="col">
-                                <h4 class="m-0">
-                                    {{#link-to "data_references.databases.show.tables.all" database.id class="item text-primary"
+    {{#masonry-grid items=databases as |database|}}
+    <div class="card p-3 mb-0">
+        <div class="d-flex align-items-center">
+            <span class="stamp stamp-md bg-primary mr-3">
+                <i class="fe fe-database"></i>
+            </span>
+            <div class="row justify-content-between w-100">
+                <div class="col">
+                    <h4 class="m-0">
+                        {{#link-to "data_references.databases.show.tables.all" database.id class="item text-primary"
                                         }} {{database.name}} {{/link-to}}
-                                </h4>
-                                <small class="text-muted">{{database.db_type}}</small>
-                            </div>
-                            <div class="col-3 text-right">
-                                {{#if canEdit}}
-                                    <button class="btn btn-link text-primary" {{action 'syncDatabase' database}}> {{bs-tooltip placement="top" title="Sync All Tables and Columns"}} SYNC </button>
-                                {{/if}}
-                            </div>
-                        </div>
-                    </div>
+                    </h4>
+                    <small class="text-muted">{{database.db_type}}</small>
+                </div>
+                <div class="col-3 text-right">
+                    {{#if canEdit}}
+                    <button class="btn btn-link text-primary" {{action 'syncDatabase' database}}>
+                        {{bs-tooltip placement="top" title="Sync All Tables and Columns"}} SYNC </button>
+                    {{/if}}
                 </div>
             </div>
-        {{/each}}
+        </div>
     </div>
+    {{/masonry-grid}}
 </div>

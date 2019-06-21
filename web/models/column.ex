@@ -6,9 +6,25 @@ defmodule AfterGlow.Column do
     field(:data_type, :string)
     field(:description)
     field(:primary_key, :boolean)
+    field(:highlighted, :boolean, virtual: true)
     belongs_to(:table, AfterGlow.Table)
     has_many(:column_values, AfterGlow.ColumnValue, on_delete: :delete_all, on_replace: :delete)
-    has_many(:foreign_keys, AfterGlow.ForeignKey, on_delete: :delete_all, on_replace: :delete)
+
+    has_many(:foreign_keys, AfterGlow.ForeignKey,
+      on_delete: :delete_all,
+      on_replace: :delete
+    )
+
+    has_many(:belongs_to, AfterGlow.ForeignKey,
+      on_delete: :delete_all,
+      on_replace: :delete
+    )
+
+    has_many(:has_many, AfterGlow.ForeignKey,
+      foreign_key: :foreign_column_id,
+      on_delete: :delete_all,
+      on_replace: :delete
+    )
 
     timestamps()
   end

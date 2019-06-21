@@ -1,6 +1,6 @@
 {{question-options questionName=questionName saveQuestion='saveQuestion' validQuestion=validQuestion enableAddToDashboard=enableAddToDashBoard
 addToDashboard='addToDashboard' question=question newQuestion=newQuestion showVariables=showVariables transitionToIndex="transitionToIndex" transitionToSnapshots="transitionToSnapshots"
-canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
+canCreateSnapshot=canCreateSnapshot canEdit=canEdit results=results}}
 <div class="container p-0 mt-5">
     <div class="row">
         <div class="{{if showVariables " col-9 " "col-12 "}}">
@@ -34,11 +34,21 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                                 <div class="card-body">
                                     <div class="row">
                                         {{#if queryObject.database}}
-                                        <div class="col-3"> {{db-tree database=queryObject.database}} </div>
+                                        <div class="col-3">
+                                            {{db-tree database=queryObject.database sql=queryObject.rawQuery editor=aceEditor}}
+                                        </div>
                                         {{/if}}
-                                        <div class="{{if queryObject.database 'col-9' 'col-12'}}"> {{ember-ace lines=15 value=queryObject.rawQuery mode=aceMode enableSnippets=true enableDefaultAutocompletion=true enableLiveAutocompletion=true
+                                        <div class="{{if queryObject.database 'col-9' 'col-12'}}">
+                                            <div class="ace-resizable">
+                                                <h3 class="ui-widget-header">Ace Editor</h3>
+                                                {{ember-ace value=queryObject.rawQuery mode=aceMode enableSnippets=true enableDefaultAutocompletion=true enableLiveAutocompletion=true
                                     context=queryObject.database suggestAutoCompletions=suggestAutoCompletions theme=aceTheme useWrapMode=true
                                     update=(action (mut queryObject.rawQuery)) ready=(action 'setEditorWhenReady')}}
+                                            </div>
+                                            <small class="text-muted p-3">
+                                                Select query and Press Ctrl + R to run selected Query. Ctrl + Enter to
+                                                run complete Query.
+                                            </small>
                                         </div>
                                     </div>
                                 </div>
@@ -83,7 +93,8 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                     {{#if canEdit}}
                     {{# if (or errors.final_query (or variablesReplacedQuery isQueryLimited))}}
                     <div class="mb-5">
-                        {{#if (or results.final_query errors.final_query)}} {{final-query-accordian isQueryLimited=isQueryLimited
+                        {{#if (or results.final_query errors.final_query)}}
+                        {{final-query-accordian isQueryLimited=isQueryLimited
                                 queryLimit=queryLimit
                                 variablesReplacedQuery=variablesReplacedQuery
                                 aceMode=aceMode
@@ -146,7 +157,7 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                     </div>
                     {{else}}
                     {{#if loading}}
-                    <div class="card results">
+                    <div class="card results mx-auto">
                         <div class="card-body">
                             <div class="dimmer active p-8">
                                 <div class="loader big text-primary"> </div>
@@ -155,15 +166,15 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit }}
                         </div>
                     </div>
                     {{else}}
-                    <div class="card results">
+                    <div class="card results mx-auto">
                         {{#if errorMessage}}
-                        <div class="query error section text-red">
+                        <div class="query error section text-red m-auto">
                             <div class="ui big">
                                 <i class="fe fe-x-circle text-red"></i>
                             </div> {{errorMessage}}
                         </div>
                         {{else}}
-                        <div class="section">Wanna see something cool? Run a Query!</div>
+                        <div class="section m-auto">Wanna see something cool? Run a Query!</div>
                         {{/if}}
                     </div>
                     {{/if}}

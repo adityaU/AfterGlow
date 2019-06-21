@@ -23,13 +23,15 @@
         {{/if}} Additional Filters Applied </div>
 </span>
 {{/aitem.title}}
-{{#aitem.body}} {{ember-ace
-          lines=10
+{{#aitem.body}}
+<div class="ace-resizable">
+    {{ember-ace
           value=finalQuery
           mode=aceMode
           theme=aceTheme
           readOnly=true
         }}
+</div>
 {{/aitem.body}}
 {{/acc.item}}
 {{/bs-accordion}}

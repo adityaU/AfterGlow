@@ -1,34 +1,18 @@
-<div class="ui fullscreen modal select-dashboard-variables">
-    <div class="header">
-        Select Variables for this dashboard
-    </div>
-    <div class=" content">
-        <div class="ui grid">
-            <div class="ui horizontal divider">Selected</div>
-                {{#each variablesSelected as |variable|}}
-                    <div class="four wide column margin-bottom">
-                    <div class="selected permission-select margin-top" {{action 'removeVariable' variable}}>
-                        {{variable.name}}
-                    </div>
-                    </div>
-                {{/each}}
-
-            <div class="ui horizontal divider">Can be Selected</div>
-            {{#each variablesRemaining as |variable|}}
-                <div class="four wide column">
-                    <div class="permission-select margin-top" {{action 'selectVariable' variable}}>
-                        {{variable.name}}
-                    </div>
-                </div>
-            {{/each}}
-        </div>
-    </div>
-    <div class="actions">
-        <div class="ui red cancel button">
-            Cancel
-        </div>
-        <div class="ui positive right button" >
-            Done
-        </div>
-    </div>
-</div>
+{{#bs-modal position="center" open=open onHide=(action 'hide') as |modal|}}
+{{#modal.header}}
+<h4 class="modal-title"> Select Variables For This Dashboard </h4>
+{{/modal.header}}
+{{#modal.body}}
+{{searchable-select
+            content=variables
+            multiple=true
+            optionLabelKey="name"
+            selected=variablesSelected
+            closeOnSelection=false
+            prompt="Select Variables"
+            on-change=(action 'mutateVariables')}}
+{{/modal.body}}
+{{#modal.footer as |footer|}}
+{{#bs-button onClick=(action 'hide') class="btn-primary" type="primary" }}Done{{/bs-button}}
+{{/modal.footer}}
+{{/bs-modal}}

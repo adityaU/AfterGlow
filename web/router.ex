@@ -52,6 +52,9 @@ defmodule AfterGlow.Router do
 
     resources("/alert_events", AlertEventController)
     resources("/search_items", SearchItemController)
+    resources("/search_tables", SearchTableController)
+
+    get("search_tables/:id/foreign_tables", SearchTableController, :foreign_tables)
 
     post("api_actions/:id/send_request", ApiActionController, :send_request)
     post("users/:id/activate", UserController, :activate)

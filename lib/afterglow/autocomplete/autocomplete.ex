@@ -10,6 +10,52 @@ defmodule AfterGlow.AutoComplete do
   alias AfterGlow.Question.Policy, as: QuestionPolicy
   alias AfterGlow.Dashboard.Policy, as: DashboardPolicy
 
+  def table_autocomplete("", database_id) do
+    from(t in Table,
+      where: t.database_id == ^database_id,
+      order_by: [fragment("? ASC, length(?) ASC", t.readable_table_name, t.readable_table_name)]
+    )
+    |> Repo.all()
+    |> Repo.preload(columns: {from(c in Column, limit: 0), :belongs_to})
+  end
+
+  def table_autocomplete(q, database_id) do
+    tables =
+      from(t in Table,
+        where:
+          (ilike(t.readable_table_name, ^"#{q}%") or
+             ilike(t.readable_table_name, ^"_#{q}%")) and t.database_id == ^database_id,
+        order_by: [fragment("? ASC, length(?) ASC", t.readable_table_name, t.readable_table_name)]
+      )
+      |> Repo.all()
+      |> Repo.preload(columns: {from(c in Column, limit: 0), :belongs_to})
+
+    table_with_columns =
+      from(t in Table,
+        left_join: c in Column,
+        on: c.table_id == t.id,
+        where: ilike(c.name, ^"%#{q}%") and t.database_id == ^database_id,
+        order_by: [fragment("? ASC, length(?) ASC", t.readable_table_name, t.readable_table_name)],
+        group_by: t.id
+      )
+      |> Repo.all()
+      |> Repo.preload(columns: {from(c in Column, where: ilike(c.name, ^"%#{q}%")), :belongs_to})
+      |> Enum.map(fn t -> %{t | open: true, expandable: true} end)
+
+    tables =
+      tables
+      |> Enum.reject(fn table ->
+        table_with_columns
+        |> Enum.any?(fn t ->
+          t.readable_table_name == table.readable_table_name
+        end)
+      end)
+      |> Enum.map(fn t -> %{t | open: false, expandable: false} end)
+
+    (tables ++ table_with_columns)
+    |> Enum.sort(&(&1.readable_table_name < &2.readable_table_name))
+  end
+
   def entity_autocomplete("", current_user) do
     question_query(current_user)
     |> Repo.all()

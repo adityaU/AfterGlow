@@ -13,6 +13,7 @@ defmodule AfterGlow.ApiActions.ApiAction do
     field(:body, :string)
     field(:method, MethodEnum)
     field(:name, :string)
+    field(:column, :string)
     field(:color, :string)
     field(:hidden, :boolean)
     field(:open_in_new_tab, :boolean)
@@ -31,7 +32,8 @@ defmodule AfterGlow.ApiActions.ApiAction do
       :open_in_new_tab,
       :method,
       :question_id,
-      :hidden
+      :hidden,
+      :column
     ])
     |> validate_required([:url, :name, :method, :question_id])
   end

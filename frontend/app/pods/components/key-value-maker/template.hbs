@@ -1,15 +1,15 @@
 {{#each objArray as |el|}}
-    <div class="row">
-        <div class="col-5 pr-2">
-            {{input value=el.key class="form-control" placeholder="key"}}
-        </div>
-        <div class="col-5 pl-2">
-            {{input value=el.value class="form-control" placeholder="value"}}
-        </div>
-        <div class="col-2">
-            <div class="btn btn-link text-red" {{action 'deleteKey' el}}>DELETE</div>
-        </div>
+<div class="row">
+    <div class="col-5 pr-2">
+        {{input value=el.key class="form-control" placeholder="key"}}
     </div>
+    <div class="col-5 pl-2">
+        {{input value=el.value type=(if password "password" "value") class="form-control" placeholder="value"}}
+    </div>
+    <div class="col-2">
+        <div class="btn btn-link text-red" {{action 'deleteKey' el}}>DELETE</div>
+    </div>
+</div>
 {{/each}}
 <div class="row">
     <div class="col-12">

@@ -7,7 +7,9 @@ defmodule AfterGlow.Table do
   schema "tables" do
     field(:name, :string)
     field(:readable_table_name, :string)
-    field(:description)
+    field(:description, :string)
+    field(:open, :boolean, virtual: true)
+    field(:expandable, :boolean, virtual: true)
     belongs_to(:database, AfterGlow.Database)
     has_many(:columns, Column, on_delete: :delete_all, on_replace: :delete)
 
@@ -93,6 +95,19 @@ defmodule AfterGlow.Table do
     |> Repo.all()
     |> Repo.preload(column: :table)
     |> Repo.preload(foreign_column: :table)
+  end
+
+  def foreign_tables(id) do
+    table = __MODULE__ |> Repo.get(id) |> Repo.preload(:columns)
+    column_ids = column_ids(table)
+
+    foreign_keys(column_ids)
+    |> Enum.map(fn fkey ->
+      [fkey.column.table, fkey.foreign_column.table]
+    end)
+    |> List.flatten()
+    |> Enum.uniq()
+    |> Enum.filter(&(&1.id != table.id))
   end
 
   def preload_columns(table) do

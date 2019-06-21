@@ -10,25 +10,6 @@
     </div>
 </div>
 <div class="container mt-5">
-    <div class="row row-cards">
-        {{#each dashboards as |dashboard|}}
-            <div class="col-3 database-cards">
-                <div class="card p-3 mx-2">
-                    <div class="d-flex align-items-center">
-                        <span class="stamp stamp-md bg-primary mr-3">
-                            <i class="fe fe-grid"></i>
-                        </span>
-                        <div class="row justify-content-between w-100">
-                            <div class="col">
-                                <h4 class="m-0">
-                                    {{#link-to "dashboards.show" dashboard.id class="item text-primary" }} {{dashboard.title}} {{/link-to}}
-                                </h4>
-                                <small class="text-muted">{{dashboard.description}}</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {{/each}}
-    </div>
+
+    {{dashboard-index-grid dashboards=dashboards}}
 </div>

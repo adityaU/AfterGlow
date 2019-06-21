@@ -1,0 +1,70 @@
+<div class="tree text-default">
+    {{#each tables as |table|}}
+    {{#unless (exists-in-array parents table.id)}}
+    <div class="node-name d-flex" {{action "showAllColumns" table bubbles=false}}>
+        {{#if table.open}}
+        <i class="fe fe-chevron-down py-1 pr-1"></i>
+        {{else}}
+        <i class="fe fe-chevron-right py-1 pr-1"></i>
+        {{/if}}
+        <div class="col-7">
+            {{#if relation}}
+            <span class="text-icon bg-indigo-light text-white">R</span>
+            {{else}}
+            <span class="text-icon bg-primary text-white">T</span>
+            {{/if}}
+            {{table.readable_table_name}}
+        </div>
+        <div class="text-right col-3">
+            <i class="fe fe-arrow-right text-primary"
+                {{action 'pasteAtCursor' table.readable_table_name bubbles=false}}>
+                {{#bs-tooltip}}Paste At Cursor{{/bs-tooltip}}
+            </i>
+            {{#if table.expandable}}
+            <i class="fe fe-plus-circle text-primary" {{action 'showAllColumns' table true bubbles=false}}>
+                {{#bs-tooltip}}See All Columns{{/bs-tooltip}}
+            </i>
+            {{/if}}
+            {{#link-to 'data_references.databases.show.tables.show.explore' database.id table.id target="_blank" bubbles=false}}
+            <i class="fe fe-zoom-in">
+
+                {{#bs-tooltip}}View Table in New Tab{{/bs-tooltip}}
+            </i>
+            {{/link-to}}
+        </div>
+    </div>
+    <div class="leafs pl-4 {{if table.open '' 'hidden'}}">
+        {{#each table.columns as |column|}}
+        <div class="leaf-name ">
+            <div class="row w-100">
+                <div class="col-9 py-1">
+                    {{#if column.primary_key}}
+                    <span class="text-icon bg-red-dark text-white">PK</span>
+                    {{else}}
+                    {{#if column.is_foreign_key}}
+                    <span class="text-icon bg-red-lighter text-white">FK</span>
+                    {{else}}
+                    <span class="text-icon bg-red-light text-white">C</span>
+                    {{/if}}
+                    {{/if}}
+                    {{column.name}}
+
+                </div>
+                <div class="col-2">
+                    <i class="fe fe-arrow-right text-primary" {{action 'pasteAtCursor' column.name bubbles=false}}>
+                        {{#bs-tooltip}}Paste At Cursor{{/bs-tooltip}}
+                    </i>
+
+                </div>
+
+            </div>
+        </div>
+        {{/each}}
+
+        {{#unless table.expandable}}
+        {{table-tree tables=table.foreign_tables database=database parents=(add-to-parents parents table.id) editor=editor relation=true}}
+        {{/unless}}
+    </div>
+    {{/unless}}
+    {{/each}}
+</div>

@@ -110,11 +110,15 @@ defmodule AfterGlow.Variable do
     end
   end
 
+  def format_value(variable, nil) do
+    "NULL"
+  end
+
   def format_value(variable, value) do
     case variable.var_type do
       "Date" ->
-        case Ecto.DateTime.cast(value) do
-          {:ok, date} ->
+        case NaiveDateTime.from_iso8601(value) do
+          {:ok, _date} ->
             "'#{value}'"
 
           _ ->

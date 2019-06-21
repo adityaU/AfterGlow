@@ -33,6 +33,7 @@ module.exports = function (defaults) {
     app.import('./bower_components/ace-builds/src-noconflict/ext-language_tools.js');
     app.import('./bower_components/popper.js/dist/popper.min.js');
     app.import('./bower_components/ace-builds/src-noconflict/snippets/text.js', {
+
         type: 'vendor'
     });
     app.import('./bower_components/ace-builds/src-noconflict/snippets/sql.js', {
@@ -43,7 +44,12 @@ module.exports = function (defaults) {
         prepend: true,
 
     });
+    app.import('./bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css',{
+        type: 'vendor',
+        prepend: true,
 
+    } );
+    app.import('./bower_components/jquery-ui/jquery-ui.min.js');
     // Use `app.import` to add additional libraries to the generated
     // output files.
     //

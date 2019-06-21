@@ -1,4 +1,5 @@
 @import 'variables';
+@import 'jquery-ui.min';
 @import "ember-searchable-select/style";
 @import url(https://cdn.rawgit.com/tonsky/FiraCode/1.205/distr/fira_code.css);
 $primaryColor: $primary;
@@ -49,36 +50,13 @@ g.slicetext {
 }
 
 .sidebar {
-    position: fixed;
+    position: fixed !important;
     background: $lightTransparentColor;
     top: 0px;
     right: 0px;
     bottom: 0px;
-    left: 70%;
-    color: white;
+    width: 400px !important;
     z-index: 80;
-
-    & .header {
-        background: #515665;
-        border-radius: 2px;
-        padding: 5px;
-        margin: 5px 0px;
-        text-transform: uppercase;
-        text-align: center;
-    }
-
-    & .subheader {
-        padding: 10px;
-    }
-
-    & .content {
-        padding: 10px;
-        background: #515665;
-
-        & .shortcut {
-            float: right
-        }
-    }
 }
 
 .searchbar.overlay {
@@ -122,15 +100,17 @@ g.slicetext {
 }
 
 
-.ace-editor {
-    margin-left: -14px !important;
-    margin-right: -14px !important;
-    border-bottom: 1px solid $greyColor !important;
-    border-top: 1px solid $greyColor !important;
-
-    & pre {
-        margin-bottom: 0px !important;
-    }
+.ace_editor {
+    position: absolute !important;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0px;
+    // margin-left: -14px !important;
+    // margin-right: -14px !important;
+    // border-bottom: 1px solid $greyColor !important;
+    // border-top: 1px solid $greyColor !important;
 }
 
 
@@ -1021,7 +1001,6 @@ button.toast-close-button {
 
     & .section {
         text-align: center;
-        margin-top: 22%;
         font-size: x-large;
         color: $text-muted;
 
@@ -1113,21 +1092,16 @@ body {
 }
 
 .db-tree {
-    height: 240px;
-
-    & .tree {
+    height: 250px;
         overflow: auto;
-        height: calc(100% - 22px);
+    & .tree {
+        max-height: calc(100%);
 
-        .leafs {
-            text-indent: 20px;
-            background: $body-bg;
-
-            &.leaf-name {
-                font-size: 0.9em
+            & .leaf-name {
+                font-size: 0.9em;
+                text-indent: 20px;
             }
         }
-    }
 }
 
 // .tag:hover {
@@ -1836,3 +1810,27 @@ td{
         text-decoration: none;
     }
 }
+.ace-resizable{
+    position: relative;
+    border-bottom: 3px solid $primaryColor;
+    padding: 5px;
+    min-height: 250px;
+    border-radius: 5px;
+}
+.masonry-item {
+     width: 25%;
+     padding: 5px;
+ }
+ .text-icon{
+    padding: 3px 6px;
+    font-weight: bold;
+    font-size: 0.7rem;
+    border-radius: 3px;
+ }
+ .footer{
+     position: fixed;
+     bottom: 0;
+     left: 0;
+     right: 0;
+     z-index: 10;
+ }

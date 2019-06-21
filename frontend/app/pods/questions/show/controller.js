@@ -31,6 +31,7 @@ export default QuestionNewController.extend(ResultViewMixin, CanMixin, {
             let question = this.get('question');
             question.set('resultsCanBeLoaded', true);
             question.set('updated_at', new Date());
+            this.scrolToResultsView()
         },
         addToDashboard(dashboard) {
             dashboard.get('questions').addObject(this.get('question'));

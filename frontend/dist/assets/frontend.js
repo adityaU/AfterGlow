@@ -740,6 +740,22 @@ define('frontend/components/lt-spanned-row', ['exports', 'ember-light-table/comp
     }
   });
 });
+define('frontend/components/masonry-grid/component', ['exports', 'ember-masonry-grid/components/masonry-grid/component'], function (exports, _emberMasonryGridComponentsMasonryGridComponent) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberMasonryGridComponentsMasonryGridComponent['default'];
+    }
+  });
+});
+define('frontend/components/masonry-item/component', ['exports', 'ember-masonry-grid/components/masonry-item/component'], function (exports, _emberMasonryGridComponentsMasonryItemComponent) {
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function get() {
+      return _emberMasonryGridComponentsMasonryItemComponent['default'];
+    }
+  });
+});
 define('frontend/components/multiselect-checkboxes', ['exports', 'ember-multiselect-checkboxes/components/multiselect-checkboxes'], function (exports, _emberMultiselectCheckboxesComponentsMultiselectCheckboxes) {
   exports['default'] = _emberMultiselectCheckboxesComponentsMultiselectCheckboxes['default'];
 });
@@ -952,6 +968,26 @@ define('frontend/ember-cli-echarts/tests/app/components/echarts-chart.jshint.lin
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'app/components/echarts-chart.js should pass jshint.');
+  });
+});
+define('frontend/helpers/add-to-parents', ['exports', 'ember'], function (exports, _ember) {
+  var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+
+  exports['default'] = _ember['default'].Helper.extend({
+
+    compute: function compute(_ref) {
+      var _ref2 = _slicedToArray(_ref, 2);
+
+      var parents = _ref2[0];
+      var tableId = _ref2[1];
+
+      if (parents) {
+        parents.push(tableId);
+        return parents;
+      } else {
+        return [tableId];
+      }
+    }
   });
 });
 define('frontend/helpers/and', ['exports', 'ember', 'ember-truth-helpers/helpers/and'], function (exports, _ember, _emberTruthHelpersHelpersAnd) {
@@ -1204,6 +1240,24 @@ define('frontend/helpers/eq', ['exports', 'ember', 'ember-truth-helpers/helpers/
 
   exports['default'] = forExport;
 });
+define('frontend/helpers/exists-in-array', ['exports', 'ember'], function (exports, _ember) {
+  var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+
+  exports['default'] = _ember['default'].Helper.extend({
+
+    compute: function compute(_ref) {
+      var _ref2 = _slicedToArray(_ref, 2);
+
+      var arr = _ref2[0];
+      var el = _ref2[1];
+
+      if (arr && el) {
+
+        return arr && arr.indexOf(el) >= 0;
+      }
+    }
+  });
+});
 define('frontend/helpers/exists-in', ['exports', 'ember'], function (exports, _ember) {
     exports.existsIn = existsIn;
 
@@ -1320,6 +1374,30 @@ define('frontend/helpers/format-object', ['exports', 'ember'], function (exports
         }
     });
 });
+define('frontend/helpers/get-api-action-display-name', ['exports', 'frontend/helpers/format-object'], function (exports, _frontendHelpersFormatObject) {
+  var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+
+  exports['default'] = Ember.Helper.extend({
+
+    compute: function compute(_ref) {
+      var _ref2 = _slicedToArray(_ref, 3);
+
+      var row = _ref2[0];
+      var columns = _ref2[1];
+      var name = _ref2[2];
+
+      var formatObject = new _frontendHelpersFormatObject['default']();
+      if (name && columns && row) {
+        columns.forEach(function (column, i) {
+          var patern = '{{\\W*' + column + '\\W*}}';
+          var re = new RegExp(patern, 'g');
+          name = name.replace(re, formatObject.compute([row[i]]));
+        });
+      }
+      return name;
+    }
+  });
+});
 define('frontend/helpers/get-chart-icon', ['exports', 'ember', 'frontend/mixins/result-view-mixin'], function (exports, _ember, _frontendMixinsResultViewMixin) {
     exports.getChartIcon = getChartIcon;
 
@@ -1343,6 +1421,21 @@ define('frontend/helpers/get-column-id', ['exports', 'ember'], function (exports
     }
 
     exports['default'] = _ember['default'].Helper.helper(getColumnId);
+});
+define("frontend/helpers/get-in", ["exports"], function (exports) {
+  var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; })();
+
+  exports["default"] = Ember.Helper.extend({
+
+    compute: function compute(_ref) {
+      var _ref2 = _slicedToArray(_ref, 2);
+
+      var array = _ref2[0];
+      var index = _ref2[1];
+
+      return array && index && array[index];
+    }
+  });
 });
 define('frontend/helpers/get-row', ['exports', 'ember'], function (exports, _ember) {
     var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
@@ -1447,6 +1540,24 @@ define('frontend/helpers/inc', ['exports', 'ember-composable-helpers/helpers/inc
     enumerable: true,
     get: function get() {
       return _emberComposableHelpersHelpersInc.inc;
+    }
+  });
+});
+define('frontend/helpers/index-of', ['exports', 'ember'], function (exports, _ember) {
+  var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+
+  exports['default'] = _ember['default'].Helper.extend({
+
+    compute: function compute(_ref) {
+      var _ref2 = _slicedToArray(_ref, 2);
+
+      var arr = _ref2[0];
+      var el = _ref2[1];
+
+      if (arr && el) {
+
+        return arr && arr.indexOf(el);
+      }
     }
   });
 });
@@ -2015,6 +2126,24 @@ define('frontend/helpers/repeat', ['exports', 'ember-composable-helpers/helpers/
     enumerable: true,
     get: function get() {
       return _emberComposableHelpersHelpersRepeat.repeat;
+    }
+  });
+});
+define('frontend/helpers/replace-column-with-api-action', ['exports'], function (exports) {
+  var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+
+  exports['default'] = Ember.Helper.extend({
+
+    compute: function compute(_ref) {
+      var _ref2 = _slicedToArray(_ref, 3);
+
+      var apiActions = _ref2[0];
+      var column = _ref2[1];
+      var prop3 = _ref2[2];
+
+      return apiActions && column && apiActions.filter(function (item) {
+        return item.get('column') == column;
+      }).objectAt(0);
     }
   });
 });
@@ -4160,26 +4289,27 @@ define('frontend/models/alert', ['exports', 'ember-data'], function (exports, _e
     });
 });
 define('frontend/models/api-action', ['exports', 'ember-data', 'ember-api-actions'], function (exports, _emberData, _emberApiActions) {
-    exports['default'] = _emberData['default'].Model.extend({
-        question: _emberData['default'].belongsTo('question'),
-        url: _emberData['default'].attr('string'),
-        headers: _emberData['default'].attr('key-value-array'),
-        body: _emberData['default'].attr('string'),
-        method: _emberData['default'].attr('string'),
-        name: _emberData['default'].attr('string'),
-        color: _emberData['default'].attr('string'),
-        open_in_new_tab: _emberData['default'].attr('boolean'),
-        response_settings: _emberData['default'].attr('object'),
-        inserted_at: _emberData['default'].attr('utc'),
-        updated_at: _emberData['default'].attr('utc'),
+  exports['default'] = _emberData['default'].Model.extend({
+    question: _emberData['default'].belongsTo('question'),
+    url: _emberData['default'].attr('string'),
+    headers: _emberData['default'].attr('key-value-array'),
+    body: _emberData['default'].attr('string'),
+    method: _emberData['default'].attr('string'),
+    name: _emberData['default'].attr('string'),
+    column: _emberData['default'].attr('string'),
+    color: _emberData['default'].attr('string'),
+    open_in_new_tab: _emberData['default'].attr('boolean'),
+    response_settings: _emberData['default'].attr('object'),
+    inserted_at: _emberData['default'].attr('utc'),
+    updated_at: _emberData['default'].attr('utc'),
 
-        sendCall: (0, _emberApiActions.memberAction)({
-            path: 'send_request',
-            type: 'post',
-            urlType: 'findRecord'
-        })
+    sendCall: (0, _emberApiActions.memberAction)({
+      path: 'send_request',
+      type: 'post',
+      urlType: 'findRecord'
+    })
 
-    });
+  });
 });
 define('frontend/models/column-value', ['exports', 'ember-data'], function (exports, _emberData) {
     exports['default'] = _emberData['default'].Model.extend({
@@ -4196,29 +4326,32 @@ define('frontend/models/column-value', ['exports', 'ember-data'], function (expo
     });
 });
 define('frontend/models/column', ['exports', 'ember-data'], function (exports, _emberData) {
-    exports['default'] = _emberData['default'].Model.extend({
-        name: _emberData['default'].attr('string'),
-        data_type: _emberData['default'].attr('string'),
-        description: _emberData['default'].attr('string'),
-        human_name: _emberData['default'].attr('string'),
-        table: _emberData['default'].belongsTo('table'),
-        column_values: _emberData['default'].hasMany('column_value'),
-        inserted_at: _emberData['default'].attr('utc'),
-        updated_at: _emberData['default'].attr('utc'),
-        toJSON: function toJSON() {
-            return this._super({ includeId: true });
-        },
+  exports['default'] = _emberData['default'].Model.extend({
+    name: _emberData['default'].attr('string'),
+    data_type: _emberData['default'].attr('string'),
+    description: _emberData['default'].attr('string'),
+    human_name: _emberData['default'].attr('string'),
+    table: _emberData['default'].belongsTo('table'),
+    column_values: _emberData['default'].hasMany('column_value'),
+    primary_key: _emberData['default'].attr('boolean'),
+    is_foreign_key: _emberData['default'].attr('boolean'),
+    inserted_at: _emberData['default'].attr('utc'),
+    updated_at: _emberData['default'].attr('utc'),
+    highlighted: _emberData['default'].attr('boolean'),
+    toJSON: function toJSON() {
+      return this._super({ includeId: true });
+    },
 
-        isDateType: Ember.computed('data_type', function () {
-            var dataType = this.get('data_type');
-            if (dataType == 'date' || dataType == 'datetime' || dataType == 'timestamp without time zone') {
-                return true;
-            } else {
-                return false;
-            }
-        })
+    isDateType: Ember.computed('data_type', function () {
+      var dataType = this.get('data_type');
+      if (dataType == 'date' || dataType == 'datetime' || dataType == 'timestamp without time zone') {
+        return true;
+      } else {
+        return false;
+      }
+    })
 
-    });
+  });
 });
 define('frontend/models/dashboard', ['exports', 'ember-data', 'ember'], function (exports, _emberData, _ember) {
     exports['default'] = _emberData['default'].Model.extend({
@@ -4381,143 +4514,147 @@ define('frontend/models/permission', ['exports', 'ember-data'], function (export
     });
 });
 define('frontend/models/question', ['exports', 'ember-data', 'ember-api-actions', 'frontend/mixins/result-view-mixin'], function (exports, _emberData, _emberApiActions, _frontendMixinsResultViewMixin) {
-    exports['default'] = _emberData['default'].Model.extend(_frontendMixinsResultViewMixin['default'], {
-        router: Ember.inject.service(),
-        title: _emberData['default'].attr('string'),
-        results_view_settings: _emberData['default'].attr(),
-        human_sql: _emberData['default'].attr('query-object'),
-        query_type: _emberData['default'].attr('string'),
-        sql: _emberData['default'].attr('string'),
-        shareable_link: _emberData['default'].attr('string'),
-        is_shareable_link_public: _emberData['default'].attr('boolean'),
-        has_permission: _emberData['default'].attr('boolean'),
-        columns: _emberData['default'].attr(),
-        cached_results: _emberData['default'].attr(),
-        dashboards: _emberData['default'].hasMany('dashboards'),
-        tags: _emberData['default'].hasMany('tags'),
-        snapshots: _emberData['default'].hasMany('snapshots'),
-        shared_to: _emberData['default'].attr(),
-        variables: _emberData['default'].hasMany('variables'),
-        owner: _emberData['default'].belongsTo('user'),
-        widgets: _emberData['default'].hasMany('widgets'),
-        api_actions: _emberData['default'].hasMany('api_action'),
-        variables_from_this_question: _emberData['default'].hasMany('variables', {
-            inverse: 'question_filter'
-        }),
+  exports['default'] = _emberData['default'].Model.extend(_frontendMixinsResultViewMixin['default'], {
+    router: Ember.inject.service(),
+    title: _emberData['default'].attr('string'),
+    results_view_settings: _emberData['default'].attr(),
+    human_sql: _emberData['default'].attr('query-object'),
+    query_type: _emberData['default'].attr('string'),
+    sql: _emberData['default'].attr('string'),
+    shareable_link: _emberData['default'].attr('string'),
+    is_shareable_link_public: _emberData['default'].attr('boolean'),
+    has_permission: _emberData['default'].attr('boolean'),
+    columns: _emberData['default'].attr(),
+    cached_results: _emberData['default'].attr(),
+    dashboards: _emberData['default'].hasMany('dashboards'),
+    tags: _emberData['default'].hasMany('tags'),
+    snapshots: _emberData['default'].hasMany('snapshots'),
+    shared_to: _emberData['default'].attr(),
+    variables: _emberData['default'].hasMany('variables'),
+    owner: _emberData['default'].belongsTo('user'),
+    widgets: _emberData['default'].hasMany('widgets'),
+    api_actions: _emberData['default'].hasMany('api_action'),
+    variables_from_this_question: _emberData['default'].hasMany('variables', {
+      inverse: 'question_filter'
+    }),
 
-        inserted_at: _emberData['default'].attr('utc'),
-        updated_at: _emberData['default'].attr('utc'),
+    apiActionsChanged: Ember.computed('api_actions.isFulFilled', 'api_actions.@each.column', function () {
+      return new Date();
+    }),
 
-        shareable_url: Ember.computed('shareable_link', function () {
-            return window.location.origin + this.get('router').urlFor('questions.show', {
-                question_id: this.get('id'),
-                queryParams: {
-                    share_id: this.get('shareable_link')
-                }
-            });
-        }),
+    inserted_at: _emberData['default'].attr('utc'),
+    updated_at: _emberData['default'].attr('utc'),
 
-        toJSON: function toJSON() {
-            return this._super({
-                includeId: true
-            });
-        },
+    shareable_url: Ember.computed('shareable_link', function () {
+      return window.location.origin + this.get('router').urlFor('questions.show', {
+        question_id: this.get('id'),
+        queryParams: {
+          share_id: this.get('shareable_link')
+        }
+      });
+    }),
 
-        cachedResults: Ember.on('didLoad', Ember.observer('updated_at', 'resultsCanBeLoaded', 'cached_results', function () {
-            var _this = this;
+    toJSON: function toJSON() {
+      return this._super({
+        includeId: true
+      });
+    },
 
-            if (this.get('resultsCanBeLoaded') && !this.get('loading')) {
-                this.set('loading', true);
-                this.set('results', null);
-                var variables = this.get('query_variables');
-                variables = variables && variables.map(function (item) {
-                    return {
-                        name: item.get('name'),
-                        value: item.get('value') || item.get('default'),
-                        var_type: item.get('var_type'),
-                        default_options: item.get('default_options')
-                    };
-                }).filter(function (item) {
-                    return item.hasOwnProperty('name') && item['name'];
-                });
-                this.resultsCall({
-                    variables: variables,
-                    additionalFilters: this.get('human_sql.additionalFilters')
-                }).then(function (response) {
-                    _this.set('results', response.data);
-                    _this.set('cached_results', response.data);
-                    _this.set('loading', false);
-                    _this.set('resultsCanBeLoaded', false);
-                    _this.set('errorMessage', null);
-                    // }).then((error)=>{
-                    //     this.set('resultError', error.error)
-                    //     this.set("loading", false)
-                })['catch'](function (error) {
-                    _this.set('errorMessage', "Query could not be completed. Please check filters.");
-                    _this.set('loading', false);
-                    _this.set('results', null);
-                    _this.set('cached_results', null);
-                    _this.set('resultsCanBeLoaded', false);
-                });
-            } else if (!this.get('errorMessage') && !this.get('loading')) {
-                this.set('results', this.get('cached_results'));
-            }
-        })),
+    cachedResults: Ember.on('didLoad', Ember.observer('updated_at', 'resultsCanBeLoaded', 'cached_results', function () {
+      var _this = this;
 
-        mergedVariables: Ember.computed('dashboardVariables.@each', 'query_variables', function () {
-            var _this2 = this;
+      if (this.get('resultsCanBeLoaded') && !this.get('loading')) {
+        this.set('loading', true);
+        this.set('results', null);
+        var variables = this.get('query_variables');
+        variables = variables && variables.map(function (item) {
+          return {
+            name: item.get('name'),
+            value: item.get('value') || item.get('default'),
+            var_type: item.get('var_type'),
+            default_options: item.get('default_options')
+          };
+        }).filter(function (item) {
+          return item.hasOwnProperty('name') && item['name'];
+        });
+        this.resultsCall({
+          variables: variables,
+          additionalFilters: this.get('human_sql.additionalFilters')
+        }).then(function (response) {
+          _this.set('results', response.data);
+          _this.set('cached_results', response.data);
+          _this.set('loading', false);
+          _this.set('resultsCanBeLoaded', false);
+          _this.set('errorMessage', null);
+          // }).then((error)=>{
+          //     this.set('resultError', error.error)
+          //     this.set("loading", false)
+        })['catch'](function (error) {
+          _this.set('errorMessage', 'Query could not be completed. Please check filters.');
+          _this.set('loading', false);
+          _this.set('results', null);
+          _this.set('cached_results', null);
+          _this.set('resultsCanBeLoaded', false);
+        });
+      } else if (!this.get('errorMessage') && !this.get('loading')) {
+        this.set('results', this.get('cached_results'));
+      }
+    })),
 
-            this.get('dashboardVariables') && this.get('dashboardVariables').forEach(function (item) {
-                var query_var = _this2.get('query_variables').findBy('name', item.get('name'));
-                query_var && _this2.get('query_variables').removeObject(query_var);
-                query_var && _this2.get('query_variables').pushObject(item);
-            });
-            return this.get('query_variables');
-        }),
-        dashboardVariables: [],
+    mergedVariables: Ember.computed('dashboardVariables.@each', 'query_variables', function () {
+      var _this2 = this;
 
-        updatedAgoColor: Ember.computed('updated_at', 'updatedAgoColorChangeTime', function () {
-            var updated_at = this.get('updated_at');
-            if (updated_at) {
-                if (moment(updated_at).add(30, 'minutes') > moment()) {
-                    return 'green';
-                } else {
-                    return 'red';
-                }
-            }
-        }),
-        refreshInterval: 60000,
-        startTimer: Ember.on('didLoad', function () {
-            !this.isDestroyed && this.set('timer', this.schedule(this.get('onPoll')));
-        }),
-        schedule: function schedule(f) {
-            return Ember.run.later(this, function () {
-                f.apply(this);
-                !this.isDestroyed && this.set('timer', this.schedule(f));
-            }, this.get('refreshInterval.value'));
-        },
+      this.get('dashboardVariables') && this.get('dashboardVariables').forEach(function (item) {
+        var query_var = _this2.get('query_variables').findBy('name', item.get('name'));
+        query_var && _this2.get('query_variables').removeObject(query_var);
+        query_var && _this2.get('query_variables').pushObject(item);
+      });
+      return this.get('query_variables');
+    }),
+    dashboardVariables: [],
 
-        onPoll: function onPoll() {
-            !this.isDestroyed && this.set('updatedAgoColorChangeTime', new Date());
-        },
-        query_variables: Ember.computed.alias('variables'),
-        showCardHeader: Ember.computed('results_view_settings', 'results_view_settings.resultsViewType', function () {
-            return this.get('results_view_settings.resultsViewType') != 'Number';
-        }),
-        icon: Ember.computed('results_view_settings', 'results_view_settings.resultsViewType', function () {
-            var resultsViewType = this.get('results_view_settings.resultsViewType');
-            resultsViewType = resultsViewType && resultsViewType.toLowerCase();
-            return this.get('resultViewIcons')[resultsViewType] || 'fe fe-list';
-        }),
+    updatedAgoColor: Ember.computed('updated_at', 'updatedAgoColorChangeTime', function () {
+      var updated_at = this.get('updated_at');
+      if (updated_at) {
+        if (moment(updated_at).add(30, 'minutes') > moment()) {
+          return 'green';
+        } else {
+          return 'red';
+        }
+      }
+    }),
+    refreshInterval: 60000,
+    startTimer: Ember.on('didLoad', function () {
+      !this.isDestroyed && this.set('timer', this.schedule(this.get('onPoll')));
+    }),
+    schedule: function schedule(f) {
+      return Ember.run.later(this, function () {
+        f.apply(this);
+        !this.isDestroyed && this.set('timer', this.schedule(f));
+      }, this.get('refreshInterval.value'));
+    },
 
-        resultsCall: (0, _emberApiActions.memberAction)({
-            path: 'results',
-            type: 'post',
-            urlType: 'findRecord'
-        }),
-        resultsCanBeLoaded: false
+    onPoll: function onPoll() {
+      !this.isDestroyed && this.set('updatedAgoColorChangeTime', new Date());
+    },
+    query_variables: Ember.computed.alias('variables'),
+    showCardHeader: Ember.computed('results_view_settings', 'results_view_settings.resultsViewType', function () {
+      return this.get('results_view_settings.resultsViewType') != 'Number';
+    }),
+    icon: Ember.computed('results_view_settings', 'results_view_settings.resultsViewType', function () {
+      var resultsViewType = this.get('results_view_settings.resultsViewType');
+      resultsViewType = resultsViewType && resultsViewType.toLowerCase();
+      return this.get('resultViewIcons')[resultsViewType] || 'fe fe-list';
+    }),
 
-    });
+    resultsCall: (0, _emberApiActions.memberAction)({
+      path: 'results',
+      type: 'post',
+      urlType: 'findRecord'
+    }),
+    resultsCanBeLoaded: false
+
+  });
 });
 define('frontend/models/search-item', ['exports', 'ember-data'], function (exports, _emberData) {
     exports['default'] = _emberData['default'].Model.extend({
@@ -4525,6 +4662,37 @@ define('frontend/models/search-item', ['exports', 'ember-data'], function (expor
         item_type: _emberData['default'].attr('string'),
         type_id: _emberData['default'].attr('string')
     });
+});
+define('frontend/models/search-table', ['exports', 'ember-data', 'ember-api-actions'], function (exports, _emberData, _emberApiActions) {
+  exports['default'] = _emberData['default'].Model.extend({
+    name: _emberData['default'].attr('string'),
+    readable_table_name: _emberData['default'].attr('string'),
+    database: _emberData['default'].belongsTo('database'),
+    human_name: _emberData['default'].attr('string'),
+    columns: _emberData['default'].hasMany('column', { async: true }),
+    inserted_at: _emberData['default'].attr('utc'),
+    updated_at: _emberData['default'].attr('utc'),
+    open: _emberData['default'].attr('boolean'),
+    expandable: _emberData['default'].attr('boolean'),
+
+    toJSON: function toJSON() {
+      return this._super({ includeId: true });
+    },
+    foreignTablesObserver: Ember.observer('id', 'open', function () {
+      var _this = this;
+
+      if (this.get('open') && !this.get('expandable')) this.foreignTableCall().then(function (response) {
+        _this.store.pushPayload('search_table', response);
+        _this.set('foreign_tables', _this.store.push(response));
+      });
+    }),
+
+    foreignTableCall: (0, _emberApiActions.memberAction)({
+      path: 'foreign_tables',
+      type: 'GET',
+      urlType: 'findRecord'
+    })
+  });
 });
 define('frontend/models/send-alert-config', ['exports', 'ember-data'], function (exports, _emberData) {
     exports['default'] = _emberData['default'].Model.extend({
@@ -4617,7 +4785,21 @@ define('frontend/models/table', ['exports', 'ember-data', 'ember-api-actions'], 
 
     toJSON: function toJSON() {
       return this._super({ includeId: true });
-    }
+    },
+
+    foreignTablesObserver: Ember.observer('id', 'open', function () {
+      var _this = this;
+
+      this.foreignTableCall().then(function (response) {
+
+        _this.set('foreign_tables', response);
+      });
+    }),
+
+    foreignTableCall: (0, _emberApiActions.memberAction)({
+      path: 'foreign_tables',
+      urlType: 'findRecord'
+    })
   });
 });
 define('frontend/models/tag', ['exports', 'ember-data'], function (exports, _emberData) {
@@ -4745,69 +4927,75 @@ define('frontend/models/user_setting', ['exports', 'ember-data'], function (expo
     });
 });
 define('frontend/models/variable', ['exports', 'ember', 'ember-data', 'frontend/mixins/result-view-mixin'], function (exports, _ember, _emberData, _frontendMixinsResultViewMixin) {
-    exports['default'] = _emberData['default'].Model.extend(_frontendMixinsResultViewMixin['default'], {
-        name: _emberData['default'].attr('string'),
-        'default': _emberData['default'].attr('string'),
-        var_type: _emberData['default'].attr('string'),
-        column: _emberData['default'].belongsTo('column'),
-        default_operator: _emberData['default'].attr('string'),
-        question: _emberData['default'].belongsTo('question'),
-        dashboard: _emberData['default'].belongsTo('dashboard'),
-        inserted_at: _emberData['default'].attr('utc'),
-        updated_at: _emberData['default'].attr('utc'),
-        default_options: _emberData['default'].attr('array'),
-        value_options: _emberData['default'].attr('array'),
-        question_filter: _emberData['default'].belongsTo('question', {
-            inverse: 'variables_from_this_question'
-        }),
-        value: _ember['default'].computed.alias('default'),
-        setDate: _ember['default'].observer('default_date', function () {
-            this.set('default', moment(this.get('default_date')).toISOString());
-        }),
-        setDateValue: _ember['default'].observer('date_value', function () {
-            this.set('value', moment(this.get('date_value')).toISOString());
-        }),
+  exports['default'] = _emberData['default'].Model.extend(_frontendMixinsResultViewMixin['default'], {
+    name: _emberData['default'].attr('string'),
+    'default': _emberData['default'].attr('string'),
+    var_type: _emberData['default'].attr('string'),
+    column: _emberData['default'].belongsTo('column'),
+    default_operator: _emberData['default'].attr('string'),
+    question: _emberData['default'].belongsTo('question'),
+    dashboard: _emberData['default'].belongsTo('dashboard'),
+    inserted_at: _emberData['default'].attr('utc'),
+    updated_at: _emberData['default'].attr('utc'),
+    default_options: _emberData['default'].attr('array'),
+    value_options: _emberData['default'].attr('array'),
+    question_filter: _emberData['default'].belongsTo('question', {
+      inverse: 'variables_from_this_question'
+    }),
 
-        questionFilterOptions: _ember['default'].computed('question_filter.cached_results', 'default_options', function () {
-            var question_filter = this.get('question_filter');
-            return question_filter && question_filter.get('cached_results') && question_filter.get('cached_results.rows').map(function (item) {
-                return {
-                    name: item[0],
-                    value: item[1]
-                };
-            });
-        }),
+    toJSON: function toJSON() {
+      return this._super({
+        includeId: true
+      });
+    },
+    value: _ember['default'].computed.alias('default'),
+    setDate: _ember['default'].observer('default_date', function () {
+      this.set('default', moment(this.get('default_date')).toISOString());
+    }),
+    setDateValue: _ember['default'].observer('date_value', function () {
+      this.set('value', moment(this.get('date_value')).toISOString());
+    }),
 
-        nameObserver: _ember['default'].on('init', _ember['default'].observer('name', function () {
+    questionFilterOptions: _ember['default'].computed('question_filter.cached_results', 'default_options', function () {
+      var question_filter = this.get('question_filter');
+      return question_filter && question_filter.get('cached_results') && question_filter.get('cached_results.rows').map(function (item) {
+        return {
+          name: item[0],
+          value: item[1]
+        };
+      });
+    }),
 
-            this.get('name') && this.get('question.isLoaded') && this.set('question.variablesUpdated', new Date());
-        })),
+    nameObserver: _ember['default'].on('init', _ember['default'].observer('name', function () {
 
-        questionFilterObserver: _ember['default'].on('init', _ember['default'].observer('question_filter', 'questionFilterOptions', function () {
-            var question_filter = this.get('question_filter');
-            if (question_filter && question_filter.get('id') && (!question_filter.get('cached_results') || !this.get('questionFilterOptions'))) {
-                this.store.query('question', {
-                    filter: {
-                        id: question_filter.get('id')
-                    }
-                });
-            }
-        })),
+      this.get('name') && this.get('question.isLoaded') && this.set('question.variablesUpdated', new Date());
+    })),
 
-        setQuestionVariables: _ember['default'].observer('dashboard', 'dashboard.questions.@each.variablesUpdated', 'value', 'default_options.[]', function () {
-            var _this = this;
+    questionFilterObserver: _ember['default'].on('init', _ember['default'].observer('question_filter', 'questionFilterOptions', function () {
+      var question_filter = this.get('question_filter');
+      if (question_filter && question_filter.get('id') && (!question_filter.get('cached_results') || !this.get('questionFilterOptions'))) {
+        this.store.query('question', {
+          filter: {
+            id: question_filter.get('id')
+          }
+        });
+      }
+    })),
 
-            var dashboard = this.get('dashboard');
-            if (dashboard.get('content')) {
-                dashboard.get('questions.isFulfilled') && dashboard.get('questions').forEach(function (item) {
-                    //item.set('dashboardVariables', this.get('dashboard.variables'));
-                    var variable = item.get('variables').findBy('name', _this.get('name'));
-                    variable && variable.set('value', _this.get('value'));
-                    variable && variable.set('default_options', _this.get('default_options'));
-                });
-            }
-        })
-    });
+    setQuestionVariables: _ember['default'].observer('dashboard', 'dashboard.questions.@each.variablesUpdated', 'value', 'default_options.[]', function () {
+      var _this = this;
+
+      var dashboard = this.get('dashboard');
+      if (dashboard.get('content')) {
+        dashboard.get('questions.isFulfilled') && dashboard.get('questions').forEach(function (item) {
+          //item.set('dashboardVariables', this.get('dashboard.variables'));
+          var variable = item.get('variables').findBy('name', _this.get('name'));
+          variable && variable.set('value', _this.get('value'));
+          variable && variable.set('default_options', _this.get('default_options'));
+        });
+      }
+    })
+  });
 });
 define('frontend/models/widget-item', ['exports', 'ember', 'ember-data'], function (exports, _ember, _emberData) {
     exports['default'] = _emberData['default'].Model.extend({
@@ -5297,7 +5485,6 @@ define('frontend/pods/application/route', ['exports', 'ember', 'ember-keyboard-s
       },
       openSearch: function openSearch() {
         this.set('controller.showSearch', true);
-        this.set('controller.showQuestionSearch', true);
       },
       hideSearchDialogues: function hideSearchDialogues() {
         this.set('controller.showSearch', false);
@@ -5306,7 +5493,7 @@ define('frontend/pods/application/route', ['exports', 'ember', 'ember-keyboard-s
     },
 
     keyboardShortcuts: {
-      'ctrl+n': "goToNewQuestion",
+      'alt+n': "goToNewQuestion",
       'ctrl+shift+q': "goToAllQuestions",
       'ctrl+shift+r': "goToDataReference",
       "ctrl+q": "openSearch",
@@ -5333,7 +5520,7 @@ define('frontend/pods/application/serializer', ['exports', 'ember-data'], functi
   });
 });
 define("frontend/pods/application/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "mk1NG/lF", "block": "{\"symbols\":[],\"statements\":[[1,[25,\"base-header\",null,[[\"goToDashboard\",\"invalidateSession\",\"openSearch\"],[\"goToDashboard\",\"invalidateSession\",\"openSearch\"]]],false],[0,\"\\n\"],[1,[18,\"outlet\"],false],[0,\"\\n\"],[1,[18,\"keyboard-shortcuts-help\"],false],[0,\"\\n\"],[4,\"if\",[[20,[\"showSearch\"]]],null,{\"statements\":[[1,[25,\"search-box\",null,[[\"goToDashboard\",\"goToQuestion\",\"goToTag\"],[\"goToDashboard\",\"goToQuestion\",\"goToTag\"]]],false],[0,\"\\n\"]],\"parameters\":[]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/application/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "J79ZF+k4", "block": "{\"symbols\":[],\"statements\":[[1,[25,\"base-header\",null,[[\"goToDashboard\",\"invalidateSession\",\"openSearch\"],[\"goToDashboard\",\"invalidateSession\",\"openSearch\"]]],false],[0,\"\\n\\n\"],[1,[18,\"outlet\"],false],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"pb-8\"],[7],[0,\"\\n\"],[8],[0,\"\\n\"],[1,[18,\"base-footer\"],false],[0,\"\\n\"],[1,[18,\"keyboard-shortcuts-help\"],false],[0,\"\\n\"],[4,\"if\",[[20,[\"showSearch\"]]],null,{\"statements\":[[1,[25,\"search-box\",null,[[\"goToDashboard\",\"goToQuestion\",\"goToTag\"],[\"goToDashboard\",\"goToQuestion\",\"goToTag\"]]],false],[0,\"\\n\"]],\"parameters\":[]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/application/template.hbs" } });
 });
 define('frontend/pods/components/accordion-multiselect/component', ['exports', 'ember', 'frontend/mixins/helper-mixin'], function (exports, _ember, _frontendMixinsHelperMixin) {
     exports['default'] = _ember['default'].Component.extend(_frontendMixinsHelperMixin['default'], {
@@ -5432,156 +5619,155 @@ define("frontend/pods/components/add-to-dashboard/template", ["exports"], functi
   exports["default"] = Ember.HTMLBars.template({ "id": "ySL3edZW", "block": "{\"symbols\":[\"modal\",\"dashboard\"],\"statements\":[[4,\"bs-modal\",null,[[\"position\",\"open\",\"onHide\"],[\"center\",[20,[\"open\"]],[25,\"action\",[[19,0,[]],\"clear\"],null]]],{\"statements\":[[4,\"component\",[[19,1,[\"header\"]]],null,{\"statements\":[[0,\"       \"],[6,\"h4\"],[9,\"class\",\"modal-title\"],[7],[0,\"\\n        Add This Question to Dashboard\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"body\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"mb-2\"],[7],[0,\"\\n        Which dashboard do you want to add this question to?\\n        \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"tags\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"dashboards\"]]],null,{\"statements\":[[0,\"                \"],[6,\"span\"],[9,\"class\",\"tag\"],[3,\"action\",[[19,0,[]],\"addToDashboard\",[19,2,[]]]],[7],[0,\"\\n                    \"],[1,[19,2,[\"title\"]],false],[0,\"\\n                    \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"class\",\"tag-addon\"],[7],[0,\"\\n                        \"],[6,\"i\"],[9,\"class\",\"fe fe-grid\"],[7],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[2]},null],[0,\"            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"ui horizontal divider\"],[7],[0,\"Or\"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n                    \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Title\"],[8],[0,\"\\n                        \"],[1,[25,\"input\",null,[[\"value\",\"class\",\"placeholder\"],[[20,[\"dashboard\",\"title\"]],\"form-control\",\"What are you calling it?\"]]],false],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n                    \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Description\"],[8],[0,\"\\n                        \"],[1,[25,\"input\",null,[[\"value\",\"class\",\"placeholder\"],[[20,[\"dashboard\",\"description\"]],\"form-control\",\"What does it show?\"]]],false],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-12 text-center\"],[7],[0,\"\\n                    \"],[6,\"button\"],[9,\"class\",\"btn btn-primary mt-2\"],[3,\"action\",[[19,0,[]],\"createAndAddToDashboard\"]],[7],[0,\"\\n                        Create New Dashboard and Add Question\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[1]},null],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"ui modal add-to-dashboard\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"header\"],[7],[0,\"\\n        Add This Question to Dashboard\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"dashboard content\"],[7],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/add-to-dashboard/template.hbs" } });
 });
 define('frontend/pods/components/additional-filters/component', ['exports', 'ember'], function (exports, _ember) {
-    exports['default'] = _ember['default'].Component.extend({
-        classNames: ["w-100"],
-        watchAdditionalFilters: _ember['default'].on('init', _ember['default'].observer('queryObject.additionalFilters', function () {
-            if (!this.get('queryObject.additionalFilters')) {
-                this.set('queryObject.additionalFilters', _ember['default'].Object.create());
-            } else {
-                if (!this.get('queryObject.additionalFilters.filters')) {
-                    this.set('queryObject.additionalFilters.filters', []);
-                }
-                if (!this.get('queryObject.additionalFilters.views')) {
-                    this.set('queryObject.additionalFilters.views', []);
-                }
-                if (!this.get('queryObject.additionalFilters.groupBys')) {
-                    this.set('queryObject.additionalFilters.groupBys', []);
-                }
-                if (!this.get('queryObject.additionalFilters.orderBys')) {
-                    this.set('queryObject.additionalFilters.orderBys', []);
-                }
-                this.set('queryObject.additionalFilters.filters', this.get('queryObject.additionalFilters.filters') && this.get('queryObject.additionalFilters.filters').map(function (item) {
-                    return _ember['default'].Object.create(item);
-                }));
-                this.set('queryObject.additionalFilters.views', this.get('queryObject.additionalFilters.views') && this.get('queryObject.additionalFilters.views').map(function (item) {
-                    return _ember['default'].Object.create(item);
-                }));
-                this.set('queryObject.additionalFilters.groupBys', this.get('queryObject.additionalFilters.groupBys') && this.get('queryObject.additionalFilters.groupBys').map(function (item) {
-                    return _ember['default'].Object.create(item);
-                }));
-                this.set('queryObject.additionalFilters.orderBys', this.get('queryObject.additionalFilters.orderBys') && this.get('queryObject.additionalFilters.orderBys').map(function (item) {
-                    return _ember['default'].Object.create(item);
-                }));
-            }
-        })),
-
-        columns: _ember['default'].computed('results', 'error', 'results.additional_filters_applied', function () {
-            var _this2 = this;
-
-            if (this.get('results.additional_filters_applied') && this.get('queryObject.additionalFilterColumns') || this.get('error')) {
-
-                return this.get('queryObject.additionalFilterColumns') || [];
-            }
-            return this.get('results.columns') && this.get('results.columns').map(function (item, index) {
-                return {
-                    name: item,
-                    human_name: item,
-                    data_type: _this2.figureOutDataType(index)
-                };
-            }) || [];
-        }),
-
-        columnsObserver: _ember['default'].on('init', _ember['default'].observer('columns', 'results', function () {
-            if (this.get('results.columns') && this.get('columns').length > 0) {
-                this.set('queryObject.additionalFilterColumns', this.get('columns'));
-            }
-        })),
-
-        figureOutDataType: function figureOutDataType(index) {
-            var dataType = 'Not Relevent';
-            this.get('results.rows').every(function (row) {
-                if (moment(row[index], moment.ISO_8601, true).isValid()) {
-                    dataType = 'datetime';
-                    return false;
-                }
-                return true;
-            });
-            return dataType;
-        },
-
-        rawObject: _ember['default'].Object.extend({
-            selected: null,
-            castType: null,
-            order: null,
-            column: null
-        }),
-        rawObjectWithSelected: function rawObjectWithSelected(_this) {
-            var selected = _this.get('rawObject').create();
-            selected.set('selected', _ember['default'].Object.create({
-                raw: false,
-                value: null
-            }));
-            return selected;
-        },
-        newViewOserver: _ember['default'].observer('newView.selected', function () {
-            console.log(this.get('newView'));
-        }),
-
-        newFilter: _ember['default'].computed('queryObject.additionalFilters.filters.[]', function () {
-            return _ember['default'].Object.create({
-                column: null,
-                operator: null,
-                value: null,
-                valueDateObj: {}
-            });
-        }),
-        newView: _ember['default'].computed('queryObject.additionalFilters.views.[]', function () {
-            console.log('from_computed');
-            return this.get('rawObject').create();
-        }),
-        newGroupBy: _ember['default'].computed('queryObject.additionalFilters.groupBys.@each', function () {
-            return this.get('rawObjectWithSelected')(this);
-        }),
-        newOrderBy: _ember['default'].computed('queryObject.additionalFilters.orderBys.@each', function () {
-            return this.get('rawObjectWithSelected')(this);
-        }),
-        actions: {
-            addNewFilter: function addNewFilter() {
-                this.get('queryObject.additionalFilters.filters').pushObject(this.get('newFilter'));
-            },
-            addNewView: function addNewView() {
-                this.get('queryObject.additionalFilters.views').pushObject(this.get('newView'));
-            },
-
-            addNewGroupBy: function addNewGroupBy() {
-                this.get('queryObject.additionalFilters.groupBys').pushObject(this.get('newGroupBy'));
-            },
-            addNewOrderBy: function addNewOrderBy() {
-                this.get('queryObject.additionalFilters.orderBys').pushObject(this.get('newOrderBy'));
-            },
-
-            resetAdditionalFilters: function resetAdditionalFilters() {
-                this.set('queryObject.additionalFilters', _ember['default'].Object.create());
-                this.set('queryObject.additionalFilterColumns', null);
-            },
-
-            switchToBuilder: function switchToBuilder(type, el, handleSelected) {
-                var items = this.get('queryObject.additionalFilters').get(type);
-                if (handleSelected) {
-                    el.set('selected', _ember['default'].Object.create({}));
-                    el.set('castType', null);
-                } else {
-                    el.set('raw', false);
-                }
-            },
-            switchToRaw: function switchToRaw(type, el, handleSelected) {
-                var items = this.get('queryObject.additionalFilters').get(type);
-                if (handleSelected) {
-                    el.set('selected', _ember['default'].Object.create({
-                        raw: true
-                    }));
-                    el.set('castType', null);
-                } else {
-                    el.set('raw', true);
-                }
-            },
-            remove: function remove(type, el) {
-                var arr = _ember['default'].Object.create(this.get('queryObject.additionalFilters')).get(type);
-                arr.removeObject(el);
-            }
+  exports['default'] = _ember['default'].Component.extend({
+    classNames: ['w-100'],
+    watchAdditionalFilters: _ember['default'].on('init', _ember['default'].observer('queryObject.additionalFilters', function () {
+      if (!this.get('queryObject.additionalFilters')) {
+        this.set('queryObject.additionalFilters', _ember['default'].Object.create());
+      } else {
+        if (!this.get('queryObject.additionalFilters.filters')) {
+          this.set('queryObject.additionalFilters.filters', []);
         }
+        if (!this.get('queryObject.additionalFilters.views')) {
+          this.set('queryObject.additionalFilters.views', []);
+        }
+        if (!this.get('queryObject.additionalFilters.groupBys')) {
+          this.set('queryObject.additionalFilters.groupBys', []);
+        }
+        if (!this.get('queryObject.additionalFilters.orderBys')) {
+          this.set('queryObject.additionalFilters.orderBys', []);
+        }
+        this.set('queryObject.additionalFilters.filters', this.get('queryObject.additionalFilters.filters') && this.get('queryObject.additionalFilters.filters').map(function (item) {
+          return _ember['default'].Object.create(item);
+        }));
+        this.set('queryObject.additionalFilters.views', this.get('queryObject.additionalFilters.views') && this.get('queryObject.additionalFilters.views').map(function (item) {
+          return _ember['default'].Object.create(item);
+        }));
+        this.set('queryObject.additionalFilters.groupBys', this.get('queryObject.additionalFilters.groupBys') && this.get('queryObject.additionalFilters.groupBys').map(function (item) {
+          return _ember['default'].Object.create(item);
+        }));
+        this.set('queryObject.additionalFilters.orderBys', this.get('queryObject.additionalFilters.orderBys') && this.get('queryObject.additionalFilters.orderBys').map(function (item) {
+          return _ember['default'].Object.create(item);
+        }));
+      }
+    })),
 
-    });
+    columns: _ember['default'].computed('results', 'error', 'results.additional_filters_applied', function () {
+      var _this2 = this;
+
+      if (this.get('results.additional_filters_applied') && this.get('queryObject.additionalFilterColumns') || this.get('error')) {
+
+        return this.get('queryObject.additionalFilterColumns') || [];
+      }
+      return this.get('results.columns') && this.get('results.columns').map(function (item, index) {
+        return {
+          name: item,
+          human_name: item,
+          data_type: _this2.figureOutDataType(index)
+        };
+      }) || [];
+    }),
+
+    columnsObserver: _ember['default'].on('init', _ember['default'].observer('columns', 'results', function () {
+      if (this.get('results.columns') && this.get('columns').length > 0) {
+        this.set('queryObject.additionalFilterColumns', this.get('columns'));
+      }
+    })),
+
+    figureOutDataType: function figureOutDataType(index) {
+      var dataType = 'Not Relevent';
+      this.get('results.rows').every(function (row) {
+        if (moment(row[index], moment.ISO_8601, true).isValid()) {
+          dataType = 'datetime';
+          return false;
+        }
+        return true;
+      });
+      return dataType;
+    },
+
+    rawObject: _ember['default'].Object.extend({
+      selected: null,
+      castType: null,
+      order: null,
+      column: null
+    }),
+    rawObjectWithSelected: function rawObjectWithSelected(_this) {
+      var selected = _this.get('rawObject').create();
+      selected.set('selected', _ember['default'].Object.create({
+        raw: false,
+        value: null
+      }));
+      return selected;
+    },
+    newViewOserver: _ember['default'].observer('newView.selected', function () {
+      console.log(this.get('newView'));
+    }),
+
+    newFilter: _ember['default'].computed('queryObject.additionalFilters.filters.[]', function () {
+      return _ember['default'].Object.create({
+        column: null,
+        operator: null,
+        value: null,
+        valueDateObj: {}
+      });
+    }),
+    newView: _ember['default'].computed('queryObject.additionalFilters.views.[]', function () {
+      return this.get('rawObject').create();
+    }),
+    newGroupBy: _ember['default'].computed('queryObject.additionalFilters.groupBys.@each', function () {
+      return this.get('rawObjectWithSelected')(this);
+    }),
+    newOrderBy: _ember['default'].computed('queryObject.additionalFilters.orderBys.@each', function () {
+      return this.get('rawObjectWithSelected')(this);
+    }),
+    actions: {
+      addNewFilter: function addNewFilter() {
+        this.get('queryObject.additionalFilters.filters').pushObject(this.get('newFilter'));
+      },
+      addNewView: function addNewView() {
+        this.get('queryObject.additionalFilters.views').pushObject(this.get('newView'));
+      },
+
+      addNewGroupBy: function addNewGroupBy() {
+        this.get('queryObject.additionalFilters.groupBys').pushObject(this.get('newGroupBy'));
+      },
+      addNewOrderBy: function addNewOrderBy() {
+        this.get('queryObject.additionalFilters.orderBys').pushObject(this.get('newOrderBy'));
+      },
+
+      resetAdditionalFilters: function resetAdditionalFilters() {
+        this.set('queryObject.additionalFilters', _ember['default'].Object.create());
+        this.set('queryObject.additionalFilterColumns', null);
+      },
+
+      switchToBuilder: function switchToBuilder(type, el, handleSelected) {
+        var items = this.get('queryObject.additionalFilters').get(type);
+        if (handleSelected) {
+          el.set('selected', _ember['default'].Object.create({}));
+          el.set('castType', null);
+        } else {
+          el.set('raw', false);
+        }
+      },
+      switchToRaw: function switchToRaw(type, el, handleSelected) {
+        var items = this.get('queryObject.additionalFilters').get(type);
+        if (handleSelected) {
+          el.set('selected', _ember['default'].Object.create({
+            raw: true
+          }));
+          el.set('castType', null);
+        } else {
+          el.set('raw', true);
+        }
+      },
+      remove: function remove(type, el) {
+        var arr = _ember['default'].Object.create(this.get('queryObject.additionalFilters')).get(type);
+        arr.removeObject(el);
+      }
+    }
+
+  });
 });
 define("frontend/pods/components/additional-filters/template", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "YYoR1etg", "block": "{\"symbols\":[\"dd\",\"ddm\",\"orderBy\",\"dd\",\"ddm\",\"dd\",\"ddm\",\"groupBy\",\"dd\",\"ddm\",\"dd\",\"ddm\",\"selectView\",\"dd\",\"ddm\",\"dd\",\"ddm\",\"filter\",\"dd\",\"ddm\"],\"statements\":[[6,\"div\"],[9,\"class\",\"row w-100\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-11\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n\\n            \"],[6,\"div\"],[9,\"class\",\"col-auto border-right p-1 min-width-15\"],[7],[0,\"\\n\\n\"],[4,\"each\",[[20,[\"queryObject\",\"additionalFilters\",\"filters\"]]],null,{\"statements\":[[4,\"if\",[[25,\"label-maker\",[[19,18,[]],[19,18,[\"column\"]],[19,18,[\"value\"]],[19,18,[\"valueDateObj\",\"value\"]],[19,18,[\"valueDateObj\",\"duration\"]],[19,18,[\"operator\"]],[19,18,[\"valueDateObj\",\"date\"]],[19,18,[\"valueDateObj\",\"dtt\",\"name\"]]],null]],null,{\"statements\":[[0,\"                \"],[6,\"span\"],[9,\"class\",\"tag border tag-primary\"],[7],[0,\"\\n\"],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,19,[\"toggle\"]]],[[\"class\"],[\"text-white\"]],{\"statements\":[[0,\"                    \"],[1,[25,\"label-maker\",[[19,18,[]],[19,18,[\"column\"]],[19,18,[\"value\"]],[19,18,[\"valueDateObj\",\"value\"]],[19,18,[\"valueDateObj\",\"duration\"]],[19,18,[\"operator\"]],[19,18,[\"valueDateObj\",\"date\"]],[19,18,[\"valueDateObj\",\"dtt\",\"name\"]]],null],false],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,19,[\"menu\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n                        \"],[1,[25,\"filter-maker\",null,[[\"filter\",\"columns\",\"switchToBuilder\",\"switchToRaw\"],[[19,18,[]],[20,[\"columns\"]],\"switchToBuilder\",\"switchToRaw\"]]],false],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[20]},null]],\"parameters\":[19]},null],[0,\"                    \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"class\",\"tag-addon\"],[7],[0,\"\\n                        \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-white\"],[3,\"action\",[[19,0,[]],\"remove\",\"filters\",[19,18,[]]]],[7],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[18]},null],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,16,[\"toggle\"]]],[[\"class\"],[\"btn tag-size btn-secondary text-primary border-primary py-0 px-1\"]],{\"statements\":[[0,\"                \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\" Filter\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,16,[\"menu\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n                    \"],[1,[25,\"filter-maker\",null,[[\"filter\",\"columns\",\"switchToBuilder\",\"switchToRaw\"],[[20,[\"newFilter\"]],[20,[\"columns\"]],\"switchToBuilder\",\"switchToRaw\"]]],false],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"btn btn-primary mt-2 w-100\"],[3,\"action\",[[19,0,[]],\"addNewFilter\"]],[7],[0,\" \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\"\\n                        Add\\n                        Filter \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[17]},null]],\"parameters\":[16]},null],[0,\"            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"col-auto border-right p-1 min-width-15\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"queryObject\",\"additionalFilters\",\"views\"]]],null,{\"statements\":[[4,\"if\",[[25,\"label-maker\",[[19,13,[]],[19,13,[\"selected\",\"raw\"]],[19,13,[\"selected\",\"value\"]],[19,13,[\"selected\",\"name\"]],[19,13,[\"selected\"]]],null]],null,{\"statements\":[[0,\"                \"],[6,\"span\"],[9,\"class\",\"tag tag-primary border\"],[7],[0,\"\\n\"],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,14,[\"toggle\"]]],[[\"class\"],[\"text-white\"]],{\"statements\":[[0,\"                    \"],[1,[25,\"label-maker\",[[19,13,[]],[19,13,[\"selected\"]],[19,13,[\"selected\",\"value\"]],[19,13,[\"selected\",\"raw\"]],[19,13,[\"selected\",\"name\"]]],null],false],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,14,[\"menu\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n                        \"],[1,[25,\"view-maker\",null,[[\"selectView\",\"switchToBuilder\",\"switchToRaw\"],[[19,13,[]],\"switchToBuilder\",\"switchToRaw\"]]],false],[0,\"\\n                    \"],[8],[0,\"\\n\\n\"]],\"parameters\":[15]},null]],\"parameters\":[14]},null],[0,\"                    \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"class\",\"tag-addon\"],[7],[0,\"\\n                        \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-white\"],[3,\"action\",[[19,0,[]],\"remove\",\"views\",[19,13,[]]]],[7],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[13]},null],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,11,[\"toggle\"]]],[[\"class\"],[\"btn tag-size btn-secondary text-primary border-primary py-0 px-1\"]],{\"statements\":[[0,\"                \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\"View\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,11,[\"menu\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n                    \"],[1,[25,\"view-maker\",null,[[\"selectView\",\"switchToBuilder\",\"switchToRaw\"],[[20,[\"newView\"]],\"switchToBuilder\",\"switchToRaw\"]]],false],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"btn btn-primary mt-2 w-100\"],[3,\"action\",[[19,0,[]],\"addNewView\"]],[7],[0,\" \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\"\\n                        Add\\n                        View\"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[12]},null]],\"parameters\":[11]},null],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"col-auto border-right p-1 min-width-15\"],[7],[0,\"\\n\\n\\n\"],[4,\"each\",[[20,[\"queryObject\",\"additionalFilters\",\"groupBys\"]]],null,{\"statements\":[[4,\"if\",[[25,\"label-maker\",[[19,8,[]],[19,8,[\"castType\"]],[19,8,[\"selected\"]],[19,8,[\"selected\",\"value\"]],[19,8,[\"selected\",\"raw\"]]],null]],null,{\"statements\":[[0,\"                \"],[6,\"span\"],[9,\"class\",\"tag border tag-primary\"],[7],[0,\"\\n\"],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,9,[\"toggle\"]]],[[\"class\"],[\"text-white\"]],{\"statements\":[[0,\"                    \"],[1,[25,\"label-maker\",[[19,8,[]],[19,8,[\"castType\"]],[19,8,[\"selected\"]],[19,8,[\"selected\",\"value\"]],[19,8,[\"selected\",\"raw\"]]],null],false],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,9,[\"menu\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n                        \"],[1,[25,\"group-by-maker\",null,[[\"columns\",\"groupBy\",\"switchToRaw\",\"switchToBuilder\"],[[20,[\"columns\"]],[19,8,[]],\"switchToRaw\",\"switchToBuilder\"]]],false],[0,\"\\n\\n                    \"],[8],[0,\"\\n\\n\\n\"]],\"parameters\":[10]},null]],\"parameters\":[9]},null],[0,\"                    \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"class\",\"tag-addon\"],[7],[0,\"\\n                        \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-white\"],[3,\"action\",[[19,0,[]],\"remove\",\"groupBys\",[19,8,[]]]],[7],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[8]},null],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,6,[\"toggle\"]]],[[\"class\"],[\"btn tag-size btn-secondary text-primary border-primary py-0 px-1\"]],{\"statements\":[[0,\"                \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\"Grouping\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,6,[\"menu\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n                    \"],[1,[25,\"group-by-maker\",null,[[\"columns\",\"groupBy\",\"switchToRaw\",\"switchToBuilder\"],[[20,[\"columns\"]],[20,[\"newGroupBy\"]],\"switchToRaw\",\"switchToBuilder\"]]],false],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"btn btn-primary mt-2 w-100\"],[3,\"action\",[[19,0,[]],\"addNewGroupBy\"]],[7],[0,\" \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\"\\n                        Add\\n                        Grouping\"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[7]},null]],\"parameters\":[6]},null],[0,\"            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"col-auto p-1 min-width-15\"],[7],[0,\"\\n\\n\"],[4,\"each\",[[20,[\"queryObject\",\"additionalFilters\",\"orderBys\"]]],null,{\"statements\":[[4,\"if\",[[25,\"label-maker\",[[19,3,[]],[19,3,[\"column\"]],[19,3,[\"order\"]]],null]],null,{\"statements\":[[0,\"                \"],[6,\"span\"],[9,\"class\",\"tag border tag-primary\"],[7],[0,\"\\n\"],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,4,[\"toggle\"]]],[[\"class\"],[\"text-white\"]],{\"statements\":[[0,\"                    \"],[1,[25,\"label-maker\",[[19,3,[]],[19,3,[\"column\"]],[19,3,[\"order\"]]],null],false],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,4,[\"menu\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n\\n                        \"],[1,[25,\"order-by-maker\",null,[[\"columns\",\"orderBy\"],[[20,[\"columns\"]],[19,3,[]]]]],false],[0,\"\\n                    \"],[8],[0,\"\\n\\n\"]],\"parameters\":[5]},null]],\"parameters\":[4]},null],[0,\"                    \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"class\",\"tag-addon\"],[7],[0,\"\\n                        \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-white\"],[3,\"action\",[[19,0,[]],\"remove\",\"orderBys\",[19,3,[]]]],[7],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[3]},null],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,1,[\"toggle\"]]],[[\"class\"],[\"btn tag-size btn-secondary text-primary border-primary py-0 px-1\"]],{\"statements\":[[0,\"                \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\"Sort Order\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"menu\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n                    \"],[1,[25,\"order-by-maker\",null,[[\"columns\",\"orderBy\"],[[20,[\"columns\"]],[20,[\"newOrderBy\"]]]]],false],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"btn btn-primary mt-2 w-100\"],[3,\"action\",[[19,0,[]],\"addNewOrderBy\"]],[7],[0,\" \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\"\\n                        Add\\n                        Sort Order\"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[2]},null]],\"parameters\":[1]},null],[0,\"            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-1 text-right\"],[7],[0,\"\\n        \"],[6,\"span\"],[3,\"action\",[[19,0,[]],\"resetAdditionalFilters\"]],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"btn btn-link p-0\"],[7],[0,\" Clear\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/additional-filters/template.hbs" } });
@@ -5829,48 +6015,66 @@ define("frontend/pods/components/alert-expression/template", ["exports"], functi
   exports["default"] = Ember.HTMLBars.template({ "id": "zpZySpO8", "block": "{\"symbols\":[\"execute\",\"mapper\",\"operator\",\"execute\",\"mapper\",\"withinType\",\"execute\",\"mapper\",\"column\",\"execute\",\"mapper\",\"operation\"],\"statements\":[[6,\"span\"],[9,\"class\",\"step-number\"],[7],[0,\"\\n  \"],[6,\"button\"],[9,\"class\",\"ui circular violet icon button alert\"],[7],[0,\"\\n    \"],[1,[18,\"number\"],false],[0,\"\\n  \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[6,\"span\"],[9,\"class\",\"alert-simple-text\"],[7],[0,\"\\n  When\\n\"],[8],[0,\"\\n\"],[6,\"span\"],[9,\"class\",\"empty-space\"],[7],[8],[0,\"\\n\"],[6,\"span\"],[9,\"class\",\"ui form\"],[7],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"field display-inline-block\"],[7],[0,\"\\n\"],[4,\"ui-dropdown\",null,[[\"class\",\"selected\",\"onChange\"],[\"search selection\",[20,[\"conf\",\"operation\"]],[25,\"action\",[[19,0,[]],[25,\"mut\",[[20,[\"conf\",\"operation\"]]],null]],null]]],{\"statements\":[[0,\"      \"],[6,\"div\"],[9,\"class\",\"default text\"],[7],[0,\"value\"],[8],[0,\"\\n      \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-down\"],[7],[8],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"menu\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"operations\"]]],null,{\"statements\":[[0,\"          \"],[6,\"div\"],[9,\"class\",\"item\"],[10,\"data-value\",[26,[[25,\"map-value\",[[19,11,[]],[19,12,[]]],null]]]],[7],[0,\"\\n            \"],[1,[19,12,[\"name\"]],false],[0,\"\\n          \"],[8],[0,\"\\n\"]],\"parameters\":[12]},null],[0,\"      \"],[8],[0,\"\\n\"]],\"parameters\":[10,11]},null],[0,\"  \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"showValueText\"]]],null,{\"statements\":[[0,\"    \"],[6,\"span\"],[9,\"class\",\"empty-space\"],[7],[8],[0,\"\\n    \"],[6,\"span\"],[9,\"class\",\"alert-simple-text\"],[7],[0,\"\\n      of values\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"\\n\\n  \"],[6,\"span\"],[9,\"class\",\"empty-space\"],[7],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"alert-simple-text\"],[7],[0,\"\\n    of\\n  \"],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"empty-space\"],[7],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"field display-inline-block\"],[7],[0,\"\\n\"],[4,\"ui-dropdown\",null,[[\"class\",\"selected\",\"onchange\"],[\"search selection\",[20,[\"conf\",\"column\"]],[25,\"action\",[[19,0,[]],[25,\"mut\",[[20,[\"conf\",\"column\"]]],null]],null]]],{\"statements\":[[0,\"      \"],[6,\"div\"],[9,\"class\",\"default text\"],[7],[0,\"Column Name\"],[8],[0,\"\\n      \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-down\"],[7],[8],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"menu\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"columns\"]]],null,{\"statements\":[[0,\"          \"],[6,\"div\"],[9,\"class\",\"item\"],[10,\"data-value\",[26,[[25,\"map-value\",[[19,8,[]],[19,9,[]]],null]]]],[7],[0,\"\\n            \"],[1,[25,\"capitalize\",[[19,9,[]]],null],false],[0,\"\\n          \"],[8],[0,\"\\n\"]],\"parameters\":[9]},null],[0,\"      \"],[8],[0,\"\\n\"]],\"parameters\":[7,8]},null],[0,\"  \"],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"empty-space\"],[7],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"alert-simple-text\"],[7],[0,\"\\n    in\\n  \"],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"empty-space\"],[7],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"field display-inline-block\"],[7],[0,\"\\n\"],[4,\"ui-dropdown\",null,[[\"class\",\"selected\",\"onChange\"],[\"search selection\",[20,[\"conf\",\"within_type\"]],[25,\"action\",[[19,0,[]],[25,\"mut\",[[20,[\"conf\",\"within_type\"]]],null]],null]]],{\"statements\":[[0,\"      \"],[6,\"div\"],[9,\"class\",\"default text\"],[7],[0,\"any\"],[8],[0,\"\\n      \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-down\"],[7],[8],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"menu\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"withinTypes\"]]],null,{\"statements\":[[0,\"          \"],[6,\"div\"],[9,\"class\",\"item\"],[10,\"data-value\",[26,[[25,\"map-value\",[[19,5,[]],[19,6,[]]],null]]]],[7],[0,\"\\n            \"],[1,[19,6,[\"name\"]],false],[0,\"\\n          \"],[8],[0,\"\\n\"]],\"parameters\":[6]},null],[0,\"      \"],[8],[0,\"\\n\"]],\"parameters\":[4,5]},null],[0,\"  \"],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"empty-space\"],[7],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"field display-inline-block\"],[7],[0,\"\\n    \"],[1,[25,\"input\",null,[[\"value\",\"class\",\"placeholder\"],[[20,[\"conf\",\"within_count\"]],\"ui\",\"1\"]]],false],[0,\"\\n  \"],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"empty-space\"],[7],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"alert-simple-text\"],[7],[0,\"\\n    rows\\n  \"],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"empty-space\"],[7],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"field display-inline-block\"],[7],[0,\"\\n\"],[4,\"ui-dropdown\",null,[[\"class\",\"selected\",\"onchange\"],[\"search selection\",[20,[\"conf\",\"operator\"]],[25,\"action\",[[19,0,[]],[25,\"mut\",[[20,[\"conf\",\"operator\"]]],null]],null]]],{\"statements\":[[0,\"      \"],[6,\"div\"],[9,\"class\",\"default text\"],[7],[0,\"is\"],[8],[0,\"\\n      \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-down\"],[7],[8],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"menu\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"operators\"]]],null,{\"statements\":[[0,\"          \"],[6,\"div\"],[9,\"class\",\"item\"],[10,\"data-value\",[26,[[25,\"map-value\",[[19,2,[]],[20,[\"question\"]]],null]]]],[7],[0,\"\\n            \"],[1,[19,3,[\"name\"]],false],[0,\"\\n          \"],[8],[0,\"\\n\"]],\"parameters\":[3]},null],[0,\"      \"],[8],[0,\"\\n\"]],\"parameters\":[1,2]},null],[0,\"  \"],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"empty-space\"],[7],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"field display-inline-block\"],[7],[0,\"\\n    \"],[1,[25,\"input\",null,[[\"value\",\"class\",\"placeholder\"],[[20,[\"conf\",\"value\"]],\"ui\",\"value\"]]],false],[0,\"\\n  \"],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"empty-space\"],[7],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"alert-simple-text\"],[7],[0,\"\\n    , raise\\n  \"],[8],[0,\"\\n  \"],[6,\"span\"],[9,\"class\",\"empty-space\"],[7],[8],[0,\"\\n  \"],[6,\"span\"],[10,\"class\",[26,[\"ui alert-state \",[18,\"color\"]]]],[7],[1,[18,\"type\"],false],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/alert-expression/template.hbs" } });
 });
 define('frontend/pods/components/api-action-modal/component', ['exports', 'ember'], function (exports, _ember) {
-    exports['default'] = _ember['default'].Component.extend({
-        open: false,
+  exports['default'] = _ember['default'].Component.extend({
+    open: false,
+    columns: _ember['default'].computed('results.columns', 'apiAction.column', 'question.api_action.@each.column', function () {
+      var _this = this;
 
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-        colors: ['indigo', 'red', 'yellow', 'teal'],
+      return this.get('results.columns') && this.get('results.columns').filter(function (item) {
+        return !(_this.get('question.api_actions').filter(function (apiAction) {
+          return apiAction.get('column') == item;
+        }).length > 0);
+      }).map(function (item) {
+        return { title: item };
+      }) || [];
+    }),
 
-        showOpenInNewTab: _ember['default'].computed('apiAction.method', 'apiAction.headers', 'apiAction.body', function () {
-            var headers = this.get('apiAction.headers');
-            var body = this.get('apiAction.body');
-            var method = this.get('apiAction.method');
+    selectedApiActionColumn: _ember['default'].computed('apiAction.column', function () {
+      return this.get('apiAction.column') && { title: this.get('apiAction.column') };
+    }),
 
-            if (method == 'GET' && headers.length == 0 && !body) {
-                return true;
-            }
-            return false;
-        }),
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    colors: ['indigo', 'red', 'yellow', 'teal'],
 
-        actions: {
-            clear: function clear() {
-                this.set('open', false);
-            },
-            changeColor: function changeColor(value) {
-                this.set('apiAction.color', _ember['default'].$(value.currentTarget).attr('name'));
-            },
-            changeMethod: function changeMethod(value) {
-                this.set('apiAction.method', _ember['default'].$(value.currentTarget).attr('name'));
-            },
-            saveApiAction: function saveApiAction() {
-                var _this = this;
+    showOpenInNewTab: _ember['default'].computed('apiAction.method', 'apiAction.headers', 'apiAction.body', function () {
+      var headers = this.get('apiAction.headers');
+      var body = this.get('apiAction.body');
+      var method = this.get('apiAction.method');
 
-                // this.get('apiAction.headersArray').forEach((item) => {
-                //     this.set(`apiAction.headers.${item.key}`, item.value);
-                // });
-                this.get('apiAction').save().then(function (response) {
-                    _this.set('open', false);
-                });
-            }
-        }
-    });
+      if (method == 'GET' && headers.length == 0 && !body) {
+        return true;
+      }
+      return false;
+    }),
+
+    actions: {
+      setApiActionColumn: function setApiActionColumn(column) {
+        this.set('apiAction.column', column && column.title);
+      },
+      clear: function clear() {
+        this.set('open', false);
+      },
+      changeColor: function changeColor(value) {
+        this.set('apiAction.color', _ember['default'].$(value.currentTarget).attr('name'));
+      },
+      changeMethod: function changeMethod(value) {
+        this.set('apiAction.method', _ember['default'].$(value.currentTarget).attr('name'));
+      },
+      saveApiAction: function saveApiAction() {
+        var _this2 = this;
+
+        // this.get('apiAction.headersArray').forEach((item) => {
+        //     this.set(`apiAction.headers.${item.key}`, item.value);
+        // });
+        this.get('apiAction').save().then(function (response) {
+          _this2.set('open', false);
+        });
+      }
+    }
+  });
 });
 define("frontend/pods/components/api-action-modal/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "9FlK8Z7M", "block": "{\"symbols\":[\"modal\",\"footer\",\"error\",\"error\",\"error\",\"method\",\"color\",\"error\"],\"statements\":[[4,\"bs-modal\",null,[[\"position\",\"size\",\"open\",\"onHide\"],[\"center\",\"lg\",[20,[\"open\"]],[25,\"action\",[[19,0,[]],\"clear\"],null]]],{\"statements\":[[4,\"component\",[[19,1,[\"header\"]]],null,{\"statements\":[[0,\"        \"],[6,\"h4\"],[9,\"class\",\"modal-title\"],[7],[0,\"\\n            \"],[4,\"if\",[[20,[\"apiAction\",\"id\"]]],null,{\"statements\":[[0,\"Edit\"]],\"parameters\":[]},{\"statements\":[[0,\"Create\"]],\"parameters\":[]}],[0,\" Api Action \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"body\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"mb-2\"],[7],[0,\" Pro tip: You can use column names as variables. Use \"],[6,\"b\"],[7],[0,\"{\"],[8],[6,\"b\"],[7],[0,\"{\"],[8],[0,\" col_name \"],[6,\"b\"],[7],[0,\"}\"],[8],[6,\"b\"],[7],[0,\"}\"],[8],[0,\"\\n            in url, headers and body fields. \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"col-9 pr-2\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"form-label\"],[7],[0,\"Name\"],[8],[0,\"\\n                    \"],[1,[25,\"input\",null,[[\"value\",\"class\"],[[20,[\"apiAction\",\"name\"]],\"form-control\"]]],false],[0,\"\\n\"],[4,\"each\",[[20,[\"apiAction\",\"errors\",\"name\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-flex\"],[7],[1,[19,8,[\"message\"]],false],[8],[0,\"\\n\"]],\"parameters\":[8]},null],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"col-3 pl-2\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                    \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Color\"],[8],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"row gutters-xs\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"colors\"]]],null,{\"statements\":[[0,\"                            \"],[6,\"div\"],[9,\"class\",\"col-auto\"],[7],[0,\"\\n                                \"],[6,\"label\"],[9,\"class\",\"colorinput\"],[7],[0,\"\\n                                    \"],[1,[25,\"input\",null,[[\"name\",\"type\",\"class\",\"checked\",\"change\"],[[19,7,[]],\"checkbox\",\"colorinput-input\",[25,\"eq\",[[19,7,[]],[20,[\"apiAction\",\"color\"]]],null],[25,\"action\",[[19,0,[]],\"changeColor\"],null]]]],false],[0,\"\\n                                    \"],[6,\"span\"],[10,\"class\",[26,[\"colorinput-color bg-\",[19,7,[]]]]],[7],[8],[0,\"\\n                                \"],[8],[0,\"\\n                            \"],[8],[0,\"\\n\"]],\"parameters\":[7]},null],[0,\"                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"form-label\"],[7],[0,\"Method\"],[8],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"selectgroup w-100\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"methods\"]]],null,{\"statements\":[[0,\"                            \"],[6,\"label\"],[9,\"class\",\"selectgroup-item\"],[7],[0,\"\\n                                \"],[1,[25,\"input\",null,[[\"type\",\"name\",\"class\",\"checked\",\"change\"],[\"checkbox\",[19,6,[]],\"selectgroup-input\",[25,\"eq\",[[19,6,[]],[20,[\"apiAction\",\"method\"]]],null],[25,\"action\",[[19,0,[]],\"changeMethod\"],null]]]],false],[0,\"\\n                                \"],[6,\"span\"],[9,\"class\",\"selectgroup-button\"],[7],[1,[19,6,[]],false],[8],[0,\"\\n                            \"],[8],[0,\"\\n\"]],\"parameters\":[6]},null],[0,\"                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"form-label\"],[7],[0,\"Url\"],[8],[0,\"\\n                    \"],[1,[25,\"input\",null,[[\"value\",\"class\"],[[20,[\"apiAction\",\"url\"]],\"form-control\"]]],false],[0,\"\\n\"],[4,\"each\",[[20,[\"apiAction\",\"errors\",\"url\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-flex\"],[7],[1,[19,5,[\"message\"]],false],[8],[0,\"\\n\"]],\"parameters\":[5]},null],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"form-label\"],[7],[0,\"Headers\"],[8],[0,\"\\n                    \"],[1,[25,\"key-value-maker\",null,[[\"objArray\"],[[20,[\"apiAction\",\"headers\"]]]]],false],[0,\"\\n\"],[4,\"each\",[[20,[\"apiAction\",\"errors\",\"headers\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-flex\"],[7],[1,[19,4,[\"message\"]],false],[8],[0,\"\\n\"]],\"parameters\":[4]},null],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n\"],[4,\"unless\",[[25,\"eq\",[[20,[\"apiAction\",\"method\"]],[25,\"or\",[\"GET\",\"DELETE\"],null]],null]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"form-label\"],[7],[0,\"Body\"],[8],[0,\"\\n                        \"],[1,[25,\"textarea\",null,[[\"value\",\"class\"],[[20,[\"apiAction\",\"body\"]],\"form-control\"]]],false],[0,\"\\n\"],[4,\"each\",[[20,[\"apiAction\",\"errors\",\"body\"]]],null,{\"statements\":[[0,\"                            \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-flex\"],[7],[1,[19,3,[\"message\"]],false],[8],[0,\"\\n\"]],\"parameters\":[3]},null],[0,\"                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"showOpenInNewTab\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n                    \"],[6,\"label\"],[9,\"class\",\"custom-switch\"],[7],[0,\"\\n                        \"],[1,[25,\"input\",null,[[\"type\",\"checked\",\"class\"],[\"checkbox\",[20,[\"apiAction\",\"open_in_new_tab\"]],\"custom-switch-input\"]]],false],[0,\"\\n                        \"],[6,\"span\"],[9,\"class\",\"custom-switch-indicator\"],[7],[8],[0,\"\\n                        \"],[6,\"span\"],[9,\"class\",\"custom-switch-description\"],[7],[0,\"Open In New Tab\"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"footer\"]]],null,{\"statements\":[[0,\"        \"],[4,\"bs-button\",null,[[\"onClick\"],[[25,\"action\",[[19,0,[]],\"clear\"],null]]],{\"statements\":[[0,\"Cancel\"]],\"parameters\":[]},null],[0,\"\\n        \"],[4,\"bs-button\",null,[[\"onClick\",\"class\",\"type\"],[[25,\"action\",[[19,0,[]],\"saveApiAction\"],null],\"btn-primary\",\"primary\"]],{\"statements\":[[0,\"Save\"]],\"parameters\":[]},null],[0,\"\\n\"]],\"parameters\":[2]},null]],\"parameters\":[1]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/api-action-modal/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "fTzccXrU", "block": "{\"symbols\":[\"modal\",\"footer\",\"error\",\"error\",\"error\",\"error\",\"method\",\"color\",\"error\"],\"statements\":[[4,\"bs-modal\",null,[[\"position\",\"size\",\"open\",\"onHide\"],[\"center\",\"lg\",[20,[\"open\"]],[25,\"action\",[[19,0,[]],\"clear\"],null]]],{\"statements\":[[4,\"component\",[[19,1,[\"header\"]]],null,{\"statements\":[[6,\"h4\"],[9,\"class\",\"modal-title\"],[7],[0,\"\\n    \"],[4,\"if\",[[20,[\"apiAction\",\"id\"]]],null,{\"statements\":[[0,\"Edit\"]],\"parameters\":[]},{\"statements\":[[0,\"Create\"]],\"parameters\":[]}],[0,\" Api Action \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"body\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"mb-2\"],[7],[0,\" Pro tip: You can use column names as variables. Use \"],[6,\"b\"],[7],[0,\"{\"],[8],[6,\"b\"],[7],[0,\"{\"],[8],[0,\" col_name \"],[6,\"b\"],[7],[0,\"}\"],[8],[6,\"b\"],[7],[0,\"}\"],[8],[0,\"\\n    in name, url, headers and body fields. \"],[8],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-9 pr-2\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-label\"],[7],[0,\"Name\"],[8],[0,\"\\n            \"],[1,[25,\"input\",null,[[\"value\",\"class\"],[[20,[\"apiAction\",\"name\"]],\"form-control\"]]],false],[0,\"\\n\"],[4,\"each\",[[20,[\"apiAction\",\"errors\",\"name\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-flex\"],[7],[1,[19,9,[\"message\"]],false],[8],[0,\"\\n\"]],\"parameters\":[9]},null],[0,\"        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-3 pl-2\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n            \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Color\"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row gutters-xs\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"colors\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"col-auto\"],[7],[0,\"\\n                    \"],[6,\"label\"],[9,\"class\",\"colorinput\"],[7],[0,\"\\n                        \"],[1,[25,\"input\",null,[[\"name\",\"type\",\"class\",\"checked\",\"change\"],[[19,8,[]],\"checkbox\",\"colorinput-input\",[25,\"eq\",[[19,8,[]],[20,[\"apiAction\",\"color\"]]],null],[25,\"action\",[[19,0,[]],\"changeColor\"],null]]]],false],[0,\"\\n                        \"],[6,\"span\"],[10,\"class\",[26,[\"colorinput-color bg-\",[19,8,[]]]]],[7],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[8]},null],[0,\"            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-label\"],[7],[0,\"Method\"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"selectgroup w-100\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"methods\"]]],null,{\"statements\":[[0,\"                \"],[6,\"label\"],[9,\"class\",\"selectgroup-item\"],[7],[0,\"\\n                    \"],[1,[25,\"input\",null,[[\"type\",\"name\",\"class\",\"checked\",\"change\"],[\"checkbox\",[19,7,[]],\"selectgroup-input\",[25,\"eq\",[[19,7,[]],[20,[\"apiAction\",\"method\"]]],null],[25,\"action\",[[19,0,[]],\"changeMethod\"],null]]]],false],[0,\"\\n                    \"],[6,\"span\"],[9,\"class\",\"selectgroup-button\"],[7],[1,[19,7,[]],false],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[7]},null],[0,\"            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-label\"],[7],[0,\"Url\"],[8],[0,\"\\n            \"],[1,[25,\"input\",null,[[\"value\",\"class\"],[[20,[\"apiAction\",\"url\"]],\"form-control\"]]],false],[0,\"\\n\"],[4,\"each\",[[20,[\"apiAction\",\"errors\",\"url\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-flex\"],[7],[1,[19,6,[\"message\"]],false],[8],[0,\"\\n\"]],\"parameters\":[6]},null],[0,\"        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-label\"],[7],[0,\"Headers\"],[8],[0,\"\\n            \"],[1,[25,\"key-value-maker\",null,[[\"objArray\",\"password\"],[[20,[\"apiAction\",\"headers\"]],true]]],false],[0,\"\\n\"],[4,\"each\",[[20,[\"apiAction\",\"errors\",\"headers\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-flex\"],[7],[1,[19,5,[\"message\"]],false],[8],[0,\"\\n\"]],\"parameters\":[5]},null],[0,\"        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[4,\"unless\",[[25,\"eq\",[[20,[\"apiAction\",\"method\"]],[25,\"or\",[\"GET\",\"DELETE\"],null]],null]],null,{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-label\"],[7],[0,\"Body\"],[8],[0,\"\\n            \"],[1,[25,\"textarea\",null,[[\"value\",\"class\"],[[20,[\"apiAction\",\"body\"]],\"form-control\"]]],false],[0,\"\\n\"],[4,\"each\",[[20,[\"apiAction\",\"errors\",\"body\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-flex\"],[7],[1,[19,4,[\"message\"]],false],[8],[0,\"\\n\"]],\"parameters\":[4]},null],[0,\"        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"showOpenInNewTab\"]]],null,{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n            \"],[6,\"label\"],[9,\"class\",\"custom-switch\"],[7],[0,\"\\n                \"],[1,[25,\"input\",null,[[\"type\",\"checked\",\"class\"],[\"checkbox\",[20,[\"apiAction\",\"open_in_new_tab\"]],\"custom-switch-input\"]]],false],[0,\"\\n                \"],[6,\"span\"],[9,\"class\",\"custom-switch-indicator\"],[7],[8],[0,\"\\n                \"],[6,\"span\"],[9,\"class\",\"custom-switch-description\"],[7],[0,\"Open In New Tab\"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"    \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"form-label\"],[7],[0,\"Replace Column\"],[8],[0,\"\\n            \"],[1,[25,\"searchable-select\",null,[[\"content\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-change\"],[[20,[\"columns\"]],[20,[\"selectedApiActionColumn\"]],true,\"Select a column\",[25,\"action\",[[19,0,[]],\"setApiActionColumn\"],null]]]],false],[0,\"\\n\\n        \"],[8],[0,\"\\n\"],[4,\"each\",[[20,[\"apiAction\",\"errors\",\"column\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"invalid-feedback d-flex\"],[7],[1,[19,3,[\"message\"]],false],[8],[0,\"\\n\"]],\"parameters\":[3]},null],[0,\"    \"],[8],[0,\"\\n\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"footer\"]]],null,{\"statements\":[[4,\"bs-button\",null,[[\"onClick\"],[[25,\"action\",[[19,0,[]],\"clear\"],null]]],{\"statements\":[[0,\"Cancel\"]],\"parameters\":[]},null],[0,\"\\n\"],[4,\"bs-button\",null,[[\"onClick\",\"class\",\"type\"],[[25,\"action\",[[19,0,[]],\"saveApiAction\"],null],\"btn-primary\",\"primary\"]],{\"statements\":[[0,\"Save\"]],\"parameters\":[]},null],[0,\"\\n\"]],\"parameters\":[2]},null]],\"parameters\":[1]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/api-action-modal/template.hbs" } });
 });
 define('frontend/pods/components/api-action-result/component', ['exports', 'ember'], function (exports, _ember) {
     exports['default'] = _ember['default'].Component.extend({
@@ -6119,6 +6323,12 @@ define('frontend/pods/components/base-chart-settings/component', ['exports', 'em
 define("frontend/pods/components/base-chart-settings/template", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "3N/mbSpS", "block": "{\"symbols\":[\"y\",\"index\",\"dd\",\"ddm\",\"ct\",\"dd\",\"ddm\",\"lst\"],\"statements\":[[6,\"div\"],[9,\"class\",\"row border-bottom p-4\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-6\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"col-10\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                    \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[1,[18,\"x1Name\"],false],[8],[0,\" \"],[1,[25,\"searchable-select\",null,[[\"content\",\"sortBy\",\"optionLabelKey\",\"selected\",\"prompt\",\"on-change\"],[[20,[\"resultsColumnsHash\"]],\"columnName\",\"columnName\",[20,[\"x1Hash\"]],\"Select a Column\",[25,\"action\",[[19,0,[]],\"updateSelection\",\"resultsViewSettings.x1\"],null]]]],false],[0,\"\\n                    \"],[8],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"col-2\"],[7],[8],[0,\"\\n        \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"cordinateChart\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-10\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                        \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[1,[18,\"x2Name\"],false],[8],[0,\" \"],[1,[25,\"searchable-select\",null,[[\"class\",\"content\",\"sortBy\",\"optionLabelKey\",\"selected\",\"prompt\",\"on-change\"],[\"\",[20,[\"resultsColumnsHash\"]],\"columnName\",\"columnName\",[20,[\"x2Hash\"]],\"Select a Column\",[25,\"action\",[[19,0,[]],\"updateSelection\",\"resultsViewSettings.x2\"],null]]]],false],[0,\"\\n                        \"],[8],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-2\"],[7],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-x\"],[3,\"action\",[[19,0,[]],\"clearx2\"]],[7],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"        \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"multipleYs\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"col-10\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                        \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[1,[18,\"yName\"],false],[8],[0,\" \"],[1,[25,\"searchable-select\",null,[[\"class\",\"content\",\"sortBy\",\"optionLabelKey\",\"selected\",\"prompt\",\"on-change\"],[\"\",[20,[\"resultsColumnsHash\"]],\"columnName\",\"columnName\",[19,1,[]],\"Select\\n                    a Column\",[25,\"action\",[[19,0,[]],\"updateY\",[19,2,[]]],null]]]],false],[0,\"\\n                        \"],[8],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-2\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"row py-5 px-1\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"col-6\"],[7],[0,\" \"],[1,[25,\"circular-checkbox\",null,[[\"checked\",\"dataTooltip\"],[[19,1,[\"separateYaxis\"]],\"Separate Y axis\"]]],false],[0,\" \"],[8],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"col-6\"],[7],[0,\"\\n\"],[4,\"if\",[[25,\"eq\",[[25,\"or\",[[19,1,[\"chartType\"]],[20,[\"defaultChartType\"]]],null],\"Line\"],null]],null,{\"statements\":[[4,\"bs-dropdown\",null,null,{\"statements\":[[4,\"component\",[[19,6,[\"toggle\"]]],null,{\"statements\":[[0,\"                                        \"],[6,\"i\"],[10,\"class\",[26,[\"fe fe-\",[25,\"if\",[[25,\"eq\",[[19,1,[\"lineShape\"]],\"spline\"],null],\"git-branch\",\"activity\"],null],\" mt-1 ml-1 text-gray \"]]],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,6,[\"menu\"]]],[[\"class\"],[\"dropdown-menu-arrow\"]],{\"statements\":[[4,\"each\",[[20,[\"lineShapeTypes\"]]],null,{\"statements\":[[4,\"component\",[[19,7,[\"item\"]]],null,{\"statements\":[[0,\"                                                \"],[6,\"div\"],[9,\"class\",\"row p-2 w-75 nav-link\"],[3,\"action\",[[19,0,[]],[25,\"mut\",[[19,1,[\"lineShape\"]]],null],[19,8,[\"value\"]]]],[7],[0,\"\\n                                                    \"],[6,\"i\"],[10,\"class\",[26,[\"px-2 fe fe-\",[25,\"if\",[[25,\"eq\",[[19,8,[\"value\"]],\"spline\"],null],\"git-branch\",\"activity\"],null]]]],[7],[8],[0,\" \"],[1,[25,\"capitalize\",[[19,8,[\"name\"]]],null],false],[0,\" \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[8]},null]],\"parameters\":[7]},null]],\"parameters\":[6]},null]],\"parameters\":[]},null],[0,\"                        \"],[8],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"col-6\"],[7],[0,\"\\n\"],[4,\"bs-dropdown\",null,null,{\"statements\":[[4,\"component\",[[19,3,[\"toggle\"]]],null,{\"statements\":[[4,\"if\",[[19,1,[\"chartType\"]]],null,{\"statements\":[[0,\"                                        \"],[6,\"i\"],[10,\"class\",[26,[[25,\"get-chart-icon\",[[19,1,[\"chartType\"]]],null],\" text-gray\"]]],[7],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                                        \"],[6,\"i\"],[10,\"class\",[26,[[25,\"get-chart-icon\",[[20,[\"defaultChartType\"]]],null],\" text-gray\"]]],[7],[8],[0,\"\\n\"]],\"parameters\":[]}]],\"parameters\":[]},null],[4,\"component\",[[19,3,[\"menu\"]]],[[\"class\"],[\"dropdown-menu-arrow\"]],{\"statements\":[[4,\"each\",[[20,[\"chartTypes\"]]],null,{\"statements\":[[4,\"component\",[[19,4,[\"item\"]]],null,{\"statements\":[[0,\"                                            \"],[6,\"div\"],[9,\"class\",\"row p-2 w-75 nav-link\"],[3,\"action\",[[19,0,[]],[25,\"mut\",[[19,1,[\"chartType\"]]],null],[19,5,[]]]],[7],[0,\"\\n                                                \"],[6,\"i\"],[10,\"class\",[26,[[25,\"get-chart-icon\",[[19,5,[]]],null],\" px-2\"]]],[7],[8],[0,\" \"],[1,[25,\"capitalize\",[[19,5,[]]],null],false],[0,\" \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[5]},null]],\"parameters\":[4]},null]],\"parameters\":[3]},null],[0,\"                        \"],[8],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"col-6\"],[7],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-red\"],[3,\"action\",[[19,0,[]],\"removeColumn\",[19,1,[]]]],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[1,2]},null],[4,\"if\",[[20,[\"cordinateChart\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"btn btn-link\"],[3,\"action\",[[19,0,[]],\"addYColumn\"]],[7],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\" Add another \"],[1,[18,\"yName\"],false],[0,\" column\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-6\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"cordinateChart\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-10 offset-2\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                        \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"X Label\"],[8],[0,\" \"],[1,[25,\"input\",null,[[\"value\",\"class\",\"placeholder\"],[[20,[\"xLabel\"]],\"form-control\",\"X Lable\"]]],false],[0,\" \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"cordinateChart\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-10 offset-2\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                        \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Y Label\"],[8],[0,\" \"],[1,[25,\"input\",null,[[\"value\",\"class\",\"placeholder\"],[[20,[\"yLabel\"]],\"form-control\",\"Y Label\"]]],false],[0,\" \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[false],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-10 offset-2\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                        \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Title\"],[8],[0,\" \"],[1,[25,\"input\",null,[[\"value\",\"class\",\"placeholder\"],[[20,[\"title\"]],\"form-control\",\"Title\"]]],false],[0,\" \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-10 offset-2\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                        \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Mode\"],[8],[0,\" \"],[1,[25,\"searchable-select\",null,[[\"content\",\"sortBy\",\"selected\",\"prompt\",\"on-change\"],[[20,[\"stackModes\"]],\"title\",[20,[\"resultsViewSettings\",\"isStacked\"]],\"Select a Mode\",[25,\"action\",[[19,0,[]],[25,\"mut\",[[20,[\"resultsViewSettings\",\"isStacked\"]]],null]],null]]]],false],[0,\"\\n                        \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/base-chart-settings/template.hbs" } });
 });
+define('frontend/pods/components/base-footer/component', ['exports', 'ember'], function (exports, _ember) {
+  exports['default'] = _ember['default'].Component.extend({});
+});
+define("frontend/pods/components/base-footer/template", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "YTavMoGZ", "block": "{\"symbols\":[],\"statements\":[[6,\"footer\"],[9,\"class\",\"footer p-2\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"container p-0\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"row text-center text-lg-left\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"col-lg-6\"],[7],[0,\"\\n                \"],[6,\"p\"],[7],[0,\"© 2019 \"],[6,\"a\"],[9,\"href\",\"http://getafterglow.in\"],[9,\"target\",\"_\"],[9,\"class\",\"text-primary\"],[7],[0,\"getafterglow.in\"],[8],[8],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"col-lg-6 text-lg-right\"],[7],[0,\"\\n                \"],[6,\"a\"],[9,\"href\",\"http://getafterglow.in/\"],[9,\"target\",\"_\"],[9,\"class\",\"text-primary\"],[7],[0,\"Documentation\"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/base-footer/template.hbs" } });
+});
 define('frontend/pods/components/base-header/component', ['exports', 'ember'], function (exports, _ember) {
     exports['default'] = _ember['default'].Component.extend({
         sessionService: _ember['default'].inject.service(),
@@ -6141,7 +6351,7 @@ define('frontend/pods/components/base-header/component', ['exports', 'ember'], f
     });
 });
 define("frontend/pods/components/base-header/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "ausvuafs", "block": "{\"symbols\":[\"dd\",\"ddm\",\"dd\",\"ddm\",\"dashboard\"],\"statements\":[[4,\"if\",[[20,[\"sessionService\",\"authenticated\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"header collapse d-lg-flex p-0\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"container\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"d-flex\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"col-lg order-lg-first\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"nav nav-tabs border-0 flex-column flex-lg-row\"],[7],[0,\"\\n                    \"],[4,\"link-to\",[\"index\"],[[\"class\"],[\"header-brand\"]],{\"statements\":[[1,[25,\"app-logo\",null,[[\"logoSize\"],[\"small\"]]],false]],\"parameters\":[]},null],[0,\"\\n\"],[4,\"if\",[[25,\"can\",[\"show Dashboard\"],null]],null,{\"statements\":[[4,\"bs-dropdown\",null,[[\"class\"],[\"nav-item\"]],{\"statements\":[[0,\"                    \"],[4,\"component\",[[19,3,[\"toggle\"]]],[[\"class\"],[\"nav-link\"]],{\"statements\":[[0,\"Dashboards\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-down mt-1 ml-1\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,3,[\"menu\"]]],[[\"className\"],[\"dropdown-menu-arrow\"]],{\"statements\":[[4,\"each\",[[20,[\"dashboards\"]]],null,{\"statements\":[[4,\"component\",[[19,4,[\"item\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"a\"],[9,\"class\",\"dropdown-item \"],[3,\"action\",[[19,0,[]],\"goToDashboard\",[19,5,[]]]],[7],[0,\" \"],[1,[19,5,[\"title\"]],false],[0,\" \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                    \"]],\"parameters\":[5]},null],[0,\" \"],[1,[19,4,[\"divider\"]],false],[0,\"\\n\"],[4,\"component\",[[19,4,[\"item\"]]],null,{\"statements\":[[0,\"                    \"],[4,\"link-to\",[\"dashboards.index\"],[[\"class\"],[\"dropdown-item\"]],{\"statements\":[[0,\" All Dashboards \"]],\"parameters\":[]},null],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[4]},null]],\"parameters\":[3]},null]],\"parameters\":[]},null],[4,\"if\",[[25,\"can\",[\"show question\"],null]],null,{\"statements\":[[0,\"                    \"],[6,\"li\"],[9,\"class\",\"nav-item\"],[7],[0,\"\\n                        \"],[4,\"link-to\",[\"questions.all\"],[[\"class\"],[\"nav-link\"]],{\"statements\":[[0,\" Questions \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"can\",[\"create question\"],null]],null,{\"statements\":[[0,\"                    \"],[6,\"li\"],[9,\"class\",\"nav-item\"],[7],[0,\"\\n                        \"],[4,\"link-to\",[\"questions.new\"],[[\"class\"],[\"nav-link\"]],{\"statements\":[[0,\" New Question \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                    \"],[6,\"li\"],[9,\"class\",\"nav-item\"],[7],[0,\"\\n                        \"],[4,\"link-to\",[\"data_references.databases.all\"],[[\"class\"],[\"nav-link\"]],{\"statements\":[[0,\" Data Reference \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[8],[0,\"\\n                    \"],[6,\"li\"],[9,\"class\",\"nav-item right px-0\"],[3,\"action\",[[19,0,[]],\"openSearch\"]],[7],[0,\"\\n                        \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"class\",\"nav-link\"],[7],[0,\"\\n\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-search mr-2\"],[7],[8],[0,\"\\n                            Search\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"col-lg-3 ml-auto\"],[7],[0,\"\\n                        \"],[6,\"li\"],[9,\"class\",\"nav-item right px-0\"],[7],[0,\"\\n\"],[4,\"bs-dropdown\",null,[[\"direction\",\"class\"],[\"left\",\"d-inline\"]],{\"statements\":[[4,\"component\",[[19,1,[\"toggle\"]]],[[\"class\"],[\"nav-link\"]],{\"statements\":[[0,\"                            \"],[6,\"div\"],[9,\"class\",\"item pp\"],[7],[0,\"\\n                                \"],[6,\"img\"],[9,\"class\",\"profile_pic\"],[10,\"src\",[26,[[20,[\"sessionService\",\"user\",\"profile_pic\"]]]]],[7],[8],[0,\" \"],[8],[0,\"\\n                            \"],[1,[20,[\"sessionService\",\"user\",\"full_name\"]],false],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-down mt-1 ml-1\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"menu\"]]],[[\"class\"],[\"dropdown-menu-arrow\"]],{\"statements\":[[4,\"component\",[[19,2,[\"item\"]]],null,{\"statements\":[[4,\"if\",[[25,\"can\",[\"show settings\"],null]],null,{\"statements\":[[0,\"                            \"],[4,\"link-to\",[\"settings\"],[[\"class\"],[\"dropdown-item\"]],{\"statements\":[[0,\"Settings\"]],\"parameters\":[]},null],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                            \"],[6,\"a\"],[9,\"class\",\"dropdown-item\"],[3,\"action\",[[19,0,[]],\"invalidateSession\"]],[7],[0,\"Logout\"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[2]},null]],\"parameters\":[1]},null],[0,\"                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/base-header/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "Gu+6YveP", "block": "{\"symbols\":[\"dd\",\"ddm\",\"dd\",\"ddm\",\"dashboard\"],\"statements\":[[4,\"if\",[[20,[\"sessionService\",\"authenticated\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"header collapse d-lg-flex p-0\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"container\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"d-flex\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"col-lg order-lg-first\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"nav nav-tabs border-0 flex-column flex-lg-row\"],[7],[0,\"\\n                    \"],[4,\"link-to\",[\"index\"],[[\"class\"],[\"header-brand\"]],{\"statements\":[[1,[25,\"app-logo\",null,[[\"logoSize\"],[\"small\"]]],false]],\"parameters\":[]},null],[0,\"\\n\"],[4,\"if\",[[25,\"can\",[\"show Dashboard\"],null]],null,{\"statements\":[[4,\"bs-dropdown\",null,[[\"class\"],[\"nav-item\"]],{\"statements\":[[0,\"                    \"],[4,\"component\",[[19,3,[\"toggle\"]]],[[\"class\"],[\"nav-link\"]],{\"statements\":[[0,\"Dashboards\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-down mt-1 ml-1\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,3,[\"menu\"]]],[[\"className\"],[\"dropdown-menu-arrow\"]],{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"dashboards\"]]],null,{\"statements\":[[4,\"component\",[[19,4,[\"item\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"a\"],[9,\"class\",\"dropdown-item \"],[3,\"action\",[[19,0,[]],\"goToDashboard\",[19,5,[]]]],[7],[0,\" \"],[1,[19,5,[\"title\"]],false],[0,\" \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                        \"]],\"parameters\":[5]},null],[0,\" \"],[1,[19,4,[\"divider\"]],false],[0,\"\\n\"],[4,\"component\",[[19,4,[\"item\"]]],null,{\"statements\":[[0,\"                        \"],[4,\"link-to\",[\"dashboards.index\"],[[\"class\"],[\"dropdown-item\"]],{\"statements\":[[0,\" All Dashboards \"]],\"parameters\":[]},null],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[4]},null]],\"parameters\":[3]},null]],\"parameters\":[]},null],[4,\"if\",[[25,\"can\",[\"show question\"],null]],null,{\"statements\":[[0,\"                    \"],[6,\"li\"],[9,\"class\",\"nav-item\"],[7],[0,\"\\n                        \"],[4,\"link-to\",[\"questions.all\"],[[\"class\"],[\"nav-link\"]],{\"statements\":[[0,\" Questions \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"can\",[\"create question\"],null]],null,{\"statements\":[[0,\"                    \"],[6,\"li\"],[9,\"class\",\"nav-item\"],[7],[0,\"\\n                        \"],[4,\"link-to\",[\"questions.new\"],[[\"class\"],[\"nav-link\"]],{\"statements\":[[0,\" New Question \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                    \"],[6,\"li\"],[9,\"class\",\"nav-item\"],[7],[0,\"\\n                        \"],[4,\"link-to\",[\"data_references.databases.all\"],[[\"class\"],[\"nav-link\"]],{\"statements\":[[0,\" Data Reference \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[8],[0,\"\\n                    \"],[6,\"li\"],[9,\"class\",\"nav-item right px-0\"],[3,\"action\",[[19,0,[]],\"openSearch\"]],[7],[0,\"\\n                        \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"class\",\"nav-link\"],[7],[0,\"\\n\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-search mr-2\"],[7],[8],[0,\"\\n                            Search\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"col-lg-3 ml-auto\"],[7],[0,\"\\n                        \"],[6,\"li\"],[9,\"class\",\"nav-item right px-0\"],[7],[0,\"\\n\"],[4,\"bs-dropdown\",null,[[\"direction\",\"class\"],[\"left\",\"d-inline\"]],{\"statements\":[[4,\"component\",[[19,1,[\"toggle\"]]],[[\"class\"],[\"nav-link\"]],{\"statements\":[[0,\"                            \"],[6,\"div\"],[9,\"class\",\"item pp\"],[7],[0,\"\\n                                \"],[6,\"img\"],[9,\"class\",\"profile_pic\"],[10,\"src\",[26,[[20,[\"sessionService\",\"user\",\"profile_pic\"]]]]],[7],[8],[0,\" \"],[8],[0,\"\\n                            \"],[1,[20,[\"sessionService\",\"user\",\"full_name\"]],false],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-down mt-1 ml-1\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"menu\"]]],[[\"class\"],[\"dropdown-menu-arrow\"]],{\"statements\":[[4,\"component\",[[19,2,[\"item\"]]],null,{\"statements\":[[4,\"if\",[[25,\"can\",[\"show settings\"],null]],null,{\"statements\":[[0,\"                            \"],[4,\"link-to\",[\"settings\"],[[\"class\"],[\"dropdown-item\"]],{\"statements\":[[0,\"Settings\"]],\"parameters\":[]},null],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                            \"],[6,\"a\"],[9,\"class\",\"dropdown-item\"],[3,\"action\",[[19,0,[]],\"invalidateSession\"]],[7],[0,\"Logout\"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[2]},null]],\"parameters\":[1]},null],[0,\"                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/base-header/template.hbs" } });
 });
 define('frontend/pods/components/bubble-chart-settings/component', ['exports', 'ember', 'frontend/pods/components/base-chart-settings/component'], function (exports, _ember, _frontendPodsComponentsBaseChartSettingsComponent) {
     exports['default'] = _frontendPodsComponentsBaseChartSettingsComponent['default'].extend({
@@ -6454,6 +6664,12 @@ define('frontend/pods/components/dashboard-grid/component', ['exports', 'ember',
 define("frontend/pods/components/dashboard-grid/template", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "8/uIcnT7", "block": "{\"symbols\":[\"question\",\"dd\",\"ddm\",\"note\"],\"statements\":[[4,\"if\",[[20,[\"dashboard\"]]],null,{\"statements\":[[4,\"grid-stack\",null,[[\"class\",\"options\",\"onChange\"],[\"full\",[25,\"hash\",null,[[\"animate\",\"width\",\"verticalMargin\"],[true,48,\"0em\"]]],[25,\"action\",[[19,0,[]],\"change\"],null]]],{\"statements\":[[4,\"if\",[[20,[\"dashboard\",\"newNote\"]]],null,{\"statements\":[[4,\"grid-stack-item\",null,[[\"class\",\"options\"],[\"grid-segment\",[25,\"get\",[[20,[\"dashboard\"]],\"newNoteSettings\"],null]]],{\"statements\":[[6,\"div\"],[9,\"class\",\"h-100\"],[9,\"id\",\"js-notes-new\"],[7],[0,\" \"],[1,[25,\"dashboard-note-card\",null,[[\"note\"],[[20,[\"dashboard\",\"newNote\"]]]]],false],[0,\" \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null],[4,\"each\",[[20,[\"dashboard\",\"notes\"]]],null,{\"statements\":[[4,\"if\",[[19,4,[\"id\"]]],null,{\"statements\":[[4,\"grid-stack-item\",null,[[\"class\",\"options\"],[\"grid-segment\",[25,\"get\",[[25,\"get\",[[20,[\"dashboard\"]],\"notes_settings\"],null],[25,\"get\",[[19,4,[]],\"id\"],null]],null]]],{\"statements\":[[6,\"div\"],[9,\"class\",\"h-100\"],[10,\"id\",[26,[\"js-notes-\",[19,4,[\"id\"]]]]],[7],[0,\" \"],[1,[25,\"dashboard-note-card\",null,[[\"note\"],[[19,4,[]]]]],false],[0,\" \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null]],\"parameters\":[4]},null],[4,\"each\",[[20,[\"dashboard\",\"questions\"]]],null,{\"statements\":[[4,\"grid-stack-item\",null,[[\"class\",\"options\"],[\"grid-segment\",[25,\"get\",[[25,\"get\",[[20,[\"dashboard\"]],\"settings\"],null],[25,\"get\",[[19,1,[]],\"id\"],null]],null]]],{\"statements\":[[6,\"div\"],[9,\"class\",\"card h-100\"],[10,\"id\",[26,[\"js-question-\",[19,1,[\"id\"]]]]],[7],[0,\"\\n\"],[4,\"if\",[[19,1,[\"showCardHeader\"]]],null,{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"card-header row question\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col-8\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"text-default\"],[7],[0,\" \"],[1,[19,1,[\"title\"]],false],[0,\" \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col-4 text-right\"],[7],[0,\"\\n\"],[4,\"if\",[[19,1,[\"updated_at\"]]],null,{\"statements\":[[0,\"            \"],[6,\"span\"],[7],[0,\"\\n                \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"left\"]],{\"statements\":[[0,\" Updated\\n                \"],[1,[25,\"moment-from-now\",[[19,1,[\"updated_at\"]]],[[\"timeZone\",\"interval\"],[[20,[\"timeZone\"]],1000]]],false],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[6,\"i\"],[10,\"class\",[26,[\"fe fe-clock text-\",[19,1,[\"updatedAgoColor\"]]]]],[7],[8],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"bs-dropdown\",null,[[\"direction\",\"class\"],[\"left\",\"d-inline-block\"]],{\"statements\":[[4,\"component\",[[19,2,[\"toggle\"]]],[[\"class\"],[\"\"]],{\"statements\":[[0,\"            \"],[6,\"i\"],[9,\"class\",\"fe fe-more-vertical text-gray\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,2,[\"menu\"]]],[[\"class\"],[\"dropdown-menu-arrow\"]],{\"statements\":[[4,\"if\",[[19,1,[\"has_permission\"]]],null,{\"statements\":[[4,\"component\",[[19,3,[\"item\"]]],null,{\"statements\":[[0,\"            \"],[4,\"link-to\",[\"questions.show\",[19,1,[\"id\"]]],[[\"class\"],[\"dropdown-item\"]],{\"statements\":[[0,\" View\\n            Question \"]],\"parameters\":[]},null],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null],[4,\"component\",[[19,3,[\"item\"]]],null,{\"statements\":[[0,\"            \"],[6,\"a\"],[9,\"class\",\"dropdown-item\"],[3,\"action\",[[19,0,[]],\"refreshQuestion\",[19,1,[]]]],[7],[0,\" Refresh \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"and\",[[20,[\"dashboard\",\"has_permission\"]],[25,\"can\",[\"edit dashboard\"],null]],null]],null,{\"statements\":[[4,\"component\",[[19,3,[\"item\"]]],null,{\"statements\":[[0,\"            \"],[6,\"a\"],[9,\"class\",\"dropdown-item\"],[3,\"action\",[[19,0,[]],\"showDeleteFromDashboardDialogue\",[19,1,[]]]],[7],[0,\" Remove from\\n                Dashboard \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null]],\"parameters\":[3]},null]],\"parameters\":[2]},null],[0,\"        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"    \"],[6,\"div\"],[9,\"class\",\"card-body m-0 p-0\"],[7],[0,\"\\n\"],[4,\"if\",[[19,1,[\"results\"]]],null,{\"statements\":[[0,\"        \"],[1,[25,\"question-widget\",null,[[\"question\",\"results\",\"resultsViewSettings\",\"resizeTime\",\"resultsViewType\",\"hideMenu\",\"refresh\",\"dashboard\",\"remove\"],[[19,1,[]],[19,1,[\"results\"]],[19,1,[\"results_view_settings\"]],[20,[\"resizeTime\"]],[19,1,[\"results_view_settings\",\"resultsViewType\"]],[19,1,[\"showCardHeader\"]],\"refreshQuestion\",[20,[\"dashboard\"]],\"showDeleteFromDashboardDialogue\"]]],false],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[4,\"if\",[[25,\"or\",[[19,1,[\"loading\"]],[25,\"not\",[[19,1,[\"content\",\"isLoaded\"]]],null]],null]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"dimmer active\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"loader text-primary\"],[7],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"dimmer-content\"],[7],[0,\" \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]}],[0,\"    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[1]},null]],\"parameters\":[]},null]],\"parameters\":[]},null],[1,[25,\"delete-dialogue\",null,[[\"open\",\"entityName\",\"entity\",\"delete\",\"className\"],[[20,[\"toggleDeleteDashboardDialogue\"]],\"question from Dashboard\",[20,[\"toBeDeleted\"]],\"deleteFromDashboard\",\"delete-from-dashboard\"]]],false]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/dashboard-grid/template.hbs" } });
 });
+define('frontend/pods/components/dashboard-index-grid/component', ['exports', 'ember'], function (exports, _ember) {
+  exports['default'] = _ember['default'].Component.extend({});
+});
+define("frontend/pods/components/dashboard-index-grid/template", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "66/cdsUZ", "block": "{\"symbols\":[\"dashboard\"],\"statements\":[[4,\"masonry-grid\",null,[[\"items\"],[[20,[\"dashboards\"]]]],{\"statements\":[[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"card p-3 mb-0\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"d-flex\"],[7],[0,\"\\n        \"],[6,\"span\"],[9,\"class\",\"stamp stamp-md bg-primary mr-3\"],[7],[0,\"\\n            \"],[6,\"i\"],[9,\"class\",\"fe fe-grid\"],[7],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"row justify-content-between w-100\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"col\"],[7],[0,\"\\n                \"],[6,\"h4\"],[9,\"class\",\"m-0\"],[7],[0,\"\\n\"],[4,\"link-to\",[\"dashboards.show\",[19,1,[\"id\"]]],[[\"class\"],[\"item text-primary\"]],{\"statements\":[[0,\"                    \"],[1,[19,1,[\"title\"]],false],[0,\" \"]],\"parameters\":[]},null],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[1,[19,1,[\"description\"]],false],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[1]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/dashboard-index-grid/template.hbs" } });
+});
 define('frontend/pods/components/dashboard-note-card/component', ['exports', 'ember'], function (exports, _ember) {
     exports['default'] = _ember['default'].Component.extend({
         classNames: ['h-100'],
@@ -6550,49 +6766,92 @@ define("frontend/pods/components/dashboard-note-card/template", ["exports"], fun
   exports["default"] = Ember.HTMLBars.template({ "id": "vg10b3il", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"card h-100\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"card-body p-0\"],[7],[0,\"\\n        \"],[4,\"if\",[[20,[\"isEditing\"]]],null,{\"statements\":[[0,\" \"],[1,[25,\"textarea\",null,[[\"id\",\"value\",\"class\"],[[20,[\"textareaRandomId\"]],[20,[\"note\",\"content\"]],\"hidden\"]]],false],[0,\" \"]],\"parameters\":[]},{\"statements\":[[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"w-100 p-2 text-right\"],[7],[0,\"\\n\"],[4,\"if\",[[25,\"can\",[\"edit dashboard\"],null]],null,{\"statements\":[[4,\"if\",[[25,\"not\",[[20,[\"note\",\"dashboard\",\"isEditing\"]]],null]],null,{\"statements\":[[0,\"                        \"],[6,\"i\"],[9,\"class\",\"fe fe-edit text-muted\"],[3,\"action\",[[19,0,[]],\"toggleEditNote\"]],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                    \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-red\"],[3,\"action\",[[19,0,[]],\"deleteNote\"]],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"px-2\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"simditor\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"simditor-body py-0\"],[7],[0,\" \"],[1,[20,[\"note\",\"content\"]],true],[0,\" \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"    \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"isEditing\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"card-footer text-right\"],[7],[0,\"\\n            \"],[6,\"button\"],[9,\"class\",\"btn btn-red\"],[3,\"action\",[[19,0,[]],\"toggleEditNote\"]],[7],[0,\"Cancel\"],[8],[0,\"\\n            \"],[6,\"button\"],[9,\"class\",\"btn btn-primary\"],[3,\"action\",[[19,0,[]],\"saveNote\"]],[7],[0,\"Save\"],[8],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/dashboard-note-card/template.hbs" } });
 });
 define('frontend/pods/components/dashboard-select-variables/component', ['exports', 'ember', 'frontend/mixins/helper-mixin'], function (exports, _ember, _frontendMixinsHelperMixin) {
-    exports['default'] = _ember['default'].Component.extend(_frontendMixinsHelperMixin['default'], {
-        variablesSelected: _ember['default'].computed.alias('dashboard.variables'),
-        variablesRemaining: _ember['default'].computed('variables', 'variablesSelected.@each', function () {
-            var variablesSelected = this.get('variablesSelected');
-            return this.uniqueByName(this.get('variables').filter(function (item) {
-                return variablesSelected.map(function (variable) {
-                    return variable.get('name');
-                }).indexOf(item.get('name')) < 0;
-            }));
-        }),
-        variables: _ember['default'].computed('dashboard.questions.@each.variables.@each.content.isLoaded', function () {
-            var dashboardQuestions = this.get('dashboard.questions');
-            return [].concat.apply([], dashboardQuestions.map(function (item) {
-                return item.get('variables').toArray();
-            }));
-        }),
-        actions: {
-            selectVariable: function selectVariable(variable) {
-                this.set('isEditing', true);
-                var variablesSelected = this.get('variablesSelected');
-                variable = this.get('store').createRecord('variable', {
-                    name: variable.get('name'),
-                    'default': variable.get('default'),
-                    var_type: variable.get('var_type'),
-                    question_filter: variable.get('question_filter'),
-                    default_options: variable.get('default_options')
-                });
-                variablesSelected.pushObject(variable);
-            },
-            removeVariable: function removeVariable(variable) {
-                this.set('isEditing', true);
-                var variablesSelected = this.get('variablesSelected');
-                variablesSelected.removeObject(variable);
-                variable.destroyRecord();
-            },
-            saveUserPermissions: function saveUserPermissions() {
-                this.sendAction('saveUserPermissions', this.get('user'));
-            }
+  exports['default'] = _ember['default'].Component.extend(_frontendMixinsHelperMixin['default'], {
+    varDefault: [],
+    variablesSelected: _ember['default'].computed('dashboard.variables.[]', function () {
+      var variables = this.get('dashboard.variables') || [];
+      var selectedVariables = [];
+      variables.forEach(function (item) {
+        selectedVariables.pushObject(item);
+      });
+      return selectedVariables;
+    }),
+    variablesRemaining: _ember['default'].computed('variables', 'variablesSelected.@each', function () {
+      var variablesSelected = this.get('variablesSelected');
+      return this.uniqueByName(this.get('variables').filter(function (item) {
+        return variablesSelected.map(function (variable) {
+          return variable.get('name');
+        }).indexOf(item.get('name')) < 0;
+      }));
+    }),
+    variables: _ember['default'].computed('dashboard.questions.@each.variables.@each.content.isLoaded', function () {
+      var dashboardQuestions = this.get('dashboard.questions');
+      return [].concat.apply([], dashboardQuestions.map(function (item) {
+        return item.get('variables').toArray();
+      }));
+    }),
+
+    createVariable: function createVariable(variable) {
+      this.set('isEditing', true);
+      return this.get('store').createRecord('variable', {
+        name: variable.get('name'),
+        'default': variable.get('default'),
+        var_type: variable.get('var_type'),
+        question_filter: variable.get('question_filter'),
+        default_options: variable.get('default_options')
+      });
+    },
+    deleteVariable: function deleteVariable(variable) {
+      this.set('isEditing', true);
+      if (variable.get('dashboard.id') == this.get('dashboard.id')) {
+        variable.destroyRecord();
+        this.get('dashboard').save();
+      }
+      return variable;
+    },
+    findDiff: function findDiff(arr1, arr2) {
+      var arr = [];
+      var notFound = null;
+      for (var i = 0; i < arr1.length; i++) {
+        notFound = true;
+        for (var j = 0; j < arr2.length; j++) {
+          if (arr1[i].get('name') == arr2[j].get('name')) {
+            notFound = false;
+          }
         }
-    });
+        if (notFound == true) {
+          arr.push(arr1[i]);
+        }
+      }
+      return arr;
+    },
+    actions: {
+      hide: function hide() {
+        this.set('open', false);
+      },
+      mutateVariables: function mutateVariables(variables) {
+        var _this = this;
+
+        var selectedVariables = this.get('variablesSelected');
+        var toBeDeletedVariables = this.findDiff(selectedVariables, variables);
+        var toBeCreatedVariables = this.findDiff(variables, selectedVariables);
+        var createdVariables = toBeCreatedVariables.map(function (item) {
+          return _this.createVariable(item);
+        });
+        var deletedVariables = toBeDeletedVariables.map(function (item) {
+          return _this.deleteVariable(item);
+        });
+        this.get('dashboard.variables').pushObjects(createdVariables);
+        this.get('dashboard.variables').removeObjects(deletedVariables);
+      },
+      saveUserPermissions: function saveUserPermissions() {
+        this.sendAction('saveUserPermissions', this.get('user'));
+      }
+    }
+  });
 });
 define("frontend/pods/components/dashboard-select-variables/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "TJizsOsR", "block": "{\"symbols\":[\"variable\",\"variable\"],\"statements\":[[6,\"div\"],[9,\"class\",\"ui fullscreen modal select-dashboard-variables\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"header\"],[7],[0,\"\\n        Select Variables for this dashboard\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\" content\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"ui grid\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"ui horizontal divider\"],[7],[0,\"Selected\"],[8],[0,\"\\n\"],[4,\"each\",[[20,[\"variablesSelected\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"four wide column margin-bottom\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"selected permission-select margin-top\"],[3,\"action\",[[19,0,[]],\"removeVariable\",[19,2,[]]]],[7],[0,\"\\n                        \"],[1,[19,2,[\"name\"]],false],[0,\"\\n                    \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[2]},null],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"ui horizontal divider\"],[7],[0,\"Can be Selected\"],[8],[0,\"\\n\"],[4,\"each\",[[20,[\"variablesRemaining\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"four wide column\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"permission-select margin-top\"],[3,\"action\",[[19,0,[]],\"selectVariable\",[19,1,[]]]],[7],[0,\"\\n                        \"],[1,[19,1,[\"name\"]],false],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"actions\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"ui red cancel button\"],[7],[0,\"\\n            Cancel\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"ui positive right button\"],[7],[0,\"\\n            Done\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/dashboard-select-variables/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "pMS+p+5R", "block": "{\"symbols\":[\"modal\",\"footer\"],\"statements\":[[4,\"bs-modal\",null,[[\"position\",\"open\",\"onHide\"],[\"center\",[20,[\"open\"]],[25,\"action\",[[19,0,[]],\"hide\"],null]]],{\"statements\":[[4,\"component\",[[19,1,[\"header\"]]],null,{\"statements\":[[6,\"h4\"],[9,\"class\",\"modal-title\"],[7],[0,\" Select Variables For This Dashboard \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"body\"]]],null,{\"statements\":[[1,[25,\"searchable-select\",null,[[\"content\",\"multiple\",\"optionLabelKey\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-change\"],[[20,[\"variables\"]],true,\"name\",[20,[\"variablesSelected\"]],false,\"Select Variables\",[25,\"action\",[[19,0,[]],\"mutateVariables\"],null]]]],false],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"footer\"]]],null,{\"statements\":[[4,\"bs-button\",null,[[\"onClick\",\"class\",\"type\"],[[25,\"action\",[[19,0,[]],\"hide\"],null],\"btn-primary\",\"primary\"]],{\"statements\":[[0,\"Done\"]],\"parameters\":[]},null],[0,\"\\n\"]],\"parameters\":[2]},null]],\"parameters\":[1]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/dashboard-select-variables/template.hbs" } });
 });
 define('frontend/pods/components/data-charts/component', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Component.extend({});
@@ -6615,31 +6874,28 @@ define("frontend/pods/components/database-selector/template", ["exports"], funct
   exports["default"] = Ember.HTMLBars.template({ "id": "h2pEzkeq", "block": "{\"symbols\":[\"dd\",\"ddm\",\"dd\",\"ddm\"],\"statements\":[[4,\"if\",[[20,[\"queryObject\",\"database\",\"name\"]]],null,{\"statements\":[[6,\"span\"],[9,\"class\",\"tag border text-primary border-primary  bg-white\"],[7],[0,\"\\n    Data Source:\\n    \"],[6,\"div\"],[9,\"class\",\"tag-addon text-white border-primary bg-primary\"],[7],[0,\"\\n\"],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,3,[\"toggle\"]]],[[\"class\"],[\"text-white \"]],{\"statements\":[[0,\"        \"],[1,[20,[\"queryObject\",\"database\",\"name\"]],false],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,3,[\"menu\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n            \"],[1,[25,\"searchable-select\",null,[[\"content\",\"sortBy\",\"prompt\",\"selected\",\"optionLabelKey\",\"on-change\"],[[20,[\"databases\"]],\"name\",\"Select a Database\",[20,[\"queryObject\",\"database\"]],\"name\",[25,\"action\",[[19,0,[]],[25,\"mut\",[[20,[\"queryObject\",\"database\"]]],null]],null]]]],false],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[4]},null]],\"parameters\":[3]},null],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,1,[\"toggle\"]]],[[\"id\",\"class\"],[\"datasource-selector\",\"btn tag-size  btn-secondary text-primary border-primary py-0 px-1\"]],{\"statements\":[[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\" Data Source\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"menu\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n    \"],[1,[25,\"searchable-select\",null,[[\"content\",\"sortBy\",\"prompt\",\"selected\",\"optionLabelKey\",\"on-change\"],[[20,[\"databases\"]],\"name\",\"Select a Database\",[20,[\"queryObject\",\"database\"]],\"name\",[25,\"action\",[[19,0,[]],[25,\"mut\",[[20,[\"queryObject\",\"database\"]]],null]],null]]]],false],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[2]},null]],\"parameters\":[1]},null]],\"parameters\":[]}]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/database-selector/template.hbs" } });
 });
 define('frontend/pods/components/db-tree/component', ['exports', 'ember'], function (exports, _ember) {
-    exports['default'] = _ember['default'].Component.extend({
-        db: _ember['default'].computed('database', function () {
-            var database = this.get('database');
-            return this.get('store').peekRecord('database', database.id) || this.get('store').findRecord('database', database.id);
-        }),
-        tables: _ember['default'].computed('db', 'db.isLoaded', 'db.tables', 'db.tables.isLoaded', 'query', function () {
-            var tables = this.get('db.tables');
-            var query = this.get('query');
-            query = query && query.trim();
-            if (tables && query && query !== '') {
-                return tables.filter(function (item) {
-                    return item.get('readable_table_name') && item.get('readable_table_name').toLowerCase().match(query.toLowerCase());
-                });
-            }
-            return tables && tables.slice(0, 10);
-        }),
-        actions: {
-            toggleColumns: function toggleColumns(table) {
-                table.toggleProperty('showColumnsInTree');
-            }
-        }
-    });
+  exports['default'] = _ember['default'].Component.extend({
+    query: '',
+    db: _ember['default'].computed('database', function () {
+      var database = this.get('database');
+      return this.get('store').peekRecord('database', database.id) || this.get('store').findRecord('database', database.id);
+    }),
+    tableObserver: _ember['default'].on('init', _ember['default'].observer('db', 'db.isLoaded', 'db.tables', 'db.tables.isLoaded', 'query', function () {
+      var _this = this;
+
+      var query = this.get('query');
+      query = query && query.trim();
+      if (this.get('db.id') && (query || query == '')) {
+        _ember['default'].run.debounce(this, function () {
+
+          _this.set('tables', _this.get('store').query('search-table', { q: query || '', database_id: _this.get('db.id') }));
+        }, 300);
+      }
+    }))
+  });
 });
 define("frontend/pods/components/db-tree/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "TlQyUQzg", "block": "{\"symbols\":[\"table\",\"column\"],\"statements\":[[6,\"div\"],[9,\"class\",\"db-tree mx-1\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"form-group mb-0\"],[7],[0,\" \"],[1,[25,\"input\",null,[[\"type\",\"value\",\"class\",\"placeholder\"],[\"text\",[20,[\"query\"]],\"form-control\",\"Search Tables\"]]],false],[0,\" \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"tree text-default\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"tables\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"node-name d-flex\"],[3,\"action\",[[19,0,[]],\"toggleColumns\",[19,1,[]]]],[7],[0,\"\\n\"],[4,\"if\",[[19,1,[\"showColumnsInTree\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-down pt-1 pr-2\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                    \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-right pt-1 pr-2\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                \"],[6,\"span\"],[9,\"class\",\"col-8\"],[7],[0,\" \"],[1,[19,1,[\"readable_table_name\"]],false],[0,\" \"],[8],[0,\"\\n                \"],[6,\"span\"],[9,\"class\",\"text-right col-2\"],[7],[0,\"\\n\"],[4,\"link-to\",[\"data_references.databases.show.tables.show.explore\",[20,[\"database\",\"id\"]],[19,1,[\"id\"]]],[[\"target\",\"bubbles\"],[\"_blank\",false]],{\"statements\":[[0,\"                        \"],[6,\"i\"],[9,\"class\",\"fe fe-zoom-in\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[10,\"class\",[26,[\"leafs pl-4 \",[25,\"if\",[[19,1,[\"showColumnsInTree\"]],\"\",\"hidden\"],null]]]],[7],[0,\"\\n\"],[4,\"each\",[[19,1,[\"columns\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"leaf-name\"],[7],[0,\" \"],[1,[19,2,[\"name\"]],false],[0,\" \"],[8],[0,\"\\n\"]],\"parameters\":[2]},null],[0,\"            \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/db-tree/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "nYewPwJN", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"db-tree mx-1\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"form-group mb-0\"],[7],[0,\" \"],[1,[25,\"input\",null,[[\"type\",\"value\",\"class\",\"placeholder\"],[\"text\",[20,[\"query\"]],\"form-control\",\"Search Tables\"]]],false],[0,\"\\n        \"],[1,[25,\"table-tree\",null,[[\"editor\",\"tables\",\"database\"],[[20,[\"editor\"]],[20,[\"tables\"]],[20,[\"database\"]]]]],false],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/db-tree/template.hbs" } });
 });
 define('frontend/pods/components/delete-dialogue/component', ['exports', 'ember'], function (exports, _ember) {
     exports['default'] = _ember['default'].Component.extend({
@@ -6766,7 +7022,7 @@ define('frontend/pods/components/final-query-accordian/component', ['exports', '
   exports['default'] = _ember['default'].Component.extend({});
 });
 define("frontend/pods/components/final-query-accordian/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "H+MqmGo8", "block": "{\"symbols\":[\"acc\",\"aitem\"],\"statements\":[[4,\"bs-accordion\",null,[[\"class\"],[\"text-default mb-1\"]],{\"statements\":[[4,\"component\",[[19,1,[\"item\"]]],[[\"class\"],[\"m-0 w-100\"]],{\"statements\":[[6,\"div\"],[9,\"class\",\"card-status card-status-left bg-warning\"],[7],[8],[0,\"\\n\"],[4,\"component\",[[19,2,[\"title\"]]],[[\"class\"],[\"py-2\"]],{\"statements\":[[6,\"span\"],[9,\"class\",\"row\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-4 text-left\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"variablesReplacedQuery\"]]],null,{\"statements\":[[0,\"        \"],[6,\"i\"],[9,\"class\",\"fe fe-check text-success\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"        \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-danger\"],[7],[8],[0,\"\\n        \"]],\"parameters\":[]}],[0,\" Variables Replaced \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-4\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"isQueryLimited\"]]],null,{\"statements\":[[0,\"        \"],[6,\"i\"],[9,\"class\",\"fe fe-check text-success\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"        \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-danger\"],[7],[8],[0,\"\\n        \"]],\"parameters\":[]}],[0,\" Limit of \"],[1,[18,\"queryLimit\"],false],[0,\" applied \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-4 text-right\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"additionalFiltersApplied\"]]],null,{\"statements\":[[0,\"        \"],[6,\"i\"],[9,\"class\",\"fe fe-check text-success\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"        \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-danger\"],[7],[8],[0,\"\\n        \"]],\"parameters\":[]}],[0,\" Additional Filters Applied \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,2,[\"body\"]]],null,{\"statements\":[[0,\" \"],[1,[25,\"ember-ace\",null,[[\"lines\",\"value\",\"mode\",\"theme\",\"readOnly\"],[10,[20,[\"finalQuery\"]],[20,[\"aceMode\"]],[20,[\"aceTheme\"]],true]]],false],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[2]},null]],\"parameters\":[1]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/final-query-accordian/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "0EeJMPix", "block": "{\"symbols\":[\"acc\",\"aitem\"],\"statements\":[[4,\"bs-accordion\",null,[[\"class\"],[\"text-default mb-1\"]],{\"statements\":[[4,\"component\",[[19,1,[\"item\"]]],[[\"class\"],[\"m-0 w-100\"]],{\"statements\":[[6,\"div\"],[9,\"class\",\"card-status card-status-left bg-warning\"],[7],[8],[0,\"\\n\"],[4,\"component\",[[19,2,[\"title\"]]],[[\"class\"],[\"py-2\"]],{\"statements\":[[6,\"span\"],[9,\"class\",\"row\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-4 text-left\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"variablesReplacedQuery\"]]],null,{\"statements\":[[0,\"        \"],[6,\"i\"],[9,\"class\",\"fe fe-check text-success\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"        \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-danger\"],[7],[8],[0,\"\\n        \"]],\"parameters\":[]}],[0,\" Variables Replaced \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-4\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"isQueryLimited\"]]],null,{\"statements\":[[0,\"        \"],[6,\"i\"],[9,\"class\",\"fe fe-check text-success\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"        \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-danger\"],[7],[8],[0,\"\\n        \"]],\"parameters\":[]}],[0,\" Limit of \"],[1,[18,\"queryLimit\"],false],[0,\" applied \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-4 text-right\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"additionalFiltersApplied\"]]],null,{\"statements\":[[0,\"        \"],[6,\"i\"],[9,\"class\",\"fe fe-check text-success\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"        \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-danger\"],[7],[8],[0,\"\\n        \"]],\"parameters\":[]}],[0,\" Additional Filters Applied \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,2,[\"body\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"ace-resizable\"],[7],[0,\"\\n    \"],[1,[25,\"ember-ace\",null,[[\"value\",\"mode\",\"theme\",\"readOnly\"],[[20,[\"finalQuery\"]],[20,[\"aceMode\"]],[20,[\"aceTheme\"]],true]]],false],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[2]},null]],\"parameters\":[1]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/final-query-accordian/template.hbs" } });
 });
 define('frontend/pods/components/funnel-chart-settings/component', ['exports', 'ember'], function (exports, _ember) {
     exports['default'] = _ember['default'].Component.extend({
@@ -6899,7 +7155,7 @@ define('frontend/pods/components/key-value-maker/component', ['exports', 'ember'
     });
 });
 define("frontend/pods/components/key-value-maker/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "dX5F9Q+J", "block": "{\"symbols\":[\"el\"],\"statements\":[[4,\"each\",[[20,[\"objArray\"]]],null,{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col-5 pr-2\"],[7],[0,\"\\n            \"],[1,[25,\"input\",null,[[\"value\",\"class\",\"placeholder\"],[[19,1,[\"key\"]],\"form-control\",\"key\"]]],false],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col-5 pl-2\"],[7],[0,\"\\n            \"],[1,[25,\"input\",null,[[\"value\",\"class\",\"placeholder\"],[[19,1,[\"value\"]],\"form-control\",\"value\"]]],false],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col-2\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"btn btn-link text-red\"],[3,\"action\",[[19,0,[]],\"deleteKey\",[19,1,[]]]],[7],[0,\"DELETE\"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"btn btn-link\"],[3,\"action\",[[19,0,[]],\"addMore\"]],[7],[0,\" Add More\"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/key-value-maker/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "aF/PPllc", "block": "{\"symbols\":[\"el\"],\"statements\":[[4,\"each\",[[20,[\"objArray\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-5 pr-2\"],[7],[0,\"\\n        \"],[1,[25,\"input\",null,[[\"value\",\"class\",\"placeholder\"],[[19,1,[\"key\"]],\"form-control\",\"key\"]]],false],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-5 pl-2\"],[7],[0,\"\\n        \"],[1,[25,\"input\",[[25,\"-input-type\",[[25,\"if\",[[20,[\"password\"]],\"password\",\"value\"],null]],null]],[[\"value\",\"type\",\"class\",\"placeholder\"],[[19,1,[\"value\"]],[25,\"if\",[[20,[\"password\"]],\"password\",\"value\"],null],\"form-control\",\"value\"]]],false],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-2\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"btn btn-link text-red\"],[3,\"action\",[[19,0,[]],\"deleteKey\",[19,1,[]]]],[7],[0,\"DELETE\"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"btn btn-link\"],[3,\"action\",[[19,0,[]],\"addMore\"]],[7],[0,\" Add More\"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/key-value-maker/template.hbs" } });
 });
 define('frontend/pods/components/keyboard-shortcuts-help/component', ['exports', 'ember', 'ember-keyboard-shortcuts/mixins/component'], function (exports, _ember, _emberKeyboardShortcutsMixinsComponent) {
   exports['default'] = _ember['default'].Component.extend(_emberKeyboardShortcutsMixinsComponent['default'], {
@@ -6924,12 +7180,12 @@ define('frontend/pods/components/keyboard-shortcuts-help/component', ['exports',
 
     keyboardShortcuts: {
       "ctrl+k": 'toggleKeyboardShortcuts',
-      "ctrl+shift+k": 'toggleKeyboardShortcutsButton'
+      "ctrl+l": 'toggleKeyboardShortcutsButton'
     }
   });
 });
 define("frontend/pods/components/keyboard-shortcuts-help/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "ZejKdySo", "block": "{\"symbols\":[],\"statements\":[[4,\"if\",[[20,[\"showKeyboardShortcutsButton\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"fixed shortcut-button\"],[3,\"action\",[[19,0,[]],\"toggleKeyboardShortcuts\"]],[7],[0,\"\\n  ?\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"\\n\"],[4,\"if\",[[20,[\"showKeyboardShortcuts\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"sidebar\"],[7],[0,\"\\n  \"],[6,\"div\"],[9,\"class\",\"header\"],[7],[0,\"\\n    Keyboard Shortcuts\\n  \"],[8],[0,\"\\n\\n  \"],[6,\"div\"],[9,\"class\",\"subheader\"],[7],[0,\"\\n    Application\\n  \"],[8],[0,\"\\n  \"],[6,\"div\"],[9,\"class\",\"content\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[6,\"div\"],[9,\"class\",\"shortcut\"],[7],[0,\"Ctrl+n\"],[8],[0,\" New Question\"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[6,\"div\"],[9,\"class\",\"shortcut\"],[7],[0,\"Ctrl+q\"],[8],[0,\" Search Questions\"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[6,\"div\"],[9,\"class\",\"shortcut\"],[7],[0,\"Ctrl+d\"],[8],[0,\" Search Dashboards\"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[6,\"div\"],[9,\"class\",\"shortcut\"],[7],[0,\"Ctrl+Shift+r\"],[8],[0,\" Go To Data Reference\"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[6,\"div\"],[9,\"class\",\"shortcut\"],[7],[0,\"Ctrl+Shift+q\"],[8],[0,\" Go To All Questions\"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[6,\"div\"],[9,\"class\",\"shortcut\"],[7],[0,\"Ctrl+Shift+k\"],[8],[0,\" Toggle Show Shortcuts Button\"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[6,\"div\"],[9,\"class\",\"shortcut\"],[7],[0,\"Ctrl+k\"],[8],[0,\" Show Keyboard Shortcuts\"],[8],[0,\"\\n  \"],[8],[0,\"\\n\\n  \"],[6,\"div\"],[9,\"class\",\"subheader\"],[7],[0,\"\\n    Dashboard\\n  \"],[8],[0,\"\\n  \"],[6,\"div\"],[9,\"class\",\"content\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[6,\"div\"],[9,\"class\",\"shortcut\"],[7],[0,\"Ctrl+r\"],[8],[0,\" Refresh All Components\"],[8],[0,\"\\n  \"],[8],[0,\"\\n\\n  \"],[6,\"div\"],[9,\"class\",\"subheader\"],[7],[0,\"\\n    New Question/ Saved Question\\n  \"],[8],[0,\"\\n  \"],[6,\"div\"],[9,\"class\",\"content\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[6,\"div\"],[9,\"class\",\"shortcut\"],[7],[0,\"Ctrl+Enter\"],[8],[0,\" Run Query\"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[6,\"div\"],[9,\"class\",\"shortcut\"],[7],[0,\"Ctrl+Shift+d\"],[8],[0,\" Select Database\"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[6,\"div\"],[9,\"class\",\"shortcut\"],[7],[0,\"Ctrl+Shift+t\"],[8],[0,\" Select Table\"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[6,\"div\"],[9,\"class\",\"shortcut\"],[7],[0,\"Ctrl+Shift+f\"],[8],[0,\" Add Filters\"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[6,\"div\"],[9,\"class\",\"shortcut\"],[7],[0,\"Ctrl+Shift+g\"],[8],[0,\" Add group By Clause\"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[6,\"div\"],[9,\"class\",\"shortcut\"],[7],[0,\"Ctrl+Shift+o\"],[8],[0,\" Add Order By Clause\"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[6,\"div\"],[9,\"class\",\"shortcut\"],[7],[0,\"Ctrl+Shift+v\"],[8],[0,\" Select View\"],[8],[0,\"\\n  \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/keyboard-shortcuts-help/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "a44wYDae", "block": "{\"symbols\":[],\"statements\":[[4,\"if\",[[20,[\"showKeyboardShortcutsButton\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"fixed shortcut-button\"],[3,\"action\",[[19,0,[]],\"toggleKeyboardShortcuts\"]],[7],[0,\"\\n  ?\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"\\n\"],[4,\"if\",[[20,[\"showKeyboardShortcuts\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"sidebar card m-0\"],[7],[0,\"\\n  \"],[6,\"h4\"],[9,\"class\",\"card-footer text-center\"],[7],[0,\"\\n    Keyboard Shortcuts\\n  \"],[8],[0,\"\\n\\n  \"],[6,\"h6\"],[9,\"class\",\"card-footer text-center\"],[7],[0,\"\\n    Application\\n  \"],[8],[0,\"\\n  \"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-8\"],[7],[0,\"\\n\\n        New Question\\n      \"],[8],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-4 text-right\"],[7],[0,\"\\n        Alt+n\\n      \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-8\"],[7],[0,\"\\n        Search Anything\\n      \"],[8],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-4 text-right\"],[7],[0,\"\\n        Ctrl+q\\n      \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-8\"],[7],[0,\" Go To Data Reference\"],[8],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-4 text-right\"],[7],[0,\"Ctrl+Shift+r\"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-8\"],[7],[0,\" Go To All Questions\"],[8],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-4 text-right\"],[7],[0,\"Ctrl+Shift+q\"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-8\"],[7],[0,\" Toggle Show Shortcuts Button\"],[8],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-4 text-right\"],[7],[0,\"Ctrl+l\"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-8\"],[7],[0,\" Show Keyboard Shortcuts\"],[8],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-4 text-right\"],[7],[0,\"Ctrl+k\"],[8],[0,\"\\n    \"],[8],[0,\"\\n  \"],[8],[0,\"\\n\\n  \"],[6,\"h6\"],[9,\"class\",\"card-footer text-center\"],[7],[0,\"\\n    Dashboard\\n  \"],[8],[0,\"\\n  \"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-8\"],[7],[0,\" Refresh All Components\"],[8],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-4 text-right\"],[7],[0,\"Ctrl+r\"],[8],[0,\"\\n    \"],[8],[0,\"\\n  \"],[8],[0,\"\\n\\n  \"],[6,\"h6\"],[9,\"class\",\"card-footer text-center\"],[7],[0,\"\\n    New Question/ Saved Question\\n  \"],[8],[0,\"\\n  \"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-8\"],[7],[0,\"Run Query\"],[8],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-4 text-right\"],[7],[0,\"Ctrl+Enter\"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-8\"],[7],[0,\"Run Selected Query\"],[8],[0,\"\\n      \"],[6,\"div\"],[9,\"class\",\"col-4 text-right\"],[7],[0,\"Ctrl+r\"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[0,\"  \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/keyboard-shortcuts-help/template.hbs" } });
 });
 define('frontend/pods/components/limited-query-accordian/component', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Component.extend({});
@@ -6991,6 +7247,144 @@ define('frontend/pods/components/line-chart/component', ['exports', 'ember', 'fr
 });
 define("frontend/pods/components/line-chart/template", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "00f4hzZP", "block": "{\"symbols\":[],\"statements\":[[4,\"if\",[[20,[\"randomId\"]]],null,{\"statements\":[[0,\" \"],[1,[25,\"echarts-chart\",null,[[\"option\",\"opts\"],[[20,[\"options\"]],[20,[\"opts\"]]]]],false],[0,\" \"]],\"parameters\":[]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/line-chart/template.hbs" } });
+});
+define('frontend/pods/components/masonry-grid/component', ['exports', 'ember', 'frontend/pods/components/masonry-grid/template'], function (exports, _ember, _frontendPodsComponentsMasonryGridTemplate) {
+  function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
+  var Component = _ember['default'].Component;
+  var computed = _ember['default'].computed;
+  var defineProperty = _ember['default'].defineProperty;
+  var getProperties = _ember['default'].getProperties;
+  var get = _ember['default'].get;
+  var set = _ember['default'].set;
+  var htmlSafe = _ember['default'].String.htmlSafe;
+
+  var MASONRY_OPTION_KEYS = _ember['default'].A(['containerStyle', 'columnWidth', 'gutter', 'hiddenStyle', 'isFitWidth', 'isInitLayout', 'isOriginLeft', 'isOriginTop', 'isResizeBound', 'itemSelector', 'stamp', 'transitionDuration', 'visibleStyle']);
+
+  exports['default'] = Component.extend({
+    layout: _frontendPodsComponentsMasonryGridTemplate['default'],
+    classNames: ['masonry-grid'],
+
+    // masonry default options
+    // overriding the default `isInitLayout` value allows us to attach an event for
+    // `layoutComplete` before the first render
+    isInitLayout: false,
+    itemSelector: '.masonry-item',
+    attributeBindings: ['masonryGridStyle:style'],
+
+    masonryGridStyle: htmlSafe('position: relative'),
+
+    customLayout: false,
+    masonry: null,
+
+    itemClass: computed('itemSelector', function () {
+      return get(this, 'itemSelector').replace('.', '');
+    }),
+
+    init: function init() {
+      this._super.apply(this, arguments);
+      defineProperty(this, 'options', computed.apply(this, [].concat(_toConsumableArray(MASONRY_OPTION_KEYS), [this._computeOptions])));
+    },
+
+    didUpdateAttrs: function didUpdateAttrs(attrsObj) {
+      this._super.apply(this, arguments);
+
+      var shouldRebuild = MASONRY_OPTION_KEYS.any(function (option) {
+        return attrsObj.newAttrs[option] !== attrsObj.oldAttrs[option];
+      });
+
+      if (shouldRebuild) {
+        this._destroyMasonry();
+      }
+    },
+
+    willDestroyElement: function willDestroyElement() {
+      this._super.apply(this, arguments);
+      this._destroyMasonry();
+    },
+
+    didRender: function didRender() {
+      var _this = this;
+
+      this._super.apply(this, arguments);
+
+      var masonry = get(this, 'masonry');
+
+      _ember['default'].run.scheduleOnce('afterRender', this, function () {
+        imagesLoaded(get(_this, 'element'), function () {
+          if (masonry) {
+            masonry.reloadItems();
+          } else {
+            var options = get(_this, 'options');
+            masonry = set(_this, 'masonry', new Masonry(get(_this, 'element'), options));
+
+            masonry.on('layoutComplete', function (layout) {
+              _this.sendAction('onLayoutComplete', layout);
+            });
+          }
+
+          masonry.layout();
+        });
+      });
+    },
+
+    _computeOptions: function _computeOptions() {
+      var options = getProperties(this, MASONRY_OPTION_KEYS);
+
+      Object.keys(options).forEach(function (key) {
+        if (options[key] === 'null') {
+          options[key] = null;
+        }
+
+        if (options[key] === undefined) {
+          delete options[key];
+        }
+      });
+
+      return options;
+    },
+
+    _destroyMasonry: function _destroyMasonry() {
+      var masonry = get(this, 'masonry');
+
+      if (masonry) {
+        masonry.destroy();
+      }
+
+      set(this, 'masonry', undefined);
+    }
+  });
+});
+/* global imagesLoaded, Masonry */
+define("frontend/pods/components/masonry-grid/template", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "HMsIy+Tq", "block": "{\"symbols\":[\"item\",\"index\",\"&default\"],\"statements\":[[4,\"each\",[[20,[\"items\"]]],null,{\"statements\":[[4,\"if\",[[20,[\"customLayout\"]]],null,{\"statements\":[[0,\"      \"],[11,3,[[19,1,[]],[19,2,[]],[19,0,[]]]],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[4,\"masonry-item\",null,[[\"grid\",\"item\",\"onItemClick\"],[[19,0,[]],[19,1,[]],[20,[\"onItemClick\"]]]],{\"statements\":[[0,\"        \"],[11,3,[[19,1,[]],[19,2,[]],[19,0,[]]]],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]}]],\"parameters\":[1,2]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/masonry-grid/template.hbs" } });
+});
+define('frontend/pods/components/masonry-item/component', ['exports', 'ember', 'frontend/pods/components/masonry-item/template'], function (exports, _ember, _frontendPodsComponentsMasonryItemTemplate) {
+  var Component = _ember['default'].Component;
+  var computed = _ember['default'].computed;
+  var get = _ember['default'].get;
+  var htmlSafe = _ember['default'].String.htmlSafe;
+  exports['default'] = Component.extend({
+    layout: _frontendPodsComponentsMasonryItemTemplate['default'],
+    classNameBindings: ['itemClass'],
+    attributeBindings: ['masonryItemStyle:style'],
+
+    masonryItemStyle: htmlSafe('position: absolute'),
+
+    itemClass: computed.oneWay('grid.itemClass'),
+
+    click: function click(ev) {
+      var onItemClick = get(this, 'onItemClick');
+      var item = get(this, 'item');
+
+      if (onItemClick && typeof onItemClick === 'function') {
+        onItemClick(ev, item);
+      }
+    }
+  });
+});
+define("frontend/pods/components/masonry-item/template", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "PaS2KcaL", "block": "{\"symbols\":[\"&default\"],\"statements\":[[11,1],[0,\"\\n\"]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/masonry-item/template.hbs" } });
 });
 define('frontend/pods/components/next-transition-warning/component', ['exports', 'ember'], function (exports, _ember) {
     exports['default'] = _ember['default'].Component.extend({
@@ -7340,7 +7734,7 @@ define('frontend/pods/components/question-options/component', ['exports', 'ember
     });
 });
 define("frontend/pods/components/question-options/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "y3RXjkAo", "block": "{\"symbols\":[\"dd\",\"ddm\"],\"statements\":[[6,\"div\"],[9,\"class\",\"header collapse d-lg-flex p-0\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"container\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row full\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col\"],[7],[0,\"\\n\"],[4,\"if\",[[25,\"and\",[[20,[\"editing\"]],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"form-group my-0\"],[7],[0,\"\\n                        \"],[1,[25,\"input\",null,[[\"class\",\"value\",\"class\",\"placeholder\"],[\"form-control js-question_title\",[20,[\"questionName\"]],\"ui\",[20,[\"questionName\"]]]]],false],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"text-default\"],[7],[0,\"\\n                        \"],[6,\"i\"],[10,\"class\",[26,[[20,[\"question\",\"icon\"]]]]],[7],[8],[0,\" \"],[1,[18,\"questionName\"],false],[0,\" \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                \"],[8],[0,\"\\n                \"],[6,\"div\"],[10,\"class\",[26,[\"col text-right \",[25,\"if\",[[20,[\"editing\"]],\"pt-1\"],null],\" \"]]],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"validQuestion\"]]],null,{\"statements\":[[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"button\"],[9,\"class\",\"btn btn-link text-primary py-0 align-baseline\"],[3,\"action\",[[19,0,[]],\"saveQuestion\"]],[7],[0,\"\\n                        \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Save Question\"]],\"parameters\":[]},null],[0,\" SAVE \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"and\",[[20,[\"editing\"]],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[0,\"                    \"],[6,\"button\"],[9,\"class\",\"btn btn-link text-gray py-0 align-baseline\"],[3,\"action\",[[19,0,[]],\"cancelEditingQuestion\"]],[7],[0,\"\\n                        \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Cancel Editing Question\"]],\"parameters\":[]},null],[0,\" CANCEL \"],[8],[0,\"\\n                    \"],[6,\"button\"],[9,\"class\",\"btn btn-link text-red py-0 align-baseline\"],[3,\"action\",[[19,0,[]],\"showDeleteDialogue\"]],[7],[0,\"\\n                        \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Delete Question\"]],\"parameters\":[]},null],[0,\" DELETE \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"span\"],[9,\"class\",\"d-inline-flex\"],[7],[0,\"\\n                        \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Edit\"]],\"parameters\":[]},null],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"btn btn-link text-primary py-0\"],[3,\"action\",[[19,0,[]],\"editQuestion\"]],[7],[0,\"EDIT\"],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]}]],\"parameters\":[]},null],[4,\"if\",[[25,\"and\",[[20,[\"validQuestion\"]],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[0,\"                    \"],[6,\"span\"],[9,\"class\",\"d-inline-flex\"],[7],[0,\"\\n                        \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Share\"]],\"parameters\":[]},null],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"btn btn-link text-primary py-0\"],[3,\"action\",[[19,0,[]],\"showShareDialogue\"]],[7],[0,\"SHARE\"],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"bs-dropdown\",null,[[\"direction\",\"class\"],[\"left\",\"d-inline\"]],{\"statements\":[[0,\"                    \"],[4,\"component\",[[19,1,[\"toggle\"]]],[[\"class\"],[\"btn btn-link text-primary py-0\"]],{\"statements\":[[0,\" MORE \"]],\"parameters\":[]},null],[0,\"\\n\"],[4,\"component\",[[19,1,[\"menu\"]]],null,{\"statements\":[[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n\"],[4,\"if\",[[25,\"and\",[[25,\"and\",[[20,[\"validQuestion\"]],[20,[\"canCreateSnapshot\"]]],null],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[4,\"component\",[[19,2,[\"item\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"a\"],[9,\"class\",\"dropdown-item border-bottom\"],[3,\"action\",[[19,0,[]],\"showSnapshotMaker\"]],[7],[0,\"Create\\n                            Snapshots/Schedule Report\"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null],[4,\"if\",[[25,\"and\",[[25,\"and\",[[20,[\"validQuestion\"]],[20,[\"question\",\"id\"]]],null],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[4,\"component\",[[19,2,[\"item\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"a\"],[9,\"class\",\"dropdown-item border-bottom\"],[3,\"action\",[[19,0,[]],\"showApiActionModal\"]],[7],[0,\"Add an API\\n                            Action\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,2,[\"item\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"a\"],[9,\"class\",\"dropdown-item border-bottom\"],[3,\"action\",[[19,0,[]],\"showAddTags\"]],[7],[0,\"Add Tags\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"gt\",[[20,[\"question\",\"snapshots\",\"length\"]],0],null]],null,{\"statements\":[[4,\"component\",[[19,2,[\"item\"]]],null,{\"statements\":[[0,\"                        \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[],\"parameters\":[]},null],[0,\"\\n                        \"],[4,\"link-to\",[\"questions.show.snapshots.all\",[20,[\"question\",\"id\"]]],[[\"class\"],[\"dropdown-item border-bottom\"]],{\"statements\":[[0,\"view\\n                        \"],[1,[20,[\"question\",\"snapshots\",\"length\"]],false],[0,\"\\n                        snapshot(s)\"]],\"parameters\":[]},null],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null]],\"parameters\":[]},null],[4,\"if\",[[25,\"and\",[[20,[\"enableAddToDashboard\"]],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[4,\"component\",[[19,2,[\"item\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"a\"],[9,\"class\",\"dropdown-item border-bottom\"],[3,\"action\",[[19,0,[]],\"showAddToDashboard\"]],[7],[0,\" Add\\n                            Question to Dashboard\"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null],[4,\"component\",[[19,2,[\"item\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"a\"],[9,\"class\",\"dropdown-item\"],[3,\"action\",[[19,0,[]],\"toggleVariableWindow\"]],[7],[0,\"Toggle Variable Window\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                    \"],[8],[0,\"\\n\"]],\"parameters\":[2]},null]],\"parameters\":[1]},null],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\" \"],[1,[25,\"delete-dialogue\",null,[[\"entityName\",\"open\",\"entity\",\"delete\"],[\"question\",[20,[\"toggleDeleteDialogue\"]],[20,[\"question\"]],\"deleteQuestion\"]]],false],[0,\"\\n\"],[1,[25,\"share-entity\",null,[[\"entityName\",\"entity\",\"open\"],[\"Question\",[20,[\"question\"]],[20,[\"toggleShareModal\"]]]]],false],[0,\"\\n\"],[1,[25,\"add-tag\",null,[[\"entityName\",\"entity\",\"open\"],[\"Question\",[20,[\"question\"]],[20,[\"toggleTagsModal\"]]]]],false],[0,\"\\n\"],[1,[25,\"add-to-dashboard\",null,[[\"question\",\"addToDashboard\",\"open\"],[[20,[\"question\"]],\"addToDashboard\",[20,[\"toggleAddToDashboardModal\"]]]]],false],[0,\"\\n\"],[1,[25,\"snapshot-creator\",null,[[\"question\",\"open\",\"startTime\"],[[20,[\"question\"]],[20,[\"toggleSnapshotModal\"]],[20,[\"snapshotStartTime\"]]]]],false],[0,\"\\n\"],[1,[25,\"widget-creator\",null,[[\"question\",\"open\"],[[20,[\"question\"]],[20,[\"toggleWidgetModal\"]]]]],false],[0,\"\\n\"],[1,[25,\"api-action-modal\",null,[[\"apiAction\",\"open\"],[[20,[\"apiAction\"]],[20,[\"toggleApiActionModal\"]]]]],false]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/question-options/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "J4de3ygw", "block": "{\"symbols\":[\"dd\",\"ddm\"],\"statements\":[[6,\"div\"],[9,\"class\",\"header collapse d-lg-flex p-0\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"container\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row full\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col\"],[7],[0,\"\\n\"],[4,\"if\",[[25,\"and\",[[20,[\"editing\"]],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"form-group my-0\"],[7],[0,\"\\n                        \"],[1,[25,\"input\",null,[[\"class\",\"value\",\"class\",\"placeholder\"],[\"form-control js-question_title\",[20,[\"questionName\"]],\"ui\",[20,[\"questionName\"]]]]],false],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"text-default\"],[7],[0,\"\\n                        \"],[6,\"i\"],[10,\"class\",[26,[[20,[\"question\",\"icon\"]]]]],[7],[8],[0,\" \"],[1,[18,\"questionName\"],false],[0,\" \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                \"],[8],[0,\"\\n                \"],[6,\"div\"],[10,\"class\",[26,[\"col text-right \",[25,\"if\",[[20,[\"editing\"]],\"pt-1\"],null],\" \"]]],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"validQuestion\"]]],null,{\"statements\":[[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"button\"],[9,\"class\",\"btn btn-link text-primary py-0 align-baseline\"],[3,\"action\",[[19,0,[]],\"saveQuestion\"]],[7],[0,\"\\n                        \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Save Question\"]],\"parameters\":[]},null],[0,\" SAVE \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"and\",[[20,[\"editing\"]],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[0,\"                    \"],[6,\"button\"],[9,\"class\",\"btn btn-link text-gray py-0 align-baseline\"],[3,\"action\",[[19,0,[]],\"cancelEditingQuestion\"]],[7],[0,\"\\n                        \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Cancel Editing Question\"]],\"parameters\":[]},null],[0,\" CANCEL \"],[8],[0,\"\\n                    \"],[6,\"button\"],[9,\"class\",\"btn btn-link text-red py-0 align-baseline\"],[3,\"action\",[[19,0,[]],\"showDeleteDialogue\"]],[7],[0,\"\\n                        \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Delete Question\"]],\"parameters\":[]},null],[0,\" DELETE \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"span\"],[9,\"class\",\"d-inline-flex\"],[7],[0,\"\\n                        \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Edit\"]],\"parameters\":[]},null],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"btn btn-link text-primary py-0\"],[3,\"action\",[[19,0,[]],\"editQuestion\"]],[7],[0,\"EDIT\"],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]}]],\"parameters\":[]},null],[4,\"if\",[[25,\"and\",[[20,[\"validQuestion\"]],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[0,\"                    \"],[6,\"span\"],[9,\"class\",\"d-inline-flex\"],[7],[0,\"\\n                        \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Share\"]],\"parameters\":[]},null],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"btn btn-link text-primary py-0\"],[3,\"action\",[[19,0,[]],\"showShareDialogue\"]],[7],[0,\"SHARE\"],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"bs-dropdown\",null,[[\"direction\",\"class\"],[\"left\",\"d-inline\"]],{\"statements\":[[0,\"                    \"],[4,\"component\",[[19,1,[\"toggle\"]]],[[\"class\"],[\"btn btn-link text-primary py-0\"]],{\"statements\":[[0,\" MORE \"]],\"parameters\":[]},null],[0,\"\\n\"],[4,\"component\",[[19,1,[\"menu\"]]],null,{\"statements\":[[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n\"],[4,\"if\",[[25,\"and\",[[25,\"and\",[[20,[\"validQuestion\"]],[20,[\"canCreateSnapshot\"]]],null],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[4,\"component\",[[19,2,[\"item\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"a\"],[9,\"class\",\"dropdown-item border-bottom\"],[3,\"action\",[[19,0,[]],\"showSnapshotMaker\"]],[7],[0,\"Create\\n                            Snapshots/Schedule Report\"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null],[4,\"if\",[[25,\"and\",[[25,\"and\",[[20,[\"validQuestion\"]],[20,[\"question\",\"id\"]]],null],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[4,\"component\",[[19,2,[\"item\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"a\"],[9,\"class\",\"dropdown-item border-bottom\"],[3,\"action\",[[19,0,[]],\"showApiActionModal\"]],[7],[0,\"Add an API\\n                            Action\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,2,[\"item\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"a\"],[9,\"class\",\"dropdown-item border-bottom\"],[3,\"action\",[[19,0,[]],\"showAddTags\"]],[7],[0,\"Add Tags\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"gt\",[[20,[\"question\",\"snapshots\",\"length\"]],0],null]],null,{\"statements\":[[4,\"component\",[[19,2,[\"item\"]]],null,{\"statements\":[[0,\"                        \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[],\"parameters\":[]},null],[0,\"\\n                        \"],[4,\"link-to\",[\"questions.show.snapshots.all\",[20,[\"question\",\"id\"]]],[[\"class\"],[\"dropdown-item border-bottom\"]],{\"statements\":[[0,\"view\\n                        \"],[1,[20,[\"question\",\"snapshots\",\"length\"]],false],[0,\"\\n                        snapshot(s)\"]],\"parameters\":[]},null],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null]],\"parameters\":[]},null],[4,\"if\",[[25,\"and\",[[20,[\"enableAddToDashboard\"]],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[4,\"component\",[[19,2,[\"item\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"a\"],[9,\"class\",\"dropdown-item border-bottom\"],[3,\"action\",[[19,0,[]],\"showAddToDashboard\"]],[7],[0,\" Add\\n                            Question to Dashboard\"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null],[4,\"component\",[[19,2,[\"item\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"a\"],[9,\"class\",\"dropdown-item\"],[3,\"action\",[[19,0,[]],\"toggleVariableWindow\"]],[7],[0,\"Toggle Variable Window\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                    \"],[8],[0,\"\\n\"]],\"parameters\":[2]},null]],\"parameters\":[1]},null],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\" \"],[1,[25,\"delete-dialogue\",null,[[\"entityName\",\"open\",\"entity\",\"delete\"],[\"question\",[20,[\"toggleDeleteDialogue\"]],[20,[\"question\"]],\"deleteQuestion\"]]],false],[0,\"\\n\"],[1,[25,\"share-entity\",null,[[\"entityName\",\"entity\",\"open\"],[\"Question\",[20,[\"question\"]],[20,[\"toggleShareModal\"]]]]],false],[0,\"\\n\"],[1,[25,\"add-tag\",null,[[\"entityName\",\"entity\",\"open\"],[\"Question\",[20,[\"question\"]],[20,[\"toggleTagsModal\"]]]]],false],[0,\"\\n\"],[1,[25,\"add-to-dashboard\",null,[[\"question\",\"addToDashboard\",\"open\"],[[20,[\"question\"]],\"addToDashboard\",[20,[\"toggleAddToDashboardModal\"]]]]],false],[0,\"\\n\"],[1,[25,\"snapshot-creator\",null,[[\"question\",\"open\",\"startTime\"],[[20,[\"question\"]],[20,[\"toggleSnapshotModal\"]],[20,[\"snapshotStartTime\"]]]]],false],[0,\"\\n\"],[1,[25,\"widget-creator\",null,[[\"question\",\"open\"],[[20,[\"question\"]],[20,[\"toggleWidgetModal\"]]]]],false],[0,\"\\n\"],[1,[25,\"api-action-modal\",null,[[\"apiAction\",\"open\",\"results\",\"question\"],[[20,[\"apiAction\"]],[20,[\"toggleApiActionModal\"]],[20,[\"results\"]],[20,[\"question\"]]]]],false]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/question-options/template.hbs" } });
 });
 define('frontend/pods/components/question-widget/component', ['exports', 'ember', 'frontend/mixins/chart-settings', 'frontend/mixins/colors-mixin'], function (exports, _ember, _frontendMixinsChartSettings, _frontendMixinsColorsMixin) {
   exports['default'] = _ember['default'].Component.extend(_frontendMixinsChartSettings['default'], _frontendMixinsColorsMixin['default'], {
@@ -7447,7 +7841,7 @@ define('frontend/pods/components/questions-list/component', ['exports', 'ember']
     });
 });
 define("frontend/pods/components/questions-list/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "uNkIe1ia", "block": "{\"symbols\":[\"acc\",\"question\",\"aitem\",\"dashboard\",\"tag\"],\"statements\":[[4,\"bs-accordion\",null,[[\"onChange\",\"class\"],[[25,\"action\",[[19,0,[]],\"toggleQuestionWidget\"],null],\"text-default py-1\"]],{\"statements\":[[4,\"each\",[[20,[\"allQuestions\"]]],null,{\"statements\":[[4,\"if\",[[25,\"and\",[[19,2,[\"id\"]],[19,2,[\"has_permission\"]]],null]],null,{\"statements\":[[4,\"component\",[[19,1,[\"item\"]]],[[\"value\",\"class\"],[[19,2,[]],\"my-2 w-100\"]],{\"statements\":[[4,\"component\",[[19,3,[\"title\"]]],[[\"class\"],[\"py-2 border-bottom-0 w-100\"]],{\"statements\":[[6,\"div\"],[9,\"class\",\"row justify-content-between w-100\"],[3,\"action\",[[19,0,[]],\"loadQuestion\",[19,2,[]]]],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-auto\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"d-flex\"],[7],[0,\"\\n            \"],[6,\"span\"],[9,\"class\",\"avatar mr-2 text-white bg-primary\"],[7],[0,\"\\n                \"],[6,\"i\"],[10,\"class\",[26,[[19,2,[\"icon\"]]]]],[7],[8],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[7],[0,\"\\n                \"],[6,\"a\"],[9,\"href\",\"javascript:void(0)\"],[7],[0,\"\\n\"],[4,\"link-to\",[\"questions.show\",[19,2,[\"id\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"h6 text-primary mb-0 question-title text-left\"],[7],[0,\" \"],[1,[19,2,[\"title\"]],false],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n                \"],[6,\"small\"],[9,\"class\",\"text-muted text-left\"],[7],[0,\" from \"],[6,\"span\"],[9,\"class\",\"table-name\"],[7],[1,[19,2,[\"human_sql\",\"table\",\"human_name\"]],false],[8],[0,\"\\n                    \"],[4,\"if\",[[19,2,[\"human_sql\",\"table\",\"human_name\"]]],null,{\"statements\":[[0,\" in \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[6,\"span\"],[9,\"class\",\"database-name\"],[7],[1,[19,2,[\"human_sql\",\"database\",\"name\"]],false],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-auto\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"tags\"],[7],[0,\"\\n\"],[4,\"each\",[[19,2,[\"tags\"]]],null,{\"statements\":[[0,\"            \"],[6,\"span\"],[9,\"class\",\"tag\"],[10,\"style\",[26,[\"background: \",[19,5,[\"color\"]],\"; color: white; opacity: 0.8;\"]]],[7],[0,\"\\n                \"],[4,\"link-to\",[\"tags.show\",[19,5,[\"id\"]]],[[\"class\"],[\"text-white\"]],{\"statements\":[[0,\" \"],[1,[19,5,[\"name\"]],false],[0,\"\\n                \"],[6,\"span\"],[9,\"class\",\"tag-addon\"],[7],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-tag\"],[7],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"            \"],[8],[0,\"\\n\"]],\"parameters\":[5]},null],[4,\"each\",[[19,2,[\"dashboards\"]]],null,{\"statements\":[[0,\"            \"],[6,\"span\"],[9,\"class\",\"tag\"],[7],[0,\"\\n                \"],[4,\"link-to\",[\"dashboards.show\",[19,4,[\"id\"]]],null,{\"statements\":[[0,\" \"],[1,[19,4,[\"title\"]],false],[0,\"\\n                \"],[6,\"span\"],[9,\"class\",\"tag-addon\"],[7],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-grid\"],[7],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"            \"],[8],[0,\"\\n\"]],\"parameters\":[4]},null],[0,\"        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-2 text-right\"],[7],[0,\"\\n\"],[4,\"if\",[[19,2,[\"updated_at\"]]],null,{\"statements\":[[0,\"        \"],[6,\"span\"],[7],[0,\"\\n            \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"left\"]],{\"statements\":[[0,\" Updated\\n            \"],[1,[25,\"moment-from-now\",[[19,2,[\"updated_at\"]]],[[\"timeZone\",\"interval\"],[[20,[\"timeZone\"]],1000]]],false],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"            \"],[6,\"i\"],[10,\"class\",[26,[\"fe fe-clock text-\",[19,2,[\"updatedAgoColor\"]]]]],[7],[8],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"        \"],[6,\"span\"],[9,\"class\",\"px-1\"],[3,\"action\",[[19,0,[]],\"addTag\",[19,2,[]]]],[7],[0,\"\\n            \"],[1,[25,\"bs-tooltip\",null,[[\"placement\",\"title\"],[\"top\",\"Add Tags\"]]],false],[0,\"\\n            \"],[6,\"i\"],[9,\"class\",\"fe fe-tag text-gray\"],[7],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"span\"],[9,\"class\",\"px-1\"],[3,\"action\",[[19,0,[]],\"viewSnapshots\",[19,2,[]]]],[7],[0,\"\\n            \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"view \"],[1,[19,2,[\"snapshots\",\"length\"]],false],[0,\"\\n            snapshot(s)\"]],\"parameters\":[]},null],[0,\"\\n            \"],[6,\"i\"],[9,\"class\",\"fe fe-copy text-gray\"],[7],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"button\"],[9,\"class\",\"btn btn-link text-red px-0\"],[3,\"action\",[[19,0,[]],\"showDeleteDialogue\",[19,2,[]]]],[7],[0,\"\\n            \"],[1,[25,\"bs-tooltip\",null,[[\"placement\",\"title\"],[\"top\",\"Delete Question\"]]],false],[0,\" DELETE \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,3,[\"body\"]]],[[\"class\"],[\"border-top p-0\"]],{\"statements\":[[4,\"if\",[[19,2,[\"showQuestionWidgetOnListPage\"]]],null,{\"statements\":[[4,\"if\",[[19,2,[\"results\"]]],null,{\"statements\":[[0,\" \"],[1,[25,\"question-widget\",null,[[\"question\",\"results\",\"resultsViewSettings\",\"hideMenu\",\"resultsViewType\"],[[19,2,[]],[19,2,[\"results\"]],[19,2,[\"results_view_settings\"]],true,[19,2,[\"results_view_settings\",\"resultsViewType\"]]]]],false],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[4,\"if\",[[25,\"or\",[[19,2,[\"loading\"]],[25,\"not\",[[19,2,[\"content\",\"isLoaded\"]]],null]],null]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"dimmer active\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"loader text-primary\"],[7],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"dimmer-content\"],[7],[0,\" \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]}]],\"parameters\":[]},null]],\"parameters\":[]},null],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row justify-content-between\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col\"],[7],[0,\"\\n            \"],[6,\"span\"],[9,\"class\",\"ml-2 d-none d-lg-block\"],[7],[0,\"\\n                \"],[6,\"small\"],[9,\"class\",\"text-muted d-block mt-1\"],[7],[0,\"By\\n                    \"],[1,[25,\"or\",[[19,2,[\"owner\",\"full_name\"]],[19,2,[\"owner\",\"email\"]]],null],false],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col text-right\"],[7],[0,\"\\n            \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\" Updated\\n                \"],[1,[25,\"moment-from-now\",[[19,2,[\"updated_at\"]]],[[\"timeZone\",\"interval\"],[[20,[\"timeZone\"]],1000]]],false],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[3]},null]],\"parameters\":[]},null]],\"parameters\":[2]},null]],\"parameters\":[1]},null],[1,[25,\"delete-dialogue\",null,[[\"entityName\",\"open\",\"entity\",\"delete\"],[\"question\",[20,[\"toggleDeleteDialogue\"]],[20,[\"questionToBeDeleted\"]],\"deleteQuestion\"]]],false],[0,\"\\n\"],[1,[25,\"add-tag\",null,[[\"entityName\",\"tags\",\"entity\",\"open\"],[\"Question\",[20,[\"tags\"]],[20,[\"addTagToQuestion\"]],[20,[\"toggleTagsModal\"]]]]],false],[0,\"\\n\"],[1,[25,\"create-tag\",null,[[\"entityName\",\"entity\",\"getData\"],[\"questions\",[20,[\"addTagToQuestion\"]],\"getData\"]]],false]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/questions-list/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "OoqqEeG1", "block": "{\"symbols\":[\"acc\",\"question\",\"aitem\",\"dashboard\",\"tag\"],\"statements\":[[4,\"bs-accordion\",null,[[\"onChange\",\"class\"],[[25,\"action\",[[19,0,[]],\"toggleQuestionWidget\"],null],\"text-default py-1\"]],{\"statements\":[[4,\"each\",[[20,[\"allQuestions\"]]],null,{\"statements\":[[4,\"if\",[[25,\"and\",[[19,2,[\"id\"]],[19,2,[\"has_permission\"]]],null]],null,{\"statements\":[[4,\"component\",[[19,1,[\"item\"]]],[[\"value\",\"class\"],[[19,2,[]],\"my-2 w-100\"]],{\"statements\":[[4,\"component\",[[19,3,[\"title\"]]],[[\"class\"],[\"py-2 border-bottom-0 w-100\"]],{\"statements\":[[6,\"div\"],[9,\"class\",\"row justify-content-between w-100\"],[3,\"action\",[[19,0,[]],\"loadQuestion\",[19,2,[]]]],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-auto\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"d-flex\"],[7],[0,\"\\n            \"],[6,\"span\"],[9,\"class\",\"avatar mr-2 text-white bg-primary\"],[7],[0,\"\\n                \"],[6,\"i\"],[10,\"class\",[26,[[19,2,[\"icon\"]]]]],[7],[8],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"text-left\"],[7],[0,\"\\n                \"],[6,\"a\"],[9,\"href\",\"javascript:void(0)\"],[7],[0,\"\\n\"],[4,\"link-to\",[\"questions.show\",[19,2,[\"id\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"h6 text-primary mb-0 question-title text-left\"],[7],[0,\" \"],[1,[19,2,[\"title\"]],false],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n                \"],[6,\"small\"],[9,\"class\",\"text-muted text-left\"],[7],[0,\" from \"],[6,\"span\"],[9,\"class\",\"table-name\"],[7],[1,[19,2,[\"human_sql\",\"table\",\"human_name\"]],false],[8],[0,\"\\n                    \"],[4,\"if\",[[19,2,[\"human_sql\",\"table\",\"human_name\"]]],null,{\"statements\":[[0,\" in \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[6,\"span\"],[9,\"class\",\"database-name\"],[7],[1,[19,2,[\"human_sql\",\"database\",\"name\"]],false],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-auto\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"tags\"],[7],[0,\"\\n\"],[4,\"each\",[[19,2,[\"tags\"]]],null,{\"statements\":[[0,\"            \"],[6,\"span\"],[9,\"class\",\"tag\"],[10,\"style\",[26,[\"background: \",[19,5,[\"color\"]],\"; color: white; opacity: 0.8;\"]]],[7],[0,\"\\n                \"],[4,\"link-to\",[\"tags.show\",[19,5,[\"id\"]]],[[\"class\"],[\"text-white\"]],{\"statements\":[[0,\" \"],[1,[19,5,[\"name\"]],false],[0,\"\\n                \"],[6,\"span\"],[9,\"class\",\"tag-addon\"],[7],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-tag\"],[7],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"            \"],[8],[0,\"\\n\"]],\"parameters\":[5]},null],[4,\"each\",[[19,2,[\"dashboards\"]]],null,{\"statements\":[[0,\"            \"],[6,\"span\"],[9,\"class\",\"tag\"],[7],[0,\"\\n                \"],[4,\"link-to\",[\"dashboards.show\",[19,4,[\"id\"]]],null,{\"statements\":[[0,\" \"],[1,[19,4,[\"title\"]],false],[0,\"\\n                \"],[6,\"span\"],[9,\"class\",\"tag-addon\"],[7],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-grid\"],[7],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"            \"],[8],[0,\"\\n\"]],\"parameters\":[4]},null],[0,\"        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-2 text-right\"],[7],[0,\"\\n\"],[4,\"if\",[[19,2,[\"updated_at\"]]],null,{\"statements\":[[0,\"        \"],[6,\"span\"],[7],[0,\"\\n            \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"left\"]],{\"statements\":[[0,\" Updated\\n            \"],[1,[25,\"moment-from-now\",[[19,2,[\"updated_at\"]]],[[\"timeZone\",\"interval\"],[[20,[\"timeZone\"]],1000]]],false],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"            \"],[6,\"i\"],[10,\"class\",[26,[\"fe fe-clock text-\",[19,2,[\"updatedAgoColor\"]]]]],[7],[8],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"        \"],[6,\"span\"],[9,\"class\",\"px-1\"],[3,\"action\",[[19,0,[]],\"addTag\",[19,2,[]]]],[7],[0,\"\\n            \"],[1,[25,\"bs-tooltip\",null,[[\"placement\",\"title\"],[\"top\",\"Add Tags\"]]],false],[0,\"\\n            \"],[6,\"i\"],[9,\"class\",\"fe fe-tag text-gray\"],[7],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"span\"],[9,\"class\",\"px-1\"],[3,\"action\",[[19,0,[]],\"viewSnapshots\",[19,2,[]]]],[7],[0,\"\\n            \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"view \"],[1,[19,2,[\"snapshots\",\"length\"]],false],[0,\"\\n            snapshot(s)\"]],\"parameters\":[]},null],[0,\"\\n            \"],[6,\"i\"],[9,\"class\",\"fe fe-copy text-gray\"],[7],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"button\"],[9,\"class\",\"btn btn-link text-red px-0\"],[3,\"action\",[[19,0,[]],\"showDeleteDialogue\",[19,2,[]]]],[7],[0,\"\\n            \"],[1,[25,\"bs-tooltip\",null,[[\"placement\",\"title\"],[\"top\",\"Delete Question\"]]],false],[0,\" DELETE \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,3,[\"body\"]]],[[\"class\"],[\"border-top p-0\"]],{\"statements\":[[4,\"if\",[[19,2,[\"showQuestionWidgetOnListPage\"]]],null,{\"statements\":[[4,\"if\",[[19,2,[\"results\"]]],null,{\"statements\":[[0,\" \"],[1,[25,\"question-widget\",null,[[\"question\",\"results\",\"resultsViewSettings\",\"hideMenu\",\"resultsViewType\"],[[19,2,[]],[19,2,[\"results\"]],[19,2,[\"results_view_settings\"]],true,[19,2,[\"results_view_settings\",\"resultsViewType\"]]]]],false],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[4,\"if\",[[25,\"or\",[[19,2,[\"loading\"]],[25,\"not\",[[19,2,[\"content\",\"isLoaded\"]]],null]],null]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"dimmer active\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"loader text-primary\"],[7],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"dimmer-content\"],[7],[0,\" \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]}]],\"parameters\":[]},null]],\"parameters\":[]},null],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row justify-content-between\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col\"],[7],[0,\"\\n            \"],[6,\"span\"],[9,\"class\",\"ml-2 d-none d-lg-block\"],[7],[0,\"\\n                \"],[6,\"small\"],[9,\"class\",\"text-muted d-block mt-1\"],[7],[0,\"By\\n                    \"],[1,[25,\"or\",[[19,2,[\"owner\",\"full_name\"]],[19,2,[\"owner\",\"email\"]]],null],false],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"col text-right\"],[7],[0,\"\\n            \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\" Updated\\n                \"],[1,[25,\"moment-from-now\",[[19,2,[\"updated_at\"]]],[[\"timeZone\",\"interval\"],[[20,[\"timeZone\"]],1000]]],false],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[3]},null]],\"parameters\":[]},null]],\"parameters\":[2]},null]],\"parameters\":[1]},null],[1,[25,\"delete-dialogue\",null,[[\"entityName\",\"open\",\"entity\",\"delete\"],[\"question\",[20,[\"toggleDeleteDialogue\"]],[20,[\"questionToBeDeleted\"]],\"deleteQuestion\"]]],false],[0,\"\\n\"],[1,[25,\"add-tag\",null,[[\"entityName\",\"tags\",\"entity\",\"open\"],[\"Question\",[20,[\"tags\"]],[20,[\"addTagToQuestion\"]],[20,[\"toggleTagsModal\"]]]]],false],[0,\"\\n\"],[1,[25,\"create-tag\",null,[[\"entityName\",\"entity\",\"getData\"],[\"questions\",[20,[\"addTagToQuestion\"]],\"getData\"]]],false]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/questions-list/template.hbs" } });
 });
 define('frontend/pods/components/results-table-settings/component', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Component.extend({});
@@ -7524,7 +7918,7 @@ define('frontend/pods/components/results-table/component', ['exports', 'ember', 
     });
 });
 define("frontend/pods/components/results-table/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "htvwETCv", "block": "{\"symbols\":[\"row\",\"apiAction\",\"el\",\"index\",\"dd\",\"ddm\",\"apiAction\",\"column\",\"dd\",\"ddm\"],\"statements\":[[6,\"div\"],[9,\"class\",\"table-responsive h-100\"],[7],[0,\"\\n    \"],[6,\"table\"],[9,\"class\",\"table table-hover table-outline table-vcenter text-nowrap card-table table-striped\"],[7],[0,\"\\n        \"],[6,\"thead\"],[7],[0,\"\\n            \"],[6,\"tr\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"results\",\"columns\"]]],null,{\"statements\":[[0,\"                \"],[6,\"th\"],[7],[0,\"\\n\"],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,9,[\"toggle\"]]],[[\"class\"],[\"text-muted\"]],{\"statements\":[[0,\"                    \"],[1,[25,\"capitalize\",[[19,8,[]]],null],false],[0,\"\\n\"],[4,\"if\",[[25,\"is-order-applied\",[[20,[\"question\",\"human_sql\",\"additionalFilters\",\"orderBys\"]],[19,8,[]],\"ASC\"],null]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"tag tag-primary\"],[7],[0,\"\\n                        \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-up\"],[7],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"is-order-applied\",[[20,[\"question\",\"human_sql\",\"additionalFilters\",\"orderBys\"]],[19,8,[]],\"DESC\"],null]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"tag tag-primary\"],[7],[0,\"\\n\\n                        \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-down\"],[7],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null],[4,\"component\",[[19,9,[\"menu\"]]],[[\"renderInPlace\"],[false]],{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n                        \"],[1,[25,\"additional-sort-and-grouping\",null,[[\"results\",\"column\",\"additionalFilters\",\"apply\"],[[20,[\"results\"]],[19,8,[]],[20,[\"question\",\"human_sql\",\"additionalFilters\"]],\"apply\"]]],false],[0,\"\\n                    \"],[8],[0,\"\\n\\n\"]],\"parameters\":[10]},null]],\"parameters\":[9]},null],[0,\"                \"],[8],[0,\"\\n\"]],\"parameters\":[8]},null],[4,\"each\",[[20,[\"question\",\"api_actions\"]]],null,{\"statements\":[[0,\"                \"],[6,\"th\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"i\"],[9,\"class\",\"fe fe-edit text-primary\"],[3,\"action\",[[19,0,[]],\"editApiAction\",[19,7,[]]]],[7],[8],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-x-square text-red\"],[3,\"action\",[[19,0,[]],\"showDeleteApiActionModal\",[19,7,[]]]],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n\"]],\"parameters\":[7]},null],[0,\"            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"tbody\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"pagedRows\"]]],null,{\"statements\":[[0,\"            \"],[6,\"tr\"],[7],[0,\"\\n\"],[4,\"each\",[[19,1,[]]],null,{\"statements\":[[0,\"                \"],[6,\"td\"],[9,\"class\",\"\"],[7],[0,\"\\n\\n\"],[4,\"bs-dropdown\",null,[[\"direction\",\"closeOnMenuClick\"],[\"left\",false]],{\"statements\":[[4,\"component\",[[19,5,[\"toggle\"]]],[[\"class\"],[[25,\"if\",[[25,\"exists-in\",[[19,4,[]],[20,[\"results\"]]],null],\"text-primary\",\"text-default\"],null]]],{\"statements\":[[0,\"                    \"],[1,[25,\"widgets/render-widgets\",null,[[\"el\",\"question\",\"index\",\"results\"],[[19,3,[]],[20,[\"question\"]],[19,4,[]],[20,[\"results\"]]]]],false],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,5,[\"menu\"]]],[[\"renderInPlace\"],[false]],{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n                        \"],[1,[25,\"additional-quick-filters\",null,[[\"results\",\"index\",\"value\",\"additionalFilters\",\"apply\",\"showQuickFilters\"],[[20,[\"results\"]],[19,4,[]],[19,3,[]],[20,[\"question\",\"human_sql\",\"additionalFilters\"]],\"apply\",[20,[\"showQuickFilters\"]]]]],false],[0,\"\\n                    \"],[8],[0,\"\\n\\n\"]],\"parameters\":[6]},null]],\"parameters\":[5]},null],[0,\"                \"],[8],[0,\"\\n\"]],\"parameters\":[3,4]},null],[4,\"each\",[[20,[\"question\",\"api_actions\"]]],null,{\"statements\":[[0,\"                \"],[6,\"td\"],[7],[0,\"\\n                    \"],[6,\"div\"],[10,\"class\",[26,[\"btn btn-link text-\",[19,2,[\"color\"]],\" text-uppercase p-0\"]]],[3,\"action\",[[19,0,[]],\"callApiAction\",[19,2,[]],[19,1,[]]]],[7],[1,[19,2,[\"name\"]],false],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[2]},null],[0,\"            \"],[8],[0,\"\\n\"]],\"parameters\":[1]},{\"statements\":[],\"parameters\":[]}],[0,\"        \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"showPageNumbers\"]]],null,{\"statements\":[[0,\"        \"],[6,\"tfoot\"],[9,\"class\",\"full-width\"],[7],[0,\"\\n            \"],[6,\"tr\"],[7],[0,\"\\n                \"],[6,\"th\"],[9,\"colspan\",\"100\"],[9,\"class\",\"p-0 pt-5\"],[7],[0,\"\\n                    \"],[4,\"if\",[[20,[\"showResults\"]]],null,{\"statements\":[[0,\" \"],[1,[25,\"page-numbers\",null,[[\"content\"],[[20,[\"pagedRows\"]]]]],false],[0,\" \"]],\"parameters\":[]},{\"statements\":[[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"centered\"],[7],[0,\" Looks like your query did not return any result. \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[1,[25,\"delete-dialogue\",null,[[\"entityName\",\"open\",\"entity\",\"delete\"],[\"Api Action\",[20,[\"toggleDeleteApiActionModal\"]],[20,[\"deletableApiAction\"]],\"deleteApiAction\"]]],false],[0,\"\\n\"],[1,[25,\"api-action-modal\",null,[[\"apiAction\",\"open\"],[[20,[\"editableApiAction\"]],[20,[\"toggleEditApiActionModal\"]]]]],false],[0,\"\\n\"],[1,[25,\"api-action-result\",null,[[\"canDebug\",\"result\",\"open\"],[[20,[\"canEdit\"]],[20,[\"apiActionResult\"]],[20,[\"toggleApiActionResult\"]]]]],false]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/results-table/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "nMMKfZYC", "block": "{\"symbols\":[\"row\",\"apiAction\",\"el\",\"index\",\"dd\",\"ddm\",\"apiAction\",\"column\",\"dd\",\"ddm\"],\"statements\":[[6,\"div\"],[9,\"class\",\"table-responsive h-100\"],[7],[0,\"\\n    \"],[6,\"table\"],[9,\"class\",\"table table-hover table-outline table-vcenter text-nowrap card-table table-striped\"],[7],[0,\"\\n        \"],[6,\"thead\"],[7],[0,\"\\n            \"],[6,\"tr\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"results\",\"columns\"]]],null,{\"statements\":[[0,\"\\n\"],[4,\"if\",[[25,\"replace-column-with-api-action\",[[20,[\"question\",\"api_actions\"]],[19,8,[]],[20,[\"question\",\"apiActionsChanged\"]]],null]],null,{\"statements\":[[0,\"                \"],[6,\"th\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[0,\"                    \"],[1,[25,\"capitalize\",[[19,8,[]]],null],false],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-edit text-primary\"],[3,\"action\",[[19,0,[]],\"editApiAction\",[25,\"replace-column-with-api-action\",[[20,[\"question\",\"api_actions\"]],[19,8,[]],[20,[\"question\",\"apiActionsChanged\"]]],null]]],[7],[8],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-x-square text-red\"],[3,\"action\",[[19,0,[]],\"showDeleteApiActionModal\",[25,\"replace-column-with-api-action\",[[20,[\"question\",\"api_actions\"]],[19,8,[]],[20,[\"question\",\"apiActionsChanged\"]]],null]]],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                \"],[6,\"th\"],[7],[0,\"\\n\"],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,9,[\"toggle\"]]],[[\"class\"],[\"text-muted\"]],{\"statements\":[[0,\"                    \"],[1,[25,\"capitalize\",[[19,8,[]]],null],false],[0,\"\\n\"],[4,\"if\",[[25,\"is-order-applied\",[[20,[\"question\",\"human_sql\",\"additionalFilters\",\"orderBys\"]],[19,8,[]],\"ASC\"],null]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"tag tag-primary\"],[7],[0,\"\\n                        \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-up\"],[7],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"is-order-applied\",[[20,[\"question\",\"human_sql\",\"additionalFilters\",\"orderBys\"]],[19,8,[]],\"DESC\"],null]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"tag tag-primary\"],[7],[0,\"\\n\\n                        \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-down\"],[7],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null],[4,\"component\",[[19,9,[\"menu\"]]],[[\"renderInPlace\"],[false]],{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n                        \"],[1,[25,\"additional-sort-and-grouping\",null,[[\"results\",\"column\",\"additionalFilters\",\"apply\"],[[20,[\"results\"]],[19,8,[]],[20,[\"question\",\"human_sql\",\"additionalFilters\"]],\"apply\"]]],false],[0,\"\\n                    \"],[8],[0,\"\\n\\n\"]],\"parameters\":[10]},null]],\"parameters\":[9]},null],[0,\"                \"],[8],[0,\"\\n\"]],\"parameters\":[]}]],\"parameters\":[8]},null],[4,\"each\",[[20,[\"question\",\"api_actions\"]]],null,{\"statements\":[[4,\"if\",[[25,\"not\",[[19,7,[\"column\"]]],null]],null,{\"statements\":[[0,\"                \"],[6,\"th\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"i\"],[9,\"class\",\"fe fe-edit text-primary\"],[3,\"action\",[[19,0,[]],\"editApiAction\",[19,7,[]]]],[7],[8],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-x-square text-red\"],[3,\"action\",[[19,0,[]],\"showDeleteApiActionModal\",[19,7,[]]]],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[7]},null],[0,\"            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"tbody\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"pagedRows\"]]],null,{\"statements\":[[0,\"            \"],[6,\"tr\"],[7],[0,\"\\n\"],[4,\"each\",[[19,1,[]]],null,{\"statements\":[[0,\"\\n\"],[4,\"if\",[[25,\"replace-column-with-api-action\",[[20,[\"question\",\"api_actions\"]],[25,\"get-in\",[[20,[\"results\",\"columns\"]],[19,4,[]]],null],[20,[\"question\",\"apiActionsChanged\"]]],null]],null,{\"statements\":[[0,\"                \"],[6,\"td\"],[7],[0,\"\\n                    \"],[6,\"div\"],[10,\"class\",[26,[\"btn btn-link text-\",[25,\"get\",[[25,\"replace-column-with-api-action\",[[20,[\"question\",\"api_actions\"]],[25,\"get-in\",[[20,[\"results\",\"columns\"]],[19,4,[]]],null],[20,[\"question\",\"apiActionsChanged\"]]],null],\"color\"],null],\" text-uppercase p-0\"]]],[3,\"action\",[[19,0,[]],\"callApiAction\",[25,\"replace-column-with-api-action\",[[20,[\"question\",\"api_actions\"]],[25,\"get-in\",[[20,[\"results\",\"columns\"]],[19,4,[]]],null],[20,[\"question\",\"apiActionsChanged\"]]],null],[19,1,[]]]],[7],[0,\"\\n                        \"],[1,[25,\"get-api-action-display-name\",[[19,1,[]],[20,[\"results\",\"columns\"]],[25,\"get\",[[25,\"replace-column-with-api-action\",[[20,[\"question\",\"api_actions\"]],[25,\"get-in\",[[20,[\"results\",\"columns\"]],[19,4,[]]],null],[20,[\"question\",\"apiActionsChanged\"]]],null],\"name\"],null]],null],false],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                \"],[6,\"td\"],[9,\"class\",\"\"],[7],[0,\"\\n\\n\"],[4,\"bs-dropdown\",null,[[\"direction\",\"closeOnMenuClick\"],[\"left\",false]],{\"statements\":[[4,\"component\",[[19,5,[\"toggle\"]]],[[\"class\"],[[25,\"if\",[[25,\"exists-in\",[[19,4,[]],[20,[\"results\"]]],null],\"text-primary\",\"text-default\"],null]]],{\"statements\":[[0,\"                    \"],[1,[25,\"widgets/render-widgets\",null,[[\"el\",\"question\",\"index\",\"results\"],[[19,3,[]],[20,[\"question\"]],[19,4,[]],[20,[\"results\"]]]]],false],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,5,[\"menu\"]]],[[\"renderInPlace\"],[false]],{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n                        \"],[1,[25,\"additional-quick-filters\",null,[[\"results\",\"index\",\"value\",\"additionalFilters\",\"apply\",\"showQuickFilters\"],[[20,[\"results\"]],[19,4,[]],[19,3,[]],[20,[\"question\",\"human_sql\",\"additionalFilters\"]],\"apply\",[20,[\"showQuickFilters\"]]]]],false],[0,\"\\n                    \"],[8],[0,\"\\n\\n\"]],\"parameters\":[6]},null]],\"parameters\":[5]},null],[0,\"                \"],[8],[0,\"\\n\"]],\"parameters\":[]}]],\"parameters\":[3,4]},null],[4,\"each\",[[20,[\"question\",\"api_actions\"]]],null,{\"statements\":[[4,\"if\",[[25,\"not\",[[19,2,[\"column\"]]],null]],null,{\"statements\":[[0,\"                \"],[6,\"td\"],[7],[0,\"\\n                    \"],[6,\"div\"],[10,\"class\",[26,[\"btn btn-link text-\",[19,2,[\"color\"]],\" text-uppercase p-0\"]]],[3,\"action\",[[19,0,[]],\"callApiAction\",[19,2,[]],[19,1,[]]]],[7],[0,\"\\n                        \"],[1,[25,\"get-api-action-display-name\",[[19,1,[]],[20,[\"results\",\"columns\"]],[19,2,[\"name\"]]],null],false],[8],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[2]},null],[0,\"            \"],[8],[0,\"\\n\"]],\"parameters\":[1]},{\"statements\":[],\"parameters\":[]}],[0,\"        \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"showPageNumbers\"]]],null,{\"statements\":[[0,\"        \"],[6,\"tfoot\"],[9,\"class\",\"full-width\"],[7],[0,\"\\n            \"],[6,\"tr\"],[7],[0,\"\\n                \"],[6,\"th\"],[9,\"colspan\",\"100\"],[9,\"class\",\"p-0 py-5\"],[7],[0,\"\\n                    \"],[4,\"if\",[[20,[\"showResults\"]]],null,{\"statements\":[[0,\" \"],[1,[25,\"page-numbers\",null,[[\"content\"],[[20,[\"pagedRows\"]]]]],false],[0,\" \"]],\"parameters\":[]},{\"statements\":[[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"centered\"],[7],[0,\" Looks like your query did not return any result. \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[1,[25,\"delete-dialogue\",null,[[\"entityName\",\"open\",\"entity\",\"delete\"],[\"Api Action\",[20,[\"toggleDeleteApiActionModal\"]],[20,[\"deletableApiAction\"]],\"deleteApiAction\"]]],false],[0,\"\\n\"],[1,[25,\"api-action-modal\",null,[[\"apiAction\",\"open\",\"results\",\"question\"],[[20,[\"editableApiAction\"]],[20,[\"toggleEditApiActionModal\"]],[20,[\"results\"]],[20,[\"question\"]]]]],false],[0,\"\\n\"],[1,[25,\"api-action-result\",null,[[\"canDebug\",\"result\",\"open\"],[[20,[\"canEdit\"]],[20,[\"apiActionResult\"]],[20,[\"toggleApiActionResult\"]]]]],false]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/results-table/template.hbs" } });
 });
 define('frontend/pods/components/search-box/component', ['exports', 'ember', 'ember-keyboard-shortcuts/mixins/component'], function (exports, _ember, _emberKeyboardShortcutsMixinsComponent) {
   exports['default'] = _ember['default'].Component.extend(_emberKeyboardShortcutsMixinsComponent['default'], {
@@ -7646,7 +8040,7 @@ define('frontend/pods/components/share-entity/component', ['exports', 'ember'], 
   });
 });
 define("frontend/pods/components/share-entity/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "0tkppQVJ", "block": "{\"symbols\":[\"modal\",\"footer\"],\"statements\":[[4,\"bs-modal\",null,[[\"position\",\"open\",\"onHide\"],[\"center\",[20,[\"open\"]],[25,\"action\",[[19,0,[]],\"clearSharedTo\"],null]]],{\"statements\":[[4,\"component\",[[19,1,[\"header\"]]],null,{\"statements\":[[6,\"h4\"],[9,\"class\",\"modal-title\"],[7],[0,\" Share \"],[1,[18,\"entityName\"],false],[0,\" \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"body\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"tip mb-2\"],[7],[0,\"Tip: Enter 'all' to share with everybody on AfterGlow\"],[8],[0,\" \"],[1,[25,\"searchable-select\",null,[[\"content\",\"multiple\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-add\",\"on-change\"],[[20,[\"userEmails\"]],true,[20,[\"selectedUsers\"]],false,\"Select People You want to share it with\",[25,\"action\",[[19,0,[]],\"addNewSharedTo\"],null],[25,\"action\",[[19,0,[]],\"addToSharedTo\"],null]]]],false],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"tip mt-2 mb-2\"],[7],[0,\"Or share the link below.\"],[8],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"input-group\"],[7],[0,\"\\n    \"],[6,\"input\"],[9,\"type\",\"text\"],[10,\"value\",[20,[\"entity\",\"shareable_url\"]],null],[9,\"class\",\"form-control\"],[9,\"disabled\",\"\"],[7],[8],[0,\"\\n    \"],[6,\"span\"],[9,\"class\",\"input-group-append\"],[7],[0,\"\\n\\n\"],[4,\"copy-button\",null,[[\"class\",\"clipboardText\"],[\"btn btn-primary\",[20,[\"entity\",\"shareable_url\"]]]],{\"statements\":[[0,\"        Copy\\n\"]],\"parameters\":[]},null],[0,\"    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"footer\"]]],null,{\"statements\":[[4,\"bs-button\",null,[[\"onClick\",\"type\"],[[25,\"action\",[[19,0,[]],\"clearSharedTo\"],null],\"danger\"]],{\"statements\":[[0,\"Cancel\"]],\"parameters\":[]},null],[0,\"\\n\"],[4,\"bs-button\",null,[[\"onClick\",\"class\",\"type\"],[[25,\"action\",[[19,0,[]],\"saveSharedTo\"],null],\"btn-primary\",\"primary\"]],{\"statements\":[[0,\"Share\"]],\"parameters\":[]},null],[0,\"\\n\"]],\"parameters\":[2]},null]],\"parameters\":[1]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/share-entity/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "PqdY9kCs", "block": "{\"symbols\":[\"modal\",\"footer\"],\"statements\":[[4,\"bs-modal\",null,[[\"position\",\"open\",\"onHide\"],[\"center\",[20,[\"open\"]],[25,\"action\",[[19,0,[]],\"clearSharedTo\"],null]]],{\"statements\":[[4,\"component\",[[19,1,[\"header\"]]],null,{\"statements\":[[6,\"h4\"],[9,\"class\",\"modal-title\"],[7],[0,\" Share \"],[1,[18,\"entityName\"],false],[0,\" \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"body\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"tip mb-2\"],[7],[0,\"Tip: Enter 'all' to share with everybody on AfterGlow\"],[8],[0,\"\\n\"],[1,[25,\"searchable-select\",null,[[\"content\",\"multiple\",\"selected\",\"closeOnSelection\",\"prompt\",\"on-add\",\"on-change\"],[[20,[\"userEmails\"]],true,[20,[\"selectedUsers\"]],false,\"Select People You want to share it with\",[25,\"action\",[[19,0,[]],\"addNewSharedTo\"],null],[25,\"action\",[[19,0,[]],\"addToSharedTo\"],null]]]],false],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"tip mt-2 mb-2\"],[7],[0,\"Or share the link below.\"],[8],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"input-group\"],[7],[0,\"\\n    \"],[6,\"input\"],[9,\"type\",\"text\"],[10,\"value\",[20,[\"entity\",\"shareable_url\"]],null],[9,\"class\",\"form-control\"],[9,\"disabled\",\"\"],[7],[8],[0,\"\\n    \"],[6,\"span\"],[9,\"class\",\"input-group-append\"],[7],[0,\"\\n\\n\"],[4,\"copy-button\",null,[[\"class\",\"clipboardText\"],[\"btn btn-primary\",[20,[\"entity\",\"shareable_url\"]]]],{\"statements\":[[0,\"        Copy\\n\"]],\"parameters\":[]},null],[0,\"    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"footer\"]]],null,{\"statements\":[[4,\"bs-button\",null,[[\"onClick\",\"type\"],[[25,\"action\",[[19,0,[]],\"clearSharedTo\"],null],\"danger\"]],{\"statements\":[[0,\"Cancel\"]],\"parameters\":[]},null],[0,\"\\n\"],[4,\"bs-button\",null,[[\"onClick\",\"class\",\"type\"],[[25,\"action\",[[19,0,[]],\"saveSharedTo\"],null],\"btn-primary\",\"primary\"]],{\"statements\":[[0,\"Share\"]],\"parameters\":[]},null],[0,\"\\n\"]],\"parameters\":[2]},null]],\"parameters\":[1]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/share-entity/template.hbs" } });
 });
 define('frontend/pods/components/snapshot-creator/component', ['exports', 'ember'], function (exports, _ember) {
     exports['default'] = _ember['default'].Component.extend({
@@ -8080,6 +8474,32 @@ define('frontend/pods/components/subquery-builder/component', ['exports', 'ember
 define("frontend/pods/components/subquery-builder/template", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "cduSnBp9", "block": "{\"symbols\":[\"dd\",\"ddm\",\"orderBy\",\"dd\",\"ddm\",\"dd\",\"ddm\",\"groupBy\",\"dd\",\"ddm\",\"dd\",\"ddm\",\"selectView\",\"dd\",\"ddm\",\"dd\",\"ddm\",\"filter\",\"dd\",\"ddm\",\"dd\",\"ddm\",\"dd\",\"ddm\"],\"statements\":[[4,\"if\",[[20,[\"canShowTableWidget\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"card-footer row\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-11\"],[7],[0,\"\\n\"],[4,\"if\",[[25,\"or\",[[20,[\"queryObject\",\"table\",\"name\"]],[20,[\"queryObject\",\"table\",\"title\"]]],null]],null,{\"statements\":[[0,\"        \"],[6,\"span\"],[9,\"class\",\"tag border text-primary border-primary  bg-white\"],[7],[0,\"\\n            \"],[4,\"if\",[[20,[\"queryObject\",\"fromQuestion\"]]],null,{\"statements\":[[0,\"Question: \"]],\"parameters\":[]},{\"statements\":[[0,\"Table: \"]],\"parameters\":[]}],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"tag-addon text-white border-primary bg-primary\"],[7],[0,\"\\n\"],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,23,[\"toggle\"]]],[[\"class\"],[\"text-white \"]],{\"statements\":[[0,\"                \"],[1,[25,\"or\",[[20,[\"queryObject\",\"table\",\"human_name\"]],[20,[\"queryObject\",\"table\",\"title\"]]],null],false],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,23,[\"menu\"]]],null,{\"statements\":[[0,\"                \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n                    \"],[4,\"if\",[[20,[\"queryObject\",\"fromQuestion\"]]],null,{\"statements\":[[0,\" \"],[1,[25,\"searchable-select\",null,[[\"content\",\"sortBy\",\"prompt\",\"selected\",\"on-search\",\"on-change\"],[[20,[\"questions\"]],\"title\",\"Select a Question\",[20,[\"queryObject\",\"table\"]],[25,\"action\",[[19,0,[]],\"updateQuestionSearch\"],null],[25,\"action\",[[19,0,[]],[25,\"mut\",[[20,[\"queryObject\",\"table\"]]],null]],null]]]],false],[0,\"\\n                    \"]],\"parameters\":[]},{\"statements\":[[1,[25,\"searchable-select\",null,[[\"content\",\"sortBy\",\"prompt\",\"selected\",\"optionLabelKey\",\"on-change\"],[[20,[\"tables\"]],\"human_name\",\"Select a Table\",[20,[\"queryObject\",\"table\"]],\"human_name\",[25,\"action\",[[19,0,[]],[25,\"mut\",[[20,[\"queryObject\",\"table\"]]],null]],null]]]],false],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                \"],[8],[0,\"\\n\"]],\"parameters\":[24]},null]],\"parameters\":[23]},null],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,21,[\"toggle\"]]],[[\"class\"],[\"btn tag-size datasource-selector btn-secondary text-primary border-primary py-0 px-1\"]],{\"statements\":[[0,\"        \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\" \"],[4,\"if\",[[20,[\"queryObject\",\"fromQuestion\"]]],null,{\"statements\":[[0,\"Question\"]],\"parameters\":[]},{\"statements\":[[0,\"Table\"]],\"parameters\":[]}],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,21,[\"menu\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n            \"],[4,\"if\",[[20,[\"queryObject\",\"fromQuestion\"]]],null,{\"statements\":[[0,\" \"],[1,[25,\"searchable-select\",null,[[\"content\",\"sortBy\",\"prompt\",\"selected\",\"on-search\",\"on-change\"],[[20,[\"questions\"]],\"title\",\"Select a Question\",[20,[\"queryObject\",\"table\"]],[25,\"action\",[[19,0,[]],\"updateQuestionSearch\"],null],[25,\"action\",[[19,0,[]],[25,\"mut\",[[20,[\"queryObject\",\"table\"]]],null]],null]]]],false],[0,\"\\n\\n            \"]],\"parameters\":[]},{\"statements\":[[1,[25,\"searchable-select\",null,[[\"content\",\"sortBy\",\"prompt\",\"selected\",\"optionLabelKey\",\"on-change\"],[[20,[\"tables\"]],\"human_name\",\"Select a Table\",[20,[\"queryObject\",\"table\"]],\"human_name\",[25,\"action\",[[19,0,[]],[25,\"mut\",[[20,[\"queryObject\",\"table\"]]],null]],null]]]],false],[0,\"\\n            \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[0,\" If a question is already shared with you and you want to build your query\\n                on that question, change source to question by clicking \"],[6,\"i\"],[9,\"class\",\"fe fe-toggle-right\"],[7],[8],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"        \"],[8],[0,\"\\n\"]],\"parameters\":[22]},null]],\"parameters\":[21]},null]],\"parameters\":[]}],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"col-1 p-1 text-right\"],[7],[0,\"\\n        \"],[6,\"span\"],[9,\"class\",\"d-inline-flex\"],[3,\"action\",[[19,0,[]],\"toggleFromTable\"]],[7],[0,\"\\n            \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Switch between Question and Table\"]],\"parameters\":[]},null],[0,\"\\n            \"],[6,\"i\"],[9,\"class\",\"fe fe-toggle-right\"],[7],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\\n\"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"canShowFilters\"]]],null,{\"statements\":[[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n\\n\"],[4,\"each\",[[20,[\"queryObject\",\"filters\"]]],null,{\"statements\":[[4,\"if\",[[25,\"label-maker\",[[19,18,[]],[19,18,[\"column\"]],[19,18,[\"value\"]],[19,18,[\"valueDateObj\",\"value\"]],[19,18,[\"valueDateObj\",\"duration\"]],[19,18,[\"operator\"]],[19,18,[\"valueDateObj\",\"date\"]],[19,18,[\"valueDateObj\",\"dtt\",\"name\"]]],null]],null,{\"statements\":[[0,\"    \"],[6,\"span\"],[9,\"class\",\"tag border tag-primary\"],[7],[0,\"\\n\"],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,19,[\"toggle\"]]],[[\"class\"],[\"text-white\"]],{\"statements\":[[0,\"        \"],[1,[25,\"label-maker\",[[19,18,[]],[19,18,[\"column\"]],[19,18,[\"value\"]],[19,18,[\"valueDateObj\",\"value\"]],[19,18,[\"valueDateObj\",\"duration\"]],[19,18,[\"operator\"]],[19,18,[\"valueDateObj\",\"date\"]],[19,18,[\"valueDateObj\",\"dtt\",\"name\"]]],null],false],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,19,[\"menu\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n            \"],[1,[25,\"filter-maker\",null,[[\"filter\",\"columns\",\"switchToBuilder\",\"switchToRaw\"],[[19,18,[]],[20,[\"columns\"]],\"switchToBuilder\",\"switchToRaw\"]]],false],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[20]},null]],\"parameters\":[19]},null],[0,\"        \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"class\",\"tag-addon\"],[7],[0,\"\\n            \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-white\"],[3,\"action\",[[19,0,[]],\"remove\",\"filters\",[19,18,[]]]],[7],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[18]},null],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,16,[\"toggle\"]]],[[\"class\"],[\"btn tag-size btn-secondary text-primary border-primary py-0 px-1\"]],{\"statements\":[[0,\"    \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\" Filter\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,16,[\"menu\"]]],null,{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n        \"],[1,[25,\"filter-maker\",null,[[\"filter\",\"columns\",\"switchToBuilder\",\"switchToRaw\"],[[20,[\"newFilter\"]],[20,[\"columns\"]],\"switchToBuilder\",\"switchToRaw\"]]],false],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"btn btn-primary mt-2 w-100\"],[3,\"action\",[[19,0,[]],\"addNewFilter\"]],[7],[0,\" \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\"\\n            Add\\n            Filter \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[17]},null]],\"parameters\":[16]},null],[0,\"\\n\"],[8],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n\\n\"],[4,\"each\",[[20,[\"queryObject\",\"views\"]]],null,{\"statements\":[[4,\"if\",[[25,\"label-maker\",[[19,13,[]],[19,13,[\"selected\",\"raw\"]],[19,13,[\"selected\",\"value\"]],[19,13,[\"selected\",\"name\"]],[19,13,[\"selected\"]]],null]],null,{\"statements\":[[0,\"    \"],[6,\"span\"],[9,\"class\",\"tag tag-primary border\"],[7],[0,\"\\n\"],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,14,[\"toggle\"]]],[[\"class\"],[\"text-white\"]],{\"statements\":[[0,\"        \"],[1,[25,\"label-maker\",[[19,13,[]],[19,13,[\"selected\"]],[19,13,[\"selected\",\"value\"]],[19,13,[\"selected\",\"raw\"]],[19,13,[\"selected\",\"name\"]]],null],false],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,14,[\"menu\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n            \"],[1,[25,\"view-maker\",null,[[\"selectView\",\"switchToBuilder\",\"switchToRaw\"],[[19,13,[]],\"switchToBuilder\",\"switchToRaw\"]]],false],[0,\"\\n        \"],[8],[0,\"\\n\\n\"]],\"parameters\":[15]},null]],\"parameters\":[14]},null],[0,\"        \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"class\",\"tag-addon\"],[7],[0,\"\\n            \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-white\"],[3,\"action\",[[19,0,[]],\"remove\",\"views\",[19,13,[]]]],[7],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[13]},null],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,11,[\"toggle\"]]],[[\"class\"],[\"btn tag-size btn-secondary text-primary border-primary py-0 px-1\"]],{\"statements\":[[0,\"    \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\"View\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,11,[\"menu\"]]],null,{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n        \"],[1,[25,\"view-maker\",null,[[\"selectView\",\"switchToBuilder\",\"switchToRaw\"],[[20,[\"newView\"]],\"switchToBuilder\",\"switchToRaw\"]]],false],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"btn btn-primary mt-2 w-100\"],[3,\"action\",[[19,0,[]],\"addNewView\"]],[7],[0,\" \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\"\\n            Add\\n            View\"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[12]},null]],\"parameters\":[11]},null],[8],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n\\n\"],[4,\"each\",[[20,[\"queryObject\",\"groupBys\"]]],null,{\"statements\":[[4,\"if\",[[25,\"label-maker\",[[19,8,[]],[19,8,[\"castType\"]],[19,8,[\"selected\"]],[19,8,[\"selected\",\"value\"]],[19,8,[\"selected\",\"raw\"]]],null]],null,{\"statements\":[[0,\"    \"],[6,\"span\"],[9,\"class\",\"tag border tag-primary\"],[7],[0,\"\\n\"],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,9,[\"toggle\"]]],[[\"class\"],[\"text-white\"]],{\"statements\":[[0,\"        \"],[1,[25,\"label-maker\",[[19,8,[]],[19,8,[\"castType\"]],[19,8,[\"selected\"]],[19,8,[\"selected\",\"value\"]],[19,8,[\"selected\",\"raw\"]]],null],false],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,9,[\"menu\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n            \"],[1,[25,\"group-by-maker\",null,[[\"columns\",\"groupBy\",\"switchToRaw\",\"switchToBuilder\"],[[20,[\"columns\"]],[19,8,[]],\"switchToRaw\",\"switchToBuilder\"]]],false],[0,\"\\n\\n        \"],[8],[0,\"\\n\\n\\n\"]],\"parameters\":[10]},null]],\"parameters\":[9]},null],[0,\"        \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"class\",\"tag-addon\"],[7],[0,\"\\n            \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-white\"],[3,\"action\",[[19,0,[]],\"remove\",\"groupBys\",[19,8,[]]]],[7],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[8]},null],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,6,[\"toggle\"]]],[[\"class\"],[\"btn tag-size btn-secondary text-primary border-primary py-0 px-1\"]],{\"statements\":[[0,\"    \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\"Grouping\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,6,[\"menu\"]]],null,{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n        \"],[1,[25,\"group-by-maker\",null,[[\"columns\",\"groupBy\",\"switchToRaw\",\"switchToBuilder\"],[[20,[\"columns\"]],[20,[\"newGroupBy\"]],\"switchToRaw\",\"switchToBuilder\"]]],false],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"btn btn-primary mt-2 w-100\"],[3,\"action\",[[19,0,[]],\"addNewGroupBy\"]],[7],[0,\" \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\"\\n            Add\\n            Grouping\"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[7]},null]],\"parameters\":[6]},null],[8],[0,\"\\n\\n\"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n\\n\"],[4,\"each\",[[20,[\"queryObject\",\"orderBys\"]]],null,{\"statements\":[[4,\"if\",[[25,\"label-maker\",[[19,3,[]],[19,3,[\"column\"]],[19,3,[\"order\"]]],null]],null,{\"statements\":[[0,\"    \"],[6,\"span\"],[9,\"class\",\"tag border tag-primary\"],[7],[0,\"\\n\"],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,4,[\"toggle\"]]],[[\"class\"],[\"text-white\"]],{\"statements\":[[0,\"        \"],[1,[25,\"label-maker\",[[19,3,[]],[19,3,[\"column\"]],[19,3,[\"order\"]]],null],false],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,4,[\"menu\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n\\n            \"],[1,[25,\"order-by-maker\",null,[[\"columns\",\"orderBy\"],[[20,[\"columns\"]],[19,3,[]]]]],false],[0,\"\\n        \"],[8],[0,\"\\n\\n\"]],\"parameters\":[5]},null]],\"parameters\":[4]},null],[0,\"        \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"class\",\"tag-addon\"],[7],[0,\"\\n            \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-white\"],[3,\"action\",[[19,0,[]],\"remove\",\"orderBys\",[19,3,[]]]],[7],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[3]},null],[4,\"bs-dropdown\",null,[[\"closeOnMenuClick\"],[false]],{\"statements\":[[4,\"component\",[[19,1,[\"toggle\"]]],[[\"class\"],[\"btn tag-size btn-secondary text-primary border-primary py-0 px-1\"]],{\"statements\":[[0,\"    \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\"Sort Order\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"menu\"]]],null,{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"menu-content\"],[7],[0,\"\\n        \"],[1,[25,\"order-by-maker\",null,[[\"columns\",\"orderBy\"],[[20,[\"columns\"]],[20,[\"newOrderBy\"]]]]],false],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"btn btn-primary mt-2 w-100\"],[3,\"action\",[[19,0,[]],\"addNewOrderBy\"]],[7],[0,\" \"],[6,\"i\"],[9,\"class\",\"fe fe-plus\"],[7],[8],[0,\"\\n            Add\\n            Sort Order\"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[2]},null]],\"parameters\":[1]},null],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/subquery-builder/template.hbs" } });
 });
+define('frontend/pods/components/table-tree/component', ['exports', 'ember'], function (exports, _ember) {
+  exports['default'] = _ember['default'].Component.extend({
+    actions: {
+      toggleColumns: function toggleColumns(table) {
+        table.toggleProperty('open');
+      },
+      showAllColumns: function showAllColumns(table, ignoreOpen) {
+        if (!table.get('open') || ignoreOpen) {
+          table.reload().then(function () {
+            table.set('open', true);
+          });
+        } else {
+          table.set('open', false);
+        }
+      },
+      pasteAtCursor: function pasteAtCursor(text) {
+        var editor = this.get('editor');
+        editor.session.insert(editor.getCursorPosition(), text + ' ');
+        editor.focus();
+      }
+    }
+  });
+});
+define("frontend/pods/components/table-tree/template", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template({ "id": "vzCzgrm6", "block": "{\"symbols\":[\"table\",\"column\"],\"statements\":[[6,\"div\"],[9,\"class\",\"tree text-default\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"tables\"]]],null,{\"statements\":[[4,\"unless\",[[25,\"exists-in-array\",[[20,[\"parents\"]],[19,1,[\"id\"]]],null]],null,{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"node-name d-flex\"],[3,\"action\",[[19,0,[]],\"showAllColumns\",[19,1,[]]],[[\"bubbles\"],[false]]],[7],[0,\"\\n\"],[4,\"if\",[[19,1,[\"open\"]]],null,{\"statements\":[[0,\"        \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-down py-1 pr-1\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"        \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-right py-1 pr-1\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"        \"],[6,\"div\"],[9,\"class\",\"col-7\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"relation\"]]],null,{\"statements\":[[0,\"            \"],[6,\"span\"],[9,\"class\",\"text-icon bg-indigo-light text-white\"],[7],[0,\"R\"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"            \"],[6,\"span\"],[9,\"class\",\"text-icon bg-primary text-white\"],[7],[0,\"T\"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"            \"],[1,[19,1,[\"readable_table_name\"]],false],[0,\"\\n        \"],[8],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"text-right col-3\"],[7],[0,\"\\n            \"],[6,\"i\"],[9,\"class\",\"fe fe-arrow-right text-primary\"],[3,\"action\",[[19,0,[]],\"pasteAtCursor\",[19,1,[\"readable_table_name\"]]],[[\"bubbles\"],[false]]],[7],[0,\"\\n                \"],[4,\"bs-tooltip\",null,null,{\"statements\":[[0,\"Paste At Cursor\"]],\"parameters\":[]},null],[0,\"\\n            \"],[8],[0,\"\\n\"],[4,\"if\",[[19,1,[\"expandable\"]]],null,{\"statements\":[[0,\"            \"],[6,\"i\"],[9,\"class\",\"fe fe-plus-circle text-primary\"],[3,\"action\",[[19,0,[]],\"showAllColumns\",[19,1,[]],true],[[\"bubbles\"],[false]]],[7],[0,\"\\n                \"],[4,\"bs-tooltip\",null,null,{\"statements\":[[0,\"See All Columns\"]],\"parameters\":[]},null],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"link-to\",[\"data_references.databases.show.tables.show.explore\",[20,[\"database\",\"id\"]],[19,1,[\"id\"]]],[[\"target\",\"bubbles\"],[\"_blank\",false]],{\"statements\":[[0,\"            \"],[6,\"i\"],[9,\"class\",\"fe fe-zoom-in\"],[7],[0,\"\\n\\n                \"],[4,\"bs-tooltip\",null,null,{\"statements\":[[0,\"View Table in New Tab\"]],\"parameters\":[]},null],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[10,\"class\",[26,[\"leafs pl-4 \",[25,\"if\",[[19,1,[\"open\"]],\"\",\"hidden\"],null]]]],[7],[0,\"\\n\"],[4,\"each\",[[19,1,[\"columns\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"leaf-name \"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row w-100\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-9 py-1\"],[7],[0,\"\\n\"],[4,\"if\",[[19,2,[\"primary_key\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"span\"],[9,\"class\",\"text-icon bg-red-dark text-white\"],[7],[0,\"PK\"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[4,\"if\",[[19,2,[\"is_foreign_key\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"span\"],[9,\"class\",\"text-icon bg-red-lighter text-white\"],[7],[0,\"FK\"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                    \"],[6,\"span\"],[9,\"class\",\"text-icon bg-red-light text-white\"],[7],[0,\"C\"],[8],[0,\"\\n\"]],\"parameters\":[]}]],\"parameters\":[]}],[0,\"                    \"],[1,[19,2,[\"name\"]],false],[0,\"\\n\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-2\"],[7],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-arrow-right text-primary\"],[3,\"action\",[[19,0,[]],\"pasteAtCursor\",[19,2,[\"name\"]]],[[\"bubbles\"],[false]]],[7],[0,\"\\n                        \"],[4,\"bs-tooltip\",null,null,{\"statements\":[[0,\"Paste At Cursor\"]],\"parameters\":[]},null],[0,\"\\n                    \"],[8],[0,\"\\n\\n                \"],[8],[0,\"\\n\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[2]},null],[0,\"\\n\"],[4,\"unless\",[[19,1,[\"expandable\"]]],null,{\"statements\":[[0,\"        \"],[1,[25,\"table-tree\",null,[[\"tables\",\"database\",\"parents\",\"editor\",\"relation\"],[[19,1,[\"foreign_tables\"]],[20,[\"database\"]],[25,\"add-to-parents\",[[20,[\"parents\"]],[19,1,[\"id\"]]],null],[20,[\"editor\"]],true]]],false],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[1]},null],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/table-tree/template.hbs" } });
+});
 define('frontend/pods/components/transposed-results-table-settings/component', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Component.extend({});
 });
@@ -8169,7 +8589,7 @@ define('frontend/pods/components/transposed-results-table/component', ['exports'
     });
 });
 define("frontend/pods/components/transposed-results-table/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "A49VM8NE", "block": "{\"symbols\":[\"apiAction\",\"col\",\"col_index\",\"row\",\"el\",\"index\"],\"statements\":[[6,\"div\"],[9,\"class\",\"table-responsive\"],[7],[0,\"\\n    \"],[6,\"table\"],[9,\"class\",\"table table-hover table-outline table-vcenter text-nowrap card-table table-striped\"],[7],[0,\"\\n        \"],[6,\"tbody\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"transposedResults\",\"content\"]]],null,{\"statements\":[[0,\"            \"],[6,\"tr\"],[7],[0,\"\\n\"],[4,\"each\",[[19,4,[]]],null,{\"statements\":[[4,\"if\",[[25,\"eq\",[[19,6,[]],0],null]],null,{\"statements\":[[0,\"                \"],[6,\"th\"],[9,\"class\",\"\"],[7],[0,\"\\n                    \"],[1,[25,\"widgets/render-widgets\",null,[[\"el\",\"question\",\"index\",\"results\"],[[25,\"capitalize\",[[19,5,[]]],null],[20,[\"question\"]],[19,6,[]],[20,[\"results\"]]]]],false],[0,\"\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                \"],[6,\"td\"],[9,\"class\",\"\"],[7],[0,\"\\n\"],[4,\"if\",[[25,\"exists-in\",[[19,6,[]],[20,[\"results\"]]],null]],null,{\"statements\":[[4,\"link-to\",[\"explore.new\",[25,\"get-column-id\",[[19,6,[]],[20,[\"results\"]]],null],[19,5,[]]],null,{\"statements\":[[0,\"                    \"],[1,[25,\"widgets/render-widgets\",null,[[\"el\",\"question\",\"index\",\"results\"],[[19,5,[]],[20,[\"question\"]],[19,6,[]],[20,[\"results\"]]]]],false],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                    \"]],\"parameters\":[]},{\"statements\":[[1,[25,\"widgets/render-widgets\",null,[[\"el\",\"question\",\"index\",\"results\"],[[19,5,[]],[20,[\"question\"]],[19,6,[]],[20,[\"results\"]]]]],false],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                \"],[8],[0,\"\\n\"]],\"parameters\":[]}]],\"parameters\":[5,6]},null],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[4]},{\"statements\":[],\"parameters\":[]}],[4,\"each\",[[20,[\"question\",\"api_actions\"]]],null,{\"statements\":[[0,\"            \"],[6,\"tr\"],[7],[0,\"\\n\\n                \"],[6,\"th\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"i\"],[9,\"class\",\"fe fe-edit text-primary\"],[3,\"action\",[[19,0,[]],\"editApiAction\",[19,1,[]]]],[7],[8],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-x-square text-red\"],[3,\"action\",[[19,0,[]],\"showDeleteApiActionModal\",[19,1,[]]]],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n\"],[4,\"each\",[[20,[\"transposedResults\",\"content\",\"0\"]]],null,{\"statements\":[[4,\"unless\",[[25,\"eq\",[[19,3,[]],0],null]],null,{\"statements\":[[0,\"                \"],[6,\"td\"],[7],[0,\"\\n                    \"],[6,\"div\"],[10,\"class\",[26,[\"btn btn-link text-\",[19,1,[\"color\"]],\" text-uppercase p-0\"]]],[3,\"action\",[[19,0,[]],\"callApiAction\",[19,1,[]],[25,\"get-row\",[[20,[\"results\",\"rows\"]],[20,[\"page\"]],[20,[\"perPage\"]],[19,3,[]]],null]]],[7],[0,\"\\n                        \"],[1,[19,1,[\"name\"]],false],[0,\"\\n                    \"],[8],[0,\"\\n\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[2,3]},null],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"        \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"showPageNumbers\"]]],null,{\"statements\":[[0,\"        \"],[6,\"tfoot\"],[9,\"class\",\"full-width\"],[7],[0,\"\\n            \"],[6,\"tr\"],[7],[0,\"\\n                \"],[6,\"th\"],[9,\"colspan\",\"100\"],[9,\"class\",\"p-0 pt-5\"],[7],[0,\"\\n                    \"],[4,\"if\",[[20,[\"showResults\"]]],null,{\"statements\":[[0,\" \"],[1,[25,\"page-numbers\",null,[[\"content\"],[[20,[\"pagedRows\"]]]]],false],[0,\" \"]],\"parameters\":[]},{\"statements\":[[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"centered\"],[7],[0,\" Looks like your query did not return any result. \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[1,[25,\"delete-dialogue\",null,[[\"entityName\",\"open\",\"entity\",\"delete\"],[\"Api Action\",[20,[\"toggleDeleteApiActionModal\"]],[20,[\"deletableApiAction\"]],\"deleteApiAction\"]]],false],[0,\"\\n\"],[1,[25,\"api-action-modal\",null,[[\"apiAction\",\"open\"],[[20,[\"editableApiAction\"]],[20,[\"toggleEditApiActionModal\"]]]]],false],[0,\"\\n\"],[1,[25,\"api-action-result\",null,[[\"canDebug\",\"result\",\"open\"],[[20,[\"canEdit\"]],[20,[\"apiActionResult\"]],[20,[\"toggleApiActionResult\"]]]]],false]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/transposed-results-table/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "tEtbmCdq", "block": "{\"symbols\":[\"apiAction\",\"col\",\"col_index\",\"row\",\"el\",\"index\"],\"statements\":[[6,\"div\"],[9,\"class\",\"table-responsive\"],[7],[0,\"\\n    \"],[6,\"table\"],[9,\"class\",\"table table-hover table-outline table-vcenter text-nowrap card-table table-striped\"],[7],[0,\"\\n        \"],[6,\"tbody\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"transposedResults\",\"content\"]]],null,{\"statements\":[[0,\"            \"],[6,\"tr\"],[7],[0,\"\\n\"],[4,\"each\",[[19,4,[]]],null,{\"statements\":[[4,\"if\",[[25,\"eq\",[[19,6,[]],0],null]],null,{\"statements\":[[0,\"                \"],[6,\"th\"],[9,\"class\",\"\"],[7],[0,\"\\n                    \"],[1,[25,\"widgets/render-widgets\",null,[[\"class\",\"el\",\"question\",\"index\",\"results\"],[\"d-inline\",[25,\"capitalize\",[[19,5,[]]],null],[20,[\"question\"]],[19,6,[]],[20,[\"results\"]]]]],false],[0,\"\\n\"],[4,\"if\",[[25,\"replace-column-with-api-action\",[[20,[\"question\",\"api_actions\"]],[19,5,[]],[20,[\"question\",\"apiActionsChanged\"]]],null]],null,{\"statements\":[[0,\"\\n\"],[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"i\"],[9,\"class\",\"fe fe-edit text-primary\"],[3,\"action\",[[19,0,[]],\"editApiAction\",[25,\"replace-column-with-api-action\",[[20,[\"question\",\"api_actions\"]],[19,5,[]],[20,[\"question\",\"apiActionsChanged\"]]],null]]],[7],[8],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-x-square text-red\"],[3,\"action\",[[19,0,[]],\"showDeleteApiActionModal\",[25,\"replace-column-with-api-action\",[[20,[\"question\",\"api_actions\"]],[19,5,[]],[20,[\"question\",\"apiActionsChanged\"]]],null]]],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                \"],[6,\"td\"],[9,\"class\",\"\"],[7],[0,\"\\n\"],[4,\"if\",[[25,\"exists-in\",[[19,6,[]],[20,[\"results\"]]],null]],null,{\"statements\":[[4,\"link-to\",[\"explore.new\",[25,\"get-column-id\",[[19,6,[]],[20,[\"results\"]]],null],[19,5,[]]],null,{\"statements\":[[0,\"                    \"],[1,[25,\"widgets/render-widgets\",null,[[\"el\",\"question\",\"index\",\"results\"],[[19,5,[]],[20,[\"question\"]],[19,6,[]],[20,[\"results\"]]]]],false],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                    \"]],\"parameters\":[]},{\"statements\":[[1,[25,\"widgets/render-widgets\",null,[[\"el\",\"question\",\"index\",\"results\"],[[19,5,[]],[20,[\"question\"]],[19,6,[]],[20,[\"results\"]]]]],false],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                \"],[8],[0,\"\\n\"]],\"parameters\":[]}]],\"parameters\":[5,6]},null],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[4]},{\"statements\":[],\"parameters\":[]}],[4,\"each\",[[20,[\"question\",\"api_actions\"]]],null,{\"statements\":[[0,\"            \"],[6,\"tr\"],[7],[0,\"\\n\\n                \"],[6,\"th\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"i\"],[9,\"class\",\"fe fe-edit text-primary\"],[3,\"action\",[[19,0,[]],\"editApiAction\",[19,1,[]]]],[7],[8],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-x-square text-red\"],[3,\"action\",[[19,0,[]],\"showDeleteApiActionModal\",[19,1,[]]]],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n\"],[4,\"each\",[[20,[\"transposedResults\",\"content\",\"0\"]]],null,{\"statements\":[[4,\"unless\",[[25,\"eq\",[[19,3,[]],0],null]],null,{\"statements\":[[0,\"                \"],[6,\"td\"],[7],[0,\"\\n                    \"],[6,\"div\"],[10,\"class\",[26,[\"btn btn-link text-\",[19,1,[\"color\"]],\" text-uppercase p-0\"]]],[3,\"action\",[[19,0,[]],\"callApiAction\",[19,1,[]],[25,\"get-row\",[[20,[\"results\",\"rows\"]],[20,[\"page\"]],[20,[\"perPage\"]],[19,3,[]]],null]]],[7],[0,\"\\n                        \"],[1,[19,1,[\"name\"]],false],[0,\"\\n                    \"],[8],[0,\"\\n\\n                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[2,3]},null],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"        \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"showPageNumbers\"]]],null,{\"statements\":[[0,\"        \"],[6,\"tfoot\"],[9,\"class\",\"full-width\"],[7],[0,\"\\n            \"],[6,\"tr\"],[7],[0,\"\\n                \"],[6,\"th\"],[9,\"colspan\",\"100\"],[9,\"class\",\"p-0 pt-5\"],[7],[0,\"\\n                    \"],[4,\"if\",[[20,[\"showResults\"]]],null,{\"statements\":[[0,\" \"],[1,[25,\"page-numbers\",null,[[\"content\"],[[20,[\"pagedRows\"]]]]],false],[0,\" \"]],\"parameters\":[]},{\"statements\":[[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"centered\"],[7],[0,\" Looks like your query did not return any result. \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[1,[25,\"delete-dialogue\",null,[[\"entityName\",\"open\",\"entity\",\"delete\"],[\"Api Action\",[20,[\"toggleDeleteApiActionModal\"]],[20,[\"deletableApiAction\"]],\"deleteApiAction\"]]],false],[0,\"\\n\"],[1,[25,\"api-action-modal\",null,[[\"apiAction\",\"open\"],[[20,[\"editableApiAction\"]],[20,[\"toggleEditApiActionModal\"]]]]],false],[0,\"\\n\"],[1,[25,\"api-action-result\",null,[[\"canDebug\",\"result\",\"open\"],[[20,[\"canEdit\"]],[20,[\"apiActionResult\"]],[20,[\"toggleApiActionResult\"]]]]],false]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/transposed-results-table/template.hbs" } });
 });
 define('frontend/pods/components/variable-value-selector/component', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Component.extend({});
@@ -8606,9 +9026,10 @@ define("frontend/pods/components/widgets/renderer/tag-widget/template", ["export
   exports["default"] = Ember.HTMLBars.template({ "id": "psPmrKpn", "block": "{\"symbols\":[],\"statements\":[[4,\"if\",[[20,[\"applicableWidgetItem\"]]],null,{\"statements\":[[0,\"    \"],[6,\"span\"],[9,\"class\",\"tag\"],[10,\"style\",[26,[\"color: \",[20,[\"applicableWidgetItem\",\"config\",\"text_color\"]],\";background-color: \",[20,[\"applicableWidgetItem\",\"config\",\"color\"]]]]],[7],[0,\"\\n    \"],[1,[25,\"format-object\",[[20,[\"applicableWidgetItem\",\"text\"]]],null],false],[0,\"\\n        \"],[6,\"a\"],[9,\"href\",\" # \"],[9,\"class\",\"tag-addon \"],[7],[0,\"\\n            \"],[6,\"i\"],[10,\"class\",[26,[\"fe fe-\",[20,[\"applicableWidgetItem\",\"config\",\"icon\"]],\" \"]]],[7],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[1,[25,\"format-object\",[[20,[\"el\"]]],null],false],[0,\" \"]],\"parameters\":[]}]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/components/widgets/renderer/tag-widget/template.hbs" } });
 });
 define('frontend/pods/dashboards/index/controller', ['exports', 'ember', 'frontend/mixins/dynamic-query-params-controller-mixin'], function (exports, _ember, _frontendMixinsDynamicQueryParamsControllerMixin) {
-    exports['default'] = _ember['default'].Controller.extend(_frontendMixinsDynamicQueryParamsControllerMixin['default'], {
-        dashboards: _ember['default'].computed.alias('model')
-    });
+  exports['default'] = _ember['default'].Controller.extend(_frontendMixinsDynamicQueryParamsControllerMixin['default'], {
+    dashboards: _ember['default'].computed.alias('model')
+
+  });
 });
 define('frontend/pods/dashboards/index/route', ['exports', 'ember', 'frontend/mixins/authentication-mixin', 'ember-can', 'frontend/mixins/dynamic-query-params-routes-mixin', 'ember-keyboard-shortcuts/mixins/route'], function (exports, _ember, _frontendMixinsAuthenticationMixin, _emberCan, _frontendMixinsDynamicQueryParamsRoutesMixin, _emberKeyboardShortcutsMixinsRoute) {
     exports['default'] = _ember['default'].Route.extend(_emberCan.CanMixin, _emberKeyboardShortcutsMixinsRoute['default'], _frontendMixinsDynamicQueryParamsRoutesMixin['default'], _frontendMixinsAuthenticationMixin['default'], {
@@ -8624,239 +9045,240 @@ define('frontend/pods/dashboards/index/route', ['exports', 'ember', 'frontend/mi
     });
 });
 define("frontend/pods/dashboards/index/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "m4IcfbzI", "block": "{\"symbols\":[\"dashboard\"],\"statements\":[[6,\"div\"],[9,\"class\",\"header collapse d-lg-flex p-0\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"container\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"text-default\"],[7],[0,\" All Dashboards\"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"container mt-5\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row row-cards\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"dashboards\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"col-3 database-cards\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card p-3 mx-2\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"d-flex align-items-center\"],[7],[0,\"\\n                        \"],[6,\"span\"],[9,\"class\",\"stamp stamp-md bg-primary mr-3\"],[7],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-grid\"],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"row justify-content-between w-100\"],[7],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col\"],[7],[0,\"\\n                                \"],[6,\"h4\"],[9,\"class\",\"m-0\"],[7],[0,\"\\n                                    \"],[4,\"link-to\",[\"dashboards.show\",[19,1,[\"id\"]]],[[\"class\"],[\"item text-primary\"]],{\"statements\":[[0,\" \"],[1,[19,1,[\"title\"]],false],[0,\" \"]],\"parameters\":[]},null],[0,\"\\n                                \"],[8],[0,\"\\n                                \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[1,[19,1,[\"description\"]],false],[8],[0,\"\\n                            \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/dashboards/index/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "bnS7e4eF", "block": "{\"symbols\":[],\"statements\":[[6,\"div\"],[9,\"class\",\"header collapse d-lg-flex p-0\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"container\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"text-default\"],[7],[0,\" All Dashboards\"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"container mt-5\"],[7],[0,\"\\n\\n    \"],[1,[25,\"dashboard-index-grid\",null,[[\"dashboards\"],[[20,[\"dashboards\"]]]]],false],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/dashboards/index/template.hbs" } });
 });
 define('frontend/pods/dashboards/show/controller', ['exports', 'ember', 'frontend/mixins/dynamic-query-params-controller-mixin'], function (exports, _ember, _frontendMixinsDynamicQueryParamsControllerMixin) {
-    exports['default'] = _ember['default'].Controller.extend(_frontendMixinsDynamicQueryParamsControllerMixin['default'], {
-        dashboard: _ember['default'].computed.alias('model'),
+  exports['default'] = _ember['default'].Controller.extend(_frontendMixinsDynamicQueryParamsControllerMixin['default'], {
+    dashboard: _ember['default'].computed.alias('model'),
 
-        queryParamsVariables: _ember['default'].computed.alias('dashboard.variables'),
+    queryParamsVariables: _ember['default'].computed.alias('dashboard.variables'),
 
-        variablesFulfilled: _ember['default'].computed('dashboard.questions.@each.variablesUpdated', function () {
-            var variablesFulfilled = true;
-            this.get('dashboard.questions').forEach(function (item) {
-                item.get('variables').forEach(function (variable) {
-                    if (!variable.get('isLoaded')) {
-                        variablesFulfilled = false;
-                    }
-                });
-            });
-            return variablesFulfilled;
-        }),
+    variablesFulfilled: _ember['default'].computed('dashboard.questions.@each.variablesUpdated', function () {
+      var variablesFulfilled = true;
+      this.get('dashboard.questions').forEach(function (item) {
+        item.get('variables').forEach(function (variable) {
+          if (!variable.get('isLoaded')) {
+            variablesFulfilled = false;
+          }
+        });
+      });
+      return variablesFulfilled;
+    }),
 
-        reloadBasedOnQueryParamsObserver: _ember['default'].observer('reloadBasedOnQueryParams', 'variablesFulfilled', function () {
-            var variablesFulfilled = this.get('variablesFulfilled');
-            if (variablesFulfilled) {
-                this.refreshFunction();
-            }
-        }),
-        questionObserver: _ember['default'].on('init', _ember['default'].observer('dashboard', function () {
-            var questions = this.get('dashboard.questions');
-            if (questions) {
-                var ids = questions.map(function (item) {
-                    return item.id;
-                });
-                this.store.query('question', {
-                    filter: {
-                        id: ids.join(',')
-                    }
-                });
-            }
-        })),
-        nonEditable: 'yes',
-        fullScreen: false,
-        refreshIntervals: [{
-            name: 'Never',
-            value: null
-        }, {
-            name: '5 Seconds',
-            value: 5000
-        }, {
-            name: '10 Seconds',
-            value: 10000
-        }, {
-            name: '30 Seconds',
-            value: 30000
-        }, {
-            name: '1 Minute',
-            value: 60000
-        }, {
-            name: '5 Minutes',
-            value: 300000
-        }, {
-            name: '15 Minutes',
-            value: 900000
-        }, {
-            name: '30 Minutes',
-            value: 1800000
-        }],
-        refreshInterval: {
-            name: 'Never',
-            value: null
-        },
-        schedule: function schedule(f) {
-            return _ember['default'].run.later(this, function () {
-                f.apply(this);
-                this.set('timer', this.schedule(f));
-            }, this.get('refreshInterval.value'));
-        },
+    reloadBasedOnQueryParamsObserver: _ember['default'].observer('reloadBasedOnQueryParams', 'variablesFulfilled', function () {
+      var variablesFulfilled = this.get('variablesFulfilled');
+      if (variablesFulfilled) {
+        this.refreshFunction();
+      }
+    }),
+    questionObserver: _ember['default'].on('init', _ember['default'].observer('dashboard', function () {
+      var questions = this.get('dashboard.questions');
+      if (questions) {
+        var ids = questions.map(function (item) {
+          return item.id;
+        });
+        this.store.query('question', {
+          filter: {
+            id: ids.join(',')
+          }
+        });
+      }
+    })),
+    nonEditable: 'yes',
+    fullScreen: false,
+    refreshIntervals: [{
+      name: 'Never',
+      value: null
+    }, {
+      name: '5 Seconds',
+      value: 5000
+    }, {
+      name: '10 Seconds',
+      value: 10000
+    }, {
+      name: '30 Seconds',
+      value: 30000
+    }, {
+      name: '1 Minute',
+      value: 60000
+    }, {
+      name: '5 Minutes',
+      value: 300000
+    }, {
+      name: '15 Minutes',
+      value: 900000
+    }, {
+      name: '30 Minutes',
+      value: 1800000
+    }],
+    refreshInterval: {
+      name: 'Never',
+      value: null
+    },
+    schedule: function schedule(f) {
+      return _ember['default'].run.later(this, function () {
+        f.apply(this);
+        this.set('timer', this.schedule(f));
+      }, this.get('refreshInterval.value'));
+    },
 
-        editModeObserver: _ember['default'].observer('editMode', function () {
-            this.set('dashboard.isEditing', this.get('editMode'));
-        }),
-        stopTimer: function stopTimer() {
-            _ember['default'].run.cancel(this.get('timer'));
-        },
+    editModeObserver: _ember['default'].observer('editMode', function () {
+      this.set('dashboard.isEditing', this.get('editMode'));
+    }),
+    stopTimer: function stopTimer() {
+      _ember['default'].run.cancel(this.get('timer'));
+    },
 
-        startTimer: function startTimer() {
-            this.refreshFunction();
-            this.set('timer', this.schedule(this.get('onPoll')));
-        },
+    startTimer: function startTimer() {
+      this.refreshFunction();
+      this.set('timer', this.schedule(this.get('onPoll')));
+    },
 
-        onPoll: function onPoll() {
-            this.refreshFunction();
-        },
-        refreshIntervalObserver: _ember['default'].observer('refreshInterval', function () {
-            var refreshInterval = this.get('refreshInterval');
-            if (refreshInterval.value != null) {
-                this.stopTimer();
-                this.startTimer();
-            } else {
-                this.stopTimer();
-            }
-        }),
-        // setQuestionDashboardVariables() {
-        //     let questions = this.get('dashboard.questions');
-        //     questions && questions.forEach((item) => {
-        //         let variable = item.get('variables').findBy('name', this.get('name'));
-        //         variable && variable.set('value', this.get('value'));
-        //         variable && variable.set('default_options', this.get('default_options'));
-        //     });
-        // },
-        refreshFunction: function refreshFunction() {
-            this.changeQueryParamsInUrl(this.get('dashboard.variables'), this.get('dashboard.title'));
-            // this.setQuestionDashboardVariables();
-            var questions = this.get('dashboard.questions');
-            questions && questions.forEach(function (item) {
-                item.set('resultsCanBeLoaded', true);
-                item.set('updated_at', new Date());
-            });
-        },
-        editMode: _ember['default'].computed.alias('dashboard.isEditing'),
-        actions: {
-            editDashboard: function editDashboard() {
-                this.set('nonEditable', null);
-                this.set('editMode', true);
-            },
-            addNewNote: function addNewNote() {
-                var dashboard = this.get('dashboard');
-                var note = this.store.createRecord('note', {
-                    dashboard: this.get('dashboard')
-                });
-                note.set('isEditing', true);
-                dashboard.set('newNoteSettings', {
-                    width: 24,
-                    height: 14,
-                    noMove: true
-                });
-                dashboard.set('newNote', note);
-                _ember['default'].run.next(this, function () {
-                    _ember['default'].$('.grid-stack').data('gridstack').disable();
-                });
-            },
-            saveDashboard: function saveDashboard() {
-                var _this = this;
+    onPoll: function onPoll() {
+      this.refreshFunction();
+    },
+    refreshIntervalObserver: _ember['default'].observer('refreshInterval', function () {
+      var refreshInterval = this.get('refreshInterval');
+      if (refreshInterval.value != null) {
+        this.stopTimer();
+        this.startTimer();
+      } else {
+        this.stopTimer();
+      }
+    }),
+    // setQuestionDashboardVariables() {
+    //     let questions = this.get('dashboard.questions');
+    //     questions && questions.forEach((item) => {
+    //         let variable = item.get('variables').findBy('name', this.get('name'));
+    //         variable && variable.set('value', this.get('value'));
+    //         variable && variable.set('default_options', this.get('default_options'));
+    //     });
+    // },
+    refreshFunction: function refreshFunction() {
+      this.changeQueryParamsInUrl(this.get('dashboard.variables'), this.get('dashboard.title'));
+      // this.setQuestionDashboardVariables();
+      var questions = this.get('dashboard.questions');
+      questions && questions.forEach(function (item) {
+        item.set('resultsCanBeLoaded', true);
+        item.set('updated_at', new Date());
+      });
+    },
+    editMode: _ember['default'].computed.alias('dashboard.isEditing'),
+    actions: {
+      editDashboard: function editDashboard() {
+        this.set('nonEditable', null);
+        this.set('editMode', true);
+      },
+      addNewNote: function addNewNote() {
+        var dashboard = this.get('dashboard');
+        var note = this.store.createRecord('note', {
+          dashboard: this.get('dashboard')
+        });
+        note.set('isEditing', true);
+        dashboard.set('newNoteSettings', {
+          width: 24,
+          height: 14,
+          noMove: true
+        });
+        dashboard.set('newNote', note);
+        _ember['default'].run.next(this, function () {
+          _ember['default'].$('.grid-stack').data('gridstack').disable();
+        });
+      },
+      saveDashboard: function saveDashboard() {
+        var _this = this;
 
-                var dashboard = this.get('dashboard');
-                var settings = {};
-                dashboard.get('questions').forEach(function (item) {
-                    var el = $('#js-question-' + item.get('id')).parents('.grid-stack-item');
-                    settings[item.get('id')] = {
-                        x: el.data('gs-x'),
-                        y: el.data('gs-y'),
-                        width: el.data('gs-width'),
-                        height: el.data('gs-height')
-                        // noMove: this.get('nonEditable'),
-                        // noResize: this.get('nonEditable')
-                    };
-                });
-                dashboard.set('settings', _ember['default'].Object.create(settings));
-                settings = {};
-                dashboard.get('notes').forEach(function (item) {
-                    var el = $('#js-notes-' + item.get('id')).parents('.grid-stack-item');
+        var dashboard = this.get('dashboard');
+        var settings = {};
+        dashboard.get('questions').forEach(function (item) {
+          var el = $('#js-question-' + item.get('id')).parents('.grid-stack-item');
+          settings[item.get('id')] = {
+            x: el.data('gs-x'),
+            y: el.data('gs-y'),
+            width: el.data('gs-width'),
+            height: el.data('gs-height')
+            // noMove: this.get('nonEditable'),
+            // noResize: this.get('nonEditable')
+          };
+        });
+        dashboard.set('settings', _ember['default'].Object.create(settings));
+        settings = {};
+        dashboard.get('notes').forEach(function (item) {
+          var el = $('#js-notes-' + item.get('id')).parents('.grid-stack-item');
 
-                    settings[item.get('id')] = {
-                        x: el.data('gs-x'),
-                        y: el.data('gs-y'),
-                        width: el.data('gs-width'),
-                        height: el.data('gs-height')
-                        // noMove: this.get('nonEditable'),
-                        // noResize: this.get('nonEditable')
-                    };
-                });
-                dashboard.set('notes_settings', _ember['default'].Object.create(settings));
-                dashboard.save().then(function (response) {
-                    dashboard.get('variables').invoke('save');
-                }).then(function (variables) {
-                    _this.set('nonEditable', 'yes');
-                    _this.set('editMode', false);
-                });
-            },
-            cancelEditingDashboard: function cancelEditingDashboard() {
-                this.set('nonEditable', 'yes');
-                this.set('editMode', false);
-            },
-            showShareDialogue: function showShareDialogue() {
-                this.set('toggleShareModal', 'true');
-            },
-            showDeleteDialogue: function showDeleteDialogue() {
-                this.set('toggleDeleteDialogue', true);
-                $('.ui.modal.delete-dialogue').modal('show');
-            },
-            deleteDashboard: function deleteDashboard(dashboard) {
-                var _this2 = this;
+          settings[item.get('id')] = {
+            x: el.data('gs-x'),
+            y: el.data('gs-y'),
+            width: el.data('gs-width'),
+            height: el.data('gs-height')
+            // noMove: this.get('nonEditable'),
+            // noResize: this.get('nonEditable')
+          };
+        });
+        dashboard.set('notes_settings', _ember['default'].Object.create(settings));
+        dashboard.save().then(function (response) {
+          dashboard.get('variables').invoke('save');
+        }).then(function (variables) {
+          _this.set('nonEditable', 'yes');
+          _this.set('editMode', false);
+          _this.get('dashboard').save();
+        });
+      },
+      cancelEditingDashboard: function cancelEditingDashboard() {
+        this.set('nonEditable', 'yes');
+        this.set('editMode', false);
+      },
+      showShareDialogue: function showShareDialogue() {
+        this.set('toggleShareModal', 'true');
+      },
+      showDeleteDialogue: function showDeleteDialogue() {
+        this.set('toggleDeleteDialogue', true);
+        $('.ui.modal.delete-dialogue').modal('show');
+      },
+      deleteDashboard: function deleteDashboard(dashboard) {
+        var _this2 = this;
 
-                dashboard.destroyRecord().then(function (response) {
-                    _this2.transitionToRoute('index');
-                });
-            },
-            setRefreshInterval: function setRefreshInterval(interval) {
-                this.set('refreshInterval', interval);
-            },
-            refreshNow: function refreshNow() {
-                this.refreshFunction();
-            },
-            showVariablesDialogue: function showVariablesDialogue() {
-                $('.ui.modal.select-dashboard-variables').modal('show');
-            },
-            toggleFullScreen: function toggleFullScreen() {
-                if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    } else if (document.mozCancelFullScreen) {
-                        document.mozCancelFullScreen();
-                    } else if (document.webkitExitFullscreen) {
-                        document.webkitExitFullscreen();
-                    } else if (document.msExitFullscreen) {
-                        document.msExitFullscreen();
-                    }
-                    this.set('fullScreen', false);
-                } else {
-                    var element = _ember['default'].$('.dashboard-page').get(0);
-                    if (element.requestFullscreen) {
-                        element.requestFullscreen();
-                    } else if (element.mozRequestFullScreen) {
-                        element.mozRequestFullScreen();
-                    } else if (element.webkitRequestFullscreen) {
-                        element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-                    } else if (element.msRequestFullscreen) {
-                        element.msRequestFullscreen();
-                    }
-                    this.set('fullScreen', true);
-                }
-            }
+        dashboard.destroyRecord().then(function (response) {
+          _this2.transitionToRoute('index');
+        });
+      },
+      setRefreshInterval: function setRefreshInterval(interval) {
+        this.set('refreshInterval', interval);
+      },
+      refreshNow: function refreshNow() {
+        this.refreshFunction();
+      },
+      showVariablesDialogue: function showVariablesDialogue() {
+        this.set('toggleDashboardVariablesModal', true);
+      },
+      toggleFullScreen: function toggleFullScreen() {
+        if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+          }
+          this.set('fullScreen', false);
+        } else {
+          var element = _ember['default'].$('.dashboard-page').get(0);
+          if (element.requestFullscreen) {
+            element.requestFullscreen();
+          } else if (element.mozRequestFullScreen) {
+            element.mozRequestFullScreen();
+          } else if (element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+          } else if (element.msRequestFullscreen) {
+            element.msRequestFullscreen();
+          }
+          this.set('fullScreen', true);
         }
-    });
+      }
+    }
+  });
 });
 define('frontend/pods/dashboards/show/route', ['exports', 'ember', 'frontend/mixins/authentication-mixin', 'ember-can', 'frontend/mixins/dynamic-query-params-routes-mixin', 'ember-keyboard-shortcuts/mixins/route'], function (exports, _ember, _frontendMixinsAuthenticationMixin, _emberCan, _frontendMixinsDynamicQueryParamsRoutesMixin, _emberKeyboardShortcutsMixinsRoute) {
     exports['default'] = _ember['default'].Route.extend(_emberCan.CanMixin, _emberKeyboardShortcutsMixinsRoute['default'], _frontendMixinsDynamicQueryParamsRoutesMixin['default'], _frontendMixinsAuthenticationMixin['default'], {
@@ -8903,25 +9325,25 @@ define('frontend/pods/dashboards/show/route', ['exports', 'ember', 'frontend/mix
     });
 });
 define("frontend/pods/dashboards/show/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "nLr8enUI", "block": "{\"symbols\":[\"dd\",\"ddm\",\"refreshInterval\"],\"statements\":[[6,\"div\"],[9,\"class\",\"dashboard-page w-100\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"header collapse d-lg-flex p-0\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"container\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"row justify-content-between w-100\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"col\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"editMode\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"input-group\"],[7],[0,\"\\n                                \"],[6,\"span\"],[9,\"class\",\"input-group-prepend mt-2\"],[9,\"id\",\"basic-addon1\"],[7],[0,\"\\n                                    \"],[6,\"span\"],[9,\"class\",\"input-group-text\"],[7],[0,\"Title\"],[8],[0,\"\\n                                \"],[8],[0,\" \"],[1,[25,\"input\",null,[[\"value\",\"class\"],[[20,[\"dashboard\",\"title\"]],\"form-control mt-2\"]]],false],[0,\" \"],[8],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"input-group\"],[7],[0,\"\\n                                \"],[6,\"span\"],[9,\"class\",\"input-group-prepend mt-2\"],[9,\"id\",\"basic-addon1\"],[7],[0,\"\\n                                    \"],[6,\"span\"],[9,\"class\",\"input-group-text\"],[7],[0,\"Description\"],[8],[0,\"\\n                                \"],[8],[0,\" \"],[1,[25,\"input\",null,[[\"value\",\"class\"],[[20,[\"dashboard\",\"description\"]],\"form-control mt-2\"]]],false],[0,\" \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                        \"],[6,\"div\"],[9,\"class\",\"text-default\"],[7],[0,\" \"],[1,[20,[\"dashboard\",\"title\"]],false],[0,\" \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                    \"],[8],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"col text-center\"],[7],[0,\"\\n                        \"],[4,\"if\",[[20,[\"editMode\"]]],null,{\"statements\":[[0,\" \"]],\"parameters\":[]},{\"statements\":[[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"text-primary\"],[3,\"action\",[[19,0,[]],\"refreshNow\"]],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Refresh Now\"]]],false],[0,\" REFRESH\\n                        \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                    \"],[8],[0,\"\\n                    \"],[6,\"div\"],[10,\"class\",[26,[\"col text-right \",[25,\"if\",[[20,[\"editMode\"]],\"options-dashboard\"],null]]]],[7],[0,\"\\n\"],[4,\"if\",[[25,\"and\",[[20,[\"editMode\"]],[25,\"not\",[[25,\"can\",[\"edit dashboard\"],null]],null]],null]],null,{\"statements\":[[0,\"                        \"],[6,\"button\"],[3,\"action\",[[19,0,[]],\"cancelEditingDashboard\"]],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Cancel Editing Dashboard\"]]],false],[0,\"\\n                            CANCEL \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"can\",[\"edit dashboard\"],null]],null,{\"statements\":[[4,\"if\",[[20,[\"editMode\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"button\"],[9,\"class\",\"btn btn-link link-primary px-0\"],[3,\"action\",[[19,0,[]],\"saveDashboard\"]],[7],[0,\"\\n                            \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Save Dashboard\"]]],false],[0,\" SAVE \"],[8],[0,\"\\n                        \"],[6,\"button\"],[9,\"class\",\"btn btn-link text-gray px-0 mx-2\"],[3,\"action\",[[19,0,[]],\"cancelEditingDashboard\"]],[7],[0,\"\\n                            \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Cancel Editing Dashboard\"]]],false],[0,\" CANCEL \"],[8],[0,\"\\n                        \"],[6,\"button\"],[9,\"class\",\"btn btn-link text-red px-0 mr-1\"],[3,\"action\",[[19,0,[]],\"showDeleteDialogue\"]],[7],[0,\"\\n                            \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Delete Dashboard\"]]],false],[0,\" DELETE \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                        \"],[6,\"span\"],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Edit\"]]],false],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-edit px-1\"],[9,\"px-1\",\"\"],[3,\"action\",[[19,0,[]],\"editDashboard\"]],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                        \"],[6,\"span\"],[7],[0,\"\\n                            \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\" Refresh Interval: \"],[1,[20,[\"refreshInterval\",\"name\"]],false]],\"parameters\":[]},null],[0,\"\\n\"],[4,\"bs-dropdown\",null,null,{\"statements\":[[4,\"component\",[[19,1,[\"toggle\"]]],null,{\"statements\":[[0,\"                            \"],[6,\"i\"],[9,\"class\",\"fe fe-refresh-cw text-gray px-1\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"menu\"]]],[[\"class\"],[\"menu-left\"]],{\"statements\":[[4,\"each\",[[20,[\"refreshIntervals\"]]],null,{\"statements\":[[4,\"component\",[[19,2,[\"item\"]]],null,{\"statements\":[[0,\"                            \"],[6,\"div\"],[9,\"class\",\"dropdown-item\"],[3,\"action\",[[19,0,[]],\"setRefreshInterval\",[19,3,[]]]],[7],[0,\"\\n                                \"],[1,[19,3,[\"name\"]],false],[0,\" \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[3]},null]],\"parameters\":[2]},null]],\"parameters\":[1]},null],[0,\"                        \"],[8],[0,\"\\n\"],[4,\"if\",[[25,\"not\",[[20,[\"dashboard\",\"newNote\"]]],null]],null,{\"statements\":[[0,\"                        \"],[6,\"span\"],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Add a Note\"]]],false],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-edit-3 px-1\"],[3,\"action\",[[19,0,[]],\"addNewNote\"]],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                        \"],[6,\"span\"],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Share\"]]],false],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-share px-1\"],[3,\"action\",[[19,0,[]],\"showShareDialogue\"]],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n                        \"],[6,\"span\"],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Variables\"]]],false],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-code px-1\"],[3,\"action\",[[19,0,[]],\"showVariablesDialogue\"]],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"fullScreen\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"span\"],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Exit Fullscreen\"]]],false],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-minimize\"],[3,\"action\",[[19,0,[]],\"toggleFullScreen\"]],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                        \"],[6,\"span\"],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Fullscreen\"]]],false],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-maximize\"],[3,\"action\",[[19,0,[]],\"toggleFullScreen\"]],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"ui basic segment padded-content full no-top-margin\"],[7],[0,\" \"],[1,[25,\"variables-layer\",null,[[\"variables\"],[[20,[\"dashboard\",\"variables\"]]]]],false],[0,\"\\n        \"],[1,[25,\"dashboard-grid\",null,[[\"editing\",\"dashboard\"],[[20,[\"editMode\"]],[20,[\"dashboard\"]]]]],false],[0,\" \"],[8],[0,\"\\n    \"],[1,[25,\"delete-dialogue\",null,[[\"entityName\",\"open\",\"entity\",\"delete\"],[\"dashboard\",[20,[\"toggleDeleteDialogue\"]],[20,[\"dashboard\"]],\"deleteDashboard\"]]],false],[0,\"\\n    \"],[1,[25,\"share-entity\",null,[[\"entityName\",\"entity\",\"open\"],[\"Dashboard\",[20,[\"dashboard\"]],[20,[\"toggleShareModal\"]]]]],false],[0,\"\\n    \"],[1,[25,\"dashboard-select-variables\",null,[[\"dashboard\",\"isEditing\"],[[20,[\"dashboard\"]],[20,[\"editMode\"]]]]],false],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/dashboards/show/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "G/JsRv+B", "block": "{\"symbols\":[\"dd\",\"ddm\",\"refreshInterval\"],\"statements\":[[6,\"div\"],[9,\"class\",\"dashboard-page w-100\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"header collapse d-lg-flex p-0\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"container\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"row justify-content-between w-100\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"col\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"editMode\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"div\"],[9,\"class\",\"form-group\"],[7],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"input-group\"],[7],[0,\"\\n                                \"],[6,\"span\"],[9,\"class\",\"input-group-prepend mt-2\"],[9,\"id\",\"basic-addon1\"],[7],[0,\"\\n                                    \"],[6,\"span\"],[9,\"class\",\"input-group-text\"],[7],[0,\"Title\"],[8],[0,\"\\n                                \"],[8],[0,\" \"],[1,[25,\"input\",null,[[\"value\",\"class\"],[[20,[\"dashboard\",\"title\"]],\"form-control mt-2\"]]],false],[0,\" \"],[8],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"input-group\"],[7],[0,\"\\n                                \"],[6,\"span\"],[9,\"class\",\"input-group-prepend mt-2\"],[9,\"id\",\"basic-addon1\"],[7],[0,\"\\n                                    \"],[6,\"span\"],[9,\"class\",\"input-group-text\"],[7],[0,\"Description\"],[8],[0,\"\\n                                \"],[8],[0,\" \"],[1,[25,\"input\",null,[[\"value\",\"class\"],[[20,[\"dashboard\",\"description\"]],\"form-control mt-2\"]]],false],[0,\" \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                        \"],[6,\"div\"],[9,\"class\",\"text-default\"],[7],[0,\" \"],[1,[20,[\"dashboard\",\"title\"]],false],[0,\" \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                    \"],[8],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"col text-center\"],[7],[0,\"\\n                        \"],[4,\"if\",[[20,[\"editMode\"]]],null,{\"statements\":[[0,\" \"]],\"parameters\":[]},{\"statements\":[[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"text-primary\"],[3,\"action\",[[19,0,[]],\"refreshNow\"]],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Refresh Now (CTRL + R)\"]]],false],[0,\"\\n                            REFRESH\\n                        \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                    \"],[8],[0,\"\\n                    \"],[6,\"div\"],[10,\"class\",[26,[\"col text-right \",[25,\"if\",[[20,[\"editMode\"]],\"options-dashboard\"],null]]]],[7],[0,\"\\n\"],[4,\"if\",[[25,\"and\",[[20,[\"editMode\"]],[25,\"not\",[[25,\"can\",[\"edit dashboard\"],null]],null]],null]],null,{\"statements\":[[0,\"                        \"],[6,\"button\"],[3,\"action\",[[19,0,[]],\"cancelEditingDashboard\"]],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Cancel Editing Dashboard\"]]],false],[0,\"\\n                            CANCEL \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"can\",[\"edit dashboard\"],null]],null,{\"statements\":[[4,\"if\",[[20,[\"editMode\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"button\"],[9,\"class\",\"btn btn-link link-primary px-0\"],[3,\"action\",[[19,0,[]],\"saveDashboard\"]],[7],[0,\"\\n                            \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Save Dashboard\"]]],false],[0,\" SAVE \"],[8],[0,\"\\n                        \"],[6,\"button\"],[9,\"class\",\"btn btn-link text-gray px-0 mx-2\"],[3,\"action\",[[19,0,[]],\"cancelEditingDashboard\"]],[7],[0,\"\\n                            \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Cancel Editing Dashboard\"]]],false],[0,\" CANCEL \"],[8],[0,\"\\n                        \"],[6,\"button\"],[9,\"class\",\"btn btn-link text-red px-0 mr-1\"],[3,\"action\",[[19,0,[]],\"showDeleteDialogue\"]],[7],[0,\"\\n                            \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Delete Dashboard\"]]],false],[0,\" DELETE \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                        \"],[6,\"span\"],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Edit\"]]],false],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-edit px-1\"],[9,\"px-1\",\"\"],[3,\"action\",[[19,0,[]],\"editDashboard\"]],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                        \"],[6,\"span\"],[7],[0,\"\\n                            \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\" Refresh Interval: \"],[1,[20,[\"refreshInterval\",\"name\"]],false]],\"parameters\":[]},null],[0,\"\\n\"],[4,\"bs-dropdown\",null,null,{\"statements\":[[4,\"component\",[[19,1,[\"toggle\"]]],null,{\"statements\":[[0,\"                            \"],[6,\"i\"],[9,\"class\",\"fe fe-refresh-cw text-gray px-1\"],[7],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"component\",[[19,1,[\"menu\"]]],[[\"class\"],[\"menu-left\"]],{\"statements\":[[4,\"each\",[[20,[\"refreshIntervals\"]]],null,{\"statements\":[[4,\"component\",[[19,2,[\"item\"]]],null,{\"statements\":[[0,\"                            \"],[6,\"div\"],[9,\"class\",\"dropdown-item\"],[3,\"action\",[[19,0,[]],\"setRefreshInterval\",[19,3,[]]]],[7],[0,\"\\n                                \"],[1,[19,3,[\"name\"]],false],[0,\" \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[3]},null]],\"parameters\":[2]},null]],\"parameters\":[1]},null],[0,\"                        \"],[8],[0,\"\\n\"],[4,\"if\",[[25,\"not\",[[20,[\"dashboard\",\"newNote\"]]],null]],null,{\"statements\":[[0,\"                        \"],[6,\"span\"],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Add a Note\"]]],false],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-edit-3 px-1\"],[3,\"action\",[[19,0,[]],\"addNewNote\"]],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                        \"],[6,\"span\"],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Share\"]]],false],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-share px-1\"],[3,\"action\",[[19,0,[]],\"showShareDialogue\"]],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n                        \"],[6,\"span\"],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Variables\"]]],false],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-code px-1\"],[3,\"action\",[[19,0,[]],\"showVariablesDialogue\"]],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"fullScreen\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"span\"],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Exit Fullscreen\"]]],false],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-minimize\"],[3,\"action\",[[19,0,[]],\"toggleFullScreen\"]],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                        \"],[6,\"span\"],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"title\"],[\"Fullscreen\"]]],false],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-maximize\"],[3,\"action\",[[19,0,[]],\"toggleFullScreen\"]],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"ui basic segment padded-content full no-top-margin\"],[7],[0,\" \"],[1,[25,\"variables-layer\",null,[[\"variables\"],[[20,[\"dashboard\",\"variables\"]]]]],false],[0,\"\\n        \"],[1,[25,\"dashboard-grid\",null,[[\"editing\",\"dashboard\"],[[20,[\"editMode\"]],[20,[\"dashboard\"]]]]],false],[0,\" \"],[8],[0,\"\\n    \"],[1,[25,\"delete-dialogue\",null,[[\"entityName\",\"open\",\"entity\",\"delete\"],[\"dashboard\",[20,[\"toggleDeleteDialogue\"]],[20,[\"dashboard\"]],\"deleteDashboard\"]]],false],[0,\"\\n    \"],[1,[25,\"share-entity\",null,[[\"entityName\",\"entity\",\"open\"],[\"Dashboard\",[20,[\"dashboard\"]],[20,[\"toggleShareModal\"]]]]],false],[0,\"\\n    \"],[1,[25,\"dashboard-select-variables\",null,[[\"dashboard\",\"isEditing\",\"open\"],[[20,[\"dashboard\"]],[20,[\"editMode\"]],[20,[\"toggleDashboardVariablesModal\"]]]]],false],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/dashboards/show/template.hbs" } });
 });
 define('frontend/pods/data-references/databases/all/controller', ['exports', 'ember', 'ember-can'], function (exports, _ember, _emberCan) {
-    exports['default'] = _ember['default'].Controller.extend(_emberCan.CanMixin, {
+  exports['default'] = _ember['default'].Controller.extend(_emberCan.CanMixin, {
 
-        canEdit: _ember['default'].computed(function () {
-            return this.can('edit question');
-        }),
-        databases: _ember['default'].computed.alias("model"),
-        actions: {
-            syncDatabase: function syncDatabase(database) {
-                var _this = this;
+    canEdit: _ember['default'].computed(function () {
+      return this.can('edit question');
+    }),
+    databases: _ember['default'].computed.alias('model'),
+    actions: {
+      syncDatabase: function syncDatabase(database) {
+        var _this = this;
 
-                database.sync().then(function (response) {
-                    _this.get('toast').success("Databse Sync was successfully initiated. Please wait for few minutes for it to complete", 'YaY!', { closeButton: true, timeout: 15000, progressBar: false });
-                });
-            }
-        }
-    });
+        database.sync().then(function (response) {
+          _this.get('toast').success('Databse Sync was successfully initiated. Please wait for few minutes for it to complete', 'YaY!', { closeButton: true, timeout: 15000, progressBar: false });
+        });
+      }
+    }
+  });
 });
 define('frontend/pods/data-references/databases/all/route', ['exports', 'ember', 'frontend/mixins/authentication-mixin'], function (exports, _ember, _frontendMixinsAuthenticationMixin) {
     exports['default'] = _ember['default'].Route.extend(_frontendMixinsAuthenticationMixin['default'], {
@@ -8931,7 +9353,7 @@ define('frontend/pods/data-references/databases/all/route', ['exports', 'ember',
     });
 });
 define("frontend/pods/data-references/databases/all/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "yYzbH+Dq", "block": "{\"symbols\":[\"database\"],\"statements\":[[6,\"div\"],[9,\"class\",\"header collapse d-lg-flex p-0\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"container\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"text-default\"],[7],[0,\" All Databases \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"container mt-5\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row row-cards\"],[7],[0,\"\\n\"],[4,\"each\",[[20,[\"databases\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"col-3 database-cards\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card p-3 mx-2\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"d-flex align-items-center\"],[7],[0,\"\\n                        \"],[6,\"span\"],[9,\"class\",\"stamp stamp-md bg-primary mr-3\"],[7],[0,\"\\n                            \"],[6,\"i\"],[9,\"class\",\"fe fe-database\"],[7],[8],[0,\"\\n                        \"],[8],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"row justify-content-between w-100\"],[7],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col\"],[7],[0,\"\\n                                \"],[6,\"h4\"],[9,\"class\",\"m-0\"],[7],[0,\"\\n                                    \"],[4,\"link-to\",[\"data_references.databases.show.tables.all\",[19,1,[\"id\"]]],[[\"class\"],[\"item text-primary\"]],{\"statements\":[[0,\" \"],[1,[19,1,[\"name\"]],false],[0,\" \"]],\"parameters\":[]},null],[0,\"\\n                                \"],[8],[0,\"\\n                                \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[1,[19,1,[\"db_type\"]],false],[8],[0,\"\\n                            \"],[8],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-3 text-right\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[0,\"                                    \"],[6,\"button\"],[9,\"class\",\"btn btn-link text-primary\"],[3,\"action\",[[19,0,[]],\"syncDatabase\",[19,1,[]]]],[7],[0,\" \"],[1,[25,\"bs-tooltip\",null,[[\"placement\",\"title\"],[\"top\",\"Sync All Tables and Columns\"]]],false],[0,\" SYNC \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                            \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/data-references/databases/all/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "O3u0PqwZ", "block": "{\"symbols\":[\"database\"],\"statements\":[[6,\"div\"],[9,\"class\",\"header collapse d-lg-flex p-0\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"container\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"text-default\"],[7],[0,\" All Databases \"],[8],[0,\"\\n                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"container mt-5\"],[7],[0,\"\\n\"],[4,\"masonry-grid\",null,[[\"items\"],[[20,[\"databases\"]]]],{\"statements\":[[0,\"    \"],[6,\"div\"],[9,\"class\",\"card p-3 mb-0\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"d-flex align-items-center\"],[7],[0,\"\\n            \"],[6,\"span\"],[9,\"class\",\"stamp stamp-md bg-primary mr-3\"],[7],[0,\"\\n                \"],[6,\"i\"],[9,\"class\",\"fe fe-database\"],[7],[8],[0,\"\\n            \"],[8],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row justify-content-between w-100\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col\"],[7],[0,\"\\n                    \"],[6,\"h4\"],[9,\"class\",\"m-0\"],[7],[0,\"\\n                        \"],[4,\"link-to\",[\"data_references.databases.show.tables.all\",[19,1,[\"id\"]]],[[\"class\"],[\"item text-primary\"]],{\"statements\":[[0,\" \"],[1,[19,1,[\"name\"]],false],[0,\" \"]],\"parameters\":[]},null],[0,\"\\n                    \"],[8],[0,\"\\n                    \"],[6,\"small\"],[9,\"class\",\"text-muted\"],[7],[1,[19,1,[\"db_type\"]],false],[8],[0,\"\\n                \"],[8],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"col-3 text-right\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"button\"],[9,\"class\",\"btn btn-link text-primary\"],[3,\"action\",[[19,0,[]],\"syncDatabase\",[19,1,[]]]],[7],[0,\"\\n                        \"],[1,[25,\"bs-tooltip\",null,[[\"placement\",\"title\"],[\"top\",\"Sync All Tables and Columns\"]]],false],[0,\" SYNC \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/data-references/databases/all/template.hbs" } });
 });
 define('frontend/pods/data-references/databases/show/controller', ['exports', 'ember'], function (exports, _ember) {
     exports['default'] = _ember['default'].Controller.extend({
@@ -9283,359 +9705,376 @@ define("frontend/pods/questions/all/template", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template({ "id": "ZsivsxjM", "block": "{\"symbols\":[\"tag\"],\"statements\":[[6,\"div\"],[9,\"class\",\"header collapse d-lg-flex p-0\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"container\"],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"nav nav-tabs border-0 flex-column flex-lg-row py-3 px-0\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"text-default\"],[7],[0,\" \"],[1,[18,\"pageTitle\"],false],[0,\" \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"container px-0\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"showAllTags\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"row py-4\"],[7],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"tags\"],[7],[0,\"\\n                \"],[6,\"span\"],[9,\"class\",\"fs-1 tag font-weight-bold\"],[7],[0,\" Tags: \"],[8],[0,\"\\n\"],[4,\"each\",[[20,[\"tags\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"span\"],[9,\"class\",\"tag\"],[10,\"style\",[26,[\"background: \",[19,1,[\"color\"]],\"; opacity: 0.8; font-size: 1rem;\"]]],[7],[0,\"\\n                        \"],[4,\"link-to\",[\"tags.show\",[19,1,[\"id\"]]],[[\"class\"],[\"text-white\"]],{\"statements\":[[0,\" \"],[1,[19,1,[\"name\"]],false],[0,\"\\n                            \"],[6,\"span\"],[9,\"class\",\"tag-addon\"],[7],[0,\"\\n                                \"],[6,\"i\"],[9,\"class\",\"fe fe-tag\"],[7],[8],[0,\"\\n                            \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                    \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"    \"],[6,\"div\"],[10,\"class\",[26,[\"form-group \",[25,\"if\",[[20,[\"tag_id\"]],\"pt-4\"],null]]]],[7],[0,\"\\n        \"],[6,\"div\"],[9,\"class\",\"input-group input-icon\"],[7],[0,\"\\n            \"],[6,\"span\"],[9,\"class\",\"input-group-prepend\"],[9,\"id\",\"basic-addon3\"],[7],[0,\"\\n                \"],[6,\"span\"],[9,\"class\",\"input-group-text\"],[7],[0,\"Search a Question\"],[8],[0,\"\\n            \"],[8],[0,\" \"],[1,[25,\"input\",null,[[\"value\",\"class\",\"placeholder\",\"aria-describedby\"],[[20,[\"query\"]],\"ui form-control\",\"Search Question\",\"basic-addon3\"]]],false],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"input-icon-addon\"],[7],[0,\"\\n                \"],[6,\"i\"],[9,\"class\",\"fe fe-search\"],[7],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n    \"],[8],[0,\"\\n\"],[8],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"container px-0\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n        \"],[4,\"if\",[[20,[\"query\"]]],null,{\"statements\":[[0,\" \"],[1,[25,\"questions-list\",null,[[\"questions\",\"transitionToSnapshots\"],[[20,[\"searchedQuestions\"]],\"transitionToSnapshots\"]]],false],[0,\" \"]],\"parameters\":[]},{\"statements\":[[1,[25,\"questions-list\",null,[[\"questions\",\"transitionToSnapshots\"],[[20,[\"questions\"]],\"transitionToSnapshots\"]]],false],[0,\"\\n\"]],\"parameters\":[]}],[0,\"    \"],[8],[0,\"\\n\"],[8]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/questions/all/template.hbs" } });
 });
 define('frontend/pods/questions/new/controller', ['exports', 'ember', 'frontend/mixins/chart-settings', 'frontend/mixins/loading-messages', 'frontend/mixins/result-view-mixin', 'frontend/mixins/custom-events', 'frontend/mixins/ace-tools', 'frontend/mixins/dynamic-query-params-controller-mixin'], function (exports, _ember, _frontendMixinsChartSettings, _frontendMixinsLoadingMessages, _frontendMixinsResultViewMixin, _frontendMixinsCustomEvents, _frontendMixinsAceTools, _frontendMixinsDynamicQueryParamsControllerMixin) {
-    exports['default'] = _ember['default'].Controller.extend(_frontendMixinsLoadingMessages['default'], _frontendMixinsChartSettings['default'], _frontendMixinsResultViewMixin['default'], _frontendMixinsAceTools['default'], _frontendMixinsCustomEvents['default'], _frontendMixinsDynamicQueryParamsControllerMixin['default'], {
-        ajax: _ember['default'].inject.service(),
-        queryParamsVariables: _ember['default'].computed.alias('question.variables'),
-        reloadBasedOnQueryParamsObserver: _ember['default'].observer('reloadBasedOnQueryParams', function () {
-            this.set('question.resultsCanBeLoaded', true);
+  exports['default'] = _ember['default'].Controller.extend(_frontendMixinsLoadingMessages['default'], _frontendMixinsChartSettings['default'], _frontendMixinsResultViewMixin['default'], _frontendMixinsAceTools['default'], _frontendMixinsCustomEvents['default'], _frontendMixinsDynamicQueryParamsControllerMixin['default'], {
+    ajax: _ember['default'].inject.service(),
+    queryParamsVariables: _ember['default'].computed.alias('question.variables'),
+    reloadBasedOnQueryParamsObserver: _ember['default'].observer('reloadBasedOnQueryParams', function () {
+      this.set('question.resultsCanBeLoaded', true);
+    }),
+
+    newQuestion: true,
+    databases: _ember['default'].computed(function () {
+      return this.get('store').findAll('database');
+    }),
+
+    canEdit: true,
+    showVariables: false,
+    question: _ember['default'].computed('recalculate', function () {
+      return this.store.createRecord('question', {
+        title: 'New Question',
+        human_sql: _ember['default'].Object.create({
+          fromTable: true,
+          queryType: 'query_builder',
+          database: null,
+          table: null,
+          views: [],
+          filters: [],
+          groupBys: [],
+          orderBys: [],
+          offset: null,
+          rawQuery: '',
+          additionalFilters: _ember['default'].Object.create({
+            filters: [],
+            groupBys: [],
+            orderBys: [],
+            views: []
+          }),
+          limit: null
         }),
-
-        newQuestion: true,
-        databases: _ember['default'].computed(function () {
-            return this.get('store').findAll('database');
-        }),
-
-        canEdit: true,
-        showVariables: false,
-        question: _ember['default'].computed('recalculate', function () {
-            return this.store.createRecord('question', {
-                title: 'New Question',
-                human_sql: _ember['default'].Object.create({
-                    fromTable: true,
-                    queryType: 'query_builder',
-                    database: null,
-                    table: null,
-                    views: [],
-                    filters: [],
-                    groupBys: [],
-                    orderBys: [],
-                    offset: null,
-                    rawQuery: '',
-                    additionalFilters: _ember['default'].Object.create({
-                        filters: [],
-                        groupBys: [],
-                        orderBys: [],
-                        views: []
-                    }),
-                    limit: null
-                }),
-                results_view_settings: {
-                    resultsViewType: 'Table',
-                    numbers: [],
-                    dataColumns: [{}]
-                }
-            });
-        }),
-        getQuestionfromLocalStorage: function getQuestionfromLocalStorage() {
-            return JSON.parse(localStorage.getItem('AG_NEW_QUESTION') || '{}');
-        },
-
-        questionNameObserver: _ember['default'].observer('question.title', 'queryObject.table.human_name', 'queryObject.filters.@each.label', 'queryObject.views.@each.label', 'queryObject.groupBys.@each.label', function () {
-            if (this.get('queryObject.table.human_name') && !this.get('questionNameIsSet')) {
-                var title = '';
-                var filterlabels = '';
-                var viewlabels = '';
-                var groupBylabels = '';
-                if (this.get('queryObject.views.length')) {
-                    viewlabels = this.get('queryObject.views').map(function (item) {
-                        return item.get('label');
-                    }).join(' , ');
-                }
-                if (viewlabels != '') {
-                    title = viewlabels + ' of ';
-                }
-                title = title + ('' + this.get('queryObject.table.human_name'));
-                if (this.get('queryObject.filters.length')) {
-                    filterlabels = this.get('queryObject.filters').map(function (item) {
-                        return item.get('label');
-                    }).join(' , ');
-                }
-                if (filterlabels != '') {
-                    title = title + ' where ' + filterlabels;
-                }
-                if (this.get('queryObject.groupBys.length')) {
-                    groupBylabels = this.get('queryObject.groupBys').map(function (item) {
-                        return item.get('label');
-                    }).join(' , ');
-                }
-                if (groupBylabels != '') {
-                    title = title + ', grouped by ' + groupBylabels;
-                }
-                this.set('question.title', title);
-            }
-        }),
-        resultsViewType: _ember['default'].computed.alias('question.results_view_settings.resultsViewType'),
-        questionName: _ember['default'].computed.alias('question.title'),
-        resultsViewSettings: _ember['default'].computed.alias('question.results_view_settings'),
-        queryBuilderType: _ember['default'].computed('queryObject.queryType', function () {
-            var queryType = this.get('queryObject.queryType');
-            if (queryType == 'query_builder') {
-                return true;
-            } else {
-                return false;
-            }
-        }),
-
-        changeSQL: _ember['default'].observer('queryObject.rawQuery', function () {
-            this.set('question.sql', this.get('queryObject.rawQuery'));
-        }),
-        aceTheme: 'ace/theme/dracula',
-        aceMode: 'ace/mode/sql',
-
-        queryObject: _ember['default'].computed.alias('question.human_sql'),
-
-        apiNamespace: _ember['default'].computed('store', function () {
-            return this.get('store').adapterFor('application').namespace;
-        }),
-
-        apiHost: _ember['default'].computed('store', function () {
-            return this.get('store').adapterFor('application').host;
-        }),
-        showGetResults: false,
-        showGetResultsObserver: _ember['default'].observer('queryObject.database', 'queryObject.table', 'queryObject.queryType', 'queryObject.rawQuery', function () {
-            var showGetResults = this.get('queryObject.database') && this.get('queryObject.table') || this.get('queryObject.database') && this.get('queryObject.queryType') == 'raw' && this.get('queryObject.rawQuery');
-            _ember['default'].run.next(this, function () {
-                this.set('showGetResults', showGetResults);
-            });
-        }),
-        errorMessage: _ember['default'].computed('errors', 'question.errorMessage', function () {
-
-            return this.get('errors.message') || this.get('question.errorMessage');
-        }),
-
-        resultsWidgetSettingsComponent: _ember['default'].computed('resultsViewType', function () {
-            this.set('results', this.get('results'));
-            return this.get('resultsWidgets')[this.get('resultsViewType')] + '-settings';
-        }),
-        availableResultsTypes: _ember['default'].computed('resultsWidgets', function () {
-            return Object.keys(this.get('resultsWidgets'));
-        }),
-        availableResultsTypesHash: _ember['default'].computed('availableResultsTypes', function () {
-            return Object.keys(this.get('resultsWidgets')).map(function (item) {
-                return _ember['default'].Object.create({
-                    title: item
-                });
-            });
-        }),
-        resultsViewTypeTitle: _ember['default'].computed('resultsViewType', function () {
-            return _ember['default'].Object.create({
-                title: this.get('resultsViewType')
-            });
-        }),
-        getResultsWithSelectedTextFunction: function getResultsWithSelectedTextFunction() {
-            this.getResultsFunction(null, true);
-        },
-        getResultsFunction: function getResultsFunction(queryObject, withSelected) {
-            var _this = this;
-
-            var question = this.get('question');
-
-            var query_variables = question.get('query_variables');
-            var changedAttributes = Object.keys(question.changedAttributes()).filter(function (item) {
-                return item != 'updated_at' && item != 'cached_results';
-            });
-            // if (question.id && ( changedAttributes == 0) && !this.get('variablesChanged') && !this.get('attributesChanged')){
-            //     question.set("updated_at", new Date())
-            //     question.set('resultsCanBeLoaded', true)
-            // }else{
-            question.set('updated_at', new Date());
-            queryObject = queryObject || this.get('queryObject');
-            queryObject.set('id', question.get('id'));
-            queryObject.set('variables', query_variables && query_variables.map(function (item) {
-                return {
-                    name: item.get('name'),
-                    value: item.get('value') || item.get('default'),
-                    var_type: item.get('var_type'),
-                    default_options: item.get('default_options')
-                };
-            }));
-
-            this.changeQueryParamsInUrl(queryObject.get('variables'), queryObject.get('name'));
-            this.set('loading', true);
-            this.set('results', null);
-            if (withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText()) {
-                queryObject = JSON.parse(JSON.stringify(queryObject));
-                queryObject['rawQuery'] = this.get('aceEditor').getSelectedText();
-            }
-            this.get('ajax').apiCall({
-                url: this.get('apiHost') + this.get('apiNamespace') + '/query_results',
-                type: 'POST',
-                data: queryObject
-            }, function (response, status) {
-                _this.set('loading', false);
-                _this.set('errors', null);
-                _this.set('results', response.data);
-                if (!_this.get('resultsViewType')) {
-                    _this.set('resultsViewType', _this.autoDetect(response.data.rows));
-                }
-
-                if (!(withSelected && _this.get('aceEditor') && _this.get('aceEditor').getSelectedText())) {
-                    _this.set('queryObject.rawQuery', response.query);
-                    _this.set('validQuestion', true);
-                }
-                _this.set('isQueryLimited', response.data.limited);
-                _this.set('queryLimit', response.data.limit);
-                _this.set('limitedQuery', response.data.limited_query);
-                _this.set('variablesReplacedQuery', response.data.variables_replaced_query);
-            }, function (error, status) {
-                _this.set('loading', false);
-                error && error.error ? _this.set('errors', error.error) : _this.set('errors', {
-                    message: 'Something isn\'t right. Please check the query elements.'
-                });
-                _this.set('results', null);
-                if (!(withSelected && _this.get('aceEditor') && _this.get('aceEditor').getSelectedText())) {
-                    _this.set('validQuestion', false);
-                    _this.set('queryObject.rawQuery', error.query);
-                }
-                _this.set('isQueryLimited', null);
-                _this.set('queryLimit', null);
-                _this.set('limitQuery', null);
-                _this.set('variablesReplacedQuery', error.error.variables_replaced_query);
-            });
-            // }
-        },
-
-        actions: {
-            removeVariable: function removeVariable(variable) {
-                this.get('question.variables').removeObject(variable);
-                this.set('variablesChanged', true);
-                variable.destroyRecord();
-            },
-
-            toggleSql: function toggleSql() {
-                var queryType = this.get('queryObject.queryType');
-                if (queryType == 'query_builder') {
-                    this.set('queryObject.queryType', 'raw');
-                    this.get('queryObject.rawQuery') == null && this.set('queryObject.rawQuery', '');
-                } else {
-                    this.set('queryObject.queryType', 'query_builder');
-                }
-                var plotlyComponent = _ember['default'].$('.js-plotly-plot')[0];
-                plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize'));
-            },
-            getQuestionResults: function getQuestionResults() {
-                this.set('results', null);
-                this.set('errors', null);
-                var question = this.get('question');
-                question.set('updated_at', new Date());
-                question.set('resultsCanBeLoaded', true);
-            },
-            getResults: function getResults(queryObject) {
-                this.getResultsFunction(queryObject);
-            },
-            toggleSettings: function toggleSettings() {
-                this.toggleProperty('showSettings');
-            },
-            saveQuestion: function saveQuestion() {
-                var _this2 = this;
-
-                if (this.get('newQuestion')) {
-                    _ember['default'].run.later(this, function () {
-                        $('.js-question_title').focus();
-                    }, 150);
-                    this.set('newQuestion', false);
-                } else {
-                    (function () {
-                        var question = _this2.get('question');
-                        question.set('sql', question.get('sql') || question.get('human_sql.rawQuery'));
-                        question.set('cached_results', null);
-                        question.set('query_type', question.get('human_sql.queryType') == 'raw' ? 'sql' : 'human_sql');
-                        question.save().then(function (response) {
-                            question.get('variables').invoke('save');
-
-                            _this2.set('retryingTransition', true);
-                            _this2.transitionToRoute('questions.show', response.id);
-                        }).then(function (variable) {
-                            question.set('resultsCanBeLoaded', true);
-                        });
-                    })();
-                }
-            },
-            transitionToDashBoard: function transitionToDashBoard(dashboard_id) {
-                this.transitionToRoute('dashboards.show', dashboard_id);
-            },
-            transitionToIndex: function transitionToIndex() {
-                this.transitionToRoute('index');
-            },
-            downloadData: function downloadData() {
-                var _this3 = this;
-
-                var question = this.get('question');
-                var queryObject = this.get('queryObject');
-                var query_variables = question.get('query_variables');
-                queryObject.set('variables', query_variables && query_variables.map(function (item) {
-                    return {
-                        name: item.get('name'),
-                        value: item.get('value') || item.get('default'),
-                        var_type: item.get('var_type'),
-                        default_options: item.get('default_options')
-                    };
-                }));
-                this.get('ajax').apiCall({
-                    url: this.get('apiHost') + this.get('apiNamespace') + '/create_csv',
-                    type: 'POST',
-                    data: queryObject
-                }, function (response, status) {
-
-                    _this3.get('toast').success('Your CSV is getting uploaded to cloud. You\'ll get an email with download link shortly', 'YaY!', {
-                        closeButton: true,
-                        timeout: 1500,
-                        progressBar: false
-                    });
-                }, function (error, status) {
-                    _this3.get('toast').success('Looks like CSV download process is not working as expected. Please try again. If problem persists, talk to your Admin', 'Sorry Mate!', {
-                        closeButton: true,
-                        timeout: 1500,
-                        progressBar: false
-                    });
-                });
-            },
-            addVariable: function addVariable() {
-                var variable = this.store.createRecord('variable', {
-                    name: 'New Variable',
-                    var_type: 'String',
-                    'default': 'value',
-                    default_options: []
-                });
-                this.get('question.variables').pushObject(variable);
-                this.set('variablesChanged', true);
-            },
-
-            transitionToSnapshots: function transitionToSnapshots(questionId) {
-                this.transitionToRoute('questions.show.snapshots.all', questionId);
-            },
-            updateResultViewType: function updateResultViewType(selection) {
-                this.set('resultsViewType', selection.get('title'));
-            },
-            toggleFullscreen: function toggleFullscreen() {
-                var plotlyComponent = _ember['default'].$('.js-plotly-plot')[0];
-                this.set('resizeTime', new Date());
-                if (this.get('fullscreenClass')) {
-                    this.set('fullscreenClass', null);
-                    plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize'));
-                } else {
-                    this.set('fullscreenClass', 'fullscreen');
-                    plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize'));
-                }
-            },
-            toggleSqlEditor: function toggleSqlEditor() {
-                this.toggleProperty('collapseSqlEditor');
-            },
-            setEditorWhenReady: function setEditorWhenReady(editor) {
-                this.set('aceEditor', editor);
-            },
-            apply: function apply() {
-                if (this.get('canEdit')) {
-                    this.getResultsFunction(this.get('queryObject'));
-                } else {
-                    var question = this.get('question');
-                    question.set('resultsCanBeLoaded', true);
-                    question.set('updated_at', new Date());
-                }
-            }
-
+        results_view_settings: {
+          resultsViewType: 'Table',
+          numbers: [],
+          dataColumns: [{}]
         }
-    });
+      });
+    }),
+    getQuestionfromLocalStorage: function getQuestionfromLocalStorage() {
+      return JSON.parse(localStorage.getItem('AG_NEW_QUESTION') || '{}');
+    },
+
+    questionNameObserver: _ember['default'].observer('question.title', 'queryObject.table.human_name', 'queryObject.filters.@each.label', 'queryObject.views.@each.label', 'queryObject.groupBys.@each.label', function () {
+      if (this.get('queryObject.table.human_name') && !this.get('questionNameIsSet')) {
+        var title = '';
+        var filterlabels = '';
+        var viewlabels = '';
+        var groupBylabels = '';
+        if (this.get('queryObject.views.length')) {
+          viewlabels = this.get('queryObject.views').map(function (item) {
+            return item.get('label');
+          }).join(' , ');
+        }
+        if (viewlabels != '') {
+          title = viewlabels + ' of ';
+        }
+        title = title + ('' + this.get('queryObject.table.human_name'));
+        if (this.get('queryObject.filters.length')) {
+          filterlabels = this.get('queryObject.filters').map(function (item) {
+            return item.get('label');
+          }).join(' , ');
+        }
+        if (filterlabels != '') {
+          title = title + ' where ' + filterlabels;
+        }
+        if (this.get('queryObject.groupBys.length')) {
+          groupBylabels = this.get('queryObject.groupBys').map(function (item) {
+            return item.get('label');
+          }).join(' , ');
+        }
+        if (groupBylabels != '') {
+          title = title + ', grouped by ' + groupBylabels;
+        }
+        this.set('question.title', title);
+      }
+    }),
+    resultsViewType: _ember['default'].computed.alias('question.results_view_settings.resultsViewType'),
+    questionName: _ember['default'].computed.alias('question.title'),
+    resultsViewSettings: _ember['default'].computed.alias('question.results_view_settings'),
+    queryBuilderType: _ember['default'].computed('queryObject.queryType', function () {
+      var queryType = this.get('queryObject.queryType');
+      if (queryType == 'query_builder') {
+        return true;
+      } else {
+        return false;
+      }
+    }),
+
+    changeSQL: _ember['default'].observer('queryObject.rawQuery', function () {
+      this.set('question.sql', this.get('queryObject.rawQuery'));
+    }),
+    aceTheme: 'ace/theme/dracula',
+    aceMode: 'ace/mode/sql',
+
+    queryObject: _ember['default'].computed.alias('question.human_sql'),
+
+    apiNamespace: _ember['default'].computed('store', function () {
+      return this.get('store').adapterFor('application').namespace;
+    }),
+
+    apiHost: _ember['default'].computed('store', function () {
+      return this.get('store').adapterFor('application').host;
+    }),
+    showGetResults: false,
+    showGetResultsObserver: _ember['default'].observer('queryObject.database', 'queryObject.table', 'queryObject.queryType', 'queryObject.rawQuery', function () {
+      var showGetResults = this.get('queryObject.database') && this.get('queryObject.table') || this.get('queryObject.database') && this.get('queryObject.queryType') == 'raw' && this.get('queryObject.rawQuery');
+      _ember['default'].run.next(this, function () {
+        this.set('showGetResults', showGetResults);
+      });
+    }),
+    errorMessage: _ember['default'].computed('errors', 'question.errorMessage', function () {
+
+      return this.get('errors.message') || this.get('question.errorMessage');
+    }),
+
+    resultsWidgetSettingsComponent: _ember['default'].computed('resultsViewType', function () {
+      this.set('results', this.get('results'));
+      return this.get('resultsWidgets')[this.get('resultsViewType')] + '-settings';
+    }),
+    availableResultsTypes: _ember['default'].computed('resultsWidgets', function () {
+      return Object.keys(this.get('resultsWidgets'));
+    }),
+    availableResultsTypesHash: _ember['default'].computed('availableResultsTypes', function () {
+      return Object.keys(this.get('resultsWidgets')).map(function (item) {
+        return _ember['default'].Object.create({
+          title: item
+        });
+      });
+    }),
+    resultsViewTypeTitle: _ember['default'].computed('resultsViewType', function () {
+      return _ember['default'].Object.create({
+        title: this.get('resultsViewType')
+      });
+    }),
+    scrollToResultsView: function scrollToResultsView() {
+      $('html, body').animate({
+        scrollTop: $('.card.results').offset().top - 200
+      }, 1000);
+    },
+    getResultsWithSelectedTextFunction: function getResultsWithSelectedTextFunction() {
+      this.getResultsFunction(null, true);
+    },
+    getResultsFunction: function getResultsFunction(queryObject, withSelected) {
+      var _this = this;
+
+      var question = this.get('question');
+
+      var query_variables = question.get('query_variables');
+      var changedAttributes = Object.keys(question.changedAttributes()).filter(function (item) {
+        return item != 'updated_at' && item != 'cached_results';
+      });
+      // if (question.id && ( changedAttributes == 0) && !this.get('variablesChanged') && !this.get('attributesChanged')){
+      //     question.set("updated_at", new Date())
+      //     question.set('resultsCanBeLoaded', true)
+      // }else{
+      question.set('updated_at', new Date());
+      queryObject = queryObject || this.get('queryObject');
+      queryObject.set('id', question.get('id'));
+      queryObject.set('variables', query_variables && query_variables.map(function (item) {
+        return {
+          name: item.get('name'),
+          value: item.get('value') || item.get('default'),
+          var_type: item.get('var_type'),
+          default_options: item.get('default_options')
+        };
+      }));
+
+      this.changeQueryParamsInUrl(queryObject.get('variables'), queryObject.get('name'));
+      this.set('loading', true);
+      this.set('results', null);
+      if (withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText()) {
+        queryObject = JSON.parse(JSON.stringify(queryObject));
+        queryObject['rawQuery'] = this.get('aceEditor').getSelectedText();
+      }
+      this.get('ajax').apiCall({
+        url: this.get('apiHost') + this.get('apiNamespace') + '/query_results',
+        type: 'POST',
+        data: queryObject
+      }, function (response, status) {
+        _this.set('loading', false);
+        _this.set('errors', null);
+        _this.set('results', response.data);
+        if (!_this.get('resultsViewType')) {
+          _this.set('resultsViewType', _this.autoDetect(response.data.rows));
+        }
+
+        if (!(withSelected && _this.get('aceEditor') && _this.get('aceEditor').getSelectedText())) {
+          _this.set('queryObject.rawQuery', response.query);
+          _this.set('validQuestion', true);
+        }
+        _this.set('isQueryLimited', response.data.limited);
+        _this.set('queryLimit', response.data.limit);
+        _this.set('limitedQuery', response.data.limited_query);
+        _this.set('variablesReplacedQuery', response.data.variables_replaced_query);
+        _this.scrollToResultsView();
+      }, function (error, status) {
+        _this.set('loading', false);
+        _this.scrollToResultsView();
+        error && error.error ? _this.set('errors', error.error) : _this.set('errors', {
+          message: 'Something isn\'t right. Please check the query elements.'
+        });
+        _this.set('results', null);
+        if (!(withSelected && _this.get('aceEditor') && _this.get('aceEditor').getSelectedText())) {
+          _this.set('validQuestion', false);
+          _this.set('queryObject.rawQuery', error.query);
+        }
+        _this.set('isQueryLimited', null);
+        _this.set('queryLimit', null);
+        _this.set('limitQuery', null);
+        _this.set('variablesReplacedQuery', error.error.variables_replaced_query);
+      });
+      // }
+    },
+
+    actions: {
+      removeVariable: function removeVariable(variable) {
+        this.get('question.variables').removeObject(variable);
+        this.set('variablesChanged', true);
+        variable.destroyRecord();
+      },
+
+      toggleSql: function toggleSql() {
+        var queryType = this.get('queryObject.queryType');
+        if (queryType == 'query_builder') {
+          this.set('queryObject.queryType', 'raw');
+          this.get('queryObject.rawQuery') == null && this.set('queryObject.rawQuery', '');
+        } else {
+          this.set('queryObject.queryType', 'query_builder');
+        }
+        var plotlyComponent = _ember['default'].$('.js-plotly-plot')[0];
+        plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize'));
+      },
+      getQuestionResults: function getQuestionResults() {
+        this.set('results', null);
+        this.set('errors', null);
+        var question = this.get('question');
+        question.set('updated_at', new Date());
+        question.set('resultsCanBeLoaded', true);
+        this.scrolToResultsView();
+      },
+      getResults: function getResults(queryObject) {
+        this.getResultsFunction(queryObject);
+      },
+      toggleSettings: function toggleSettings() {
+        this.toggleProperty('showSettings');
+      },
+      saveQuestion: function saveQuestion() {
+        var _this2 = this;
+
+        if (this.get('newQuestion')) {
+          _ember['default'].run.later(this, function () {
+            $('.js-question_title').focus();
+          }, 150);
+          this.set('newQuestion', false);
+        } else {
+          (function () {
+            var question = _this2.get('question');
+            question.set('sql', question.get('sql') || question.get('human_sql.rawQuery'));
+            question.set('cached_results', null);
+            question.set('query_type', question.get('human_sql.queryType') == 'raw' ? 'sql' : 'human_sql');
+            question.save().then(function (response) {
+              question.get('variables').invoke('save');
+
+              _this2.set('retryingTransition', true);
+              _this2.transitionToRoute('questions.show', response.id);
+            }).then(function (variable) {
+              question.set('resultsCanBeLoaded', true);
+            });
+          })();
+        }
+      },
+      transitionToDashBoard: function transitionToDashBoard(dashboard_id) {
+        this.transitionToRoute('dashboards.show', dashboard_id);
+      },
+      transitionToIndex: function transitionToIndex() {
+        this.transitionToRoute('index');
+      },
+      downloadData: function downloadData() {
+        var _this3 = this;
+
+        var question = this.get('question');
+        var queryObject = this.get('queryObject');
+        var query_variables = question.get('query_variables');
+        queryObject.set('variables', query_variables && query_variables.map(function (item) {
+          return {
+            name: item.get('name'),
+            value: item.get('value') || item.get('default'),
+            var_type: item.get('var_type'),
+            default_options: item.get('default_options')
+          };
+        }));
+        this.get('ajax').apiCall({
+          url: this.get('apiHost') + this.get('apiNamespace') + '/create_csv',
+          type: 'POST',
+          data: queryObject
+        }, function (response, status) {
+
+          _this3.get('toast').success('Your CSV is getting uploaded to cloud. You\'ll get an email with download link shortly', 'YaY!', {
+            closeButton: true,
+            timeout: 1500,
+            progressBar: false
+          });
+        }, function (error, status) {
+          _this3.get('toast').success('Looks like CSV download process is not working as expected. Please try again. If problem persists, talk to your Admin', 'Sorry Mate!', {
+            closeButton: true,
+            timeout: 1500,
+            progressBar: false
+          });
+        });
+      },
+      addVariable: function addVariable() {
+        var variable = this.store.createRecord('variable', {
+          name: 'New Variable',
+          var_type: 'String',
+          'default': 'value',
+          default_options: []
+        });
+        this.get('question.variables').pushObject(variable);
+        this.set('variablesChanged', true);
+      },
+
+      transitionToSnapshots: function transitionToSnapshots(questionId) {
+        this.transitionToRoute('questions.show.snapshots.all', questionId);
+      },
+      updateResultViewType: function updateResultViewType(selection) {
+        this.set('resultsViewType', selection.get('title'));
+      },
+      toggleFullscreen: function toggleFullscreen() {
+        var plotlyComponent = _ember['default'].$('.js-plotly-plot')[0];
+        this.set('resizeTime', new Date());
+        if (this.get('fullscreenClass')) {
+          this.set('fullscreenClass', null);
+          plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize'));
+        } else {
+          this.set('fullscreenClass', 'fullscreen');
+          plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize'));
+        }
+      },
+      toggleSqlEditor: function toggleSqlEditor() {
+        this.toggleProperty('collapseSqlEditor');
+      },
+      setEditorWhenReady: function setEditorWhenReady(editor) {
+        this.set('aceEditor', editor);
+        $('.ace-resizable').resizable({
+          handles: 's',
+          alsoResize: $('.db-tree'),
+          resize: function resize(event, ui) {
+            editor.resize();
+            $('.db-tree').height($('.ace_editor').height());
+          }
+        });
+      },
+      apply: function apply() {
+        if (this.get('canEdit')) {
+          this.getResultsFunction(this.get('queryObject'));
+        } else {
+          var question = this.get('question');
+          question.set('resultsCanBeLoaded', true);
+          question.set('updated_at', new Date());
+          this.scrolToResultsView();
+        }
+      }
+
+    }
+  });
 });
 /* global pushObject */
 define('frontend/pods/questions/new/route', ['exports', 'ember', 'ember-can', 'ember-keyboard-shortcuts/mixins/route', 'frontend/mixins/dynamic-query-params-routes-mixin'], function (exports, _ember, _emberCan, _emberKeyboardShortcutsMixinsRoute, _frontendMixinsDynamicQueryParamsRoutesMixin) {
@@ -9693,7 +10132,7 @@ define('frontend/pods/questions/new/route', ['exports', 'ember', 'ember-can', 'e
     });
 });
 define("frontend/pods/questions/new/template", ["exports"], function (exports) {
-  exports["default"] = Ember.HTMLBars.template({ "id": "+08xQpi1", "block": "{\"symbols\":[\"var\"],\"statements\":[[1,[25,\"question-options\",null,[[\"questionName\",\"saveQuestion\",\"validQuestion\",\"enableAddToDashboard\",\"addToDashboard\",\"question\",\"newQuestion\",\"showVariables\",\"transitionToIndex\",\"transitionToSnapshots\",\"canCreateSnapshot\",\"canEdit\"],[[20,[\"questionName\"]],\"saveQuestion\",[20,[\"validQuestion\"]],[20,[\"enableAddToDashBoard\"]],\"addToDashboard\",[20,[\"question\"]],[20,[\"newQuestion\"]],[20,[\"showVariables\"]],\"transitionToIndex\",\"transitionToSnapshots\",[20,[\"canCreateSnapshot\"]],[20,[\"canEdit\"]]]]],false],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"container p-0 mt-5\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n        \"],[6,\"div\"],[10,\"class\",[26,[[25,\"if\",[[20,[\"showVariables\"]],\" col-9 \",\"col-12 \"],null]]]],[7],[0,\"\\n            \"],[1,[25,\"variables-layer\",null,[[\"variables\",\"showVariables\"],[[20,[\"question\",\"query_variables\"]],[20,[\"showVariables\"]]]]],false],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                \"],[6,\"div\"],[10,\"class\",[26,[[25,\"if\",[[25,\"and\",[[20,[\"queryBuilderType\"]],[20,[\"canEdit\"]]],null],\"col-3\",\"col-12\"],null]]]],[7],[0,\"\\n                    \"],[4,\"if\",[[25,\"and\",[[20,[\"queryBuilderType\"]],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[0,\" \"],[1,[25,\"query-builder\",null,[[\"loading\",\"getResults\",\"toggleSql\",\"queryObject\",\"showGetResults\",\"databases\"],[[20,[\"loading\"]],\"getResults\",\"toggleSql\",[20,[\"queryObject\"]],[20,[\"showGetResults\"]],[20,[\"databases\"]]]]],false],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n                \"],[6,\"div\"],[10,\"class\",[26,[[25,\"if\",[[25,\"and\",[[20,[\"canEdit\"]],[20,[\"queryBuilderType\"]]],null],\"col-9\",\"col-12\"],null]]]],[7],[0,\"\\n                    \"],[4,\"if\",[[25,\"and\",[[20,[\"queryBuilderType\"]],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[0,\" \"]],\"parameters\":[]},{\"statements\":[[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n                            \"],[6,\"div\"],[10,\"class\",[26,[\"card \",[25,\"if\",[[20,[\"collapseSqlEditor\"]],\"card-collapsed\"],null]]]],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[0,\"                                \"],[6,\"div\"],[9,\"class\",\"row card-header\"],[7],[0,\"\\n                                    \"],[6,\"div\"],[9,\"class\",\"col-2\"],[7],[0,\"\\n                                        \"],[1,[25,\"database-selector\",null,[[\"queryObject\",\"showTags\",\"databases\"],[[20,[\"queryObject\"]],false,[20,[\"databases\"]]]]],false],[0,\"\\n                                    \"],[8],[0,\"\\n                                    \"],[6,\"div\"],[9,\"class\",\"card-options\"],[7],[0,\"\\n                                        \"],[6,\"a\"],[9,\"href\",\"#\"],[3,\"action\",[[19,0,[]],\"toggleSqlEditor\"]],[7],[0,\"\\n                                            \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-up\"],[7],[8],[0,\"\\n                                        \"],[8],[0,\"\\n                                        \"],[6,\"a\"],[9,\"class\",\"text-right\"],[3,\"action\",[[19,0,[]],\"toggleSql\"]],[7],[0,\"\\n                                            \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Switch to Query Builder\"]],\"parameters\":[]},null],[0,\"\\n                                            \"],[6,\"i\"],[9,\"class\",\"fe fe-align-justify text-gray\"],[7],[8],[0,\"\\n                                        \"],[8],[0,\"\\n                                    \"],[8],[0,\"\\n                                \"],[8],[0,\"\\n                                \"],[6,\"div\"],[9,\"class\",\"card-body\"],[7],[0,\"\\n                                    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"queryObject\",\"database\"]]],null,{\"statements\":[[0,\"                                        \"],[6,\"div\"],[9,\"class\",\"col-3\"],[7],[0,\" \"],[1,[25,\"db-tree\",null,[[\"database\"],[[20,[\"queryObject\",\"database\"]]]]],false],[0,\" \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                                        \"],[6,\"div\"],[10,\"class\",[26,[[25,\"if\",[[20,[\"queryObject\",\"database\"]],\"col-9\",\"col-12\"],null]]]],[7],[0,\" \"],[1,[25,\"ember-ace\",null,[[\"lines\",\"value\",\"mode\",\"enableSnippets\",\"enableDefaultAutocompletion\",\"enableLiveAutocompletion\",\"context\",\"suggestAutoCompletions\",\"theme\",\"useWrapMode\",\"update\",\"ready\"],[15,[20,[\"queryObject\",\"rawQuery\"]],[20,[\"aceMode\"]],true,true,true,[20,[\"queryObject\",\"database\"]],[20,[\"suggestAutoCompletions\"]],[20,[\"aceTheme\"]],true,[25,\"action\",[[19,0,[]],[25,\"mut\",[[20,[\"queryObject\",\"rawQuery\"]]],null]],null],[25,\"action\",[[19,0,[]],\"setEditorWhenReady\"],null]]]],false],[0,\"\\n                                        \"],[8],[0,\"\\n                                    \"],[8],[0,\"\\n                                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"or\",[[20,[\"results\"]],[20,[\"errorMessage\"]]],null]],null,{\"statements\":[[0,\"                                \"],[6,\"div\"],[10,\"class\",[26,[\"card-footer \",[25,\"if\",[[20,[\"canEdit\"]],\"\",\"border-top-0\"],null]]]],[7],[0,\"\\n                                    \"],[1,[25,\"additional-filters\",null,[[\"results\",\"error\",\"question\",\"queryObject\"],[[20,[\"results\"]],[20,[\"errors\"]],[20,[\"question\"]],[20,[\"queryObject\"]]]]],false],[0,\"\\n                                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"showGetResults\"]]],null,{\"statements\":[[0,\"                                \"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[4,\"if\",[[20,[\"loading\"]]],null,{\"statements\":[[0,\"                                    \"],[6,\"div\"],[9,\"class\",\"content active text-align-center\"],[7],[0,\"\\n                                        \"],[6,\"button\"],[9,\"class\",\"btn btn-secondary\"],[7],[0,\" Crunching Data ... \"],[8],[0,\"\\n                                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                                    \"],[6,\"div\"],[9,\"class\",\"content active text-align-center\"],[7],[0,\"\\n                                        \"],[6,\"button\"],[9,\"class\",\"btn btn-primary\"],[3,\"action\",[[19,0,[]],\"getResults\"]],[7],[0,\" Get\\n                                            Results \"],[6,\"i\"],[9,\"class\",\"fe fe-arrow-right text-white\"],[7],[8],[0,\"\\n                                        \"],[8],[0,\"\\n                                    \"],[8],[0,\"\\n\"]],\"parameters\":[]}]],\"parameters\":[]},{\"statements\":[[4,\"if\",[[20,[\"loading\"]]],null,{\"statements\":[[0,\"                                    \"],[6,\"div\"],[9,\"class\",\"content active text-align-center\"],[7],[0,\"\\n                                        \"],[6,\"button\"],[9,\"class\",\"btn btn-secondary\"],[7],[0,\" Crunching Data ... \"],[8],[0,\"\\n                                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                                    \"],[6,\"div\"],[9,\"class\",\"content active text-align-center\"],[7],[0,\"\\n                                        \"],[6,\"button\"],[9,\"class\",\"btn btn-primary\"],[3,\"action\",[[19,0,[]],\"getQuestionResults\"]],[7],[0,\" Refresh\\n                                        \"],[8],[0,\"\\n                                    \"],[8],[0,\"\\n\"]],\"parameters\":[]}]],\"parameters\":[]}],[0,\"                                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                            \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[4,\"if\",[[25,\"or\",[[20,[\"errors\",\"final_query\"]],[25,\"or\",[[20,[\"variablesReplacedQuery\"]],[20,[\"isQueryLimited\"]]],null]],null]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"mb-5\"],[7],[0,\"\\n                        \"],[4,\"if\",[[25,\"or\",[[20,[\"results\",\"final_query\"]],[20,[\"errors\",\"final_query\"]]],null]],null,{\"statements\":[[0,\" \"],[1,[25,\"final-query-accordian\",null,[[\"isQueryLimited\",\"queryLimit\",\"variablesReplacedQuery\",\"aceMode\",\"finalQuery\",\"additionalFiltersApplied\",\"aceTheme\"],[[20,[\"isQueryLimited\"]],[20,[\"queryLimit\"]],[20,[\"variablesReplacedQuery\"]],[20,[\"aceMode\"]],[25,\"or\",[[20,[\"results\",\"final_query\"]],[20,[\"errors\",\"final_query\"]]],null],[20,[\"results\",\"additional_filters_applied\"]],[20,[\"aceTheme\"]]]]],false],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null],[4,\"if\",[[25,\"or\",[[20,[\"results\"]],[20,[\"errorMessage\"]]],null]],null,{\"statements\":[[4,\"if\",[[25,\"and\",[[20,[\"queryBuilderType\"]],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"card\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"card-header\"],[7],[0,\"\\n\\n                            \"],[1,[25,\"additional-filters\",null,[[\"results\",\"error\",\"question\",\"queryObject\"],[[20,[\"results\"]],[20,[\"errors\"]],[20,[\"question\"]],[20,[\"queryObject\"]]]]],false],[0,\"\\n                        \"],[8],[0,\"\\n\\n                    \"],[8],[0,\"\\n\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null],[4,\"if\",[[20,[\"results\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[10,\"class\",[26,[\"card \",[18,\"fullscreenClass\"]]]],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"card-header row results-view-selector\"],[7],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-3\"],[9,\"bubbles\",\"false\"],[7],[0,\" \"],[1,[25,\"searchable-select\",null,[[\"class\",\"content\",\"selected\",\"prompt\",\"on-change\"],[\"my-2 w-75 d-inline-block\",[20,[\"availableResultsTypesHash\"]],[20,[\"resultsViewTypeTitle\"]],\"Select\\n                                a Visualization\",[25,\"action\",[[19,0,[]],\"updateResultViewType\"],null]]]],false],[0,\"\\n                                \"],[6,\"span\"],[7],[0,\"\\n                                    \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Configure Visualization\"]],\"parameters\":[]},null],[0,\"\\n                                    \"],[6,\"i\"],[9,\"class\",\"fe fe-settings text-gray\"],[3,\"action\",[[19,0,[]],\"toggleSettings\"]],[7],[8],[0,\"\\n                                \"],[8],[0,\"\\n                            \"],[8],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-3 offset-6 text-right\"],[7],[0,\"\\n\"],[4,\"if\",[[25,\"can\",[\"download question\"],null]],null,{\"statements\":[[0,\"                                \"],[6,\"span\"],[9,\"class\",\"px-1\"],[3,\"action\",[[19,0,[]],\"downloadData\"]],[7],[0,\"\\n                                    \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Download Data\"]],\"parameters\":[]},null],[0,\"\\n                                    \"],[6,\"i\"],[9,\"class\",\"fe fe-save text-gray\"],[7],[8],[0,\"\\n                                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"question\",\"updated_at\"]]],null,{\"statements\":[[0,\"                                \"],[6,\"span\"],[9,\"class\",\"px-1\"],[7],[0,\"\\n                                    \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Updated\\n                                    \"],[1,[25,\"moment-from-now\",[[20,[\"question\",\"updated_at\"]]],[[\"interval\"],[1000]]],false]],\"parameters\":[]},null],[0,\"\\n                                    \"],[6,\"i\"],[10,\"class\",[26,[\"fe fe-clock text-\",[20,[\"question\",\"updatedAgoColor\"]]]]],[7],[8],[0,\"\\n                                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                                \"],[6,\"span\"],[9,\"class\",\"pl-1\"],[3,\"action\",[[19,0,[]],\"toggleFullscreen\"]],[7],[0,\"\\n                                    \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"toggleFullScreen\"]],\"parameters\":[]},null],[0,\"\\n                                    \"],[6,\"i\"],[9,\"class\",\"fe fe-maximize text-gray\"],[7],[8],[0,\"\\n                                \"],[8],[0,\"\\n                            \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"showSettings\"]]],null,{\"statements\":[[0,\"                        \"],[1,[25,\"component\",[[20,[\"resultsWidgetSettingsComponent\"]]],[[\"resultsViewSettings\",\"results\",\"database\",\"table\"],[[20,[\"resultsViewSettings\"]],[20,[\"results\"]],[20,[\"queryParams\",\"database\"]],[20,[\"queryParams\",\"table\"]]]]],false],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                        \"],[6,\"div\"],[9,\"class\",\"card-body p-0\"],[7],[0,\"\\n                            \"],[1,[25,\"question-widget\",null,[[\"results\",\"resultsViewSettings\",\"resultsViewType\",\"questionName\",\"hideMenu\",\"question\",\"resizeTime\",\"apply\",\"showQuickFilters\"],[[20,[\"results\"]],[20,[\"resultsViewSettings\"]],[20,[\"resultsViewType\"]],[20,[\"questionName\"]],true,[20,[\"question\"]],[20,[\"resizeTime\"]],\"apply\",true]]],false],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[4,\"if\",[[20,[\"loading\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"card results\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"card-body\"],[7],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"dimmer active p-8\"],[7],[0,\"\\n                                \"],[6,\"div\"],[9,\"class\",\"loader big text-primary\"],[7],[0,\" \"],[8],[0,\"\\n                                \"],[6,\"div\"],[9,\"class\",\"dimmer-content full-height\"],[7],[8],[0,\"\\n                            \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"card results\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"errorMessage\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"div\"],[9,\"class\",\"query error section text-red\"],[7],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"ui big\"],[7],[0,\"\\n                                \"],[6,\"i\"],[9,\"class\",\"fe fe-x-circle text-red\"],[7],[8],[0,\"\\n                            \"],[8],[0,\" \"],[1,[18,\"errorMessage\"],false],[0,\"\\n                        \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                        \"],[6,\"div\"],[9,\"class\",\"section\"],[7],[0,\"Wanna see something cool? Run a Query!\"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                    \"],[8],[0,\"\\n\"]],\"parameters\":[]}]],\"parameters\":[]}],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"showVariables\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"col-3 pl-2\"],[7],[0,\"\\n            \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Variables\"],[8],[0,\"\\n\"],[4,\"each\",[[20,[\"question\",\"variables\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"w-100\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card p-4\"],[7],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-gray variable-remove\"],[3,\"action\",[[19,0,[]],\"removeVariable\",[19,1,[]]]],[7],[8],[0,\"\\n                    \"],[1,[25,\"create-variable\",null,[[\"entity\",\"variable\"],[[20,[\"question\"]],[19,1,[]]]]],false],[0,\" \"],[8],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"            \"],[6,\"div\"],[9,\"class\",\"btn btn-primary w-100\"],[3,\"action\",[[19,0,[]],\"addVariable\"]],[7],[0,\" Add Variable \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"    \"],[8],[0,\"\\n\"],[8],[0,\" \"],[1,[25,\"next-transition-warning\",null,[[\"open\",\"goAheadWithNextTransition\"],[[20,[\"showTransitionWarning\"]],\"goAheadWithNextTransition\"]]],false]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/questions/new/template.hbs" } });
+  exports["default"] = Ember.HTMLBars.template({ "id": "PkjHDUrs", "block": "{\"symbols\":[\"var\"],\"statements\":[[1,[25,\"question-options\",null,[[\"questionName\",\"saveQuestion\",\"validQuestion\",\"enableAddToDashboard\",\"addToDashboard\",\"question\",\"newQuestion\",\"showVariables\",\"transitionToIndex\",\"transitionToSnapshots\",\"canCreateSnapshot\",\"canEdit\",\"results\"],[[20,[\"questionName\"]],\"saveQuestion\",[20,[\"validQuestion\"]],[20,[\"enableAddToDashBoard\"]],\"addToDashboard\",[20,[\"question\"]],[20,[\"newQuestion\"]],[20,[\"showVariables\"]],\"transitionToIndex\",\"transitionToSnapshots\",[20,[\"canCreateSnapshot\"]],[20,[\"canEdit\"]],[20,[\"results\"]]]]],false],[0,\"\\n\"],[6,\"div\"],[9,\"class\",\"container p-0 mt-5\"],[7],[0,\"\\n    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n        \"],[6,\"div\"],[10,\"class\",[26,[[25,\"if\",[[20,[\"showVariables\"]],\" col-9 \",\"col-12 \"],null]]]],[7],[0,\"\\n            \"],[1,[25,\"variables-layer\",null,[[\"variables\",\"showVariables\"],[[20,[\"question\",\"query_variables\"]],[20,[\"showVariables\"]]]]],false],[0,\"\\n            \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                \"],[6,\"div\"],[10,\"class\",[26,[[25,\"if\",[[25,\"and\",[[20,[\"queryBuilderType\"]],[20,[\"canEdit\"]]],null],\"col-3\",\"col-12\"],null]]]],[7],[0,\"\\n                    \"],[4,\"if\",[[25,\"and\",[[20,[\"queryBuilderType\"]],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[0,\" \"],[1,[25,\"query-builder\",null,[[\"loading\",\"getResults\",\"toggleSql\",\"queryObject\",\"showGetResults\",\"databases\"],[[20,[\"loading\"]],\"getResults\",\"toggleSql\",[20,[\"queryObject\"]],[20,[\"showGetResults\"]],[20,[\"databases\"]]]]],false],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                \"],[8],[0,\"\\n                \"],[6,\"div\"],[10,\"class\",[26,[[25,\"if\",[[25,\"and\",[[20,[\"canEdit\"]],[20,[\"queryBuilderType\"]]],null],\"col-9\",\"col-12\"],null]]]],[7],[0,\"\\n                    \"],[4,\"if\",[[25,\"and\",[[20,[\"queryBuilderType\"]],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[0,\" \"]],\"parameters\":[]},{\"statements\":[[0,\"\\n                    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"col-12\"],[7],[0,\"\\n                            \"],[6,\"div\"],[10,\"class\",[26,[\"card \",[25,\"if\",[[20,[\"collapseSqlEditor\"]],\"card-collapsed\"],null]]]],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[0,\"                                \"],[6,\"div\"],[9,\"class\",\"row card-header\"],[7],[0,\"\\n                                    \"],[6,\"div\"],[9,\"class\",\"col-2\"],[7],[0,\"\\n                                        \"],[1,[25,\"database-selector\",null,[[\"queryObject\",\"showTags\",\"databases\"],[[20,[\"queryObject\"]],false,[20,[\"databases\"]]]]],false],[0,\"\\n                                    \"],[8],[0,\"\\n                                    \"],[6,\"div\"],[9,\"class\",\"card-options\"],[7],[0,\"\\n                                        \"],[6,\"a\"],[9,\"href\",\"#\"],[3,\"action\",[[19,0,[]],\"toggleSqlEditor\"]],[7],[0,\"\\n                                            \"],[6,\"i\"],[9,\"class\",\"fe fe-chevron-up\"],[7],[8],[0,\"\\n                                        \"],[8],[0,\"\\n                                        \"],[6,\"a\"],[9,\"class\",\"text-right\"],[3,\"action\",[[19,0,[]],\"toggleSql\"]],[7],[0,\"\\n                                            \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Switch to Query Builder\"]],\"parameters\":[]},null],[0,\"\\n                                            \"],[6,\"i\"],[9,\"class\",\"fe fe-align-justify text-gray\"],[7],[8],[0,\"\\n                                        \"],[8],[0,\"\\n                                    \"],[8],[0,\"\\n                                \"],[8],[0,\"\\n                                \"],[6,\"div\"],[9,\"class\",\"card-body\"],[7],[0,\"\\n                                    \"],[6,\"div\"],[9,\"class\",\"row\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"queryObject\",\"database\"]]],null,{\"statements\":[[0,\"                                        \"],[6,\"div\"],[9,\"class\",\"col-3\"],[7],[0,\"\\n                                            \"],[1,[25,\"db-tree\",null,[[\"database\",\"sql\",\"editor\"],[[20,[\"queryObject\",\"database\"]],[20,[\"queryObject\",\"rawQuery\"]],[20,[\"aceEditor\"]]]]],false],[0,\"\\n                                        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                                        \"],[6,\"div\"],[10,\"class\",[26,[[25,\"if\",[[20,[\"queryObject\",\"database\"]],\"col-9\",\"col-12\"],null]]]],[7],[0,\"\\n                                            \"],[6,\"div\"],[9,\"class\",\"ace-resizable\"],[7],[0,\"\\n                                                \"],[6,\"h3\"],[9,\"class\",\"ui-widget-header\"],[7],[0,\"Ace Editor\"],[8],[0,\"\\n                                                \"],[1,[25,\"ember-ace\",null,[[\"value\",\"mode\",\"enableSnippets\",\"enableDefaultAutocompletion\",\"enableLiveAutocompletion\",\"context\",\"suggestAutoCompletions\",\"theme\",\"useWrapMode\",\"update\",\"ready\"],[[20,[\"queryObject\",\"rawQuery\"]],[20,[\"aceMode\"]],true,true,true,[20,[\"queryObject\",\"database\"]],[20,[\"suggestAutoCompletions\"]],[20,[\"aceTheme\"]],true,[25,\"action\",[[19,0,[]],[25,\"mut\",[[20,[\"queryObject\",\"rawQuery\"]]],null]],null],[25,\"action\",[[19,0,[]],\"setEditorWhenReady\"],null]]]],false],[0,\"\\n                                            \"],[8],[0,\"\\n                                            \"],[6,\"small\"],[9,\"class\",\"text-muted p-3\"],[7],[0,\"\\n                                                Select query and Press Ctrl + R to run selected Query. Ctrl + Enter to\\n                                                run complete Query.\\n                                            \"],[8],[0,\"\\n                                        \"],[8],[0,\"\\n                                    \"],[8],[0,\"\\n                                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[25,\"or\",[[20,[\"results\"]],[20,[\"errorMessage\"]]],null]],null,{\"statements\":[[0,\"                                \"],[6,\"div\"],[10,\"class\",[26,[\"card-footer \",[25,\"if\",[[20,[\"canEdit\"]],\"\",\"border-top-0\"],null]]]],[7],[0,\"\\n                                    \"],[1,[25,\"additional-filters\",null,[[\"results\",\"error\",\"question\",\"queryObject\"],[[20,[\"results\"]],[20,[\"errors\"]],[20,[\"question\"]],[20,[\"queryObject\"]]]]],false],[0,\"\\n                                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"showGetResults\"]]],null,{\"statements\":[[0,\"                                \"],[6,\"div\"],[9,\"class\",\"card-footer\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[4,\"if\",[[20,[\"loading\"]]],null,{\"statements\":[[0,\"                                    \"],[6,\"div\"],[9,\"class\",\"content active text-align-center\"],[7],[0,\"\\n                                        \"],[6,\"button\"],[9,\"class\",\"btn btn-secondary\"],[7],[0,\" Crunching Data ... \"],[8],[0,\"\\n                                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                                    \"],[6,\"div\"],[9,\"class\",\"content active text-align-center\"],[7],[0,\"\\n                                        \"],[6,\"button\"],[9,\"class\",\"btn btn-primary\"],[3,\"action\",[[19,0,[]],\"getResults\"]],[7],[0,\" Get\\n                                            Results \"],[6,\"i\"],[9,\"class\",\"fe fe-arrow-right text-white\"],[7],[8],[0,\"\\n                                        \"],[8],[0,\"\\n                                    \"],[8],[0,\"\\n\"]],\"parameters\":[]}]],\"parameters\":[]},{\"statements\":[[4,\"if\",[[20,[\"loading\"]]],null,{\"statements\":[[0,\"                                    \"],[6,\"div\"],[9,\"class\",\"content active text-align-center\"],[7],[0,\"\\n                                        \"],[6,\"button\"],[9,\"class\",\"btn btn-secondary\"],[7],[0,\" Crunching Data ... \"],[8],[0,\"\\n                                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                                    \"],[6,\"div\"],[9,\"class\",\"content active text-align-center\"],[7],[0,\"\\n                                        \"],[6,\"button\"],[9,\"class\",\"btn btn-primary\"],[3,\"action\",[[19,0,[]],\"getQuestionResults\"]],[7],[0,\" Refresh\\n                                        \"],[8],[0,\"\\n                                    \"],[8],[0,\"\\n\"]],\"parameters\":[]}]],\"parameters\":[]}],[0,\"                                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                            \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]}],[4,\"if\",[[20,[\"canEdit\"]]],null,{\"statements\":[[4,\"if\",[[25,\"or\",[[20,[\"errors\",\"final_query\"]],[25,\"or\",[[20,[\"variablesReplacedQuery\"]],[20,[\"isQueryLimited\"]]],null]],null]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"mb-5\"],[7],[0,\"\\n\"],[4,\"if\",[[25,\"or\",[[20,[\"results\",\"final_query\"]],[20,[\"errors\",\"final_query\"]]],null]],null,{\"statements\":[[0,\"                        \"],[1,[25,\"final-query-accordian\",null,[[\"isQueryLimited\",\"queryLimit\",\"variablesReplacedQuery\",\"aceMode\",\"finalQuery\",\"additionalFiltersApplied\",\"aceTheme\"],[[20,[\"isQueryLimited\"]],[20,[\"queryLimit\"]],[20,[\"variablesReplacedQuery\"]],[20,[\"aceMode\"]],[25,\"or\",[[20,[\"results\",\"final_query\"]],[20,[\"errors\",\"final_query\"]]],null],[20,[\"results\",\"additional_filters_applied\"]],[20,[\"aceTheme\"]]]]],false],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null],[4,\"if\",[[25,\"or\",[[20,[\"results\"]],[20,[\"errorMessage\"]]],null]],null,{\"statements\":[[4,\"if\",[[25,\"and\",[[20,[\"queryBuilderType\"]],[20,[\"canEdit\"]]],null]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"card\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"card-header\"],[7],[0,\"\\n\\n                            \"],[1,[25,\"additional-filters\",null,[[\"results\",\"error\",\"question\",\"queryObject\"],[[20,[\"results\"]],[20,[\"errors\"]],[20,[\"question\"]],[20,[\"queryObject\"]]]]],false],[0,\"\\n                        \"],[8],[0,\"\\n\\n                    \"],[8],[0,\"\\n\\n\"]],\"parameters\":[]},null]],\"parameters\":[]},null],[4,\"if\",[[20,[\"results\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[10,\"class\",[26,[\"card \",[18,\"fullscreenClass\"]]]],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"card-header row results-view-selector\"],[7],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-3\"],[9,\"bubbles\",\"false\"],[7],[0,\" \"],[1,[25,\"searchable-select\",null,[[\"class\",\"content\",\"selected\",\"prompt\",\"on-change\"],[\"my-2 w-75 d-inline-block\",[20,[\"availableResultsTypesHash\"]],[20,[\"resultsViewTypeTitle\"]],\"Select\\n                                a Visualization\",[25,\"action\",[[19,0,[]],\"updateResultViewType\"],null]]]],false],[0,\"\\n                                \"],[6,\"span\"],[7],[0,\"\\n                                    \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Configure Visualization\"]],\"parameters\":[]},null],[0,\"\\n                                    \"],[6,\"i\"],[9,\"class\",\"fe fe-settings text-gray\"],[3,\"action\",[[19,0,[]],\"toggleSettings\"]],[7],[8],[0,\"\\n                                \"],[8],[0,\"\\n                            \"],[8],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"col-3 offset-6 text-right\"],[7],[0,\"\\n\"],[4,\"if\",[[25,\"can\",[\"download question\"],null]],null,{\"statements\":[[0,\"                                \"],[6,\"span\"],[9,\"class\",\"px-1\"],[3,\"action\",[[19,0,[]],\"downloadData\"]],[7],[0,\"\\n                                    \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Download Data\"]],\"parameters\":[]},null],[0,\"\\n                                    \"],[6,\"i\"],[9,\"class\",\"fe fe-save text-gray\"],[7],[8],[0,\"\\n                                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[4,\"if\",[[20,[\"question\",\"updated_at\"]]],null,{\"statements\":[[0,\"                                \"],[6,\"span\"],[9,\"class\",\"px-1\"],[7],[0,\"\\n                                    \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"Updated\\n                                    \"],[1,[25,\"moment-from-now\",[[20,[\"question\",\"updated_at\"]]],[[\"interval\"],[1000]]],false]],\"parameters\":[]},null],[0,\"\\n                                    \"],[6,\"i\"],[10,\"class\",[26,[\"fe fe-clock text-\",[20,[\"question\",\"updatedAgoColor\"]]]]],[7],[8],[0,\"\\n                                \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                                \"],[6,\"span\"],[9,\"class\",\"pl-1\"],[3,\"action\",[[19,0,[]],\"toggleFullscreen\"]],[7],[0,\"\\n                                    \"],[4,\"bs-tooltip\",null,[[\"placement\"],[\"top\"]],{\"statements\":[[0,\"toggleFullScreen\"]],\"parameters\":[]},null],[0,\"\\n                                    \"],[6,\"i\"],[9,\"class\",\"fe fe-maximize text-gray\"],[7],[8],[0,\"\\n                                \"],[8],[0,\"\\n                            \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"showSettings\"]]],null,{\"statements\":[[0,\"                        \"],[1,[25,\"component\",[[20,[\"resultsWidgetSettingsComponent\"]]],[[\"resultsViewSettings\",\"results\",\"database\",\"table\"],[[20,[\"resultsViewSettings\"]],[20,[\"results\"]],[20,[\"queryParams\",\"database\"]],[20,[\"queryParams\",\"table\"]]]]],false],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"                        \"],[6,\"div\"],[9,\"class\",\"card-body p-0\"],[7],[0,\"\\n                            \"],[1,[25,\"question-widget\",null,[[\"results\",\"resultsViewSettings\",\"resultsViewType\",\"questionName\",\"hideMenu\",\"question\",\"resizeTime\",\"apply\",\"showQuickFilters\"],[[20,[\"results\"]],[20,[\"resultsViewSettings\"]],[20,[\"resultsViewType\"]],[20,[\"questionName\"]],true,[20,[\"question\"]],[20,[\"resizeTime\"]],\"apply\",true]]],false],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[4,\"if\",[[20,[\"loading\"]]],null,{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"card results mx-auto\"],[7],[0,\"\\n                        \"],[6,\"div\"],[9,\"class\",\"card-body\"],[7],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"dimmer active p-8\"],[7],[0,\"\\n                                \"],[6,\"div\"],[9,\"class\",\"loader big text-primary\"],[7],[0,\" \"],[8],[0,\"\\n                                \"],[6,\"div\"],[9,\"class\",\"dimmer-content full-height\"],[7],[8],[0,\"\\n                            \"],[8],[0,\"\\n                        \"],[8],[0,\"\\n                    \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                    \"],[6,\"div\"],[9,\"class\",\"card results mx-auto\"],[7],[0,\"\\n\"],[4,\"if\",[[20,[\"errorMessage\"]]],null,{\"statements\":[[0,\"                        \"],[6,\"div\"],[9,\"class\",\"query error section text-red m-auto\"],[7],[0,\"\\n                            \"],[6,\"div\"],[9,\"class\",\"ui big\"],[7],[0,\"\\n                                \"],[6,\"i\"],[9,\"class\",\"fe fe-x-circle text-red\"],[7],[8],[0,\"\\n                            \"],[8],[0,\" \"],[1,[18,\"errorMessage\"],false],[0,\"\\n                        \"],[8],[0,\"\\n\"]],\"parameters\":[]},{\"statements\":[[0,\"                        \"],[6,\"div\"],[9,\"class\",\"section m-auto\"],[7],[0,\"Wanna see something cool? Run a Query!\"],[8],[0,\"\\n\"]],\"parameters\":[]}],[0,\"                    \"],[8],[0,\"\\n\"]],\"parameters\":[]}]],\"parameters\":[]}],[0,\"                \"],[8],[0,\"\\n            \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\"],[4,\"if\",[[20,[\"showVariables\"]]],null,{\"statements\":[[0,\"        \"],[6,\"div\"],[9,\"class\",\"col-3 pl-2\"],[7],[0,\"\\n            \"],[6,\"label\"],[9,\"class\",\"form-label\"],[7],[0,\"Variables\"],[8],[0,\"\\n\"],[4,\"each\",[[20,[\"question\",\"variables\"]]],null,{\"statements\":[[0,\"            \"],[6,\"div\"],[9,\"class\",\"w-100\"],[7],[0,\"\\n                \"],[6,\"div\"],[9,\"class\",\"card p-4\"],[7],[0,\"\\n                    \"],[6,\"i\"],[9,\"class\",\"fe fe-x text-gray variable-remove\"],[3,\"action\",[[19,0,[]],\"removeVariable\",[19,1,[]]]],[7],[8],[0,\"\\n                    \"],[1,[25,\"create-variable\",null,[[\"entity\",\"variable\"],[[20,[\"question\"]],[19,1,[]]]]],false],[0,\" \"],[8],[0,\"\\n            \"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"            \"],[6,\"div\"],[9,\"class\",\"btn btn-primary w-100\"],[3,\"action\",[[19,0,[]],\"addVariable\"]],[7],[0,\" Add Variable \"],[8],[0,\"\\n        \"],[8],[0,\"\\n\"]],\"parameters\":[]},null],[0,\"    \"],[8],[0,\"\\n\"],[8],[0,\" \"],[1,[25,\"next-transition-warning\",null,[[\"open\",\"goAheadWithNextTransition\"],[[20,[\"showTransitionWarning\"]],\"goAheadWithNextTransition\"]]],false]],\"hasEval\":false}", "meta": { "moduleName": "frontend/pods/questions/new/template.hbs" } });
 });
 define('frontend/pods/questions/route', ['exports', 'ember', 'frontend/mixins/authentication-mixin'], function (exports, _ember, _frontendMixinsAuthenticationMixin) {
   exports['default'] = _ember['default'].Route.extend(_frontendMixinsAuthenticationMixin['default'], {});
@@ -9725,6 +10164,7 @@ define('frontend/pods/questions/show/controller', ['exports', 'ember', 'frontend
                 var question = this.get('question');
                 question.set('resultsCanBeLoaded', true);
                 question.set('updated_at', new Date());
+                this.scrolToResultsView();
             },
             addToDashboard: function addToDashboard(dashboard) {
                 var _this = this;
@@ -11274,5 +11714,5 @@ catch(err) {
 });
 
 if (!runningTests) {
-  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0+070b3094"});
+  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0+b3c6a11c"});
 }

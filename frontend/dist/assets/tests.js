@@ -205,6 +205,15 @@ define('frontend/tests/components/ember-ace/token', ['exports', 'ember-cli-page-
     }
   };
 });
+define('frontend/tests/helpers/add-to-parents.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | helpers/add-to-parents.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'helpers/add-to-parents.js should pass jshint.');
+  });
+});
 define('frontend/tests/helpers/capitalize.jshint.lint-test', [], function () {
   'use strict';
 
@@ -343,6 +352,15 @@ define('frontend/tests/helpers/ember-cli-clipboard', ['exports', '@ember/runloop
     });
   }
 });
+define('frontend/tests/helpers/exists-in-array.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | helpers/exists-in-array.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'helpers/exists-in-array.js should pass jshint.');
+  });
+});
 define('frontend/tests/helpers/exists-in.jshint.lint-test', [], function () {
   'use strict';
 
@@ -359,6 +377,15 @@ define('frontend/tests/helpers/format-object.jshint.lint-test', [], function () 
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(false, 'helpers/format-object.js should pass jshint.\nhelpers/format-object.js: line 12, col 46, Expected \'===\' and instead saw \'==\'.\nhelpers/format-object.js: line 12, col 66, Expected \'===\' and instead saw \'==\'.\nhelpers/format-object.js: line 16, col 23, Expected \'===\' and instead saw \'==\'.\nhelpers/format-object.js: line 18, col 30, Expected \'===\' and instead saw \'==\'.\nhelpers/format-object.js: line 20, col 37, Expected \'===\' and instead saw \'==\'.\nhelpers/format-object.js: line 29, col 31, Expected \'!==\' and instead saw \'!=\'.\nhelpers/format-object.js: line 39, col 36, Use the isNaN function to compare with NaN.\nhelpers/format-object.js: line 40, col 63, Missing semicolon.\nhelpers/format-object.js: line 49, col 3, Missing semicolon.\nhelpers/format-object.js: line 30, col 20, \'moment\' is not defined.\nhelpers/format-object.js: line 31, col 20, \'moment\' is not defined.\nhelpers/format-object.js: line 31, col 36, \'moment\' is not defined.\n\n12 errors');
+  });
+});
+define('frontend/tests/helpers/get-api-action-display-name.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | helpers/get-api-action-display-name.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'helpers/get-api-action-display-name.js should pass jshint.\nhelpers/get-api-action-display-name.js: line 3, col 16, \'Ember\' is not defined.\n\n1 error');
   });
 });
 define('frontend/tests/helpers/get-chart-icon.jshint.lint-test', [], function () {
@@ -379,6 +406,15 @@ define('frontend/tests/helpers/get-column-id.jshint.lint-test', [], function () 
     assert.ok(false, 'helpers/get-column-id.js should pass jshint.\nhelpers/get-column-id.js: line 3, col 45, Expected \'===\' and instead saw \'==\'.\n\n1 error');
   });
 });
+define('frontend/tests/helpers/get-in.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | helpers/get-in.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'helpers/get-in.js should pass jshint.\nhelpers/get-in.js: line 2, col 16, \'Ember\' is not defined.\n\n1 error');
+  });
+});
 define('frontend/tests/helpers/get-row.jshint.lint-test', [], function () {
   'use strict';
 
@@ -395,6 +431,15 @@ define('frontend/tests/helpers/group-by.jshint.lint-test', [], function () {
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(false, 'helpers/group-by.js should pass jshint.\nhelpers/group-by.js: line 7, col 40, \'property\' is defined but never used.\nhelpers/group-by.js: line 7, col 26, \'dependentKey\' is defined but never used.\nhelpers/group-by.js: line 10, col 36, \'groupBy\' is not defined.\nhelpers/group-by.js: line 3, col 5, \'get\' is defined but never used.\nhelpers/group-by.js: line 4, col 5, \'arrayComputed\' is defined but never used.\n\n5 errors');
+  });
+});
+define('frontend/tests/helpers/index-of.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | helpers/index-of.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'helpers/index-of.js should pass jshint.');
   });
 });
 define('frontend/tests/helpers/is-order-applied.jshint.lint-test', [], function () {
@@ -475,6 +520,15 @@ define('frontend/tests/helpers/question-dashboard-settings.jshint.lint-test', []
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(false, 'helpers/question-dashboard-settings.js should pass jshint.\nhelpers/question-dashboard-settings.js: line 4, col 30, Missing semicolon.\nhelpers/question-dashboard-settings.js: line 5, col 29, Missing semicolon.\nhelpers/question-dashboard-settings.js: line 6, col 32, Missing semicolon.\nhelpers/question-dashboard-settings.js: line 7, col 83, Missing semicolon.\nhelpers/question-dashboard-settings.js: line 8, col 137, Missing semicolon.\n\n5 errors');
+  });
+});
+define('frontend/tests/helpers/replace-column-with-api-action.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | helpers/replace-column-with-api-action.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'helpers/replace-column-with-api-action.js should pass jshint.\nhelpers/replace-column-with-api-action.js: line 6, col 35, Expected \'===\' and instead saw \'==\'.\nhelpers/replace-column-with-api-action.js: line 4, col 32, \'prop3\' is defined but never used.\nhelpers/replace-column-with-api-action.js: line 2, col 16, \'Ember\' is not defined.\n\n3 errors');
   });
 });
 define('frontend/tests/helpers/resolver', ['exports', 'frontend/resolver', 'frontend/config/environment'], function (exports, _frontendResolver, _frontendConfigEnvironment) {
@@ -1190,6 +1244,43 @@ define('frontend/tests/integration/pods/components/base-chart-settings/component
     assert.ok(true, 'integration/pods/components/base-chart-settings/component-test.js should pass jshint.');
   });
 });
+define('frontend/tests/integration/pods/components/base-footer/component-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleForComponent)('base-footer', 'Integration | Component | base footer', {
+    integration: true
+  });
+
+  (0, _emberQunit.test)('it renders', function (assert) {
+    // Set any properties with this.set('myProperty', 'value');
+    // Handle any actions with this.on('myAction', function(val) { ... });
+
+    this.render(Ember.HTMLBars.template({
+      'id': '/vet/sWC',
+      'block': '{"symbols":[],"statements":[[1,[18,"base-footer"],false]],"hasEval":false}',
+      'meta': {}
+    }));
+
+    assert.equal(this.$().text().trim(), '');
+
+    // Template block usage:
+    this.render(Ember.HTMLBars.template({
+      'id': 'pNBrlovk',
+      'block': '{"symbols":[],"statements":[[0,"\\n"],[4,"base-footer",null,null,{"statements":[[0,"      template block text\\n"]],"parameters":[]},null],[0,"  "]],"hasEval":false}',
+      'meta': {}
+    }));
+
+    assert.equal(this.$().text().trim(), 'template block text');
+  });
+});
+define('frontend/tests/integration/pods/components/base-footer/component-test.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | integration/pods/components/base-footer/component-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'integration/pods/components/base-footer/component-test.js should pass jshint.');
+  });
+});
 define('frontend/tests/integration/pods/components/base-header/component-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
 
   (0, _emberQunit.moduleForComponent)('base-header', 'Integration | Component | base header', {
@@ -1568,6 +1659,43 @@ define('frontend/tests/integration/pods/components/dashboard-grid/component-test
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'integration/pods/components/dashboard-grid/component-test.js should pass jshint.');
+  });
+});
+define('frontend/tests/integration/pods/components/dashboard-index-grid/component-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleForComponent)('dashboard-index-grid', 'Integration | Component | dashboard index grid', {
+    integration: true
+  });
+
+  (0, _emberQunit.test)('it renders', function (assert) {
+    // Set any properties with this.set('myProperty', 'value');
+    // Handle any actions with this.on('myAction', function(val) { ... });
+
+    this.render(Ember.HTMLBars.template({
+      'id': 'Wp6y3ULP',
+      'block': '{"symbols":[],"statements":[[1,[18,"dashboard-index-grid"],false]],"hasEval":false}',
+      'meta': {}
+    }));
+
+    assert.equal(this.$().text().trim(), '');
+
+    // Template block usage:
+    this.render(Ember.HTMLBars.template({
+      'id': 'rIVDNpk6',
+      'block': '{"symbols":[],"statements":[[0,"\\n"],[4,"dashboard-index-grid",null,null,{"statements":[[0,"      template block text\\n"]],"parameters":[]},null],[0,"  "]],"hasEval":false}',
+      'meta': {}
+    }));
+
+    assert.equal(this.$().text().trim(), 'template block text');
+  });
+});
+define('frontend/tests/integration/pods/components/dashboard-index-grid/component-test.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | integration/pods/components/dashboard-index-grid/component-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'integration/pods/components/dashboard-index-grid/component-test.js should pass jshint.');
   });
 });
 define('frontend/tests/integration/pods/components/dashboard-note-card/component-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
@@ -2810,6 +2938,43 @@ define('frontend/tests/integration/pods/components/subquery-builder/component-te
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'integration/pods/components/subquery-builder/component-test.js should pass jshint.');
+  });
+});
+define('frontend/tests/integration/pods/components/table-tree/component-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleForComponent)('table-tree', 'Integration | Component | table tree', {
+    integration: true
+  });
+
+  (0, _emberQunit.test)('it renders', function (assert) {
+    // Set any properties with this.set('myProperty', 'value');
+    // Handle any actions with this.on('myAction', function(val) { ... });
+
+    this.render(Ember.HTMLBars.template({
+      'id': '6NHIkwbY',
+      'block': '{"symbols":[],"statements":[[1,[18,"table-tree"],false]],"hasEval":false}',
+      'meta': {}
+    }));
+
+    assert.equal(this.$().text().trim(), '');
+
+    // Template block usage:
+    this.render(Ember.HTMLBars.template({
+      'id': '4R5Jyqhs',
+      'block': '{"symbols":[],"statements":[[0,"\\n"],[4,"table-tree",null,null,{"statements":[[0,"      template block text\\n"]],"parameters":[]},null],[0,"  "]],"hasEval":false}',
+      'meta': {}
+    }));
+
+    assert.equal(this.$().text().trim(), 'template block text');
+  });
+});
+define('frontend/tests/integration/pods/components/table-tree/component-test.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | integration/pods/components/table-tree/component-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'integration/pods/components/table-tree/component-test.js should pass jshint.');
   });
 });
 define('frontend/tests/integration/pods/components/variable-value-selector/component-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
@@ -4324,7 +4489,7 @@ define('frontend/tests/models/column.jshint.lint-test', [], function () {
   QUnit.module('JSHint | models/column.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'models/column.js should pass jshint.\nmodels/column.js: line 17, col 45, Missing semicolon.\nmodels/column.js: line 18, col 25, Expected \'===\' and instead saw \'==\'.\nmodels/column.js: line 18, col 49, Expected \'===\' and instead saw \'==\'.\nmodels/column.js: line 18, col 77, Expected \'===\' and instead saw \'==\'.\nmodels/column.js: line 19, col 24, Missing semicolon.\nmodels/column.js: line 21, col 25, Missing semicolon.\nmodels/column.js: line 16, col 17, \'Ember\' is not defined.\n\n7 errors');
+    assert.ok(false, 'models/column.js should pass jshint.\nmodels/column.js: line 21, col 21, Expected \'===\' and instead saw \'==\'.\nmodels/column.js: line 21, col 45, Expected \'===\' and instead saw \'==\'.\nmodels/column.js: line 21, col 73, Expected \'===\' and instead saw \'==\'.\nmodels/column.js: line 19, col 15, \'Ember\' is not defined.\n\n4 errors');
   });
 });
 define('frontend/tests/models/dashboard.jshint.lint-test', [], function () {
@@ -4405,7 +4570,7 @@ define('frontend/tests/models/question.jshint.lint-test', [], function () {
   QUnit.module('JSHint | models/question.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'models/question.js should pass jshint.\nmodels/question.js: line 79, col 23, \'error\' is defined but never used.\nmodels/question.js: line 94, col 76, Expected an assignment or function call and instead saw an expression.\nmodels/question.js: line 95, col 69, Expected an assignment or function call and instead saw an expression.\nmodels/question.js: line 96, col 10, Expected an assignment or function call and instead saw an expression.\nmodels/question.js: line 113, col 81, Expected an assignment or function call and instead saw an expression.\nmodels/question.js: line 118, col 68, Expected an assignment or function call and instead saw an expression.\nmodels/question.js: line 123, col 78, Expected an assignment or function call and instead saw an expression.\nmodels/question.js: line 127, col 68, Expected \'!==\' and instead saw \'!=\'.\nmodels/question.js: line 10, col 13, \'Ember\' is not defined.\nmodels/question.js: line 36, col 20, \'Ember\' is not defined.\nmodels/question.js: line 52, col 20, \'Ember\' is not defined.\nmodels/question.js: line 52, col 40, \'Ember\' is not defined.\nmodels/question.js: line 91, col 22, \'Ember\' is not defined.\nmodels/question.js: line 101, col 22, \'Ember\' is not defined.\nmodels/question.js: line 112, col 17, \'Ember\' is not defined.\nmodels/question.js: line 116, col 16, \'Ember\' is not defined.\nmodels/question.js: line 125, col 22, \'Ember\' is not defined.\nmodels/question.js: line 126, col 21, \'Ember\' is not defined.\nmodels/question.js: line 129, col 11, \'Ember\' is not defined.\nmodels/question.js: line 104, col 17, \'moment\' is not defined.\nmodels/question.js: line 104, col 57, \'moment\' is not defined.\nmodels/question.js: line 4, col 5, \'collectionAction\' is defined but never used.\n\n22 errors');
+    assert.ok(false, 'models/question.js should pass jshint.\nmodels/question.js: line 83, col 17, \'error\' is defined but never used.\nmodels/question.js: line 98, col 70, Expected an assignment or function call and instead saw an expression.\nmodels/question.js: line 99, col 63, Expected an assignment or function call and instead saw an expression.\nmodels/question.js: line 100, col 6, Expected an assignment or function call and instead saw an expression.\nmodels/question.js: line 117, col 77, Expected an assignment or function call and instead saw an expression.\nmodels/question.js: line 122, col 62, Expected an assignment or function call and instead saw an expression.\nmodels/question.js: line 127, col 74, Expected an assignment or function call and instead saw an expression.\nmodels/question.js: line 131, col 64, Expected \'!==\' and instead saw \'!=\'.\nmodels/question.js: line 10, col 11, \'Ember\' is not defined.\nmodels/question.js: line 33, col 22, \'Ember\' is not defined.\nmodels/question.js: line 40, col 18, \'Ember\' is not defined.\nmodels/question.js: line 56, col 18, \'Ember\' is not defined.\nmodels/question.js: line 56, col 38, \'Ember\' is not defined.\nmodels/question.js: line 95, col 20, \'Ember\' is not defined.\nmodels/question.js: line 105, col 20, \'Ember\' is not defined.\nmodels/question.js: line 116, col 15, \'Ember\' is not defined.\nmodels/question.js: line 120, col 12, \'Ember\' is not defined.\nmodels/question.js: line 129, col 20, \'Ember\' is not defined.\nmodels/question.js: line 130, col 19, \'Ember\' is not defined.\nmodels/question.js: line 133, col 9, \'Ember\' is not defined.\nmodels/question.js: line 108, col 11, \'moment\' is not defined.\nmodels/question.js: line 108, col 51, \'moment\' is not defined.\nmodels/question.js: line 4, col 3, \'collectionAction\' is defined but never used.\n\n23 errors');
   });
 });
 define('frontend/tests/models/search-item.jshint.lint-test', [], function () {
@@ -4415,6 +4580,15 @@ define('frontend/tests/models/search-item.jshint.lint-test', [], function () {
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(false, 'models/search-item.js should pass jshint.\nmodels/search-item.js: line 9, col 3, Missing semicolon.\n\n1 error');
+  });
+});
+define('frontend/tests/models/search-table.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | models/search-table.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'models/search-table.js should pass jshint.\nmodels/search-table.js: line 21, col 7, Expected \'{\' and instead saw \'this\'.\nmodels/search-table.js: line 19, col 27, \'Ember\' is not defined.\nmodels/search-table.js: line 2, col 24, \'collectionAction\' is defined but never used.\n\n3 errors');
   });
 });
 define('frontend/tests/models/send-alert-config.jshint.lint-test', [], function () {
@@ -4459,7 +4633,7 @@ define('frontend/tests/models/table.jshint.lint-test', [], function () {
   QUnit.module('JSHint | models/table.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'models/table.js should pass jshint.\nmodels/table.js: line 2, col 10, \'memberAction\' is defined but never used.\nmodels/table.js: line 2, col 24, \'collectionAction\' is defined but never used.\n\n2 errors');
+    assert.ok(false, 'models/table.js should pass jshint.\nmodels/table.js: line 18, col 27, \'Ember\' is not defined.\nmodels/table.js: line 2, col 24, \'collectionAction\' is defined but never used.\n\n2 errors');
   });
 });
 define('frontend/tests/models/tag.jshint.lint-test', [], function () {
@@ -4504,7 +4678,7 @@ define('frontend/tests/models/variable.jshint.lint-test', [], function () {
   QUnit.module('JSHint | models/variable.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'models/variable.js should pass jshint.\nmodels/variable.js: line 39, col 110, Expected an assignment or function call and instead saw an expression.\nmodels/variable.js: line 63, col 68, Expected an assignment or function call and instead saw an expression.\nmodels/variable.js: line 64, col 88, Expected an assignment or function call and instead saw an expression.\nmodels/variable.js: line 65, col 14, Expected an assignment or function call and instead saw an expression.\nmodels/variable.js: line 21, col 29, \'moment\' is not defined.\nmodels/variable.js: line 24, col 27, \'moment\' is not defined.\n\n6 errors');
+    assert.ok(false, 'models/variable.js should pass jshint.\nmodels/variable.js: line 45, col 106, Expected an assignment or function call and instead saw an expression.\nmodels/variable.js: line 69, col 60, Expected an assignment or function call and instead saw an expression.\nmodels/variable.js: line 70, col 80, Expected an assignment or function call and instead saw an expression.\nmodels/variable.js: line 71, col 8, Expected an assignment or function call and instead saw an expression.\nmodels/variable.js: line 27, col 25, \'moment\' is not defined.\nmodels/variable.js: line 30, col 23, \'moment\' is not defined.\n\n6 errors');
   });
 });
 define('frontend/tests/models/widget-item.jshint.lint-test', [], function () {
@@ -4621,7 +4795,7 @@ define('frontend/tests/pods/application/route.jshint.lint-test', [], function ()
   QUnit.module('JSHint | pods/application/route.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'pods/application/route.js should pass jshint.\npods/application/route.js: line 13, col 39, Missing semicolon.\npods/application/route.js: line 11, col 31, \'model\' is defined but never used.\npods/application/route.js: line 18, col 54, Missing semicolon.\npods/application/route.js: line 21, col 41, Missing semicolon.\npods/application/route.js: line 24, col 41, Missing semicolon.\npods/application/route.js: line 27, col 57, Missing semicolon.\npods/application/route.js: line 30, col 46, Missing semicolon.\npods/application/route.js: line 31, col 54, Missing semicolon.\npods/application/route.js: line 34, col 47, Missing semicolon.\npods/application/route.js: line 8, col 36, \'moment\' is not defined.\n\n10 errors');
+    assert.ok(false, 'pods/application/route.js should pass jshint.\npods/application/route.js: line 13, col 39, Missing semicolon.\npods/application/route.js: line 11, col 31, \'model\' is defined but never used.\npods/application/route.js: line 18, col 54, Missing semicolon.\npods/application/route.js: line 21, col 41, Missing semicolon.\npods/application/route.js: line 24, col 41, Missing semicolon.\npods/application/route.js: line 27, col 57, Missing semicolon.\npods/application/route.js: line 30, col 46, Missing semicolon.\npods/application/route.js: line 33, col 47, Missing semicolon.\npods/application/route.js: line 8, col 36, \'moment\' is not defined.\n\n9 errors');
   });
 });
 define('frontend/tests/pods/application/serializer.jshint.lint-test', [], function () {
@@ -4666,7 +4840,7 @@ define('frontend/tests/pods/components/additional-filters/component.jshint.lint-
   QUnit.module('JSHint | pods/components/additional-filters/component.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'pods/components/additional-filters/component.js should pass jshint.\npods/components/additional-filters/component.js: line 88, col 41, Missing semicolon.\npods/components/additional-filters/component.js: line 97, col 11, Missing semicolon.\npods/components/additional-filters/component.js: line 100, col 37, Missing semicolon.\npods/components/additional-filters/component.js: line 101, col 46, Missing semicolon.\npods/components/additional-filters/component.js: line 104, col 55, Missing semicolon.\npods/components/additional-filters/component.js: line 107, col 55, Missing semicolon.\npods/components/additional-filters/component.js: line 131, col 17, \'items\' is defined but never used.\npods/components/additional-filters/component.js: line 140, col 17, \'items\' is defined but never used.\npods/components/additional-filters/component.js: line 64, col 17, \'moment\' is not defined.\npods/components/additional-filters/component.js: line 64, col 36, \'moment\' is not defined.\n\n10 errors');
+    assert.ok(false, 'pods/components/additional-filters/component.js should pass jshint.\npods/components/additional-filters/component.js: line 130, col 11, \'items\' is defined but never used.\npods/components/additional-filters/component.js: line 139, col 11, \'items\' is defined but never used.\npods/components/additional-filters/component.js: line 64, col 11, \'moment\' is not defined.\npods/components/additional-filters/component.js: line 64, col 30, \'moment\' is not defined.\n\n4 errors');
   });
 });
 define('frontend/tests/pods/components/additional-quick-filters/component.jshint.lint-test', [], function () {
@@ -4702,7 +4876,7 @@ define('frontend/tests/pods/components/api-action-modal/component.jshint.lint-te
   QUnit.module('JSHint | pods/components/api-action-modal/component.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'pods/components/api-action-modal/component.js should pass jshint.\npods/components/api-action-modal/component.js: line 14, col 22, Expected \'===\' and instead saw \'==\'.\npods/components/api-action-modal/component.js: line 14, col 49, Expected \'===\' and instead saw \'==\'.\npods/components/api-action-modal/component.js: line 34, col 48, \'response\' is defined but never used.\n\n3 errors');
+    assert.ok(false, 'pods/components/api-action-modal/component.js should pass jshint.\npods/components/api-action-modal/component.js: line 8, col 42, Expected \'===\' and instead saw \'==\'.\npods/components/api-action-modal/component.js: line 7, col 14, Confusing use of \'!\'.\npods/components/api-action-modal/component.js: line 27, col 18, Expected \'===\' and instead saw \'==\'.\npods/components/api-action-modal/component.js: line 27, col 45, Expected \'===\' and instead saw \'==\'.\npods/components/api-action-modal/component.js: line 50, col 42, \'response\' is defined but never used.\n\n5 errors');
   });
 });
 define('frontend/tests/pods/components/api-action-result/component.jshint.lint-test', [], function () {
@@ -4766,6 +4940,15 @@ define('frontend/tests/pods/components/base-chart-settings/component.jshint.lint
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'pods/components/base-chart-settings/component.js should pass jshint.');
+  });
+});
+define('frontend/tests/pods/components/base-footer/component.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | pods/components/base-footer/component.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/components/base-footer/component.js should pass jshint.');
   });
 });
 define('frontend/tests/pods/components/base-header/component.jshint.lint-test', [], function () {
@@ -4876,6 +5059,15 @@ define('frontend/tests/pods/components/dashboard-grid/component.jshint.lint-test
     assert.ok(false, 'pods/components/dashboard-grid/component.js should pass jshint.\npods/components/dashboard-grid/component.js: line 13, col 37, Expected an assignment or function call and instead saw an expression.\npods/components/dashboard-grid/component.js: line 15, col 38, Expected an assignment or function call and instead saw an expression.\npods/components/dashboard-grid/component.js: line 21, col 16, \'args\' is defined but never used.\npods/components/dashboard-grid/component.js: line 7, col 15, \'moment\' is not defined.\n\n4 errors');
   });
 });
+define('frontend/tests/pods/components/dashboard-index-grid/component.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | pods/components/dashboard-index-grid/component.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/components/dashboard-index-grid/component.js should pass jshint.');
+  });
+});
 define('frontend/tests/pods/components/dashboard-note-card/component.jshint.lint-test', [], function () {
   'use strict';
 
@@ -4891,7 +5083,7 @@ define('frontend/tests/pods/components/dashboard-select-variables/component.jshi
   QUnit.module('JSHint | pods/components/dashboard-select-variables/component.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'pods/components/dashboard-select-variables/component.js should pass jshint.\npods/components/dashboard-select-variables/component.js: line 3, col 55, Missing semicolon.\npods/components/dashboard-select-variables/component.js: line 7, col 62, Missing semicolon.\npods/components/dashboard-select-variables/component.js: line 9, col 82, Missing semicolon.\npods/components/dashboard-select-variables/component.js: line 9, col 114, Missing semicolon.\npods/components/dashboard-select-variables/component.js: line 10, col 12, Missing semicolon.\npods/components/dashboard-select-variables/component.js: line 13, col 65, Missing semicolon.\npods/components/dashboard-select-variables/component.js: line 15, col 51, Missing semicolon.\npods/components/dashboard-select-variables/component.js: line 16, col 12, Missing semicolon.\npods/components/dashboard-select-variables/component.js: line 20, col 40, Missing semicolon.\npods/components/dashboard-select-variables/component.js: line 28, col 15, Missing semicolon.\npods/components/dashboard-select-variables/component.js: line 32, col 40, Missing semicolon.\npods/components/dashboard-select-variables/component.js: line 35, col 37, Missing semicolon.\npods/components/dashboard-select-variables/component.js: line 38, col 69, Missing semicolon.\n\n13 errors');
+    assert.ok(false, 'pods/components/dashboard-select-variables/component.js should pass jshint.\npods/components/dashboard-select-variables/component.js: line 39, col 40, Expected \'===\' and instead saw \'==\'.\npods/components/dashboard-select-variables/component.js: line 51, col 35, Expected \'===\' and instead saw \'==\'.\npods/components/dashboard-select-variables/component.js: line 55, col 22, Expected \'===\' and instead saw \'==\'.\n\n3 errors');
   });
 });
 define('frontend/tests/pods/components/data-charts/component.jshint.lint-test', [], function () {
@@ -4918,7 +5110,7 @@ define('frontend/tests/pods/components/db-tree/component.jshint.lint-test', [], 
   QUnit.module('JSHint | pods/components/db-tree/component.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'pods/components/db-tree/component.js should pass jshint.');
+    assert.ok(false, 'pods/components/db-tree/component.js should pass jshint.\npods/components/db-tree/component.js: line 12, col 48, Expected \'===\' and instead saw \'==\'.\n\n1 error');
   });
 });
 define('frontend/tests/pods/components/delete-dialogue/component.jshint.lint-test', [], function () {
@@ -5027,6 +5219,24 @@ define('frontend/tests/pods/components/line-chart/component.jshint.lint-test', [
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(false, 'pods/components/line-chart/component.js should pass jshint.\npods/components/line-chart/component.js: line 17, col 13, \'_this\' is defined but never used.\npods/components/line-chart/component.js: line 4, col 5, \'get\' is defined but never used.\npods/components/line-chart/component.js: line 5, col 5, \'arrayComputed\' is defined but never used.\n\n3 errors');
+  });
+});
+define('frontend/tests/pods/components/masonry-grid/component.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | pods/components/masonry-grid/component.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/components/masonry-grid/component.js should pass jshint.');
+  });
+});
+define('frontend/tests/pods/components/masonry-item/component.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | pods/components/masonry-item/component.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/components/masonry-item/component.js should pass jshint.');
   });
 });
 define('frontend/tests/pods/components/next-transition-warning/component.jshint.lint-test', [], function () {
@@ -5189,6 +5399,15 @@ define('frontend/tests/pods/components/subquery-builder/component.jshint.lint-te
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(false, 'pods/components/subquery-builder/component.js should pass jshint.\npods/components/subquery-builder/component.js: line 15, col 55, Missing semicolon.\npods/components/subquery-builder/component.js: line 18, col 142, Missing semicolon.\npods/components/subquery-builder/component.js: line 87, col 17, \'store\' is defined but never used.\npods/components/subquery-builder/component.js: line 117, col 14, Expected an assignment or function call and instead saw an expression.\npods/components/subquery-builder/component.js: line 145, col 14, Duplicate key \'rawObject\'.\npods/components/subquery-builder/component.js: line 151, col 26, Duplicate key \'rawObjectWithSelected\'.\npods/components/subquery-builder/component.js: line 160, col 41, Missing semicolon.\npods/components/subquery-builder/component.js: line 169, col 11, Missing semicolon.\npods/components/subquery-builder/component.js: line 172, col 37, Missing semicolon.\npods/components/subquery-builder/component.js: line 173, col 46, Missing semicolon.\npods/components/subquery-builder/component.js: line 176, col 55, Missing semicolon.\npods/components/subquery-builder/component.js: line 179, col 55, Missing semicolon.\npods/components/subquery-builder/component.js: line 197, col 17, \'items\' is defined but never used.\npods/components/subquery-builder/component.js: line 206, col 17, \'items\' is defined but never used.\npods/components/subquery-builder/component.js: line 224, col 24, Duplicate key \'switchToBuilder\'.\npods/components/subquery-builder/component.js: line 225, col 17, \'items\' is defined but never used.\npods/components/subquery-builder/component.js: line 233, col 20, Duplicate key \'switchToRaw\'.\npods/components/subquery-builder/component.js: line 234, col 17, \'items\' is defined but never used.\npods/components/subquery-builder/component.js: line 244, col 15, Duplicate key \'remove\'.\npods/components/subquery-builder/component.js: line 249, col 48, Missing semicolon.\npods/components/subquery-builder/component.js: line 112, col 21, \'moment\' is not defined.\npods/components/subquery-builder/component.js: line 112, col 40, \'moment\' is not defined.\n\n22 errors');
+  });
+});
+define('frontend/tests/pods/components/table-tree/component.jshint.lint-test', [], function () {
+  'use strict';
+
+  QUnit.module('JSHint | pods/components/table-tree/component.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'pods/components/table-tree/component.js should pass jshint.');
   });
 });
 define('frontend/tests/pods/components/transposed-results-table-settings/component.jshint.lint-test', [], function () {
@@ -5521,7 +5740,7 @@ define('frontend/tests/pods/dashboards/show/controller.jshint.lint-test', [], fu
   QUnit.module('JSHint | pods/dashboards/show/controller.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'pods/dashboards/show/controller.js should pass jshint.\npods/dashboards/show/controller.js: line 125, col 10, Expected an assignment or function call and instead saw an expression.\npods/dashboards/show/controller.js: line 178, col 36, \'response\' is defined but never used.\npods/dashboards/show/controller.js: line 180, col 22, \'variables\' is defined but never used.\npods/dashboards/show/controller.js: line 197, col 45, \'response\' is defined but never used.\npods/dashboards/show/controller.js: line 153, col 26, \'$\' is not defined.\npods/dashboards/show/controller.js: line 166, col 26, \'$\' is not defined.\npods/dashboards/show/controller.js: line 194, col 13, \'$\' is not defined.\npods/dashboards/show/controller.js: line 208, col 13, \'$\' is not defined.\n\n8 errors');
+    assert.ok(false, 'pods/dashboards/show/controller.js should pass jshint.\npods/dashboards/show/controller.js: line 125, col 6, Expected an assignment or function call and instead saw an expression.\npods/dashboards/show/controller.js: line 178, col 30, \'response\' is defined but never used.\npods/dashboards/show/controller.js: line 180, col 16, \'variables\' is defined but never used.\npods/dashboards/show/controller.js: line 198, col 39, \'response\' is defined but never used.\npods/dashboards/show/controller.js: line 153, col 18, \'$\' is not defined.\npods/dashboards/show/controller.js: line 166, col 18, \'$\' is not defined.\npods/dashboards/show/controller.js: line 195, col 7, \'$\' is not defined.\n\n7 errors');
   });
 });
 define('frontend/tests/pods/dashboards/show/route.jshint.lint-test', [], function () {
@@ -5539,7 +5758,7 @@ define('frontend/tests/pods/data-references/databases/all/controller.jshint.lint
   QUnit.module('JSHint | pods/data-references/databases/all/controller.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'pods/data-references/databases/all/controller.js should pass jshint.\npods/data-references/databases/all/controller.js: line 7, col 41, Missing semicolon.\npods/data-references/databases/all/controller.js: line 12, col 35, \'response\' is defined but never used.\npods/data-references/databases/all/controller.js: line 18, col 15, Missing semicolon.\n\n3 errors');
+    assert.ok(false, 'pods/data-references/databases/all/controller.js should pass jshint.\npods/data-references/databases/all/controller.js: line 12, col 29, \'response\' is defined but never used.\n\n1 error');
   });
 });
 define('frontend/tests/pods/data-references/databases/all/route.jshint.lint-test', [], function () {
@@ -5719,7 +5938,7 @@ define('frontend/tests/pods/questions/new/controller.jshint.lint-test', [], func
   QUnit.module('JSHint | pods/questions/new/controller.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'pods/questions/new/controller.js should pass jshint.\npods/questions/new/controller.js: line 75, col 34, Expected \'!==\' and instead saw \'!=\'.\npods/questions/new/controller.js: line 84, col 36, Expected \'!==\' and instead saw \'!=\'.\npods/questions/new/controller.js: line 92, col 37, Expected \'!==\' and instead saw \'!=\'.\npods/questions/new/controller.js: line 103, col 25, Expected \'===\' and instead saw \'==\'.\npods/questions/new/controller.js: line 128, col 87, Expected \'===\' and instead saw \'==\'.\npods/questions/new/controller.js: line 135, col 79, Missing semicolon.\npods/questions/new/controller.js: line 165, col 27, Expected \'!==\' and instead saw \'!=\'.\npods/questions/new/controller.js: line 165, col 51, Expected \'!==\' and instead saw \'!=\'.\npods/questions/new/controller.js: line 194, col 23, \'status\' is defined but never used.\npods/questions/new/controller.js: line 214, col 14, Expected an assignment or function call and instead saw an expression.\npods/questions/new/controller.js: line 210, col 20, \'status\' is defined but never used.\npods/questions/new/controller.js: line 164, col 13, \'changedAttributes\' is defined but never used.\npods/questions/new/controller.js: line 237, col 29, Expected \'===\' and instead saw \'==\'.\npods/questions/new/controller.js: line 240, col 56, Expected an assignment or function call and instead saw an expression.\npods/questions/new/controller.js: line 245, col 86, Expected an assignment or function call and instead saw an expression.\npods/questions/new/controller.js: line 271, col 82, Expected \'===\' and instead saw \'==\'.\npods/questions/new/controller.js: line 277, col 26, \'variable\' is defined but never used.\npods/questions/new/controller.js: line 305, col 27, \'status\' is defined but never used.\npods/questions/new/controller.js: line 305, col 17, \'response\' is defined but never used.\npods/questions/new/controller.js: line 315, col 24, \'status\' is defined but never used.\npods/questions/new/controller.js: line 315, col 17, \'error\' is defined but never used.\npods/questions/new/controller.js: line 349, col 90, Expected an assignment or function call and instead saw an expression.\npods/questions/new/controller.js: line 352, col 90, Expected an assignment or function call and instead saw an expression.\npods/questions/new/controller.js: line 363, col 57, Missing semicolon.\npods/questions/new/controller.js: line 263, col 21, \'$\' is not defined.\npods/questions/new/controller.js: line 1, col 1, \'pushObject\' is defined but never used.\n\n26 errors');
+    assert.ok(false, 'pods/questions/new/controller.js should pass jshint.\npods/questions/new/controller.js: line 75, col 26, Expected \'!==\' and instead saw \'!=\'.\npods/questions/new/controller.js: line 84, col 28, Expected \'!==\' and instead saw \'!=\'.\npods/questions/new/controller.js: line 92, col 29, Expected \'!==\' and instead saw \'!=\'.\npods/questions/new/controller.js: line 103, col 21, Expected \'===\' and instead saw \'==\'.\npods/questions/new/controller.js: line 128, col 87, Expected \'===\' and instead saw \'==\'.\npods/questions/new/controller.js: line 171, col 21, Expected \'!==\' and instead saw \'!=\'.\npods/questions/new/controller.js: line 171, col 45, Expected \'!==\' and instead saw \'!=\'.\npods/questions/new/controller.js: line 200, col 19, \'status\' is defined but never used.\npods/questions/new/controller.js: line 222, col 8, Expected an assignment or function call and instead saw an expression.\npods/questions/new/controller.js: line 217, col 16, \'status\' is defined but never used.\npods/questions/new/controller.js: line 170, col 9, \'changedAttributes\' is defined but never used.\npods/questions/new/controller.js: line 245, col 23, Expected \'===\' and instead saw \'==\'.\npods/questions/new/controller.js: line 248, col 56, Expected an assignment or function call and instead saw an expression.\npods/questions/new/controller.js: line 253, col 80, Expected an assignment or function call and instead saw an expression.\npods/questions/new/controller.js: line 280, col 74, Expected \'===\' and instead saw \'==\'.\npods/questions/new/controller.js: line 286, col 18, \'variable\' is defined but never used.\npods/questions/new/controller.js: line 314, col 21, \'status\' is defined but never used.\npods/questions/new/controller.js: line 314, col 11, \'response\' is defined but never used.\npods/questions/new/controller.js: line 324, col 18, \'status\' is defined but never used.\npods/questions/new/controller.js: line 324, col 11, \'error\' is defined but never used.\npods/questions/new/controller.js: line 358, col 82, Expected an assignment or function call and instead saw an expression.\npods/questions/new/controller.js: line 361, col 82, Expected an assignment or function call and instead saw an expression.\npods/questions/new/controller.js: line 372, col 34, \'ui\' is defined but never used.\npods/questions/new/controller.js: line 372, col 27, \'event\' is defined but never used.\npods/questions/new/controller.js: line 159, col 5, \'$\' is not defined.\npods/questions/new/controller.js: line 160, col 18, \'$\' is not defined.\npods/questions/new/controller.js: line 272, col 11, \'$\' is not defined.\npods/questions/new/controller.js: line 369, col 7, \'$\' is not defined.\npods/questions/new/controller.js: line 371, col 21, \'$\' is not defined.\npods/questions/new/controller.js: line 374, col 11, \'$\' is not defined.\npods/questions/new/controller.js: line 374, col 32, \'$\' is not defined.\npods/questions/new/controller.js: line 1, col 1, \'pushObject\' is defined but never used.\n\n32 errors');
   });
 });
 define('frontend/tests/pods/questions/new/route.jshint.lint-test', [], function () {
@@ -5746,7 +5965,7 @@ define('frontend/tests/pods/questions/show/controller.jshint.lint-test', [], fun
   QUnit.module('JSHint | pods/questions/show/controller.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'pods/questions/show/controller.js should pass jshint.\npods/questions/show/controller.js: line 38, col 54, Expected an assignment or function call and instead saw an expression.\npods/questions/show/controller.js: line 27, col 13, \'$\' is not defined.\npods/questions/show/controller.js: line 48, col 17, \'$\' is not defined.\n\n3 errors');
+    assert.ok(false, 'pods/questions/show/controller.js should pass jshint.\npods/questions/show/controller.js: line 34, col 38, Missing semicolon.\npods/questions/show/controller.js: line 39, col 54, Expected an assignment or function call and instead saw an expression.\npods/questions/show/controller.js: line 27, col 13, \'$\' is not defined.\npods/questions/show/controller.js: line 49, col 17, \'$\' is not defined.\n\n4 errors');
   });
 });
 define('frontend/tests/pods/questions/show/route.jshint.lint-test', [], function () {

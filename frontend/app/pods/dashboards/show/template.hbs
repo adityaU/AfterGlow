@@ -21,7 +21,8 @@
                     </div>
                     <div class="col text-center">
                         {{#if editMode}} {{else}}
-                        <div {{action 'refreshNow'}} class="text-primary"> {{bs-tooltip title="Refresh Now"}} REFRESH
+                        <div {{action 'refreshNow'}} class="text-primary"> {{bs-tooltip title="Refresh Now (CTRL + R)"}}
+                            REFRESH
                         </div>
                         {{/if}}
                     </div>
@@ -89,5 +90,5 @@
         {{dashboard-grid editing=editMode dashboard=dashboard }} </div>
     {{delete-dialogue entityName="dashboard" open=toggleDeleteDialogue entity=dashboard delete="deleteDashboard"}}
     {{share-entity entityName="Dashboard" entity=dashboard open=toggleShareModal}}
-    {{dashboard-select-variables dashboard=dashboard isEditing=editMode}}
+    {{dashboard-select-variables dashboard=dashboard isEditing=editMode open=toggleDashboardVariablesModal}}
 </div>

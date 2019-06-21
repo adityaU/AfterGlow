@@ -5,42 +5,96 @@
 {{/if}}
 
 {{#if showKeyboardShortcuts}}
-<div class="sidebar">
-  <div class= "header">
+<div class="sidebar card m-0">
+  <h4 class="card-footer text-center">
     Keyboard Shortcuts
-  </div>
+  </h4>
 
-  <div class="subheader">
+  <h6 class="card-footer text-center">
     Application
-  </div>
-  <div class="content">
-    <div class="row"><div class="shortcut">Ctrl+n</div> New Question</div>
-    <div class="row"><div class="shortcut">Ctrl+q</div> Search Questions</div>
-    <div class="row"><div class="shortcut">Ctrl+d</div> Search Dashboards</div>
-    <div class="row"><div class="shortcut">Ctrl+Shift+r</div> Go To Data Reference</div>
-    <div class="row"><div class="shortcut">Ctrl+Shift+q</div> Go To All Questions</div>
-    <div class="row"><div class="shortcut">Ctrl+Shift+k</div> Toggle Show Shortcuts Button</div>
-    <div class="row"><div class="shortcut">Ctrl+k</div> Show Keyboard Shortcuts</div>
+  </h6>
+  <div class="card-footer">
+    <div class="row">
+      <div class="col-8">
+
+        New Question
+      </div>
+      <div class="col-4 text-right">
+        Alt+n
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-8">
+        Search Anything
+      </div>
+      <div class="col-4 text-right">
+        Ctrl+q
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-8"> Go To Data Reference</div>
+      <div class="col-4 text-right">Ctrl+Shift+r</div>
+    </div>
+    <div class="row">
+      <div class="col-8"> Go To All Questions</div>
+      <div class="col-4 text-right">Ctrl+Shift+q</div>
+    </div>
+    <div class="row">
+      <div class="col-8"> Toggle Show Shortcuts Button</div>
+      <div class="col-4 text-right">Ctrl+l</div>
+    </div>
+    <div class="row">
+      <div class="col-8"> Show Keyboard Shortcuts</div>
+      <div class="col-4 text-right">Ctrl+k</div>
+    </div>
   </div>
 
-  <div class="subheader">
+  <h6 class="card-footer text-center">
     Dashboard
-  </div>
-  <div class="content">
-    <div class="row"><div class="shortcut">Ctrl+r</div> Refresh All Components</div>
+  </h6>
+  <div class="card-footer">
+    <div class="row">
+      <div class="col-8"> Refresh All Components</div>
+      <div class="col-4 text-right">Ctrl+r</div>
+    </div>
   </div>
 
-  <div class="subheader">
+  <h6 class="card-footer text-center">
     New Question/ Saved Question
-  </div>
-  <div class="content">
-    <div class="row"><div class="shortcut">Ctrl+Enter</div> Run Query</div>
-    <div class="row"><div class="shortcut">Ctrl+Shift+d</div> Select Database</div>
-    <div class="row"><div class="shortcut">Ctrl+Shift+t</div> Select Table</div>
-    <div class="row"><div class="shortcut">Ctrl+Shift+f</div> Add Filters</div>
-    <div class="row"><div class="shortcut">Ctrl+Shift+g</div> Add group By Clause</div>
-    <div class="row"><div class="shortcut">Ctrl+Shift+o</div> Add Order By Clause</div>
-    <div class="row"><div class="shortcut">Ctrl+Shift+v</div> Select View</div>
+  </h6>
+  <div class="card-footer">
+    <div class="row">
+      <div class="col-8">Run Query</div>
+      <div class="col-4 text-right">Ctrl+Enter</div>
+    </div>
+    <div class="row">
+      <div class="col-8">Run Selected Query</div>
+      <div class="col-4 text-right">Ctrl+r</div>
+    </div>
+    {{!-- <div class="row">
+      <div class="col-8"> Select Database</div>
+      <div class="col-4 text-right">Ctrl+Shift+d</div>
+    </div>
+    <div class="row">
+      <div class="col-8"> Select Table</div>
+      <div class="col-4 text-right">Ctrl+Shift+t</div>
+    </div>
+    <div class="row">
+      <div class="col-8"> Add Filters</div>
+      <div class="col-4 text-right">Ctrl+Shift+f</div>
+    </div>
+    <div class="row">
+      <div class="col-8"> Add group By Clause</div>
+      <div class="col-4 text-right">Ctrl+Shift+g</div>
+    </div>
+    <div class="row">
+      <div class="col-8"> Add Order By Clause</div>
+      <div class="col-4 text-right">Ctrl+Shift+o</div>
+    </div>
+    <div class="row">
+      <div class="col-8"> Select View</div>
+      <div class="col-4 text-right">Ctrl+Shift+v</div>
+    </div> --}}
   </div>
 </div>
 {{/if}}

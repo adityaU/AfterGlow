@@ -10,9 +10,11 @@ defmodule AfterGlow.ApiActionView do
     :headers,
     :body,
     :question_id,
+    :open_in_new_tab,
     :response_settings,
     :inserted_at,
-    :updated_at
+    :updated_at,
+    :column
   ])
 
   def type do

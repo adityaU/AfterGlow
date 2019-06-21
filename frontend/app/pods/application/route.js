@@ -28,7 +28,6 @@ export default Ember.Route.extend(KeyboardShortcuts, {
     },
     openSearch() {
       this.set('controller.showSearch', true)
-      this.set('controller.showQuestionSearch', true)
     },
     hideSearchDialogues() {
       this.set('controller.showSearch', false)
@@ -37,7 +36,7 @@ export default Ember.Route.extend(KeyboardShortcuts, {
   },
 
   keyboardShortcuts: {
-    'ctrl+n': "goToNewQuestion",
+    'alt+n': "goToNewQuestion",
     'ctrl+shift+q': "goToAllQuestions",
     'ctrl+shift+r': "goToDataReference",
     "ctrl+q": "openSearch",

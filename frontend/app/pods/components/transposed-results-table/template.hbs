@@ -6,7 +6,16 @@
                 {{#each row as |el index|}}
                 {{#if (eq index 0)}}
                 <th class="">
-                    {{widgets/render-widgets el=(capitalize el) question=question index=index results=results}}
+                    {{widgets/render-widgets class="d-inline" el=(capitalize el) question=question index=index results=results}}
+                    {{#if  (replace-column-with-api-action question.api_actions el question.apiActionsChanged)}}
+
+                    {{#if canEdit}}
+                    <i class="fe fe-edit text-primary"
+                        {{action 'editApiAction' (replace-column-with-api-action question.api_actions el question.apiActionsChanged)}}></i>
+                    <i class="fe fe-x-square text-red"
+                        {{action 'showDeleteApiActionModal' (replace-column-with-api-action question.api_actions el question.apiActionsChanged)}}></i>
+                    {{/if}}
+                    {{/if}}
                 </th>
                 {{else}}
                 <td class="">
