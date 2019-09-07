@@ -1,5 +1,7 @@
 defmodule AfterGlow.AutoComplete do
   import Ecto.Query, warn: false
+  import AfterGlow.Sql.QueryRunner, only: [run_query_from_object: 3]
+  alias AfterGlow.Database
   alias AfterGlow.Table
   alias AfterGlow.Column
   alias AfterGlow.Repo
@@ -9,6 +11,37 @@ defmodule AfterGlow.AutoComplete do
   alias AfterGlow.Tag
   alias AfterGlow.Question.Policy, as: QuestionPolicy
   alias AfterGlow.Dashboard.Policy, as: DashboardPolicy
+
+  def column_suggestions_autocomplete(query, database_id, table_id, column_id) do
+    database = Repo.get(Database, database_id)
+    table = Repo.get(Table, table_id)
+    column = Repo.get(Column, column_id)
+
+    params = %{
+      "table" => %{"name" => table.name, "id" => table.id},
+      "views" => [%{"selected" => %{"raw" => true, "value" => column.name}}],
+      "filters" => [
+        %{
+          "column" => %{"name" => column.name},
+          "operator" => %{"name" => "matches", "value" => "matches"},
+          "value" => query,
+          "valueDateObj" => %{"date" => false}
+        }
+      ],
+      "order_by" => [
+        %{
+          "column" => %{"name" => column.name},
+          "order" => %{"name" => "ascending", "value" => "ASC"},
+          "selected" => %{"raw" => false, "value" => nil}
+        }
+      ]
+    }
+
+    {_, {:ok, results}} = run_query_from_object(database, params, 10)
+
+    results[:rows]
+    |> Enum.map(fn x -> %{displayName: x |> Enum.at(0)} end)
+  end
 
   def table_autocomplete("", database_id) do
     from(t in Table,

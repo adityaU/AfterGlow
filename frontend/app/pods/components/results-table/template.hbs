@@ -3,10 +3,10 @@
         <thead>
             <tr>
                 {{#each results.columns as |column|}}
-
+                {{#unless (exists-in-array question.results_view_settings.hiddenColumns column)}}
                 {{#if  (replace-column-with-api-action question.api_actions column question.apiActionsChanged)}}
                 <th>
-                    {{#if  canEdit}}
+                    {{#if  canEdit }}
                     {{capitalize column}}
                     <i class="fe fe-edit text-primary"
                         {{action 'editApiAction'  (replace-column-with-api-action question.api_actions column  question.apiActionsChanged)}}></i>
@@ -33,13 +33,14 @@
                     {{/dd.toggle}}
                     {{#dd.menu renderInPlace=false as |ddm|}}
                     <div class="menu-content">
-                        {{additional-sort-and-grouping results=results column=column additionalFilters=question.human_sql.additionalFilters apply='apply'}}
+                        {{additional-sort-and-grouping resultsViewType=resultsViewType results=results column=column additionalFilters=question.human_sql.additionalFilters apply='apply'}}
                     </div>
 
                     {{/dd.menu}}
                     {{/bs-dropdown}}
                 </th>
                 {{/if}}
+                {{/unless}}
                 {{/each}}
                 {{#each question.api_actions as |apiAction|}}
                 {{#if  (not apiAction.column)}}
@@ -57,6 +58,7 @@
             {{#each pagedRows as |row|}}
             <tr>
                 {{#each row as |el index|}}
+                {{#unless (exists-in-array question.results_view_settings.hiddenColumns (get-in results.columns index))}}
 
                 {{#if  (replace-column-with-api-action question.api_actions (get-in results.columns index) question.apiActionsChanged)}}
                 <td>
@@ -81,6 +83,7 @@
                     {{/bs-dropdown}}
                 </td>
                 {{/if}}
+                {{/unless}}
                 {{/each}}
                 {{#each question.api_actions as |apiAction|}}
                 {{#if (not apiAction.column)}}

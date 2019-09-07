@@ -144,39 +144,57 @@ defmodule AfterGlow.Question do
       query_variables
       |> convert_to_variables
 
-    default_variables
-    |> Enum.map(fn var ->
-      q_var =
-        query_variables
-        |> Enum.filter(fn x ->
-          if x.name && var.name do
-            x.name == var.name
-          end
-        end)
-        |> Enum.at(0)
+    final_variables =
+      default_variables
+      |> Enum.map(fn var ->
+        q_var =
+          query_variables
+          |> Enum.filter(fn x ->
+            if x.name && var.name do
+              x.name == var.name
+            end
+          end)
+          |> Enum.at(0)
 
-      default_options_values = Variable.default_option_values(q_var)
+        default_options_values = Variable.default_option_values(q_var)
 
-      value =
-        if q_var && Map.has_key?(q_var, :value) && q_var.value,
-          do: q_var.value,
-          else: if(var |> Map.has_key?(:default), do: var.default, else: nil)
+        value =
+          if q_var && Map.has_key?(q_var, :value) && q_var.value,
+            do: q_var.value,
+            else: if(var |> Map.has_key?(:default), do: var.default, else: nil)
 
-      value = Variable.format_value(var, value)
-      value = if default_options_values, do: default_options_values, else: value
+        value = Variable.format_value(var, value)
+        value = if default_options_values, do: default_options_values, else: value
 
-      %{
-        name: var.name,
-        value: value
-      }
-    end)
+        %{
+          name: var.name,
+          value: value
+        }
+      end)
+
+    final_variables
     |> Enum.reduce(query, fn variable, query ->
       variable_name = variable.name |> String.trim()
 
       query
-      |> String.replace(~r({{.*#{variable_name}.*}}), variable.value || "")
+      |> String.replace(~r({{.*#{variable_name}.*?}}), variable.value || "")
     end)
     |> handle_snapshot_starting_at_variable(snapshot)
+    |> convert_eex_string(final_variables)
+  end
+
+  defp convert_eex_string(query, final_variables) do
+    try do
+      EEx.eval_string(
+        query,
+        final_variables
+        |> Enum.map(fn variable ->
+          {String.to_atom(variable.name), if(variable.value == "", do: nil, else: variable.value)}
+        end)
+      )
+    rescue
+      _ -> query
+    end
   end
 
   defp handle_snapshot_starting_at_variable(query, nil) do

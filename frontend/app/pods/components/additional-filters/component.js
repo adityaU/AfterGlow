@@ -1,6 +1,6 @@
 import Ember from 'ember';
-
-export default Ember.Component.extend({
+import FilterOperatorMixin from 'frontend/mixins/filter-operator-mixin';
+export default Ember.Component.extend(FilterOperatorMixin, {
   classNames: ['w-100'],
   watchAdditionalFilters: Ember.on('init', Ember.observer('queryObject.additionalFilters', function () {
     if (!this.get('queryObject.additionalFilters')) {
@@ -36,16 +36,17 @@ export default Ember.Component.extend({
 
   columns: Ember.computed('results', 'error', 'results.additional_filters_applied', function () {
     if ((this.get('results.additional_filters_applied') &&
-            this.get('queryObject.additionalFilterColumns')) || this.get('error')) {
+      this.get('queryObject.additionalFilterColumns')) || this.get('error')) {
 
       return this.get('queryObject.additionalFilterColumns') || [];
     }
     return this.get('results.columns') && this.get('results.columns').map((item, index) => {
-      return {
+      return Ember.Object.create({
         name: item,
         human_name: item,
+        displayKey: item,
         data_type: this.figureOutDataType(index)
-      };
+      });
     }) || [];
   }),
 
@@ -61,8 +62,8 @@ export default Ember.Component.extend({
   figureOutDataType(index) {
     let dataType = 'Not Relevent';
     this.get('results.rows').every((row) => {
-      if (moment(row[index], moment.ISO_8601, true).isValid()) {
-        dataType = 'datetime';
+      if (row[index] || row[index] == 0) {
+        dataType = this.guessDataType(row[index]);
         return false;
       }
       return true;
@@ -84,9 +85,6 @@ export default Ember.Component.extend({
     }));
     return selected;
   },
-  newViewOserver: Ember.observer('newView.selected', function () {
-    console.log(this.get('newView'));
-  }),
 
   newFilter: Ember.computed('queryObject.additionalFilters.filters.[]', function () {
     return Ember.Object.create({

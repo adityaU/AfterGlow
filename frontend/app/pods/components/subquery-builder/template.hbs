@@ -2,63 +2,47 @@
 <div class="card-footer row">
     <div class="col-11">
         {{#if (or queryObject.table.name queryObject.table.title)}}
-        <span class="tag border text-primary border-primary  bg-white">
+        <span class="tag border text-primary border-primary  bg-white mt-1">
             {{#if queryObject.fromQuestion}}Question: {{else}}Table: {{/if}}
             <div class="tag-addon text-white border-primary bg-primary">
                 {{#bs-dropdown closeOnMenuClick=false as |dd|}}
-                {{#dd.toggle class="text-white "}}
+                {{#dd.toggle class="text-white menu-content"}}
                 {{or queryObject.table.human_name queryObject.table.title}}
                 {{/dd.toggle}}
-                {{#dd.menu as |ddm|}}
-                <div class="menu-content">
-                    {{#if queryObject.fromQuestion}} {{searchable-select
-      content=questions
-      sortBy="title"
-      prompt="Select a Question"
-      selected=queryObject.table
-      on-search=(action "updateQuestionSearch")
-      on-change=(action (mut queryObject.table))}}
-                    {{else}}{{searchable-select
-      content=tables
-      sortBy="human_name"
-      prompt="Select a Table"
-      selected=queryObject.table
-      optionLabelKey="human_name"
-      on-change=(action (mut queryObject.table))}}
-                    {{/if}}
-                </div>
-                {{/dd.menu}}
+                {{#if queryObject.fromQuestion}}
+                {{custom-single-select dd=dd
+                elseMessage="You don't have any question shared with you that belongs to selected data source"
+                dropdownClass="menu-content"
+                textIcon="Q" value=queryObject.table options=questions displayKey="title"}}
+                {{else}}
+                {{custom-single-select dd=dd
+                dropdownClass="menu-content"
+                  helpText="If a question is already shared with you and you want to build your query
+                on that question, change source to question by clicking"
+                 textIcon="T" value=queryObject.table options=tables displayKey="human_name"}}
+                {{/if}}
                 {{/bs-dropdown}}
 
             </div>
         </span>
         {{else}}
         {{#bs-dropdown closeOnMenuClick=false as |dd|}}
-        {{#dd.toggle class="btn tag-size datasource-selector btn-secondary text-primary border-primary py-0 px-1"}}
+        {{#dd.toggle class="btn tag-size mt-1 datasource-selector btn-secondary text-primary border-primary py-0 px-1"}}
         <i class="fe fe-plus"></i> {{#if queryObject.fromQuestion}}Question{{else}}Table{{/if}}
         {{/dd.toggle}}
-        {{#dd.menu as |ddm|}}
-        <div class="menu-content">
-            {{#if queryObject.fromQuestion}} {{searchable-select
-      content=questions
-      sortBy="title"
-      prompt="Select a Question"
-      selected=queryObject.table
-      on-search=(action "updateQuestionSearch")
-      on-change=(action (mut queryObject.table))}}
+        {{#if queryObject.fromQuestion}}
+        {{custom-single-select dd=dd
+                elseMessage="You don't have any question shared with you that belongs to selected data source"
+                dropdownClass="menu-content"
+                textIcon="Q" value=queryObject.table options=questions displayKey="title"}}
+        {{else}}
+        {{custom-single-select dd=dd
+                  helpText="If a question is already shared with you and you want to build your query
+                on that question, change source to question by clicking"
+                dropdownClass="menu-content"
+                  textIcon="T" value=queryObject.table options=tables displayKey="human_name"}}
+        {{/if}}
 
-            {{else}}{{searchable-select
-      content=tables
-      sortBy="human_name"
-      prompt="Select a Table"
-      selected=queryObject.table
-      optionLabelKey="human_name"
-      on-change=(action (mut queryObject.table))}}
-            <small class="text-muted"> If a question is already shared with you and you want to build your query
-                on that question, change source to question by clicking <i class="fe fe-toggle-right"></i></small>
-            {{/if}}
-        </div>
-        {{/dd.menu}}
         {{/bs-dropdown}}
         {{/if}}
 
@@ -77,16 +61,12 @@
 
     {{#each queryObject.filters as |filter|}}
     {{#if (label-maker filter filter.column filter.value filter.valueDateObj.value filter.valueDateObj.duration filter.operator filter.valueDateObj.date filter.valueDateObj.dtt.name )}}
-    <span class="tag border tag-primary">
+    <span class="tag border tag-primary mt-1">
         {{#bs-dropdown closeOnMenuClick=false as |dd|}}
         {{#dd.toggle class="text-white"}}
         {{label-maker filter filter.column filter.value filter.valueDateObj.value filter.valueDateObj.duration filter.operator filter.valueDateObj.date filter.valueDateObj.dtt.name}}
         {{/dd.toggle}}
-        {{#dd.menu as |ddm|}}
-        <div class="menu-content">
-            {{filter-maker filter=filter columns=columns switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
-        </div>
-        {{/dd.menu}}
+        {{filter-maker dd=dd filter=filter columns=columns switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
         {{/bs-dropdown}}
         <a href="#" class="tag-addon">
             <i class="fe fe-x text-white" {{action 'remove' 'filters' filter}}></i>
@@ -95,17 +75,14 @@
     {{/if}}
     {{/each}}
     {{#bs-dropdown closeOnMenuClick=false as |dd|}}
-    {{#dd.toggle class="btn tag-size btn-secondary text-primary border-primary py-0 px-1"}}
+    {{#dd.toggle class="btn tag-size mt-1 btn-secondary text-primary border-primary py-0 px-1"}}
     <i class="fe fe-plus"></i> Filter
     {{/dd.toggle}}
-    {{#dd.menu as |ddm|}}
-    <div class="menu-content">
-        {{filter-maker filter=newFilter columns=columns switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
-        <div class="btn btn-primary mt-2 w-100" {{action "addNewFilter" }}> <i class="fe fe-plus"></i>
-            Add
-            Filter </div>
-    </div>
-    {{/dd.menu}}
+    {{filter-maker
+        dd=dd
+         showAddFilter=true
+         addNewFilter="addNewFilter"
+         filter=newFilter columns=columns switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
     {{/bs-dropdown}}
 
 </div>
@@ -113,17 +90,12 @@
 
     {{#each queryObject.views as |selectView|}}
     {{#if (label-maker selectView selectView.selected.raw selectView.selected.value selectView.selected.name selectView.selected)}}
-    <span class="tag tag-primary border">
+    <span class="tag tag-primary border mt-1">
         {{#bs-dropdown closeOnMenuClick=false as |dd|}}
         {{#dd.toggle class="text-white"}}
         {{label-maker selectView selectView.selected selectView.selected.value selectView.selected.raw selectView.selected.name }}
         {{/dd.toggle}}
-        {{#dd.menu as |ddm|}}
-        <div class="menu-content">
-            {{view-maker selectView=selectView switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
-        </div>
-
-        {{/dd.menu}}
+        {{view-maker dd=dd addNewView="addNewView" selectView=selectView switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
         {{/bs-dropdown}}
         <a href="#" class="tag-addon">
             <i class="fe fe-x text-white" {{action 'remove' 'views' selectView}}></i>
@@ -132,36 +104,22 @@
     {{/if}}
     {{/each}}
     {{#bs-dropdown closeOnMenuClick=false as |dd|}}
-    {{#dd.toggle class="btn tag-size btn-secondary text-primary border-primary py-0 px-1"}}
+    {{#dd.toggle class="btn tag-size mt-1 btn-secondary text-primary border-primary py-0 px-1"}}
     <i class="fe fe-plus"></i>View
     {{/dd.toggle}}
-    {{#dd.menu as |ddm|}}
-    <div class="menu-content">
-        {{view-maker selectView=newView switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
-        <div class="btn btn-primary mt-2 w-100" {{action "addNewView" }}> <i class="fe fe-plus"></i>
-            Add
-            View</div>
-    </div>
-    {{/dd.menu}}
+    {{view-maker dd=dd showAddView=true addNewView="addNewView" selectView=newView switchToBuilder='switchToBuilder' switchToRaw='switchToRaw'}}
     {{/bs-dropdown}}
 </div>
 <div class="card-footer">
 
     {{#each queryObject.groupBys as |groupBy|}}
     {{#if (label-maker groupBy groupBy.castType groupBy.selected groupBy.selected.value groupBy.selected.raw)}}
-    <span class="tag border tag-primary">
+    <span class="tag border tag-primary mt-1">
         {{#bs-dropdown closeOnMenuClick=false  as |dd|}}
         {{#dd.toggle class="text-white"}}
         {{label-maker groupBy groupBy.castType groupBy.selected groupBy.selected.value groupBy.selected.raw}}
         {{/dd.toggle}}
-        {{#dd.menu as |ddm|}}
-        <div class="menu-content">
-            {{group-by-maker columns=columns groupBy=groupBy switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
-
-        </div>
-
-
-        {{/dd.menu}}
+        {{group-by-maker dd=dd columns=columns groupBy=groupBy switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
         {{/bs-dropdown}}
         <a href="#" class="tag-addon">
             <i class="fe fe-x text-white" {{action 'remove' 'groupBys' groupBy}}></i>
@@ -170,17 +128,10 @@
     {{/if}}
     {{/each}}
     {{#bs-dropdown closeOnMenuClick=false as |dd|}}
-    {{#dd.toggle class="btn tag-size btn-secondary text-primary border-primary py-0 px-1"}}
+    {{#dd.toggle class="btn tag-size mt-1 btn-secondary text-primary border-primary py-0 px-1"}}
     <i class="fe fe-plus"></i>Grouping
     {{/dd.toggle}}
-    {{#dd.menu as |ddm|}}
-    <div class="menu-content">
-        {{group-by-maker columns=columns groupBy=newGroupBy switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
-        <div class="btn btn-primary mt-2 w-100" {{action "addNewGroupBy" }}> <i class="fe fe-plus"></i>
-            Add
-            Grouping</div>
-    </div>
-    {{/dd.menu}}
+    {{group-by-maker dd=dd showAddGroupBy=true addNewGroupBy='addNewGroupBy' columns=columns groupBy=newGroupBy switchToRaw="switchToRaw" switchToBuilder="switchToBuilder" }}
     {{/bs-dropdown}}
 </div>
 
@@ -188,18 +139,13 @@
 
     {{#each queryObject.orderBys as |orderBy|}}
     {{#if (label-maker orderBy orderBy.column orderBy.order)}}
-    <span class="tag border tag-primary">
+    <span class="tag border tag-primary mt-1">
         {{#bs-dropdown closeOnMenuClick=false  as |dd|}}
         {{#dd.toggle class="text-white"}}
         {{label-maker orderBy orderBy.column orderBy.order}}
         {{/dd.toggle}}
-        {{#dd.menu as |ddm|}}
-        <div class="menu-content">
 
-            {{order-by-maker columns=columns orderBy=orderBy}}
-        </div>
-
-        {{/dd.menu}}
+        {{order-by-maker dd=dd columns=columns orderBy=orderBy}}
         {{/bs-dropdown}}
         <a href="#" class="tag-addon">
             <i class="fe fe-x text-white" {{action 'remove' 'orderBys' orderBy}}></i>
@@ -208,17 +154,10 @@
     {{/if}}
     {{/each}}
     {{#bs-dropdown closeOnMenuClick=false as |dd|}}
-    {{#dd.toggle class="btn tag-size btn-secondary text-primary border-primary py-0 px-1"}}
+    {{#dd.toggle class="btn tag-size mt-1 btn-secondary text-primary border-primary py-0 px-1"}}
     <i class="fe fe-plus"></i>Sort Order
     {{/dd.toggle}}
-    {{#dd.menu as |ddm|}}
-    <div class="menu-content">
-        {{order-by-maker columns=columns orderBy=newOrderBy}}
-        <div class="btn btn-primary mt-2 w-100" {{action "addNewOrderBy" }}> <i class="fe fe-plus"></i>
-            Add
-            Sort Order</div>
-    </div>
-    {{/dd.menu}}
+    {{order-by-maker dd=dd showAddOrderBy=true addNewOrderBy='addNewOrderBy' columns=columns orderBy=newOrderBy}}
     {{/bs-dropdown}}
 </div>
 {{/if}}

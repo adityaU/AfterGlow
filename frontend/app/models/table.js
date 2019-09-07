@@ -15,15 +15,4 @@ export default DS.Model.extend({
     return this._super({ includeId: true });
   },
 
-  foreignTablesObserver:  Ember.observer('id', 'open', function(){
-    this.foreignTableCall().then((response)=> {
-
-      this.set('foreign_tables', response);
-    });
-  }),
-
-  foreignTableCall: memberAction({
-    path: 'foreign_tables',
-    urlType: 'findRecord'
-  }),
 });

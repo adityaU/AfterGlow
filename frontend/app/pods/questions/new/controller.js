@@ -125,7 +125,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
   showGetResults: false,
   showGetResultsObserver: Ember.observer('queryObject.database', 'queryObject.table', 'queryObject.queryType', 'queryObject.rawQuery', function () {
     let showGetResults = ((this.get('queryObject.database') && this.get('queryObject.table')) ||
-            (this.get('queryObject.database') && (this.get('queryObject.queryType') == 'raw') && this.get('queryObject.rawQuery')));
+      (this.get('queryObject.database') && (this.get('queryObject.queryType') == 'raw') && this.get('queryObject.rawQuery')));
     Ember.run.next(this, function () {
       this.set('showGetResults', showGetResults);
     });
@@ -143,19 +143,23 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
     return Object.keys(this.get('resultsWidgets'));
   }),
   availableResultsTypesHash: Ember.computed('availableResultsTypes', function () {
-    return Object.keys(this.get('resultsWidgets')).map(function (item) {
+    return Object.keys(this.get('resultsWidgets')).map((item) => {
       return Ember.Object.create({
-        title: item
+        title: item,
+        icon: this.get('resultViewIcons')[item.toLowerCase()],
+        columnClass: this.get('resultViewIconsColumnClass')[item.toLowerCase()]
       });
 
     });
   }),
   resultsViewTypeTitle: Ember.computed('resultsViewType', function () {
     return Ember.Object.create({
-      title: this.get('resultsViewType')
+      title: this.get('resultsViewType'),
+      icon: this.get('resultViewIcons')[this.get('resultsViewType').toLowerCase()],
+      columnClass: this.get('resultViewIconsColumnClass')[this.get('resultsViewType').toLowerCase()]
     });
   }),
-  scrollToResultsView(){
+  scrollToResultsView() {
     $('html, body').animate({
       scrollTop: $('.card.results').offset().top - 200
     }, 1000);
@@ -245,7 +249,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
       if (queryType == 'query_builder') {
         this.set('queryObject.queryType', 'raw');
         (this.get('queryObject.rawQuery') == null) &&
-                    this.set('queryObject.rawQuery', '');
+          this.set('queryObject.rawQuery', '');
       } else {
         this.set('queryObject.queryType', 'query_builder');
       }
@@ -366,19 +370,19 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
     },
     setEditorWhenReady(editor) {
       this.set('aceEditor', editor);
-      $( '.ace-resizable' ).resizable({
+      $('.ace-resizable').resizable({
         handles: 's',
         alsoResize: $('.db-tree'),
-        resize: function( event, ui ) {
+        resize: function (event, ui) {
           editor.resize();
           $('.db-tree').height($('.ace_editor').height());
         }
       });
     },
-    apply(){
-      if (this.get('canEdit')){
+    apply() {
+      if (this.get('canEdit')) {
         this.getResultsFunction(this.get('queryObject'));
-      }else{
+      } else {
         let question = this.get('question');
         question.set('resultsCanBeLoaded', true);
         question.set('updated_at', new Date());

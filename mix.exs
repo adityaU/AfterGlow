@@ -105,10 +105,11 @@ defmodule AfterGlow.Mixfile do
       {:quantum, "~> 2.3"},
       {:timex, "~> 3.0"},
       {:oban, "~> 0.2"},
-      {:mariaex, git: "https://github.com/xerions/mariaex.git", override: true},
+      {:mariaex, "0.9.1", override: true},
       {:db_connection, "~> 2.0", override: true},
       {:ecto_sql, "~> 3.1.0"},
       {:plug_cowboy, "~> 1.0"},
+      {:mustache, "~> 0.3.0"},
       {:numerix, "~> 0.5.1"}
     ]
   end

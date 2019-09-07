@@ -23,6 +23,13 @@ defmodule AfterGlow.Router do
     # end
     post("/query_results", QueryController, :execute)
     get("/sql_autocomplete", AutoCompleteController, :complete)
+
+    get(
+      "column_suggestions_autocomplete",
+      AutoCompleteController,
+      :column_suggestions_autocomplete
+    )
+
     post("/create_csv", DataFilesController, :fetch_and_upload)
     resources("/dashboards", DashboardController)
     resources("/questions", QuestionController)

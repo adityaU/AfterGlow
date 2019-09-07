@@ -19,7 +19,7 @@ export default Ember.Component.extend({
 
     onlyOne: Ember.computed('numbers', function () {
         let numbers = this.get('numbers')
-        if (numbers.length == 1) {
+        if (numbers && numbers.length == 1) {
             numbers.objectAt(0).set('title', this.get('displayName'))
             return true
         } else {

@@ -99,7 +99,7 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit results=results}}
                                 variablesReplacedQuery=variablesReplacedQuery
                                 aceMode=aceMode
                                 finalQuery=(or results.final_query errors.final_query)
-                                additionalFiltersApplied=results.additional_filters_applied 
+                                additionalFiltersApplied=results.additional_filters_applied
                                 aceTheme=aceTheme}}
                         {{/if}}
                     </div>
@@ -120,14 +120,24 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit results=results}}
                     {{#if results}}
                     <div class="card {{fullscreenClass}}">
                         <div class="card-header row results-view-selector">
-                            <div class="col-3" bubbles=false> {{searchable-select class="my-2 w-75 d-inline-block" content=availableResultsTypesHash selected=resultsViewTypeTitle prompt="Select
-                                a Visualization" on-change=(action 'updateResultViewType')}}
+                            <div class="col-9" bubbles=false>
+
+                                {{custom-single-select-content
+    widgetType='boxes'
+    hideSearch=true
+    selectCallbackAction='updateResultViewType'
+    elseMessage="No such Visualization"
+    options=availableResultsTypesHash value=resultsViewTypeTitle
+    dynamicIconOnly=true
+    keybindings=false
+    componentClass="d-inline-flex"
+    displayKey="title" iconKey="icon"}}
                                 <span>
                                     {{#bs-tooltip placement="top" }}Configure Visualization{{/bs-tooltip}}
                                     <i class="fe fe-settings text-gray" {{action 'toggleSettings'}}></i>
                                 </span>
                             </div>
-                            <div class="col-3 offset-6 text-right">
+                            <div class="col-3 text-right">
                                 {{#if (can "download question")}}
                                 <span class="px-1" {{action "downloadData"}}>
                                     {{#bs-tooltip placement="top" }}Download Data{{/bs-tooltip}}
@@ -148,7 +158,7 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit results=results}}
                             </div>
                         </div>
                         {{#if showSettings}}
-                        {{component resultsWidgetSettingsComponent  resultsViewSettings=resultsViewSettings results=results database=queryParams.database table=queryParams.table }}
+                        {{component resultsWidgetSettingsComponent canEdit=canEdit resultsViewSettings=resultsViewSettings results=results database=queryParams.database table=queryParams.table }}
                         {{/if}}
                         <div class="card-body p-0">
                             {{question-widget results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName

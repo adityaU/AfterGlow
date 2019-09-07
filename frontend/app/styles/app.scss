@@ -1758,6 +1758,7 @@ a:hover {
 
 .menu-content{
     width: 300px;
+    overflow: auto;
 }
 .min-width-15{
     min-width: 15%;
@@ -1834,3 +1835,21 @@ td{
      right: 0;
      z-index: 10;
  }
+
+.custom-select-option-active {
+    border-left: 3px solid $primaryColor;
+}
+.tag{
+    & a{
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 200px;
+        overflow: hidden;
+    }
+}
+.rotated90{
+  transform: rotateZ(90deg);
+}
+.max-height-400{
+    max-height: 400px;
+}

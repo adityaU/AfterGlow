@@ -2,29 +2,35 @@
     <div class="row w-100">
         <div class="form-group w-100">
             <div class="col-12">
-                    <label class="form-label text-default">Name
-                        <span class="form-required">*</span>
-                    </label>
+                <label class="form-label text-default">Name
+                    <span class="form-required">*</span>
+                </label>
 
-                    {{input class="form-control" value=variable.name class="ui" placeholder="Variable name" }}
+                {{input class="form-control" value=variable.name class="ui" placeholder="Variable name" }}
             </div>
             <div class="col-12">
-                    <label class="form-label text-default mt-2">Type
-                        <span class="form-required">*</span>
-                    </label>
-  {{searchable-select
+                <label class="form-label text-default mt-2">Type
+                    <span class="form-required">*</span>
+                </label>
+                {{searchable-select
       content=variableTypes
       sortBy="title"
       prompt="Select a Variable Type"
       selected=varTypeHash
       on-change=(action 'updateVarType')}}
             </div>
+            {{#if (eq variable.var_type 'String')}}
+            <small class="text-muted">This Variable will be replaced by Quoted string value.</small>
+            {{/if}}
+            {{#if (eq variable.var_type 'Integer')}}
+            <small class="text-muted">This Variable will be replaced by unquoted integer value.</small>
+            {{/if}}
             {{#if dynamic}}
             <div class="col-12">
-                    <label class="form-label text-default mt-2">Question Filter
-                        <span class="form-required">*</span>
-                    </label>
-  {{searchable-select
+                <label class="form-label text-default mt-2">Question Filter
+                    <span class="form-required">*</span>
+                </label>
+                {{searchable-select
       content=questions
       sortBy="title"
       prompt="Select a Filter Question"
@@ -37,21 +43,21 @@
                 <label class="form-label text-default mt-2">
                     Default
                     <span class="form-required">*</span>
-                    </label>
+                </label>
                 {{accordion-multiselect label="Default Options" selection=variable.default_options options=variable.questionFilterOptions labelProperty='name' placeholder="select few options"}}
             </div>
             {{else}}
             <div class="col-12">
-                    <label class="form-label text-default mt-2">Default
-                        <span class="form-required">*</span>
-                    </label>
-                    {{#if showDatePicker}}
-                        {{ui-calendar class="form-control" date=default_date onChange=(action (mut default_date)) placeholder="current_date" }}
-                        <div class="ui horizontal divider">or</div>
-                        {{input class="form-control" value=variable.default class="ui" placeholder="current_date" }}
-                    {{else}}
-                    {{input class="form-control" value=variable.default class="ui" placeholder="default" }}
-                    {{/if}}
+                <label class="form-label text-default mt-2">Default
+                    <span class="form-required">*</span>
+                </label>
+                {{#if showDatePicker}}
+                {{ui-calendar class="form-control" date=default_date onChange=(action (mut default_date)) placeholder="current_date" }}
+                <div class="ui horizontal divider">or</div>
+                {{input class="form-control" value=variable.default class="ui" placeholder="current_date" }}
+                {{else}}
+                {{input class="form-control" value=variable.default class="ui" placeholder="default" }}
+                {{/if}}
             </div>
             {{/if}}
         </div>

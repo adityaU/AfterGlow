@@ -1,0 +1,69 @@
+<div class="{{dropdownClass}}">
+    {{#unless hideSearch}}
+    <form class="input-icon my-3 my-lg-0">
+
+        {{input value=query class="form-control w-100 h-25 mb-2 custom-select-search-box" type="search" placeholder="Search..."}}
+        <div class="input-icon-addon">
+            <i class="fe fe-search"></i>
+        </div>
+    </form>
+    {{/unless}}
+
+    {{#each filteredOptions as |option index|}}
+    {{#unless (eq widgetType 'boxes')}}
+    <div class="{{if (eq selectedIndex index) "custom-select-option-active"}} {{if (eq index 0) "p-1" "p-1 border-top"}}"
+        {{action 'selectOption' option}}>
+        <div class="row">
+            <div class="col-10">
+                {{#if icon}}
+                <i class="fe {{icon}} mr-1 text-primary"></i>
+                {{/if}}
+                {{#if textIcon}}
+                <span class="text-icon mr-1 bg-primary text-white">{{textIcon}}</span>
+                {{/if}}
+                {{get option displayKey}}
+            </div>
+            <div class="col-2">
+                {{#if (eq (get option displayKey) (get value displayKey))}}
+                <i class="fe fe-check text-primary"></i>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+    {{else}}
+    <div class="tag mt-1 {{if (eq selectedIndex index) "custom-select-option-active"}}  {{if (eq (get option displayKey) (get value displayKey)) "bg-indigo-lighter" ""}}"
+        {{action 'selectOption' option}}>
+        <div class="row">
+            <div class="col-12 {{option.columnClass}}">
+                {{#if icon}}
+                <i class="fe {{icon}} mr-1 text-primary"></i>
+                {{/if}}
+                {{#if textIcon}}
+                <span class="text-icon mr-1 bg-primary text-white">{{textIcon}}</span>
+                {{/if}}
+                {{#if dynamicIconOnly}}
+                <span class="">
+                    {{bs.tooltip placement="top" title=(get option displayKey)}}
+                    <i class="{{get option iconKey}}"></i>
+                </span>
+                {{else}}
+                {{get option displayKey}}
+                {{/if}}
+            </div>
+        </div>
+    </div>
+    {{/unless}}
+    {{else}}
+    <small class="text-muted">
+        {{elseMessage}}
+    </small>
+    {{/each}}
+    {{#if helpText}}
+    <div class="p-1">
+        <small class="text-muted">
+            {{{helpText}}}
+        </small>
+
+    </div>
+    {{/if}}
+</div>

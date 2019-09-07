@@ -1,16 +1,60 @@
-{{searchable-select
-            class="my-2"
-            content=filteredColumns
-            sortBy="human_name"
-            selected=orderBy.column
-            prompt="Select a Column"
-            optionLabelKey="human_name"
-            on-change=(action (mut orderBy.column))}}
-{{searchable-select
-            class="my-2"
-            content=orders
-            sortBy="name"
-            selected=orderBy.order
-            prompt="Select Sort Direction"
-            optionLabelKey="name"
-            on-change=(action (mut orderBy.order))}}
+{{#dd.menu renderInPlace=false as |ddm|}}
+<div class="menu-content">
+    <div class="tags border-bottom mb-2">
+        <div class="tag tag-primary">
+            {{#if orderBy.column.name}}
+            <div {{action "mutState" 1}}>
+
+                {{orderBy.column.name}}
+            </div>
+            {{/if}}
+            {{#if orderBy.order.name}}
+            <div class="tag-addon" {{action 'mutState' 2}}>
+                {{orderBy.order.name}}
+            </div>
+            {{/if}}
+        </div>
+    </div>
+    {{#if (eq state 1)}}
+    <div class="menu-content">
+        {{custom-single-select-content 
+    selectCallbackAction='focusOnOrderSelect'
+    elseMessage="No such column"
+    options=filteredColumns value=orderBy.column
+    displayKey="human_name" }}
+    </div>
+    {{/if}}
+    {{#if (eq state 2)}}
+    {{custom-single-select-content 
+    hideSearch=true
+    widgetType='boxes'
+    dd=dd
+    ddm=ddm
+    selectCallbackAction='addNewOrderBy'
+    dropdownClass="js-order-by-order-select"
+    options=orders value=orderBy.order
+    displayKey="name" }}
+
+
+    <div class="row">
+        <div class="col-6">
+            <div class="btn btn-link mt-2 w-100 text-left" {{action "mutState" 1}}> Go Back</div>
+        </div>
+        <div class="col-6">
+            {{#if showAddOrderBy}}
+            <div class="btn btn-primary mt-2 w-100" {{action "addNewOrderBy" }}> <i class="fe fe-plus"></i>
+                Add
+                Sort Order</div>
+            {{else}}
+
+            <div class="btn btn-primary mt-2 w-100" {{action 'close' }}> <i class="fe fe-plus"></i>
+                Done</div>
+            {{/if}}
+
+        </div>
+    </div>
+
+    {{/if}}
+
+</div>
+{{/dd.menu}}

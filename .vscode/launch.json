@@ -10,7 +10,7 @@
             "request": "launch",
             "projectDir": "${workspaceRoot}",
             "task": "phx.server"
-        }
+        },
         {
             "type": "mix_task",
             "name": "mix (Default task)",

@@ -150,7 +150,7 @@ WHERE
 
     case query do
       {:ok, prepared_query} ->
-        {:ok, results} = Mariaex.execute(conn, prepared_query, [], opts)
+        {:ok, _query, results} = Mariaex.execute(conn, prepared_query, [], opts)
 
         {:ok,
          %{
@@ -172,7 +172,7 @@ WHERE
 
     case query do
       {:ok, prepared_query} ->
-        {:ok, results} = Mariaex.execute(conn, prepared_query, [], opts)
+        {:ok, _query, results} = Mariaex.execute(conn, prepared_query, [], opts)
 
         {:ok,
          %{

@@ -42,6 +42,7 @@ defmodule AfterGlow.Sql.QueryRunner do
 
   def run_query_from_object(db_record, params, frontend_limit) do
     permit_prms = permit_params(params)
+
     query = DbConnection.query_string(db_record |> Map.from_struct(), permit_prms)
 
     permit_prms = permit_prms_raw_query(permit_prms, query)
@@ -135,7 +136,7 @@ defmodule AfterGlow.Sql.QueryRunner do
       limit: params["limit"],
       offset: params["offset"],
       additional_filters: params["additionalFilters"],
-      variables: params["variables"],
+      variables: params["variables"] || %{},
       schema: schema
     }
   end

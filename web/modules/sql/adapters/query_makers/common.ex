@@ -270,6 +270,57 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
 
       def parse_filter(%{
             "column" => col,
+            "operator" => %{"value" => "is NULL", "name" => _name},
+            "value" => val,
+            "valueDateObj" => valdate
+          }) do
+        col["name"] <> " " <> "is NULL"
+      end
+
+      def parse_filter(%{
+            "column" => col,
+            "operator" => %{"value" => "is not NULL", "name" => _name},
+            "value" => _val,
+            "valueDateObj" => _valdate
+          }) do
+        col["name"] <> " " <> "is not NULL"
+      end
+
+      def parse_filter(%{
+            "column" => col,
+            "operator" => %{"value" => "matches", "name" => _name},
+            "value" => val,
+            "valueDateObj" => valdate
+          }) do
+        "lower(" <>
+          col["name"] <>
+          ") like" <> " '%" <> (val |> String.downcase()) <> "%'"
+      end
+
+      def parse_filter(%{
+            "column" => col,
+            "operator" => %{"value" => "ends with", "name" => _name},
+            "value" => val,
+            "valueDateObj" => valdate
+          }) do
+        "lower(" <>
+          col["name"] <>
+          ") like" <> " '%" <> (val |> String.downcase()) <> "'"
+      end
+
+      def parse_filter(%{
+            "column" => col,
+            "operator" => %{"value" => "starts with", "name" => _name},
+            "value" => val,
+            "valueDateObj" => valdate
+          }) do
+        "lower(" <>
+          col["name"] <>
+          ") like" <> " '" <> (val |> String.downcase()) <> "%'"
+      end
+
+      def parse_filter(%{
+            "column" => col,
             "operator" => %{"value" => op_value, "name" => _name},
             "value" => val,
             "valueDateObj" => valdate

@@ -6,17 +6,7 @@
         {{#dd.toggle class="text-white "}}
         {{queryObject.database.name}}
         {{/dd.toggle}}
-        {{#dd.menu as |ddm|}}
-        <div class="menu-content">
-            {{searchable-select
-    content=databases
-    sortBy="name"
-    prompt="Select a Database"
-    selected=queryObject.database
-    optionLabelKey="name"
-    on-change=(action (mut queryObject.database))}}
-        </div>
-        {{/dd.menu}}
+        {{custom-single-select dd=dd icon="fe-database" value=queryObject.database options=databases displayKey="name"}}
         {{/bs-dropdown}}
 
     </div>
@@ -26,16 +16,9 @@
 {{#dd.toggle id="datasource-selector" class="btn tag-size  btn-secondary text-primary border-primary py-0 px-1"}}
 <i class="fe fe-plus"></i> Data Source
 {{/dd.toggle}}
-{{#dd.menu as |ddm|}}
-<div class="menu-content">
-    {{searchable-select
-    content=databases
-    sortBy="name"
-    prompt="Select a Database"
-    selected=queryObject.database
-    optionLabelKey="name"
-    on-change=(action (mut queryObject.database))}}
-</div>
-{{/dd.menu}}
+{{custom-single-select 
+ elseMessage="You don't have any database. Please ask your admin to add databases or provide you access to already added database"
+ elseClass="menu-content"
+ dd=dd icon="fe-database" value=queryObject.database options=databases displayKey="name"}}
 {{/bs-dropdown}}
 {{/if}}

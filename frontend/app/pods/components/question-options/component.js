@@ -38,8 +38,8 @@ export default Ember.Component.extend(CustomEvents, {
             this.set('editing', false);
         },
         showDeleteDialogue() {
-
             this.set('toggleDeleteDialogue', true);
+
         },
         showShareDialogue() {
             this.set('toggleShareModal', 'true');

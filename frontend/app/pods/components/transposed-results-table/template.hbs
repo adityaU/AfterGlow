@@ -1,10 +1,11 @@
 <div class="table-responsive">
     <table class="table table-hover table-outline table-vcenter text-nowrap card-table table-striped">
         <tbody>
-            {{#each transposedResults.content as |row|}}
+            {{#each transposedResults.content as |row i|}}
             <tr>
                 {{#each row as |el index|}}
                 {{#if (eq index 0)}}
+                {{#unless (exists-in-array question.results_view_settings.hiddenColumns el)}}
                 <th class="">
                     {{widgets/render-widgets class="d-inline" el=(capitalize el) question=question index=index results=results}}
                     {{#if  (replace-column-with-api-action question.api_actions el question.apiActionsChanged)}}
@@ -17,15 +18,26 @@
                     {{/if}}
                     {{/if}}
                 </th>
+                {{/unless}}
                 {{else}}
+                {{#unless (exists-in-array question.results_view_settings.hiddenColumns (get-in results.columns i))}}
                 <td class="">
+                    {{#if  (replace-column-with-api-action question.api_actions (get-in results.columns i) question.apiActionsChanged)}}
+                    <div class="btn btn-link text-{{get (replace-column-with-api-action question.api_actions (get-in results.columns i) question.apiActionsChanged) "color"}} text-uppercase p-0"
+                        {{action 'callApiAction' (replace-column-with-api-action question.api_actions (get-in results.columns i) question.apiActionsChanged) (get-row results.rows page perPage index)}}>
+                        {{get-api-action-display-name (get-row results.rows page perPage index) results.columns (get (replace-column-with-api-action question.api_actions (get-in results.columns i) question.apiActionsChanged) "name")}}
+                    </div>
+
+                    {{else}}
                     {{#if (exists-in index results)}}
                     {{#link-to 'explore.new' (get-column-id index results) el}}
                     {{widgets/render-widgets el=el question=question index=index results=results}}
                     {{/link-to}}
                     {{else}}{{widgets/render-widgets el=el question=question index=index results=results}}
                     {{/if}}
+                    {{/if}}
                 </td>
+                {{/unless}}
                 {{/if}}
                 {{/each}}
 
@@ -33,6 +45,7 @@
             {{else}}
             {{/each}}
             {{#each question.api_actions as |apiAction|}}
+            {{#if (not apiAction.column)}}
             <tr>
 
                 <th>
@@ -46,7 +59,7 @@
                 <td>
                     <div class="btn btn-link text-{{apiAction.color}} text-uppercase p-0"
                         {{action 'callApiAction' apiAction (get-row results.rows page perPage col_index)}}>
-                        {{apiAction.name}}
+                        {{get-api-action-display-name  (get-row results.rows page perPage col_index) results.columns apiAction.name}}
                     </div>
 
                 </td>
@@ -54,6 +67,7 @@
                 {{/each}}
 
             </tr>
+            {{/if}}
             {{/each}}
         </tbody>
         {{#if showPageNumbers}}
@@ -70,5 +84,5 @@
     </table>
 </div>
 {{delete-dialogue entityName="Api Action" open=toggleDeleteApiActionModal entity=deletableApiAction delete="deleteApiAction"}}
-{{api-action-modal apiAction=editableApiAction open=toggleEditApiActionModal}}
-{{api-action-result canDebug=canEdit result=apiActionResult open=toggleApiActionResult}}
+{{api-action-modal apiAction=editableApiAction open=toggleEditApiActionModal results=results question=question}}
+{{api-action-result canDebug=canEdit result=apiActionResult open=toggleApiActionResult }}

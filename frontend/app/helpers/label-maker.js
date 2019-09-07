@@ -34,20 +34,22 @@ export default Ember.Helper.extend({
         if (obj.get('order')) {
             label = label + ': ' + obj.get('order.name');
         }
-        if (obj.get('raw')){
+        if (obj.get('raw')) {
             label = obj.get('value')
         }
-        if (obj.get('operator') && obj.get('column') && (obj.get('value') || obj.get('valueDateObj.value') )){
+        if (obj.get('operator') && obj.get('column')) {
             label = `${capitalize.compute([obj.get('column.human_name')])} ${obj.get('operator.value')}`
-            if (obj.get('valueDateObj.value')) {
-                 label = label + ` ${obj.get('valueDateObj.value')} ${obj.get('valueDateObj.duration.name') || "Days"} ${obj.get('valueDateObj.dtt.name') || 'Ago'}`
-            }else{
-                if (obj.get('value').constructor.name == 'Date'){
+            if (['is NULL', 'is not NULL'].indexOf(obj.get('operator.value')) < 0) {
+                if (obj.get('valueDateObj.value')) {
+                    label = label + ` ${obj.get('valueDateObj.value')} ${obj.get('valueDateObj.duration.name') || "Days"} ${obj.get('valueDateObj.dtt.name') || 'Ago'}`
+                } else if (obj.get('value')) {
+                    if (obj.get('value').constructor.name == 'Date') {
 
-                  label = label + ` ${formatObject.compute([obj.get('value').toISOString()])}`
-                }else{
+                        label = label + ` ${formatObject.compute([obj.get('value').toISOString()])}`
+                    } else {
 
-                  label = label + ` ${formatObject.compute([obj.get('value')])}`
+                        label = label + ` ${formatObject.compute([obj.get('value')])}`
+                    }
                 }
             }
         }

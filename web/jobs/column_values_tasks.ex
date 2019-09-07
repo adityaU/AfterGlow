@@ -18,7 +18,10 @@ defmodule AfterGlow.ColumnValuesTasks do
       |> Enum.reject(fn x -> is_nil(x) end)
       |> Enum.map(fn v ->
         v
-        |> Map.merge(%{inserted_at: DateTime.utc_now(), updated_at: DateTime.utc_now()})
+        |> Map.merge(%{
+          inserted_at: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second),
+          updated_at: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+        })
       end)
 
     # a uniqueness check on database prevents duplicate entries.
@@ -31,7 +34,7 @@ defmodule AfterGlow.ColumnValuesTasks do
       |> Enum.map(fn column ->
         index = results.columns |> Enum.find_index(fn el -> el == column.name end)
 
-        if index >= 0 do
+        if index && index >= 0 do
           # compact
           values =
             results.rows

@@ -1,29 +1,34 @@
-{{#each sortedColumnValues as |cv|}}
-<div class="{{if cv.selected "tag-primary"}} tag" {{action 'selectOption' cv }} >
-  {{cv.displayName}}
+{{#if showDatePicker}}
+{{#bs-tab as |tab|}}
+{{#tab.pane title="Duration"}}
+{{input value=filter.valueDateObj.value class="form-control my-2" placeholder="30"}}
+
+<div class="border-top py-2">
+  {{custom-single-select-content 
+    hideSearch=true
+    widgetType='boxes'
+    options=durations value=filter.valueDateObj.duration
+    displayKey="name" }}
+
+</div>
+<div class="border-top py-2">
+  {{custom-single-select-content 
+    hideSearch=true
+    widgetType='boxes'
+    options=dateTimeTypes value=filter.valueDateObj.dtt
+    displayKey="name" }}
+</div>
+{{/tab.pane}}
+{{#tab.pane title="Datepicker" }}
+
+{{bs-datetimepicker class="d-block" date=filter.value inline=true useCurrent='day'}}
+{{/tab.pane}}
+{{/bs-tab}}
+{{else}}
+{{input class="form-control my-2" value=filter.value class="ui" placeholder="Column Value"}}
+{{#each suggestions as |suggestion|}}
+<div class="border-bottom py-2 text-primary" {{action (mut filter.value) suggestion.displayName}}>
+  {{format-object suggestion.displayName}}
 </div>
 {{/each}}
-
-{{#if showDatePicker}}
-{{input value=filter.valueDateObj.value class="form-control my-2" placeholder="30"}}
-{{searchable-select
-  content=durations
-  class="my-2"
-  sortBy="name"
-  prompt="Days"
-  selected=filter.valueDateObj.duration
-  optionLabelKey="name"
-  on-change=(action (mut filter.valueDateObj.duration))}}
-  {{searchable-select
-    class="my-2"
-    content=dateTimeTypes
-    sortBy="name"
-    prompt="Ago"
-    selected=filter.valueDateObj.dtt
-    optionLabelKey="name"
-    on-change=(action (mut filter.valueDateObj.dtt))}}
-    <div class="divider">Or</div>
-    {{ui-calendar class="form-control" date=filter.value onChange=(action (mut filter.value)) placeholder="Pick a date and time"}}
-    {{else}}
-    {{input class="form-control my-2" value=filter.value class="ui" placeholder="Column Value"}}
-    {{/if}}
+{{/if}}
