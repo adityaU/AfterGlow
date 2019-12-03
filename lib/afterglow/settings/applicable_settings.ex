@@ -3,12 +3,21 @@ defmodule AfterGlow.Settings.ApplicableSettings do
   alias AfterGlow.Settings.UserSettingsQueryFunctions, as: UserSettings
   alias AfterGlow.Settings.OrganizationSettingsQueryFunctions, as: OrganizationSettings
 
+  def use_signed_s3_url_in_emails() do
+    global_setting_by_name("USE_SIGNED_S3_URLS_IN_MAILS") == "true"
+  end
+
+  def signed_s3_url_timeout() do
+    global_setting_by_name("S3_SIGNED_URL_TIMEOUT") |> String.to_integer
+  end
+
   def email_server() do
     global_setting_by_name("EMAIL_SERVER")
   end
 
   def sender_email_id() do
     global_setting_by_name("SENDER_EMAIL_ID")
+    |> IO.inspect(label: "sender_email")
   end
 
   def email_hostname() do

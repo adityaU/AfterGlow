@@ -16,6 +16,8 @@ defmodule AfterGlow.Settings.GlobalSettingsQueryFunctions do
     ["AWS_REGION", nil],
     ["MAX_DOWNLOAD_LIMIT", nil],
     ["DOWNLOAD_ALLOWED", "true"],
+    ["USE_SIGNED_S3_URLS_IN_MAILS", "false"],
+    ["S3_SIGNED_URL_TIMEOUT", "600"], # in seconds
     ["MAX_FRONTEND_LIMIT", "2000"]
   ]
 

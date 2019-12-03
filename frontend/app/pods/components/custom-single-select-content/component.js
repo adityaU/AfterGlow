@@ -6,7 +6,6 @@ export default Ember.Component.extend(KeyboardShortcuts, {
   classNameBindings: ['componentClass'],
   didInsertElement() {
     this._super(...arguments);
-    this.$('.custom-select-search-box').focus();
   },
   selectedIndex: 0,
 
@@ -20,7 +19,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
         }
         return item[this.get('displayKey')] && item[this.get('displayKey')].toLowerCase().match(query.toLowerCase());
       });
-      return filteredOptions.slice(0, 100)
+      return filteredOptions.slice(0, 100);
     } else {
       return options.slice(0, 100);
     }
@@ -63,9 +62,12 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     }
   },
 
-  keyboardShortcuts: {
-    'up': { action: 'decrementIndex', global: false, preventDefault: true },
-    'down': { action: 'incrementIndex', global: false, preventDefault: true },
-    'enter': { action: 'selectByCurrentIndex', global: false, preventDefault: true }
-  }
+  keyboardShortcuts: Ember.computed(function () {
+    let globalState = this.get('keybindings') != false;
+    return {
+      'up': { action: 'decrementIndex', global: globalState, preventDefault: false },
+      'down': { action: 'incrementIndex', global: globalState, preventDefault: false },
+      'enter': { action: 'selectByCurrentIndex', global: globalState, preventDefault: true }
+    };
+  })
 });

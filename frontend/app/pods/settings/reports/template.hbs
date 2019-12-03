@@ -71,6 +71,22 @@
                 {{input class=(if s3_bucket_setting.errors.value "form-control is-invalid" "form-control")  type="text" name="first-name" value=s3_bucket_setting.value}}
             </div>
             {{/if}}
+            {{#if use_signed_s3_url_in_emails}}
+            <div class="form-group">
+                <label class="custom-switch">
+                    <span class="custom-switch-description form-label m-0">Can Download Reports</span>
+                    {{input type="checkbox"  change=(action 'setUseSignedS3UrlInEmails') checked=(eq use_signed_s3_url_in_emails.value "true") name="custom-switch-checkbox" class="custom-switch-input"}}
+                    <span class="custom-switch-indicator ml-4"></span>
+                </label>
+                <small class="text-muted d-block">If you want to keep the s3 bucket private. Enable this option. You'll have to update s3 bucket policy yourself.</small>
+            </div>
+            {{/if}}
+            {{#if (and (eq use_signed_s3_url_in_emails.value 'true')  signed_s3_url_timeout)}}
+            <div class="form-group">
+                <label class="form-label">Signed S3 Url Timeout</label>
+                {{input class=(if signed_s3_url_timeout.errors.value "form-control is-invalid" "form-control")  type="text"  value=signed_s3_url_timeout.value}}
+            </div>
+            {{/if}}
         </div>
     </div>
     <div class="card-footer">

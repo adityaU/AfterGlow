@@ -1,5 +1,6 @@
 defmodule AfterGlow.Helpers.CsvHelpers do
   alias AfterGlow.Question
+
   alias AfterGlow.Sql.DbConnection
   alias AfterGlow.Settings.ApplicableSettings
   import AfterGlow.Sql.QueryRunner, only: [make_final_query: 3]
@@ -53,10 +54,22 @@ defmodule AfterGlow.Helpers.CsvHelpers do
     upload_file(file_name, file_path)
     delete_file(file_name)
 
-    "s3-#{aws_region()}.amazonaws.com/#{Application.get_env(:afterglow, :s3_bucket)}#{
+    sign_url_if_needed(file_name, file_path)
+
+  end
+
+  def sign_url_if_needed(file_name, file_path) do
+    bucket =ApplicableSettings.s3_bucket() || Application.get_env(:afterglow, :s3_bucket)
+    if ApplicableSettings.use_signed_s3_url_in_emails() do
+      S3.presigned_url(Enum.into(aws_config(), %{}) , :get, bucket, file_path || s3_file_name(file_name), [expires: ApplicableSettings.signed_s3_url_timeout])
+      |> elem(1)
+      |> IO.inspect(label: "Signed_URL")
+    else
+    "s3-#{aws_region()}.amazonaws.com/#{bucket}#{
       file_path || s3_file_name(file_name)
     }"
     |> URI.encode()
+    end
   end
 
   def save_and_upload_from_stream(stream, columns, file_path) do

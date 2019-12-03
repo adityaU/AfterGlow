@@ -39,7 +39,6 @@ defmodule AfterGlow.TagController do
         |> render(:errors, data: changeset)
     end
   end
-
   def show(conn, %{"id" => id}) do
     tag = Repo.get!((from t in Tag, select: [:id]), id)
     tag = CacheWrapper.get_by_id(tag.id, Tag) |> Repo.preload(:dashboards) |> Repo.preload(:questions)

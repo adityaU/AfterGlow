@@ -936,6 +936,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                             color: '#495057',
                             fontSize: 12
                         },
+                        position: "right",
                         axisLine: {
                             onZero: false,
                             lineStyle: {
@@ -955,12 +956,22 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                     // column of the dataset by default.
                     series: this.get('seriesWithData')
                 };
+              
+              this.get("multipleYs").forEach((item)=>{
+                if item.get('separateYAxis') {
+
+                     options["yAxis"].push()
+                }
+              })
+
+              // if (separate_y_axis) {
+              // }
                 this.set('options', options);
                 this.set('randomId', false);
                 Ember.run.next(this, function () {
                     if (!this.get || !this.get('isDestroyed')) {
                         this.set('randomId', 100000 * Math.random());
-                    }
+                     }
                 });
             }
         }, 300);

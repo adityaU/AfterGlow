@@ -25,3 +25,6 @@ mix.lock
 README.md
 web/
 _build/dev/
+.git/
+frontend/.*
+.vscode/

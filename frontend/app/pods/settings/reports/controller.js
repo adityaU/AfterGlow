@@ -2,6 +2,18 @@
 export default Ember.Controller.extend({
     settings: Ember.computed.alias('model'),
 
+    use_signed_s3_url_in_emails: Ember.computed("settings.isLoaded", function () {
+        return this.get('settings').filter((setting) => {
+            return (setting.get('name') == "USE_SIGNED_S3_URLS_IN_MAILS")
+        })[0]
+    }),
+
+    signed_s3_url_timeout: Ember.computed("settings.isLoaded", function () {
+        return this.get('settings').filter((setting) => {
+            return (setting.get('name') == "S3_SIGNED_URL_TIMEOUT")
+        })[0]
+    }),
+
     report_limit_setting: Ember.computed("settings.isLoaded", function () {
         return this.get('settings').filter((setting) => {
             return (setting.get('name') == "MAX_DOWNLOAD_LIMIT")
@@ -84,6 +96,14 @@ export default Ember.Controller.extend({
                 this.set('download_allowed_setting.value', "true")
             } else {
                 this.set('download_allowed_setting.value', "false")
+            }
+        },
+        setUseSignedS3UrlInEmails() {
+            let currentValue = this.get('use_signed_s3_url_in_emails.value')
+            if (currentValue == 'false') {
+                this.set('use_signed_s3_url_in_emails.value', "true")
+            } else {
+                this.set('use_signed_s3_url_in_emails.value', "false")
             }
         }
     }

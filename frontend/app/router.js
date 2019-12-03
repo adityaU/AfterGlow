@@ -72,6 +72,7 @@ Router.map(function () {
 
         this.route('reports');
         this.route('frontend');
+        this.route('version');
         this.route('organizations', function () {
             this.route('index', {
                 path: '/'

@@ -12,6 +12,11 @@ defmodule AfterGlow.AutoComplete do
   alias AfterGlow.Question.Policy, as: QuestionPolicy
   alias AfterGlow.Dashboard.Policy, as: DashboardPolicy
 
+  @snippets [
+    if: "<%= if var do %>\n\tand col =  <%= var %>\n<% end %>",
+    ifel: "<%= if var do %>\n\tand col =  <%= var %>\n<% else %>\n\tdefault_condition\n<% end %>"
+  ]
+
   def column_suggestions_autocomplete(query, database_id, table_id, column_id) do
     database = Repo.get(Database, database_id)
     table = Repo.get(Table, table_id)
@@ -258,11 +263,29 @@ defmodule AfterGlow.AutoComplete do
 
     suggestions = if suggest_tables, do: suggest_only_tables(prefix, database_id), else: []
 
-    suggestions ++
-      if matched_tables && !suggest_tables && !does_ends_with_table_regex(query) do
-        suggest_columns(matched_tables, database_id)
-      else
-        []
-      end
+    suggestions =
+      suggestions ++
+        if matched_tables && !suggest_tables && !does_ends_with_table_regex(query) do
+          suggest_columns(matched_tables, database_id)
+        else
+          []
+        end
+
+    suggestions ++ snippets(prefix)
+  end
+
+  defp snippets(prefix) do
+    @snippets
+    |> Enum.filter(fn {name, _} ->
+      Regex.match?(~r/^#{prefix}/, name |> to_string())
+    end)
+    |> Enum.map(fn {name, value} ->
+      %{
+        caption: name,
+        value: value,
+        meta: "snippets",
+        score: 5000 / (name |> to_string() |> String.length())
+      }
+    end)
   end
 end

@@ -36,8 +36,11 @@ defmodule AfterGlow.Mailers do
 
     new_email()
     |> to(to)
-    |> from(Application.get_env(:afterglow, :sender_email_id))
+    |> from(
+      ApplicableSettings.sender_email_id() || Application.get_env(:afterglow, :sender_email_id)
+    )
   end
+
 
   defp filter_to(to) when is_list(to) do
     to
