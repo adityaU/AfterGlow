@@ -17,6 +17,7 @@ defmodule AfterGlow.QuestionView do
     :query_type,
     :columns,
     :shared_to,
+    # :api_action,
     :has_permission
   ])
 
@@ -46,6 +47,12 @@ defmodule AfterGlow.QuestionView do
     field: :variables,
     type: "variables",
     include: false
+  )
+
+  has_one(
+    :api_action,
+    field: :api_action,
+    type: "api_actions"
   )
 
   has_many(

@@ -3,6 +3,10 @@ export default Ember.Component.extend({
     aceTheme: 'ace/theme/ambiance',
     aceMode: 'ace/mode/JSON',
 
+    saveEnabled: Ember.computed('apiAction.response_settings.displayKey', function () {
+        let displayKey = this.get('apiAction.response_settings.displayKey')
+        return !!displayKey
+    }),
     status: Ember.computed('result.status_code', function () {
         let status = this.get('result.status_code');
         if (status >= 200 && status < 400) {
@@ -46,6 +50,24 @@ export default Ember.Component.extend({
     actions: {
         clear() {
             this.set('open', false);
-        }
+        },
+        save() {
+            this.get('question').save().then((response) => {
+                this.get('apiAction').save().then((response) => {
+                    this.sendAction("transitionToQuestion", this.get('question.id'))
+                    this.toggleProperty('open')
+                })
+            })
+        },
+
+        setEditorWhenReady(editor) {
+            this.set('aceEditor', editor);
+            $('.ace-resizable').resizable({
+                handles: 's',
+                resize: function (event, ui) {
+                    editor.resize();
+                }
+            });
+        },
     }
 });

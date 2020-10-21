@@ -62,12 +62,10 @@
                           resizeTime=resizeTime
                           resultsViewType=question.results_view_settings.resultsViewType hideMenu=question.showCardHeader refresh="refreshQuestion" dashboard=dashboard remove="showDeleteFromDashboardDialogue"}}
         {{else}}
-        {{#if (or question.loading (not question.content.isLoaded))}}
         <div class="dimmer active">
             <div class="loader text-primary"></div>
             <div class="dimmer-content"> </div>
         </div>
-        {{/if}}
         {{/if}}
     </div>
 </div>

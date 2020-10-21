@@ -26,6 +26,8 @@ config :afterglow, AfterGlow.Endpoint,
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
+config :logger, truncate: :infinity
+config :logger, level: :debug
 config :oauth2, debug: true
 
 # Set a higher stacktrace during development. Avoid configuring such
@@ -35,8 +37,5 @@ config :phoenix, :stacktrace_depth, 20
 # Configure your database
 config :afterglow, AfterGlow.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "adityau",
-  password: "null",
-  database: "afterglow_temp",
-  hostname: "localhost",
+  url: System.get_env("AG_DATABASE_URL"),
   pool_size: 50

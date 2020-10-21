@@ -15,9 +15,9 @@ defmodule AfterGlow.Alerts.Jobs.AlertEvaluator do
     not_equal_to: &Kernel.!=/2
   }
 
-  def perform(alert_setting_id) do
+  def performx(alert_setting_id) do
     Repo.transaction(fn ->
-      alert_setting = AlertSettings.get(alert_setting_id)
+      alert_setting = AlertSettings.get!(alert_setting_id) |> Repo.preload(:question)
 
       alert_setting.question
       |> DataFetcher.fetch_via_stream_with_default_variables(fn row, column ->
@@ -26,7 +26,7 @@ defmodule AfterGlow.Alerts.Jobs.AlertEvaluator do
     end)
   end
 
-  defp evaluate(alert_setting, rows, columns) do
+  def evaluate(alert_setting, rows, columns) do
     value_index =
       columns
       |> Enum.find_index(fn col -> col == alert_setting.column end)

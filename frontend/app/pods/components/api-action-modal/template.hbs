@@ -4,9 +4,11 @@
     {{#if apiAction.id}}Edit{{else}}Create{{/if}} Api Action </h4>
 {{/modal.header}}
 {{#modal.body}}
-<div class="mb-2"> Pro tip: You can use column names as variables. Use <b>{</b><b>{</b> col_name <b>}</b><b>}</b>
+<div class="mb-2"> Pro tip: You can use column names/ question variables as variables. Use <b>{</b><b>{</b> col_name
+    <b>}</b><b>}</b>
     in name, url, headers and body fields. </div>
 <div class="row">
+    {{#unless hideName}}
     <div class="col-9 pr-2">
         <div class="form-group">
             <div class="form-label">Name</div>
@@ -31,6 +33,7 @@
             </div>
         </div>
     </div>
+    {{/unless}}
     <div class="col-12">
         <div class="form-group">
             <div class="form-label">Method</div>
@@ -85,6 +88,7 @@
 
     </div>
     {{/if}}
+    {{#if columnReplacable}}
     <div class="col-12">
         <div class="form-group">
             <div class="form-label">Replace Column</div>
@@ -100,11 +104,17 @@
         <div class="invalid-feedback d-flex">{{error.message}}</div>
         {{/each}}
     </div>
+    {{/if}}
 
 </div>
 {{/modal.body}}
 {{#modal.footer as |footer|}}
 {{#bs-button onClick=(action 'clear')  }}Cancel{{/bs-button}}
+
+{{#if hideSaveButton}}
+{{#bs-button onClick=(action 'previewAction') class="btn-secondary" type="secondary" }}Preview{{/bs-button}}
+{{else}}
 {{#bs-button onClick=(action 'saveApiAction') class="btn-primary" type="primary" }}Save{{/bs-button}}
+{{/if}}
 {{/modal.footer}}
 {{/bs-modal}}

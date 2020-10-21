@@ -1,73 +1,86 @@
 {{#if sessionService.authenticated}}
 <div class="header collapse d-lg-flex p-0">
-    <div class="container">
-        <div class="d-flex">
-            <div class="col-lg order-lg-first">
-                <div class="nav nav-tabs border-0 flex-column flex-lg-row">
-                    {{#link-to "index" class="header-brand" }}{{app-logo logoSize="small"}}{{/link-to}}
-                    {{#if (can "show Dashboard")}}
-                    {{#bs-dropdown class="nav-item" as |dd|}}
-                    {{#dd.toggle class="nav-link" }}Dashboards
-                    <i class="fe fe-chevron-down mt-1 ml-1"></i>
-                    {{/dd.toggle}}
-                    {{#dd.menu className="dropdown-menu-arrow" as |ddm|}}
-                    <div class="menu-content">
-                        {{#each dashboards as |dashboard|}}
-                        {{#ddm.item}}
-                        <a class="dropdown-item " {{action 'goToDashboard' dashboard}}> {{dashboard.title}} </a>
-                        {{/ddm.item}}
-                        {{/each}} {{ddm.divider}}
-                        {{#ddm.item}}
-                        {{#link-to 'dashboards.index' class="dropdown-item" }} All Dashboards {{/link-to}}
-                        {{/ddm.item}}
+  <div class="container">
+    <div class="d-flex">
+      <div class="col-lg order-lg-first">
+        <div class="nav nav-tabs border-0 flex-column flex-lg-row">
+          {{#link-to "index" class="header-brand" }}{{app-logo logoSize="small"}}{{/link-to}}
+          {{#if (can "show Dashboard")}}
+          {{#bs-dropdown class="nav-item" as |dd|}}
+          {{#dd.toggle class="nav-link" }}Dashboards
+          <i class="fe fe-chevron-down mt-1 ml-1"></i>
+          {{/dd.toggle}}
+          {{#dd.menu className="dropdown-menu-arrow" as |ddm|}}
+          <div class="menu-content">
+            {{#each dashboards as |dashboard|}}
+            {{#ddm.item}}
+            <a class="dropdown-item " {{action 'goToDashboard' dashboard}}> {{dashboard.title}} </a>
+            {{/ddm.item}}
+            {{/each}} {{ddm.divider}}
+            {{#ddm.item}}
+            {{#link-to 'dashboards.index' class="dropdown-item" }} All Dashboards {{/link-to}}
+            {{/ddm.item}}
 
-                    </div>
-                    {{/dd.menu}}
-                    {{/bs-dropdown}}
-                    {{/if}}
-                    {{#if (can "show question")}}
-                    <li class="nav-item">
-                        {{#link-to "questions.all" class="nav-link" }} Questions {{/link-to}}
-                    </li>
-                    {{/if}}
-                    {{#if (can "create question")}}
-                    <li class="nav-item">
-                        {{#link-to "questions.new" class="nav-link" }} New Question {{/link-to}}
-                    </li>
-                    {{/if}}
-                    <li class="nav-item">
-                        {{#link-to "data_references.databases.all" class="nav-link" }} Data Reference {{/link-to}}
-                    </li>
-                    <li class="nav-item right px-0" {{action "openSearch"}}>
-                        <a href="#" class="nav-link">
+          </div>
+          {{/dd.menu}}
+          {{/bs-dropdown}}
+          {{/if}}
+          {{#if (can "show question")}}
+          <li class="nav-item">
+            {{#link-to "questions.all" class="nav-link" }} Questions {{/link-to}}
+          </li>
+          {{/if}}
+          {{#if (can "create question")}}
+          <li class="nav-item">
+            {{#link-to "questions.new" class="nav-link" }} New Question {{/link-to}}
+          </li>
+          {{/if}}
+          <li class="nav-item">
 
-                            <i class="fe fe-search mr-2"></i>
-                            Search
-                        </a>
-                    </li>
-                    <div class="col-lg-3 ml-auto">
-                        <li class="nav-item right px-0">
-                            {{#bs-dropdown direction="left" class="d-inline" as |dd|}}
-                            {{#dd.toggle class="nav-link" }}
-                            <div class="item pp">
-                                <img class="profile_pic" src="{{sessionService.user.profile_pic}}" /> </div>
-                            {{sessionService.user.full_name}}
-                            <i class="fe fe-chevron-down mt-1 ml-1"></i>
-                            {{/dd.toggle}}
-                            {{#dd.menu class="dropdown-menu-arrow" as |ddm|}}
-                            {{#ddm.item}}
-                            {{#if (can "show settings")}}
-                            {{#link-to 'settings' class="dropdown-item" }}Settings{{/link-to}}
-                            {{/if}}
-                            <a class="dropdown-item" {{action 'invalidateSession'}}>Logout</a>
-                            {{/ddm.item}}
-                            {{/dd.menu}}
-                            {{/bs-dropdown}}
-                        </li>
-                    </div>
-                </div>
-            </div>
+            {{#bs-dropdown direction="right" class="d-inline" as |dd|}}
+            {{#dd.toggle class="nav-link" }}
+            More
+            {{/dd.toggle}}
+            {{#dd.menu class="dropdown-menu-arrow" as |ddm|}}
+            {{#ddm.item}}
+            {{#link-to "data_references.databases.all" class="nav-link" }} Data Reference {{/link-to}}
+            {{/ddm.item}}
+            {{#ddm.item}}
+            {{#link-to "alerts.index" class="nav-link" }} Alerts {{/link-to}}
+            {{/ddm.item}}
+            {{/dd.menu}}
+            {{/bs-dropdown}}
+          </li>
+          <div class="col-lg-3 ml-auto">
+            <li class="nav-item right px-0">
+              {{#bs-dropdown direction="left" class="d-inline" as |dd|}}
+              {{#dd.toggle class="nav-link" }}
+              <div class="item pp">
+                <img class="profile_pic" src="{{sessionService.user.profile_pic}}" /> </div>
+              {{sessionService.user.full_name}}
+              <i class="fe fe-chevron-down mt-1 ml-1"></i>
+              {{/dd.toggle}}
+              {{#dd.menu class="dropdown-menu-arrow" as |ddm|}}
+              {{#ddm.item}}
+              {{#if (can "show settings")}}
+              {{#link-to 'settings' class="dropdown-item" }}Settings{{/link-to}}
+              {{/if}}
+              <a class="dropdown-item" {{action 'invalidateSession'}}>Logout</a>
+              {{/ddm.item}}
+              {{/dd.menu}}
+              {{/bs-dropdown}}
+            </li>
+            <li class="nav-item right px-0" {{action "openSearch"}}>
+              <a href="#" class="nav-link">
+
+                <i class="fe fe-search mr-2"></i>
+                Search
+              </a>
+            </li>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 {{/if}}

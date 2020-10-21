@@ -3,3 +3,5 @@ deps/
 frontend/tmp/
 .elixir_ls/
 erl_crash.dump
+.undodir/
+Session.vim

@@ -9,7 +9,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
   },
   selectedIndex: 0,
 
-  filteredOptions: Ember.computed('query', 'options', function () {
+  filteredOptions: Ember.computed('query', 'options.@each' , function () {
     let query = this.get('query');
     let options = this.get('options');
     if (query && query != '') {
@@ -20,9 +20,8 @@ export default Ember.Component.extend(KeyboardShortcuts, {
         return item[this.get('displayKey')] && item[this.get('displayKey')].toLowerCase().match(query.toLowerCase());
       });
       return filteredOptions.slice(0, 100);
-    } else {
-      return options.slice(0, 100);
-    }
+    }   
+    return options && options.slice(0, 100);
   }),
 
   selectOptionFunc(option) {

@@ -12,7 +12,8 @@ export default Ember.Component.extend({
   }),
 
   canShowTableWidget: Ember.computed('queryObject.database.name', function () {
-    return !!this.get('queryObject.database.name');
+    let databaseType = this.get('queryObject.database.db_type')
+    return databaseType && (databaseType != 'api_client') && !!this.get('queryObject.database.name');
   }),
   canShowFilters: Ember.computed('queryObject.database.name', 'queryObject.table.human_name', 'queryObject.table.title', function () {
     return !!(this.get('queryObject.database.name') && (this.get('queryObject.table.human_name') || this.get('queryObject.table.title')));

@@ -7,8 +7,8 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit results=results}}
             {{variables-layer variables=question.query_variables showVariables=showVariables}}
             <div class="row">
                 <div class="{{if (and queryBuilderType canEdit) 'col-3' 'col-12'}}">
-                    {{#if (and queryBuilderType canEdit)}} {{query-builder loading=loading getResults='getResults' toggleSql='toggleSql' queryObject=queryObject
-                    showGetResults=showGetResults databases=databases}}
+                    {{#if (and queryBuilderType canEdit)}} {{query-builder apiAction=question.api_action.content loading=loading getResults='getResults' toggleSql='toggleSql' queryObject=queryObject
+                    showGetResults=showGetResults question=question databases=databases transitionToQuestion='transitionToQuestion'}}
                     {{/if}}
                 </div>
                 <div class="{{if (and canEdit queryBuilderType) 'col-9' 'col-12'}}">
@@ -107,6 +107,7 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit results=results}}
                     {{/if}}
                     {{#if (or results errorMessage)}}
                     {{#if (and queryBuilderType canEdit)}}
+                            {{#unless (eq question.query_type 'api_client')}}
                     <div class="card">
                         <div class="card-header">
 
@@ -114,6 +115,7 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit results=results}}
                         </div>
 
                     </div>
+                            {{/unless}}
 
                     {{/if}}
                     {{/if}}

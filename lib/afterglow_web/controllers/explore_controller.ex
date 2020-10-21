@@ -1,6 +1,8 @@
 defmodule AfterGlow.ExploreController do
   use AfterGlow.Web, :controller
   alias AfterGlow.Explorations
+  alias AfterGlow.Explorations.Dashboards
+  alias AfterGlow.DashboardView
   alias AfterGlow.Plugs.Authorization
   alias AfterGlow.Settings.ApplicableSettings
   plug(Authorization)
@@ -34,5 +36,23 @@ defmodule AfterGlow.ExploreController do
         frontend_limit
       )
     )
+  end
+
+  def create_dashboard(conn, %{"column_id" => column_id, "value" => value}) do
+    owner_id = conn.assigns.current_user.id
+
+    dashboard =
+      Dashboards.create_dashboard_from_exploration(column_id, value, owner_id)
+      |> Repo.preload(:questions)
+      |> Repo.preload(:tags)
+      |> Repo.preload(:variables)
+      |> Repo.preload(:notes)
+
+    json(
+      conn,
+      DashboardView
+      |> JaSerializer.format(dashboard, conn, type: 'dashboard')
+    )
+
   end
 end

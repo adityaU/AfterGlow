@@ -3,6 +3,7 @@ import Ember from 'ember';
 import DynamicQueryParamsControllerMixin from 'frontend/mixins/dynamic-query-params-controller-mixin';
 export default Ember.Controller.extend(DynamicQueryParamsControllerMixin, {
   dashboard: Ember.computed.alias('model'),
+  autoRefresh: false,
 
   queryParamsVariables: Ember.computed.alias('dashboard.variables'),
 
@@ -20,11 +21,13 @@ export default Ember.Controller.extend(DynamicQueryParamsControllerMixin, {
 
   reloadBasedOnQueryParamsObserver: Ember.observer('reloadBasedOnQueryParams', 'variablesFulfilled', function () {
     let variablesFulfilled = this.get('variablesFulfilled');
+
     if (variablesFulfilled) {
       this.refreshFunction();
     }
   }),
   questionObserver: Ember.on('init', Ember.observer('dashboard', function () {
+
     let questions = this.get('dashboard.questions');
     if (questions) {
       let ids = questions.map(function (item) {
@@ -33,6 +36,10 @@ export default Ember.Controller.extend(DynamicQueryParamsControllerMixin, {
       this.store.query('question', {
         filter: {
           id: ids.join(',')
+        }
+      }).then(()=>{
+        if (this.get('autoRefresh')) {
+          this.refreshFunction()
         }
       });
     }
@@ -43,34 +50,34 @@ export default Ember.Controller.extend(DynamicQueryParamsControllerMixin, {
     name: 'Never',
     value: null
   },
-  {
-    name: '5 Seconds',
-    value: 5000
-  },
-  {
-    name: '10 Seconds',
-    value: 10000
-  },
-  {
-    name: '30 Seconds',
-    value: 30000
-  },
-  {
-    name: '1 Minute',
-    value: 60000
-  },
-  {
-    name: '5 Minutes',
-    value: 300000
-  },
-  {
-    name: '15 Minutes',
-    value: 900000
-  },
-  {
-    name: '30 Minutes',
-    value: 1800000
-  },
+    {
+      name: '5 Seconds',
+      value: 5000
+    },
+    {
+      name: '10 Seconds',
+      value: 10000
+    },
+    {
+      name: '30 Seconds',
+      value: 30000
+    },
+    {
+      name: '1 Minute',
+      value: 60000
+    },
+    {
+      name: '5 Minutes',
+      value: 300000
+    },
+    {
+      name: '15 Minutes',
+      value: 900000
+    },
+    {
+      name: '30 Minutes',
+      value: 1800000
+    },
   ],
   refreshInterval: {
     name: 'Never',
@@ -211,9 +218,9 @@ export default Ember.Controller.extend(DynamicQueryParamsControllerMixin, {
     toggleFullScreen() {
       if (
         document.fullscreenElement ||
-                document.webkitFullscreenElement ||
-                document.mozFullScreenElement ||
-                document.msFullscreenElement
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
       ) {
         if (document.exitFullscreen) {
           document.exitFullscreen();

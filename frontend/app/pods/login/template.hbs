@@ -5,9 +5,17 @@
                 <div class="col col-login mx-auto mt-9">
                     <form class="card p-4" action="" method="post">
                         <div class="text-center mb-6"> {{app-logo logoSize="big"}} </div>
-                        <div class="text-center" {{action "loginWithGoogle"}}>
-                            <button type="button" class="btn btn-link text-google"> LOGIN WITH GOOGLE </button>
+                        <div class="text-center">
+                            <a href="#" class="btn btn-link text-google" {{action "loginWithGoogle"}}> LOGIN WITH GOOGLE </a>
                         </div>
+                    </form>
+                </div>
+                <div class="col col-login mx-auto mt-9">
+<form class="card p-4" action="" method="post">
+ {{input value=login.email class=(if usernameError 'is-invalid ui form-control ' 'ui form-control ')  placeholder="email" aria-describedby="basic-addon3" }}    
+ {{input value=login.password class=(if passwordError 'is-invalid ui form-control mt-2' 'ui form-control mt-2') placeholder="password" aria-describedby="basic-addon3" type="password" }}                   
+
+  <a href="#" class="btn btn-primary mt-4" {{action "loginWithPassword"}}> LOGIN </a>
                     </form>
                 </div>
             </div>

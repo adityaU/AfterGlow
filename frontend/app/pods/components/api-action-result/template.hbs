@@ -13,16 +13,66 @@
         {{#if canDebug}}
             {{#bs-accordion as |acc|}}
                 {{#acc.item value=1 title="Debug info"}}
-                    {{ember-ace lines=20 value=debugResponse mode='json' 
-                                    theme=aceTheme readOnly=true useWrapMode=true
-                                    showLineNumbers=false
+
+        <div class="ace-resizable">
+                    {{ember-ace value=debugResponse mode='json' 
+                                    readOnly=true useWrapMode=true
+                                    showLineNumbers=false ready=(action 'setEditorWhenReady')
                                    }}
+        </div>
                 {{/acc.item}}
             {{/bs-accordion}}
         {{/if}}
-        {{ember-ace lines=20 value=responseBody mode='json' 
-                                    theme=aceTheme readOnly=true useWrapMode=true
-                                    showLineNumbers=false
+
+        <div class="ace-resizable">
+        {{ember-ace value=responseBody mode='json' 
+                                    readOnly=true useWrapMode=true
+                                    ready=(action 'setEditorWhenReady') showLineNumbers=false
                                    }}
+
+        </div>
     {{/modal.body}}
+{{#modal.footer}}
+        
+       {{#if resultViewPossibleKeys}}
+        <div class="row w-100">
+            <div class="col-12">
+                <h4 class="title"> Select Key</h4>
+                <small class="text-muted" >This key will be used to walk the json data returned by json api to display results in a table</small>
+
+                <div class="row">                
+{{#if apiAction.response_settings.displayKey}}
+<span class="tag border text-primary border-primary  bg-white">
+    Select Key:
+    <div class="tag-addon text-white border-primary bg-primary">
+        {{#bs-dropdown closeOnMenuClick=false as |dd|}}
+        {{#dd.toggle class="text-white "}}
+        {{apiAction.response_settings.displayKey.key}}
+        {{/dd.toggle}}
+        {{custom-single-select dd=dd icon="fe-corner-down-right" value=apiAction.response_settings.displayKey options=resultViewPossibleKeys displayKey="key"}}
+        {{/bs-dropdown}}
+
+    </div>
+</span>
+{{else}}
+{{#bs-dropdown closeOnMenuClick=false as |dd|}}
+{{#dd.toggle id="datasource-selector" class="btn tag-size  btn-secondary text-primary border-primary py-0 px-1"}}
+<i class="fe fe-plus"></i> Select Key
+{{/dd.toggle}}
+{{custom-single-select 
+ elseMessage="No valid key was founf in the response to display results in a table. Make sure your api returns json object"
+ elseClass="menu-content"
+ dd=dd icon="fe-corner-down-right" value=apiAction.response_settings.displayKey options=resultViewPossibleKeys displayKey="key"}}
+{{/bs-dropdown}}
+{{/if}}
+                </div>
+                
+            </div>
+        </div>
+
+{{#if saveEnabled}}
+  {{#bs-button onClick=(action 'save') class="btn-primary" type="primary" }}Save{{/bs-button}}
+{{/if}}
+        {{/if}}
+{{/modal.footer}}
 {{/bs-modal}}

@@ -20,7 +20,9 @@ defmodule AfterGlow.ApiActionController do
   def create(conn, %{
         "data" => data = %{"type" => "api-actions", "attributes" => _database_params}
       }) do
-    prms = Params.to_attributes(data)
+    prms =
+      Params.to_attributes(data)
+      |> IO.inspect(label: "attributes")
 
     with {:ok, %ApiAction{} = api_action} <- ApiActions.create_api_action(prms) do
       api_action
@@ -54,8 +56,13 @@ defmodule AfterGlow.ApiActionController do
     send_resp(conn, :no_content, "")
   end
 
+  def send_request(conn, params = %{"id" => id}) do
+    resp = ApiActions.send_request(id, params["variables"], conn.assigns.current_user)
+    json(conn, resp)
+  end
+
   def send_request(conn, params) do
-    resp = ApiActions.send_request(params["id"], params["variables"], conn.assigns.current_user)
+    resp = ApiActions.send_request(params, params["variables"], conn.assigns.current_user)
     json(conn, resp)
   end
 end

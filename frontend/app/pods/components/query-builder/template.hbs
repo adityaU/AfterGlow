@@ -28,3 +28,6 @@
     {{/if}}
     {{/if}}
 </div>
+
+{{api-action-modal hideSaveButton=true apiAction=apiAction open=toggleApiActionModal openPreview=openPreview results=results question=question columnReplacable=false resultViewPossibleKeys=resultViewPossibleKeys hideName=true}}
+{{api-action-result transitionToQuestion='transitionToQuestion' canDebug=true result=results open=openPreview apiAction=apiAction question=question resultViewPossibleKeys=resultViewPossibleKeys}}

@@ -44,9 +44,9 @@
             </div>
         </div>
         {{#if (eq state 1)}}
-        {{custom-single-select-content 
+        {{custom-single-select-content
     selectCallbackAction=(action "mutState" 3)
-    dropdownClass="menu-content" 
+    dropdownClass="menu-content"
     elseMessage="No columns were found in the selected table"
     options=columns value=filter.column
     textIcon="C"
@@ -64,7 +64,7 @@
             {{else}}
             {{custom-single-select-content 
     selectCallbackAction=(action "mutState" 3)
-    dropdownClass="menu-content mb-2" 
+    dropdownClass="menu-content mb-2"
     elseMessage="Comparator is not supported"
     options=availableOperators value=filter.operator
     hideSearch=true

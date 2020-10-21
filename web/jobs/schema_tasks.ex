@@ -9,6 +9,8 @@ defmodule AfterGlow.SchemaTasks do
 
   import Ecto.Query, only: [from: 2]
 
+  def sync(_db_record = %Database{db_type: "api_client"}), do: nil
+
   def sync(db_record) do
     og_db_record = db_record
     db_record = db_record |> Map.from_struct()

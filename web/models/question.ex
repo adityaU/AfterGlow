@@ -12,7 +12,7 @@ defmodule AfterGlow.Question do
   alias AfterGlow.ApiActions.ApiAction
   alias AfterGlow.CacheWrapper.Repo
   import Ecto.Query
-  defenum(QueryTypeEnum, human_sql: 0, sql: 1)
+  defenum(QueryTypeEnum, human_sql: 0, sql: 1, api_client: 2)
 
   schema "questions" do
     field(:title, :string)
@@ -53,9 +53,24 @@ defmodule AfterGlow.Question do
 
     has_many(:variables, Variable, on_delete: :delete_all, on_replace: :delete)
     has_many(:snapshots, Snapshot, on_delete: :delete_all, on_replace: :delete)
-    has_many(:api_actions, ApiAction, on_delete: :delete_all, on_replace: :delete)
+
+    has_many(:api_actions, ApiAction,
+      where: [action_level: :question_response],
+      on_delete: :delete_all,
+      on_replace: :delete
+    )
+
+    has_one(:api_action, ApiAction,
+      where: [action_level: :question],
+      on_delete: :delete_all,
+      on_replace: :delete
+    )
 
     timestamps()
+  end
+
+  def question_level_api_action(query) do
+    from(a in ApiAction, where: a.action_level == 2)
   end
 
   @doc """
@@ -98,6 +113,7 @@ defmodule AfterGlow.Question do
       :dashboards,
       :widgets,
       # :api_actions,
+      :api_action,
       [api_actions: from(aa in ApiAction, where: fragment("? is not ?", aa.hidden, true))],
       [snapshots: from(s in Snapshot, where: is_nil(s.parent_id))]
     ]
@@ -278,7 +294,11 @@ defmodule AfterGlow.Question do
       if used_non_default_variables?(question.variables, variables), do: nil, else: results
 
     if cached_results do
-      question |> update_columns(cached_results.columns, cached_results)
+      if Map.has_key?(cached_results, :columns) do
+        question |> update_columns(cached_results.columns, cached_results)
+      else
+        question |> update_columns([], cached_results)
+      end
     end
   end
 

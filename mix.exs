@@ -84,7 +84,7 @@ defmodule AfterGlow.Mixfile do
       {:sql_dust, path: 'web/modules/sql_dust'},
       {:ecto_enum, "~> 1.2"},
       {:cowboy, "~> 1.0"},
-      {:oauth2, "~> 0.9"},
+      {:oauth2, "~> 2.0"},
       {:joken, "~> 1.1"},
       {:libsodium, "~> 0.0.3"},
       {:keccakf1600, "~> 0.0.1"},
@@ -110,7 +110,9 @@ defmodule AfterGlow.Mixfile do
       {:ecto_sql, "~> 3.1.0"},
       {:plug_cowboy, "~> 1.0"},
       {:mustache, "~> 0.3.0"},
-      {:numerix, "~> 0.5.1"}
+      {:numerix, "~> 0.5.1"},
+      {:hackney, github: "benoitc/hackney", override: true},
+      {:gen_smtp, "~> 0.14.0", override: true}
     ]
   end
 

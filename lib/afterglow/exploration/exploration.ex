@@ -116,4 +116,63 @@ defmodule AfterGlow.Explorations do
       x[:name] != table.readable_table_name
     end)
   end
+
+  def dependencies_and_raw_queries(column_id, value) do
+    column = Repo.get!(Column, column_id) |> Repo.preload(:table)
+    table = column.table |> Repo.preload(:database)
+    database = table.database
+
+    params =
+      %{
+        "database" => database,
+        "table" => %{"id" => table.id, "name" => table.name},
+        "filters" => [
+          %{
+            "column" => %{"name" => column.name},
+            "operator" => %{"name" => "is", "value" => "="},
+            "value" => "{{#{column.name}}}",
+            "valueDateObj" => %{"date" => false}
+          }
+        ],
+        "variables" => []
+      }
+      |> permit_params()
+
+    primary_question = %{
+      table: table.readable_table_name,
+      raw_query: DbConnection.query_string(database |> Map.from_struct(), params)
+    }
+
+    dependencies =
+      dependencies(table)
+      |> Enum.map(fn dep ->
+        dep_column = Repo.get!(Column, dep[:column_id]) |> Repo.preload(:table) |> IO.inspect(label: "column")
+        dep_foreign_column = Repo.get!(Column, dep[:foreign_column_id]) |> Repo.preload(:table) |> IO.inspect(label: "column")
+        dep_table = Repo.get(Table, dep[:id]) 
+        value_column = column |> Repo.preload(:table)
+
+
+        %{
+          table: dep[:name],
+          raw_query:
+            DbConnection.make_dependency_raw_query(
+              database |> Map.from_struct(),
+              dep_column,
+              dep_foreign_column,
+              dep_table,
+              "{{#{column.name}}}",
+              value_column,
+              Table.primary_keys(table.id)
+            )
+        }
+      end)
+
+    %{
+      database: database,
+      primary_question: primary_question,
+      dependencies: dependencies,
+      value: value,
+      column_name: column.name
+    }
+  end
 end

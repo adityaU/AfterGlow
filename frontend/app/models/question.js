@@ -25,12 +25,13 @@ export default DS.Model.extend(ResultViewMixin, {
   variables: DS.hasMany('variables'),
   owner: DS.belongsTo('user'),
   widgets: DS.hasMany('widgets'),
-  api_actions: DS.hasMany('api_action'),
+  api_actions: DS.hasMany('api_action', {inverse: "question"}),
+  api_action: DS.belongsTo('api_action', {inverse: 'top_level_question'}),
   variables_from_this_question: DS.hasMany('variables', {
     inverse: 'question_filter'
   }),
 
-  apiActionsChanged: Ember.computed('api_actions.isFulFilled', 'api_actions.@each.column', function(){
+  apiActionsChanged: Ember.computed('api_actions.isFulFilled', 'api_actions.@each.column', function () {
     return new Date();
   }),
 
@@ -53,7 +54,7 @@ export default DS.Model.extend(ResultViewMixin, {
   },
 
 
-  cachedResults: Ember.on('didLoad', Ember.observer('updated_at', 'resultsCanBeLoaded', 'cached_results', function () {
+  cachedResults: Ember.on('didLoad', Ember.observer('api_action.isLoaded', 'updated_at', 'resultsCanBeLoaded', 'cached_results', function () {
     if (this.get('resultsCanBeLoaded') && !this.get('loading')) {
       this.set('loading', true);
       this.set('results', null);
@@ -68,25 +69,55 @@ export default DS.Model.extend(ResultViewMixin, {
       }).filter((item) => {
         return item.hasOwnProperty('name') && item['name'];
       });
-      this.resultsCall({
-        variables: variables,
-        additionalFilters: this.get('human_sql.additionalFilters')
-      }).then((response) => {
-        this.set('results', response.data);
-        this.set('cached_results', response.data);
+      if (this.get('query_type') == 'api_client' && this.get('api_action.isLoaded')) {
+        this.resultsCall({
+          variables: variables,
+          additionalFilters: this.get('human_sql.additionalFilters')
+        }).then((response) => {
+          let results = this.parseApiActionResult(response.data, this.get('api_action'))
+          this.set('results', results);
+          this.set('cached_results', results);
+
+          this.set('loading', false);
+          this.set('resultsCanBeLoaded', false);
+          this.set('errorMessage', null);
+          // }).then((error)=>{
+          //     this.set('resultError', error.error)
+          //     this.set("loading", false)
+          // })
+        }).catch((error) => {
+          this.set('errorMessage', 'Query could not be completed. Please check filters.');
+          this.set('loading', false);
+          this.set('results', null);
+          this.set('cached_results', null);
+          this.set('resultsCanBeLoaded', false);
+        });
+
+      } else if (this.get('query_type') != 'api_client') {
+
+        this.resultsCall({
+          variables: variables,
+          additionalFilters: this.get('human_sql.additionalFilters')
+        }).then((response) => {
+          this.set('results', response.data);
+          this.set('cached_results', response.data);
+          this.set('loading', false);
+          this.set('resultsCanBeLoaded', false);
+          this.set('errorMessage', null);
+          // }).then((error)=>{
+          //     this.set('resultError', error.error)
+          //     this.set("loading", false)
+          // })
+        }).catch((error) => {
+          this.set('errorMessage', 'Query could not be completed. Please check filters.');
+          this.set('loading', false);
+          this.set('results', null);
+          this.set('cached_results', null);
+          this.set('resultsCanBeLoaded', false);
+        });
+      } else {
         this.set('loading', false);
-        this.set('resultsCanBeLoaded', false);
-        this.set('errorMessage', null);
-        // }).then((error)=>{
-        //     this.set('resultError', error.error)
-        //     this.set("loading", false)
-      }).catch((error) => {
-        this.set('errorMessage', 'Query could not be completed. Please check filters.');
-        this.set('loading', false);
-        this.set('results', null);
-        this.set('cached_results', null);
-        this.set('resultsCanBeLoaded', false);
-      });
+      }
     } else if (!this.get('errorMessage') && !this.get('loading')) {
       this.set('results', this.get('cached_results'));
     }

@@ -21,6 +21,7 @@ defmodule AfterGlow.User do
     field(:profile_pic, :string)
     field(:metadata, :map)
     field(:is_deactivated, :boolean)
+    field(:password, :string)
     belongs_to(:organization, Organization)
 
     many_to_many(
@@ -50,9 +51,11 @@ defmodule AfterGlow.User do
       :metadata,
       :profile_pic,
       :is_deactivated,
+      :password,
       :organization_id
     ])
     |> validate_required([:email])
+    |> encrypt_password()
   end
 
   def default_preloads do
@@ -82,31 +85,53 @@ defmodule AfterGlow.User do
     end
   end
 
+  def encrypt(str) do
+     :crypto.hash(:sha256, str) |> Base.encode64 |> String.downcase
+  end
+
+  def encrypt_password(user) do
+    if Map.has_key?( user.changes, :password) do
+      Ecto.Changeset.change(user, %{ password: encrypt(user.changes[:password])})
+    else
+      user
+    end
+  end
+
   def save_or_update_user(user) do
-    saved_user = Repo.one(from(u in __MODULE__, where: u.email == ^user["email"]))
+    verifiedUser = if user["names"] |> Enum.at(0) do
+      %{
+        "given_name" => user["names"] |> Enum.at(0) |> Access.get("ga1ivenName"),
+        "family_name" => user["names"] |> Enum.at(0) |> Access.get("familyName"),
+        "name" => user["names"] |> Enum.at(0) |> Access.get("displayName")
+      }
+    else 
+      %{}
+    end
+
+    verifiedUser =  verifiedUser |> Map.merge(%{"email" =>  user["emailAddresses"] |> Enum.at(0) |> Access.get("value")})
+    saved_user = Repo.one(from(u in __MODULE__, where: u.email == ^verifiedUser["email"]))
+
 
     {:ok, user} =
       if saved_user do
         changeset =
           __MODULE__.changeset(saved_user, %{
-            email: user["email"],
-            first_name: user["given_name"],
-            last_name: user["family_name"],
-            profile_pic: user["picture"],
+            email: verifiedUser["email"],
+            first_name: verifiedUser["given_name"],
+            last_name: verifiedUser["family_name"],
             metadata: user,
-            full_name: user["name"]
+            full_name: verifiedUser["name"]
           })
 
         Repo.update_with_cache(changeset)
       else
         changeset =
           __MODULE__.changeset(%__MODULE__{}, %{
-            email: user["email"],
-            first_name: user["given_name"],
-            last_name: user["family_name"],
-            profile_pic: user["picture"],
+            email: verifiedUser["email"],
+            first_name: verifiedUser["given_name"],
+            last_name: verifiedUser["family_name"],
             metadata: user,
-            full_name: user["name"]
+            full_name: verifiedUser["name"]
           })
 
         {:ok, u} = Repo.insert_with_cache(changeset)

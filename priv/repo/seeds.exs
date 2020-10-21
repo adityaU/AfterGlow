@@ -16,6 +16,8 @@ defmodule AfterGlow.Repo.Seed do
   alias AfterGlow.UserPermissionSet
   alias AfterGlow.Permission
   alias AfterGlow.User
+  alias AfterGlow.Database
+  alias AfterGlow.ApiActions.ApiAction
   alias AfterGlow.Settings.GlobalSettingsQueryFunctions, as: GlobalSettings
   alias AfterGlow.Settings.UserSettingsQueryFunctions, as: UserSettings
   import Ecto.Query
@@ -28,7 +30,10 @@ defmodule AfterGlow.Repo.Seed do
   def find_or_create_permission(name, permission_set_id) do
     Repo.get_by(Permission, %{name: name, permission_set_id: permission_set_id}) ||
       Repo.insert!(
-        Permission.changeset(%Permission{}, %{name: name, permission_set_id: permission_set_id})
+        Permission.changeset(
+          %Permission{},
+          %{name: name, permission_set_id: permission_set_id}
+        )
       )
   end
 
@@ -91,6 +96,54 @@ defmodule AfterGlow.Repo.Seed do
             permission_set_id: admin.id
           })
         )
+      admin_user =
+        Repo.one(
+          from(u in User, where: u.email == "admin@example.com")
+        )
+
+      admin_user =
+        unless admin_user do
+          Repo.insert!(
+            User.changeset(%User{}, %{email: "admin@example.com", password: "ag_admin_password"})
+          )
+        else
+          admin_user
+        end
+
+      Repo.get_by(UserPermissionSet, %{
+        user_id: admin_user.id,
+        permission_set_id: admin.id
+      }) ||
+        Repo.insert!(
+          UserPermissionSet.changeset(%UserPermissionSet{}, %{
+            user_id: admin_user.id,
+            permission_set_id: admin.id
+          })
+        )
+      viewer_user =
+        Repo.one(
+          from(u in User, where: u.email == "viewer@example.com")
+        )
+
+      viewer_user =
+        unless viewer_user do
+          Repo.insert!(
+            User.changeset(%User{}, %{email: "viewer@example.com", password: "ag_password"})
+          )
+        else
+          viewer_user
+        end
+
+      Repo.get_by(UserPermissionSet, %{
+        user_id: viewer_user.id,
+        permission_set_id: viewer.id
+      }) ||
+        Repo.insert!(
+          UserPermissionSet.changeset(%UserPermissionSet{}, %{
+            user_id: viewer_user.id,
+            permission_set_id: viewer.id
+          })
+        )
     end
 
     GlobalSettings.create_or_update_settings()
@@ -101,6 +154,23 @@ defmodule AfterGlow.Repo.Seed do
       User.set_organization(user)
       UserSettings.verify_general_settings(user)
     end)
+
+
+      api_client =
+        Repo.one(
+          from(u in Database, where: u.name == "Generic API Client" and u.db_type ==  "api_client")
+        )
+    unless api_client do
+    Repo.insert!(
+    Database.changeset(%Database{}, %{name: "Generic API Client", db_type: "api_client", config: %{}})
+    )
+
+    ApiAction
+    |> Repo.all()
+    |> Enum.each(fn api_action ->
+      ApiAction.set_default_action_level(api_action)
+      end)
+    end
   end
 end
 

@@ -17,6 +17,18 @@ defmodule AfterGlow.ApiActions do
   end
 
   def create_api_action(attrs \\ %{}) do
+    attrs =
+      if attrs["top_level_question_id"] do
+        attrs
+        |> Map.merge(%{
+          "question_id" => attrs["top_level_question_id"],
+          "action_level" => "question",
+          "name" => "top_level"
+        })
+      else
+        attrs |> Map.merge(%{"action_level" => "question_response"})
+      end
+
     %ApiAction{}
     |> ApiAction.changeset(attrs)
     |> Repo.insert_with_cache()
@@ -33,13 +45,23 @@ defmodule AfterGlow.ApiActions do
     update_api_action(%ApiAction{} = api_action, %{hidden: true})
   end
 
+  def send_request(api_action_data, variables, user) when is_map(api_action_data) do
+    api_action_data = for {key, val} <- api_action_data, into: %{}, do: {String.to_atom(key), val}
+
+    api_action = struct(ApiAction, api_action_data)
+
+    send_request(api_action, variables, api_action.open_in_new_tab, user)
+  end
+
   def send_request(id, variables, user) do
     api_action = get_api_action!(id)
     send_request(api_action, variables, api_action.open_in_new_tab, user)
   end
 
   def send_request(%ApiAction{} = api_action, variables, true, user) do
-    url = api_action.url |> replace_variables(variables)
+    url =
+      api_action.url
+      |> replace_variables(variables)
 
     %{status_code: 301, response_body: "redirect", response_headers: nil}
     |> log_args(url, "GET", nil, nil, user.id, variables, api_action.id)
@@ -49,7 +71,9 @@ defmodule AfterGlow.ApiActions do
   end
 
   def send_request(%ApiAction{} = api_action, variables, false, user) do
-    url = api_action.url |> replace_variables(variables)
+    url =
+      api_action.url
+      |> replace_variables(variables)
 
     headers =
       api_action.headers
@@ -59,6 +83,7 @@ defmodule AfterGlow.ApiActions do
       |> Enum.into([])
 
     body = api_action.body |> replace_variables(variables)
+
     method = api_action.method
 
     make_request(url, method, body || "", headers)
@@ -69,13 +94,19 @@ defmodule AfterGlow.ApiActions do
 
   def replace_variables(nil, _variables), do: nil
 
+  def replace_variables(string, %{}), do: string
+  def replace_variables(string, nil), do: string
+  def replace_variables(string, []), do: string
+
   def replace_variables(string, variables) do
     variables
     |> Enum.reduce(string, fn variable, string ->
-      variable_name = variable["name"] |> String.trim()
+      variable_name =
+        variable["name"]
+        |> String.trim()
 
       string
-      |> String.replace(~r({{\W*#{variable_name}\W*}}), variable["value"] |> to_string() || "")
+      |> String.replace(~r({{\W*#{variable_name}\W*?}}), variable["value"] |> to_string() || "")
     end)
   end
 

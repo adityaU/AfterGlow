@@ -9,12 +9,46 @@ defmodule AfterGlow.AuthController do
   alias AfterGlow.CacheWrapper
   alias AfterGlow.CacheWrapper.Repo
   alias AfterGlow.Settings.ApplicableSettings
+  alias AfterGlow.Repo
+  import Ecto.Query, only: [from: 2]
 
   import AfterGlow.Utils.DomainChecks
 
   def google_auth_path(conn, _params) do
     conn
     |> json(%{path: authorize_url!("google")})
+  end
+
+  def login_with_password(conn, %{"email" => email, "password" => password}) do
+    hashed_password = User.encrypt(password)
+
+    user =
+      Repo.one(
+        from(u in User,
+          where: u.email == ^email and u.password == ^hashed_password
+        )
+      )
+
+    if user do
+      perm =
+        user
+        |> Repo.preload(permission_sets: :permissions)
+        |> permissions
+
+      auth_token = create_jwt(user)
+
+      conn
+      |> json(%{
+        token: auth_token,
+        success: true,
+        user: %{id: user.id, full_name: user.full_name, email: user.email},
+        permissions: perm
+      })
+    else
+      conn
+      |> put_status(:unauthorized)
+      |> json(%{success: false})
+    end
   end
 
   def verify_token(conn, t) do
@@ -55,7 +89,7 @@ defmodule AfterGlow.AuthController do
     token = get_token!(provider, code)
     user = get_user!(provider, token)
 
-    case match_domain(user["email"]) do
+    case match_domain(user["emailAddresses"] |> Enum.at(0) |> Access.get("value")) do
       true ->
         {:ok, user} = User.save_or_update_user(user)
         auth_token = create_jwt(user)
@@ -85,7 +119,10 @@ defmodule AfterGlow.AuthController do
   end
 
   defp authorize_url!("google") do
-    Google.authorize_url!(scope: "email")
+    Google.authorize_url!(
+      scope:
+        "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email"
+    )
   end
 
   defp create_jwt(user) do
@@ -106,7 +143,12 @@ defmodule AfterGlow.AuthController do
   end
 
   defp get_user!("google", token) do
-    user = OAuth2.Client.get!(token, "https://www.googleapis.com/plus/v1/people/me/openIdConnect")
+    user =
+      OAuth2.Client.get!(
+        token,
+        "https://people.googleapis.com/v1/people/me?personFields=emailAddresses,names"
+      )
+
     user.body
   end
 end

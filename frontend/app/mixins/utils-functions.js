@@ -956,13 +956,7 @@ export default Ember.Mixin.create(ColorMixin, ResultViewMixin, HelperMixin, {
                     // column of the dataset by default.
                     series: this.get('seriesWithData')
                 };
-              
-              this.get("multipleYs").forEach((item)=>{
-                if item.get('separateYAxis') {
 
-                     options["yAxis"].push()
-                }
-              })
 
               // if (separate_y_axis) {
               // }

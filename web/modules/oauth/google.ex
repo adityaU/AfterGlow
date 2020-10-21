@@ -10,8 +10,8 @@ defmodule AfterGlow.Oauth.Google do
       client_secret: Application.get_env(:afterglow, :google_client_secret),
       redirect_uri: "#{Application.get_env(:afterglow, :app_root)}api/google/callback",
       site: "https://accounts.google.com",
-      authorize_url: "https://accounts.google.com/o/oauth2/auth",
-      token_url: "https://accounts.google.com/o/oauth2/token"
+      authorize_url: "/o/oauth2/auth",
+      token_url: "/o/oauth2/token"
     ])
   end
 
@@ -20,7 +20,9 @@ defmodule AfterGlow.Oauth.Google do
   end
 
   def get_token!(params \\ [], headers \\ []) do
-    OAuth2.Client.get_token!(client(), params, headers)
+    client()
+    |> OAuth2.Client.put_serializer("application/json", Jason)
+    |> OAuth2.Client.get_token!(params, headers)
   end
 
   # strategy callbacks

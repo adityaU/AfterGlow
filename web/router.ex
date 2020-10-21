@@ -64,6 +64,7 @@ defmodule AfterGlow.Router do
     get("search_tables/:id/foreign_tables", SearchTableController, :foreign_tables)
 
     post("api_actions/:id/send_request", ApiActionController, :send_request)
+    post("api_actions/send_request", ApiActionController, :send_request)
     post("users/:id/activate", UserController, :activate)
     post("users/:id/deactivate", UserController, :deactivate)
     post("questions/:id/results", QuestionController, :results)
@@ -71,11 +72,13 @@ defmodule AfterGlow.Router do
     get("snapshots/:snapshot_id/find", SnapshotController, :find)
     get("snapshots/:snapshot_id/suggest", SnapshotController, :suggest)
     get("/explore", ExploreController, :get_row_view)
+    post("/explore/create_dashboard", ExploreController, :create_dashboard)
     get("/explore/dependency", ExploreController, :get_dependency_view)
     put("databases/:id/sync", DatabaseController, :sync)
     get("auth/google", AuthController, :google_auth_path)
     post("callback/google", AuthController, :callback)
-    post("verify-token", AuthController, :verify_token)
+    post("/verify-token", AuthController, :verify_token)
+    post("/login", AuthController, :login_with_password)
 
     post("/teams/:id/add_user", TeamController, :add_user)
     post("/teams/:id/add_database", TeamController, :add_database)

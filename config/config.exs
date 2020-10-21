@@ -26,9 +26,9 @@ config :afterglow, AfterGlow.Endpoint,
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
+  metadata: [:request_id, :params]
 
-config :logger, level: :info
+config :logger, level: :debug
 
 config :ja_serializer, key_format: :underscored
 
@@ -48,11 +48,11 @@ config :oauth2,
 config :afterglow, AfterGlow.Scheduler,
   debug_logging: false,
   jobs: [
-    [
-      name: AfterGlow.SnapshotsTasks,
-      schedule: {:extended, "*/15 * * * * *"},
-      task: {AfterGlow.SnapshotsTasks, :run, []}
-    ],
+    # [
+    #   name: AfterGlow.SnapshotsTasks,
+    #   schedule: {:extended, "*/15 * * * * *"},
+    #   task: {AfterGlow.SnapshotsTasks, :run, []}
+    # ],
     [
       name: AfterGlow.DatabaseSync,
       schedule: {:cron, "*/30 * * * *"},

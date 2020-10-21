@@ -16,10 +16,10 @@ export default Ember.Component.extend({
             page: this.get('page')
         })
         if (this.get('pagedRows')) {
-            this.get('results.columns').forEach(el => {
+          this.get('results.columns') &&  this.get('results.columns').forEach(el => {
                 transposedResults.get('content').pushObject(Ember.A([el]))
             });
-            this.get('pagedRows').forEach((el, index) => {
+           this.get('pagedRows') && this.get('pagedRows').forEach((el, index) => {
                 el.forEach((element, i2) => {
 
                     transposedResults.get('content').objectAt(i2).push(element)

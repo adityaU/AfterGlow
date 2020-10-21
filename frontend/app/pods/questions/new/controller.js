@@ -6,10 +6,11 @@ import LoadingMessages from 'frontend/mixins/loading-messages';
 import ResultViewMixin from 'frontend/mixins/result-view-mixin';
 import CustomEvents from 'frontend/mixins/custom-events';
 import AceTools from 'frontend/mixins/ace-tools';
+import HelperMixin from 'frontend/mixins/helper-mixin';
 import DynamicQueryParamsControllerMixin from 'frontend/mixins/dynamic-query-params-controller-mixin';
 
 
-export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultViewMixin, AceTools, CustomEvents, DynamicQueryParamsControllerMixin, {
+export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMixin, ResultViewMixin, AceTools, CustomEvents, DynamicQueryParamsControllerMixin, {
   ajax: Ember.inject.service(),
   queryParamsVariables: Ember.computed.alias('question.variables'),
   reloadBasedOnQueryParamsObserver: Ember.observer('reloadBasedOnQueryParams', function () {
@@ -19,6 +20,10 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
   newQuestion: true,
   databases: Ember.computed(function () {
     return this.get('store').findAll('database');
+  }),
+
+  isApiClientQuery: Ember.computed('question.query_type', function () {
+    return this.get('question.queryType') == 'api_client'
   }),
 
   canEdit: true,
@@ -193,6 +198,26 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
     this.changeQueryParamsInUrl(queryObject.get('variables'), queryObject.get('name'));
     this.set('loading', true);
     this.set('results', null);
+
+    if (question.get('query_type') == 'api_client') {
+      let payload = JSON.parse(JSON.stringify(question.get('api_action.content')))
+      payload["variables"] = queryObject.get('variables')
+      let apiAction = question.get('api_action.content')
+      apiAction.preview(payload).then((response) => {
+
+        this.set('loading', false)
+        if (response.status_code == 0 || response.status_code >= 400) {
+          this.set('errors', "Error: " + response.response_body);
+          this.set('results', null);
+        } else {
+          let results = this.parseApiActionResult(response, apiAction)
+          this.set('errors', null);
+          this.set('results', results);
+        }
+      })
+
+      return
+    }
     if (withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText()) {
       queryObject = JSON.parse(JSON.stringify(queryObject));
       queryObject['rawQuery'] = this.get('aceEditor').getSelectedText();
@@ -204,7 +229,12 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
     }, (response, status) => {
       this.set('loading', false);
       this.set('errors', null);
-      this.set('results', response.data);
+      if (question.get('query_type') == 'api_client') {
+        let results = this.parseApiActionResult(response, this.get('question.api_action'))
+        this.set('results', results);
+      } else {
+        this.set('results', response.data);
+      }
       if (!this.get('resultsViewType')) {
         this.set('resultsViewType', this.autoDetect(response.data.rows));
       }
@@ -281,7 +311,9 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
         let question = this.get('question');
         question.set('sql', question.get('sql') || question.get('human_sql.rawQuery'));
         question.set('cached_results', null);
-        question.set('query_type', question.get('human_sql.queryType') == 'raw' ? 'sql' : 'human_sql');
+        if (question.get('query_type') != 'api_client') {
+          question.set('query_type', question.get('human_sql.queryType') == 'raw' ? 'sql' : 'human_sql');
+        }
         question.save().then((response) => {
           question.get('variables').invoke('save');
 
@@ -292,6 +324,12 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
         });
 
       }
+    },
+    transitionToQuestion(id) {
+      this.transitionToRoute('questions.show', id);
+
+      this.set('question.updated At', new Date());
+      this.set('question.resultsCanBeLoaded', true);
     },
     transitionToDashBoard(dashboard_id) {
       this.transitionToRoute('dashboards.show', dashboard_id);
@@ -320,19 +358,19 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, ResultVie
         this.get('toast').success(
           'Your CSV is getting uploaded to cloud. You\'ll get an email with download link shortly',
           'YaY!', {
-            closeButton: true,
-            timeout: 1500,
-            progressBar: false
-          }
+          closeButton: true,
+          timeout: 1500,
+          progressBar: false
+        }
         );
       }, (error, status) => {
         this.get('toast').success(
           'Looks like CSV download process is not working as expected. Please try again. If problem persists, talk to your Admin',
           'Sorry Mate!', {
-            closeButton: true,
-            timeout: 1500,
-            progressBar: false
-          }
+          closeButton: true,
+          timeout: 1500,
+          progressBar: false
+        }
         );
       });
     },

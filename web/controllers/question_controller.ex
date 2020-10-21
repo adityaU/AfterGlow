@@ -9,6 +9,7 @@ defmodule AfterGlow.QuestionController do
   alias AfterGlow.Widgets.Widget
   alias AfterGlow.QueryView
   alias AfterGlow.QuestionSearchView
+  alias AfterGlow.ApiActions
   alias JaSerializer.Params
   alias AfterGlow.CacheWrapper
   alias AfterGlow.CacheWrapper.Repo
@@ -24,16 +25,24 @@ defmodule AfterGlow.QuestionController do
   plug(:scrub_params, "data" when action in [:create, :update])
   plug(:verify_authorized)
 
+  def index(conn, %{"with" => "columns"}) do
+    questions =
+      scope(conn, Question, policy: AfterGlow.Question.Policy)
+      |> Repo.all()
+      |> Enum.map(fn x -> x.id end)
+      |> Repo.preload(Question.default_preloads())
+
+    conn
+    |> render(:index, data: questions)
+  end
+
   def index(conn, %{"filter" => %{"id" => ids}}) do
     ids = ids |> String.split(",")
 
     if ids != [""] do
       questions =
         scope(conn, from(q in Question, where: q.id in ^ids), policy: AfterGlow.Question.Policy)
-        |> select([:id])
         |> Repo.all()
-        |> Enum.map(fn x -> x.id end)
-        |> CacheWrapper.get_by_ids(Question)
         |> Repo.preload(Question.default_preloads())
 
       conn
@@ -103,7 +112,7 @@ defmodule AfterGlow.QuestionController do
 
   def index(conn, %{"id" => id, "share_id" => share_id}) when share_id != nil do
     question =
-      CacheWrapper.get_by_id(id |> Integer.parse() |> elem(0), Question)
+      Repo.get!(Question, id |> Integer.parse() |> elem(0))
       |> Repo.preload(Question.default_preloads())
 
     if question.shareable_link == share_id do
@@ -125,11 +134,7 @@ defmodule AfterGlow.QuestionController do
   def index(conn, %{"id" => id}) do
     question =
       scope(conn, Question)
-      |> select([:id])
       |> Repo.get!(id)
-
-    question =
-      CacheWrapper.get_by_id(question.id, Question)
       |> Repo.preload(Question.default_preloads())
 
     render(conn, :show, data: question)
@@ -247,27 +252,41 @@ defmodule AfterGlow.QuestionController do
       scope(conn, from(q in Question, where: q.id == ^id), policy: AfterGlow.Question.Policy)
       |> Repo.one()
       |> Repo.preload(:variables)
-
-    frontend_limit = ApplicableSettings.max_frontend_limit(conn.assigns.current_user)
-    db_identifier = question.human_sql["database"]["unique_identifier"]
-    db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
-
-    params =
-      permitted_params(
-        question.id,
-        variables,
-        additional_filters || question.human_sql["additionalFilters"],
-        question.sql
-      )
-
-    {_query, results} = run_raw_query(db_record, params, question.variables, frontend_limit)
+      |> Repo.preload(:api_action)
 
     results =
-      if question.human_sql && question.human_sql["queryType"] == "query_builder" &&
-           question.human_sql["table"] && !question.human_sql["table"]["sql"] do
-        results |> Table.insert_foreign_key_columns_in_results(question.human_sql["table"])
+      if question.query_type == :api_client do
+        results =
+          ApiActions.send_request(
+            question.api_action,
+            variables,
+            question.api_action.open_in_new_tab,
+            conn.assigns.current_user
+          )
+
+        Question.cache_results(question, variables, results)
+        {:ok, results}
       else
-        results
+        frontend_limit = ApplicableSettings.max_frontend_limit(conn.assigns.current_user)
+        db_identifier = question.human_sql["database"]["unique_identifier"]
+        db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
+
+        params =
+          permitted_params(
+            question.id,
+            variables,
+            additional_filters || question.human_sql["additionalFilters"],
+            question.sql
+          )
+
+        {_query, results} = run_raw_query(db_record, params, question.variables, frontend_limit)
+
+        if question.human_sql && question.human_sql["queryType"] == "query_builder" &&
+             question.human_sql["table"] && !question.human_sql["table"]["sql"] do
+          results |> Table.insert_foreign_key_columns_in_results(question.human_sql["table"])
+        else
+          results
+        end
       end
 
     case results do

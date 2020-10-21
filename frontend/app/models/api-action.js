@@ -1,10 +1,12 @@
 import DS from 'ember-data';
 import {
-  memberAction
+  memberAction,
+  collectionAction
 } from 'ember-api-actions';
 
 export default DS.Model.extend({
   question: DS.belongsTo('question'),
+  top_level_question: DS.belongsTo('question'),
   url: DS.attr('string'),
   headers: DS.attr('key-value-array'),
   body: DS.attr('string'),
@@ -21,6 +23,11 @@ export default DS.Model.extend({
     path: 'send_request',
     type: 'post',
     urlType: 'findRecord'
-  })
+  }),
 
+  preview: collectionAction({
+    path: 'send_request',
+    type: 'post',
+    urlType: 'findRecord'
+  })
 });
