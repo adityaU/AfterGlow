@@ -16,6 +16,8 @@ defmodule AfterGlow.QuestionController do
   import AfterGlow.Sql.QueryRunner
   alias AfterGlow.Settings.ApplicableSettings
   alias AfterGlow.Snapshots.Snapshot
+  alias AfterGlow.AuditLogSave
+  alias AfterGlow.Actions
 
   import Ecto.Query
 
@@ -153,6 +155,14 @@ defmodule AfterGlow.QuestionController do
     |> query_and_send_index_reponse(conn)
   end
 
+  # util function that extracts table name from request params
+  def get_table_name (params) do
+    human_sql = params["human_sql"]
+    table = human_sql["table"]
+
+    table["readable_table_name"]
+  end
+
   def create(conn, %{"data" => data = %{"type" => "questions", "attributes" => _question_params}}) do
     prms = Params.to_attributes(data)
 
@@ -167,6 +177,15 @@ defmodule AfterGlow.QuestionController do
         question =
           question
           |> Repo.preload(Question.default_preloads())
+
+        # func to extract table name from the params
+        table_name = get_table_name(prms)
+        AuditLogSave.save!(
+          conn.assigns.current_user.id,
+          table_name,
+          Actions.enum[:create],
+          %{ "task" => "create_question", "question_id" => question.id }
+        )
 
         conn
         |> put_status(:created)
@@ -224,6 +243,16 @@ defmodule AfterGlow.QuestionController do
           question
           |> Repo.preload(Question.default_preloads())
 
+        # func to extract table name from the params
+        table_name = get_table_name(prms)
+
+        AuditLogSave.save!(
+          conn.assigns.current_user.id,
+          table_name,
+          Actions.enum[:update],
+          %{ "task" => "update_question", "question_id" => question.id }
+        )
+
         render(conn, :show, data: question)
 
       {:error, changeset} ->
@@ -239,6 +268,18 @@ defmodule AfterGlow.QuestionController do
     # Here we use delete! (with a bang) because we expect
     # it to always work (and if it does not, it will raise).
     Repo.delete_with_cache(question)
+
+    # extract table name from the question
+    human_sql = question.human_sql
+    table = human_sql["table"]
+    table_name = table["readable_table_name"]
+
+    AuditLogSave.save!(
+      conn.assigns.current_user.id,
+      table_name,
+      Actions.enum[:delete],
+      %{ "task" => "delete_question", "question_id" => question.id }
+    )
 
     send_resp(conn, :no_content, "")
   end
