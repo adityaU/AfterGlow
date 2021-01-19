@@ -48,11 +48,11 @@ config :oauth2,
 config :afterglow, AfterGlow.Scheduler,
   debug_logging: false,
   jobs: [
-    # [
-    #   name: AfterGlow.SnapshotsTasks,
-    #   schedule: {:extended, "*/15 * * * * *"},
-    #   task: {AfterGlow.SnapshotsTasks, :run, []}
-    # ],
+    [
+      name: AfterGlow.SnapshotsTasks,
+      schedule: {:extended, "*/15 * * * * *"},
+      task: {AfterGlow.SnapshotsTasks, :run, []}
+    ],
     [
       name: AfterGlow.DatabaseSync,
       schedule: {:cron, "*/30 * * * *"},
