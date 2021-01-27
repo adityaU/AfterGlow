@@ -30,10 +30,19 @@ defmodule AfterGlow.UserController do
       Repo.all(from(u in User, select: [:id]))
       |> Enum.map(fn x -> x.id end)
       |> CacheWrapper.get_by_ids(User)
+      |> Enum.map(fn x -> check_full_name_nil(x) end)
       |> Repo.preload(:permission_sets)
       |> Repo.preload(:teams)
 
     render(conn, :index, data: users)
+  end
+
+  def check_full_name_nil(user) do
+    if user.full_name === nil do
+       Map.put(user, :full_name, "")
+    else
+      user
+    end
   end
 
   # def create(conn, %{"data" => data = %{"type" => "user", "attributes" => _user_params}}) do
