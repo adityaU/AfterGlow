@@ -157,13 +157,17 @@ WHERE constraint_type = 'FOREIGN KEY'/, [], opts())
     )
   end
 
+  def do_execute({:ok, _, results}), do: results
+
+  def do_execute({:ok, results}), do: results
+
   defp run_query(conn, query, exec_query, limited, frontend_limit) do
     try do
       query = Postgrex.prepare(conn, "", exec_query, opts)
 
       case query do
         {:ok, prepared_query} ->
-          {:ok, results} = Postgrex.execute(conn, prepared_query, [], opts)
+          results = Postgrex.execute(conn, prepared_query, [], opts) |> do_execute
 
           {:ok,
            %{
