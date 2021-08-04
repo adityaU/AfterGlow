@@ -12,7 +12,7 @@ sudo docker run -itd -p 80:80 -e DATABASE_URL=postgres://<postgres>:5432/aftergl
 ```
 
 
-
+=====================================================================================================================
 * [Getting Started With Afterglow](http://getafterglow.in/index.php/documentation/getting-started-with-afterglow/)
 * [Documentation](http://getafterglow.in/index.php/documentation/)
 
