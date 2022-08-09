@@ -5,7 +5,7 @@ defmodule AfterGlow.Mixfile do
     [
       app: :afterglow,
       version: "0.0.1",
-      elixir: "~> 1.8.1",
+      elixir: "~> 1.10.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       build_embedded: Mix.env() == :prod,
@@ -99,7 +99,7 @@ defmodule AfterGlow.Mixfile do
       {:sweet_xml, "~> 0.6.0"},
       {:bamboo, "~> 0.8.0"},
       {:bamboo_smtp, "~> 1.4.0"},
-      {:distillery, "~> 2.0", runtime: false},
+      {:distillery, "~> 2.1.1", runtime: false},
       {:jason, "~> 1.1"},
       {:cachex, git: "https://github.com/whitfin/cachex.git"},
       {:quantum, "~> 2.3"},

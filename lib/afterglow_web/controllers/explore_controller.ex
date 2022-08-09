@@ -13,7 +13,19 @@ defmodule AfterGlow.ExploreController do
     frontend_limit = ApplicableSettings.max_frontend_limit(conn.assigns.current_user)
 
     conn
-    |> json(Explorations.get_row_and_dependencies(column_id, value, frontend_limit))
+    |> json(
+      Explorations.get_row_and_dependencies(
+        column_id,
+        value,
+        frontend_limit,
+        %{
+          current_user: conn.assigns.current_user,
+          explore_view_column_id: column_id,
+          explore_view_value: value,
+        }
+
+      )
+    )
   end
 
   def get_dependency_view(conn, %{
@@ -33,7 +45,15 @@ defmodule AfterGlow.ExploreController do
         table_id,
         value,
         value_column_id,
-        frontend_limit
+        frontend_limit,
+        %{
+          current_user: conn.assigns.current_user,
+          explore_dependencies_view_column_id: column_id,
+          explore_dependencies_view_foreign_column_id: foreign_column_id,
+          explore_dependencies_view_table_id: table_id,
+          explore_dependencies_view_value: value,
+          explore_dependencies_view_value_column_id: value_column_id,
+        }
       )
     )
   end
@@ -53,6 +73,5 @@ defmodule AfterGlow.ExploreController do
       DashboardView
       |> JaSerializer.format(dashboard, conn, type: 'dashboard')
     )
-
   end
 end

@@ -7,7 +7,7 @@ defmodule AfterGlow.Explorations do
   alias AfterGlow.ForeignKey
   import AfterGlow.Sql.QueryRunner
 
-  def get_row_and_dependencies(column_id, value, frontend_limit) do
+  def get_row_and_dependencies(column_id, value, frontend_limit, tracking_detail) do
     column = Repo.get!(Column, column_id) |> Repo.preload(:table)
     table = column.table |> Repo.preload(:database)
     database = table.database
@@ -26,7 +26,7 @@ defmodule AfterGlow.Explorations do
       "variables" => []
     }
 
-    {_query, results} = run_query_from_object(database, params, frontend_limit)
+    {_query, results} = run_query_from_object(database, params, frontend_limit, tracking_detail)
     {:ok, results} = results
 
     %{
@@ -45,7 +45,8 @@ defmodule AfterGlow.Explorations do
         table_id,
         value,
         value_column_id,
-        frontend_limit
+        frontend_limit,
+        tracking_details
       ) do
     table = Repo.get!(Table, table_id) |> Repo.preload(:database) |> Repo.preload(:columns)
     column = Repo.get!(Column, column_id) |> Repo.preload(:table)
@@ -70,7 +71,7 @@ defmodule AfterGlow.Explorations do
       :variables => []
     }
 
-    {_q, results} = run_raw_query(database, params, frontend_limit)
+    {_q, results} = run_raw_query(database, params, frontend_limit, tracking_details)
     {:ok, results} = Table.insert_foreign_key_columns_in_results(results, table)
     %{results: results}
   end

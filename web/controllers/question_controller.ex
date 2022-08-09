@@ -13,6 +13,7 @@ defmodule AfterGlow.QuestionController do
   alias JaSerializer.Params
   alias AfterGlow.CacheWrapper
   alias AfterGlow.CacheWrapper.Repo
+
   import AfterGlow.Sql.QueryRunner
   alias AfterGlow.Settings.ApplicableSettings
   alias AfterGlow.Snapshots.Snapshot
@@ -279,7 +280,7 @@ defmodule AfterGlow.QuestionController do
             question.sql
           )
 
-        {_query, results} = run_raw_query(db_record, params, question.variables, frontend_limit)
+        {_query, results} = run_raw_query(db_record, params, question.variables, frontend_limit, %{current_user: conn.assigns.current_user ,question_id: question.id})
 
         if question.human_sql && question.human_sql["queryType"] == "query_builder" &&
              question.human_sql["table"] && !question.human_sql["table"]["sql"] do
@@ -288,6 +289,8 @@ defmodule AfterGlow.QuestionController do
           results
         end
       end
+
+
 
     case results do
       {:ok, results} ->

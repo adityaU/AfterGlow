@@ -1,6 +1,6 @@
 defmodule AfterGlow.AutoComplete do
   import Ecto.Query, warn: false
-  import AfterGlow.Sql.QueryRunner, only: [run_query_from_object: 3]
+  import AfterGlow.Sql.QueryRunner, only: [run_query_from_object: 4]
   alias AfterGlow.Database
   alias AfterGlow.Table
   alias AfterGlow.Column
@@ -17,7 +17,7 @@ defmodule AfterGlow.AutoComplete do
     ifel: "<%= if var do %>\n\tand col =  <%= var %>\n<% else %>\n\tdefault_condition\n<% end %>"
   ]
 
-  def column_suggestions_autocomplete(query, database_id, table_id, column_id) do
+  def column_suggestions_autocomplete(query, database_id, table_id, column_id ) do
     database = Repo.get(Database, database_id)
     table = Repo.get(Table, table_id)
     column = Repo.get(Column, column_id)
@@ -42,7 +42,7 @@ defmodule AfterGlow.AutoComplete do
       ]
     }
 
-    {_, {:ok, results}} = run_query_from_object(database, params, 10)
+    {_, {:ok, results}} = run_query_from_object(database, params, 10, nil)
 
     results[:rows]
     |> Enum.map(fn x -> %{displayName: x |> Enum.at(0)} end)

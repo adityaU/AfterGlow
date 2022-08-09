@@ -19,7 +19,8 @@ defmodule AfterGlow.QueryController do
           run_query_from_object(
             db_record,
             params,
-            frontend_limit
+            frontend_limit,
+            %{current_user: conn.assigns.current_user}
           )
 
         "raw" ->
@@ -28,7 +29,7 @@ defmodule AfterGlow.QueryController do
             |> permit_params
             |> permit_prms_raw_query(params["rawQuery"])
 
-          run_raw_query(db_record, permit_prms, frontend_limit)
+          run_raw_query(db_record, permit_prms, frontend_limit, %{current_user: conn.assigns.current_user})
       end
 
     case results do

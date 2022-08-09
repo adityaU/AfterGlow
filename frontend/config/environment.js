@@ -2,7 +2,7 @@
 
 module.exports = function (environment) {
   var ENV = {
-    VERSION: '0.16.2',
+    VERSION: '0.16.11-dev',
     modulePrefix: 'frontend',
     podModulePrefix: 'frontend/pods',
     environment: environment,
@@ -77,7 +77,7 @@ module.exports = function (environment) {
   };
 
   if (environment === 'development') {
-    ENV.host = 'http://dev.getafterglow.in:4000';
+    ENV.host = 'http://localhost:4000';
 
     // ENV.APP.LOG_RESOLVER = true;
     // ENV.APP.LOG_ACTIVE_GENERATION = true;
