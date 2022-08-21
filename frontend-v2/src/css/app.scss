@@ -1,0 +1,16 @@
+
+// app global css in SCSS form
+
+td
+{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 350px;
+}
+
+.q-table{
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+}

@@ -22,6 +22,7 @@ defmodule AfterGlow.Mixfile do
   def application do
     [
       mod: {AfterGlow, []},
+      extra_applications: [:odbc],
       applications: [
         :phoenix,
         :phoenix_pubsub,

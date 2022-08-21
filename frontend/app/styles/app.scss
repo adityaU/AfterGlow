@@ -25,6 +25,10 @@ $googleColor: #db4437;
     @return 0px 0px 0px 0px $color !important;
 }
 
+iframe{
+    border-width: 0px;
+}
+
 // plotly css
 g.slicetext {
     font-weight: bold;

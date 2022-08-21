@@ -28,6 +28,10 @@ module.exports = function (defaults) {
   app.import('./bower_components/lodash/dist/lodash.min.js');
   app.import('./bower_components/ace-builds/src-noconflict/theme-dracula.js');
   app.import('./bower_components/ace-builds/src-noconflict/mode-sql.js');
+  app.import('./bower_components/iframeresizer/resizer.min.js', {
+    type: 'vendor',
+    prepend: true
+  });
   app.import('./bower_components/ace-builds/src-noconflict/snippets/sql.js', {
     type: 'vendor'
   });

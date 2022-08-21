@@ -16,7 +16,6 @@ defmodule AfterGlow.QuestionController do
 
   import AfterGlow.Sql.QueryRunner
   alias AfterGlow.Settings.ApplicableSettings
-  alias AfterGlow.Snapshots.Snapshot
 
   import Ecto.Query
 

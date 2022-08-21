@@ -9,6 +9,7 @@ defmodule AfterGlow.QueryController do
   plug(:verify_authorized)
 
   def execute(conn, params) do
+    params |> IO.inspect(label: params)
     db_identifier = params["database"]["unique_identifier"]
     db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
     frontend_limit = ApplicableSettings.max_frontend_limit(conn.assigns.current_user)

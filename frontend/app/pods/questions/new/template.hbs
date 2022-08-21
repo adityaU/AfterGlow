@@ -119,6 +119,9 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit results=results}}
 
                     {{/if}}
                     {{/if}}
+                    {{#if vueComponentsEnabled}}
+                    {{embeddable-vue-component vueResultPath=vueResultPath class="card" }}
+                    {{/if}}
                     {{#if results}}
                     <div class="card {{fullscreenClass}}">
                         <div class="card-header row results-view-selector">

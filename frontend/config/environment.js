@@ -2,7 +2,7 @@
 
 module.exports = function (environment) {
   var ENV = {
-    VERSION: '0.16.11-dev',
+    VERSION: '0.16.12-dev',
     modulePrefix: 'frontend',
     podModulePrefix: 'frontend/pods',
     environment: environment,

@@ -26,11 +26,8 @@ defmodule AfterGlow.Helpers.CsvHelpers do
     |> Enum.each(&IO.write(file, &1))
 
     stream
-    |> Enum.each(fn row ->
-      row
-      |> CSV.encode()
-      |> Enum.each(&IO.write(file, &1))
-    end)
+    |> CSV.encode()
+    |> Enum.each(&IO.write(file, &1))
 
     data_preview =
       [columns]
@@ -41,7 +38,7 @@ defmodule AfterGlow.Helpers.CsvHelpers do
   end
 
   def get_preview_rows(stream) do
-    preview = stream |> Enum.at(0) |> Enum.take(50) |> Enum.to_list()
+    preview = stream |> Enum.take(50) |> Enum.to_list()
 
     unless preview |> Enum.at(0) do
       preview = stream |> Enum.at(1) |> Enum.take(50) |> Enum.to_list()
@@ -55,20 +52,23 @@ defmodule AfterGlow.Helpers.CsvHelpers do
     delete_file(file_name)
 
     sign_url_if_needed(file_name, file_path)
-
   end
 
   def sign_url_if_needed(file_name, file_path) do
-    bucket =ApplicableSettings.s3_bucket() || Application.get_env(:afterglow, :s3_bucket)
+    bucket = ApplicableSettings.s3_bucket() || Application.get_env(:afterglow, :s3_bucket)
+
     if ApplicableSettings.use_signed_s3_url_in_emails() do
-      S3.presigned_url(Enum.into(aws_config(), %{}) , :get, bucket, file_path || s3_file_name(file_name), [expires: ApplicableSettings.signed_s3_url_timeout])
+      S3.presigned_url(
+        Enum.into(aws_config(), %{}),
+        :get,
+        bucket,
+        file_path || s3_file_name(file_name),
+        expires_in: ApplicableSettings.signed_s3_url_timeout()
+      )
       |> elem(1)
-      |> IO.inspect(label: "Signed_URL")
     else
-    "s3-#{aws_region()}.amazonaws.com/#{bucket}#{
-      file_path || s3_file_name(file_name)
-    }"
-    |> URI.encode()
+      "s3-#{aws_region()}.amazonaws.com/#{bucket}#{file_path || s3_file_name(file_name)}"
+      |> URI.encode()
     end
   end
 
@@ -79,7 +79,7 @@ defmodule AfterGlow.Helpers.CsvHelpers do
   end
 
   defp fetch_and_upload(db_record, query, file_path, download_limit) do
-    {:ok, {file_name, data_preview}} =
+    {file_name, data_preview} =
       DbConnection.execute_with_stream(
         db_record |> Map.from_struct(),
         query,
@@ -101,7 +101,7 @@ defmodule AfterGlow.Helpers.CsvHelpers do
   end
 
   defp aws_config() do
-    config = [host: "s3-#{aws_region()}.amazonaws.com", region: aws_region()]
+    config = [scheme: "https://",host: "s3-#{aws_region()}.amazonaws.com", region: aws_region()]
 
     if ApplicableSettings.aws_access_key_id() && ApplicableSettings.aws_secret_access_key() do
       config

@@ -15,7 +15,7 @@ defmodule AfterGlow.Mailers.CsvMailer do
       |> html_body(mail_html_body(data_preview, link))
       |> text_body("please download your csv from #{link}")
 
-    deliver_later(Bamboo.SMTPAdapter, email, Mailers.config())
+    deliver_now(Bamboo.SMTPAdapter, email, Mailers.config())
   end
 
   defp mail_html_body(data_preview, link) do
@@ -34,7 +34,6 @@ defmodule AfterGlow.Mailers.CsvMailer do
 
   def body(data_preview) do
     data_preview
-    |> Enum.slice(1..-1)
     |> Enum.map(fn row ->
       "<tr>" <>
         (row |> Enum.map(fn el -> "<td>" <> to_string(el) <> "</td>" end) |> Enum.join("")) <>

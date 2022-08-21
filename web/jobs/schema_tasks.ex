@@ -175,6 +175,7 @@ defmodule AfterGlow.SchemaTasks do
   end
 
   defp insert_or_update_table(record, db_id) do
+    record |> IO.inspect(label: "record")
     query = from(t in Table, where: t.name == ^record["table_name"] and t.database_id == ^db_id)
     CacheWrapper.delete_cache_struct(Repo.get!(Database, db_id))
 

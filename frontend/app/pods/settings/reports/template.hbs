@@ -74,7 +74,7 @@
             {{#if use_signed_s3_url_in_emails}}
             <div class="form-group">
                 <label class="custom-switch">
-                    <span class="custom-switch-description form-label m-0">Can Download Reports</span>
+                    <span class="custom-switch-description form-label m-0">Use Private Bucket</span>
                     {{input type="checkbox"  change=(action 'setUseSignedS3UrlInEmails') checked=(eq use_signed_s3_url_in_emails.value "true") name="custom-switch-checkbox" class="custom-switch-input"}}
                     <span class="custom-switch-indicator ml-4"></span>
                 </label>

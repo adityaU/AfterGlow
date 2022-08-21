@@ -2,22 +2,19 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
   use AfterGlow.Sql.Adapters.QueryMakers.Common
   use Supervisor
   alias DbConnection
+  alias AfterGlow.ODBC
 
   def create_pool(config) do
-    Postgrex.start_link(
-      hostname: config["host_url"],
-      username: config["username"],
-      password: config["password"],
-      database: config["db_name"],
-      port: config["host_port"],
-      timeout: 1_200_000,
-      connect_timeout: 1_200_000,
-      handshake_timeout: 1_200_000,
-      ownership_timeout: 1_200_000,
-      pool_timeout: 1_200_000,
+    connection_string =
+      'Driver={Postgresql Unicode};Server=#{config["host_url"]};Port=#{config["host_port"]};Database=#{
+        config["db_name"]
+      };Uid=#{config["username"]};Pwd=#{config["password"]}' |> IO.inspect(label: "conn+str")
+
+    DBConnection.start_link(AfterGlow.ODBC.Protocol,
+      conn_str: connection_string,
       pool: DBConnection.ConnectionPool,
       pool_size: 10,
-      types: AfterGlow.PostgrexTypes
+      show_sensitive_data_on_connection_error: true
     )
   end
 
@@ -34,7 +31,7 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
   end
 
   def get_fkeys(conn) do
-    {:ok, result} = Postgrex.query(conn, ~s/SELECT conname as name
+    {:ok, _,  result} = DBConnection.execute(conn, %ODBC.Query{statement: ~s/SELECT conname as name
     ,concat('"', n.nspname, '"."', conrelid::regclass::text, '"') AS "table_name"
     ,CASE WHEN pg_get_constraintdef(c.oid) LIKE 'FOREIGN KEY %' THEN substring(pg_get_constraintdef(c.oid), 14, position(')' in pg_get_constraintdef(c.oid))-14) END AS "column_name"
     ,concat('"', n.nspname, '"."', CASE WHEN pg_get_constraintdef(c.oid) LIKE 'FOREIGN KEY %' THEN substring(pg_get_constraintdef(c.oid), position(' REFERENCES ' in pg_get_constraintdef(c.oid))+12, position('(' in substring(pg_get_constraintdef(c.oid), 14))-position(' REFERENCES ' in pg_get_constraintdef(c.oid))+1) END, '"') AS "foreign_table_name"
@@ -43,7 +40,7 @@ FROM   pg_constraint c
 JOIN   pg_namespace n ON n.oid = c.connamespace
 WHERE  contype IN ('f')
 AND pg_get_constraintdef(c.oid) LIKE 'FOREIGN KEY %'
-ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/, [], opts())
+ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/}, [], opts())
 
     result.rows
     |> Enum.map(fn row ->
@@ -52,7 +49,7 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/, 
   end
 
   def get_primary_keys(conn) do
-    {:ok, result} = Postgrex.query(conn, ~s/SELECT
+    {:ok, _,  result} = DBConnection.execute(conn, %ODBC.Query{statement: ~s/SELECT
     pg_attribute.attname as column_name, concat('"', nspname, '"."',  pg_class.relname, '"') as table_name
   FROM pg_index, pg_class, pg_attribute, pg_namespace
   WHERE
@@ -61,7 +58,7 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/, 
     pg_class.relnamespace = pg_namespace.oid AND
     pg_attribute.attrelid = pg_class.oid AND
     pg_attribute.attnum = any(pg_index.indkey)
-   AND indisprimary/, [], opts())
+   AND indisprimary/}, [], opts())
 
     result.rows
     |> Enum.map(fn row ->
@@ -70,7 +67,7 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/, 
   end
 
   def get_schema(conn) do
-    {:ok, data} = Postgrex.query(conn, ~s/select
+    {:ok, _,  data} = DBConnection.execute(conn, %ODBC.Query{statement: ~s/select
       table_catalog,
       CONCAT('\"\', table_schema,\'\".\"\', table_name, \'\"\') as table_name,
       table_name as readable_table_name,
@@ -78,7 +75,7 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/, 
       json_agg((select x from (select cast(column_name as text) as "name", cast(data_type as text) as "data_type") x)) as columns
       from information_schema.columns
       where information_schema.columns.table_schema not in ('information_schema', 'pg_catalog')
-        group by table_catalog,table_schema, table_name/, [], opts())
+        group by table_catalog,table_schema, table_name/}, [], opts())
 
     {:ok,
      data.rows
@@ -144,48 +141,29 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/, 
         query
       end
 
-    Postgrex.transaction(
-      pid,
-      fn conn ->
-        {:ok, query} = Postgrex.prepare(conn, "", query, opts())
-        columns = query.columns
+    {:ok, _ , results } = DBConnection.execute(pid, %ODBC.Query{statement: query}, []) 
+    mapper_fn.(results.rows , results.columns)
 
-        rows =
-          Postgrex.stream(conn, query, [], stream_opts())
-          |> Stream.map(fn %Postgrex.Result{rows: rows} -> rows end)
-
-        mapper_fn.(rows, columns)
-      end,
-      txn_opts
-    )
   end
 
   defp run_query(conn, _query, exec_query, limited, frontend_limit) do
-    try do
-      query = Postgrex.prepare(conn, "", exec_query, opts())
+    case DBConnection.execute(conn, %ODBC.Query{statement: exec_query}, []) do
+      {:ok, _, results} ->
+        {:ok,
+         %{
+           columns: results.columns,
+           rows: results.rows,
+           limited: limited,
+           limit: frontend_limit,
+           limited_query: exec_query,
+           num_rows: results.num_rows
+         }}
 
-      case query do
-        {:ok, prepared_query} ->
-          {:ok, _, results} = Postgrex.execute(conn, prepared_query, [], opts())
+      {:error, %DBConnection.ConnectionError{}} ->
+        {:error, %{message: "database connection timed out"}}
 
-          {:ok,
-           %{
-             columns: results.columns,
-             rows: results.rows,
-             limited: limited,
-             limit: frontend_limit,
-             limited_query: exec_query
-           }}
-
-        {:error, %DBConnection.ConnectionError{}} ->
-          {:error, %{message: "database connection timed out"}}
-
-        {:error, error} ->
-          {:error, error.postgres}
-      end
-    rescue
-      DBConnection.ConnectionError ->
-        {:error, %{message: "Query Timed Out. Please Try to optimize your query"}}
+      {:error, error} ->
+        {:error, error}
     end
   end
 end

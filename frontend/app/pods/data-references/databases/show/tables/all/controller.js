@@ -10,10 +10,10 @@ export default Ember.Controller.extend(CanMixin,{
         let query = this.get('query')
         if (query){
             return this.get('database.tables').filter((item)=>{
-                return item.get('human_name') && item.get('human_name').toLowerCase().match(query.toLowerCase())
+                return item.get('name') && item.get('name').toLowerCase().match(query.toLowerCase())
             }).sortBy('human_name')
         }
-        return this.get('database.tables').sortBy('human_name');
+        return this.get('database.tables').sortBy('name');
     }),
     loading: Ember.computed.not('database.tables.isFulfilled'),
     actions: {

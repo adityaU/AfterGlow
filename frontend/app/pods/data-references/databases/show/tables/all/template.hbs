@@ -42,7 +42,7 @@
                         {{#each tables as |table|}}
                             <tr>
                                 <td>
-                                    {{#link-to 'data_references.databases.show.tables.show' database.id table.id}} {{table.human_name}} {{/link-to}}
+                                    {{#link-to 'data_references.databases.show.tables.show' database.id table.id}} {{table.name}} {{/link-to}}
                                 </td>
                                 <td>
                                     {{#if table.editMode}}

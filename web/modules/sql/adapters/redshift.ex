@@ -3,21 +3,18 @@ defmodule AfterGlow.Sql.Adapters.Redshift do
   use Supervisor
   alias DbConnection
 
+  alias AfterGlow.ODBC
+
   def create_pool(config) do
-    Postgrex.start_link(
-      hostname: config["host_url"],
-      username: config["username"],
-      password: config["password"],
-      database: config["db_name"],
-      port: config["host_port"],
-      timeout: 120_000,
-      connect_timeout: 120_000,
-      handshake_timeout: 120_000,
-      ownership_timeout: 120_000,
-      pool_timeout: 120_000,
+    connection_string =
+      'Driver={Redshift};Server=#{config["host_url"]};Port=#{config["host_port"]};Database=#{
+        config["db_name"]
+      };Uid=#{config["username"]};Pwd=#{config["password"]}' 
+
+    DBConnection.start_link(AfterGlow.ODBC.Protocol,
+      conn_str: connection_string,
       pool: DBConnection.ConnectionPool,
       pool_size: 10,
-      types: AfterGlow.PostgrexTypes
     )
   end
 
@@ -34,7 +31,7 @@ defmodule AfterGlow.Sql.Adapters.Redshift do
   end
 
   def get_fkeys(conn) do
-    {:ok, result} = Postgrex.query(conn, ~s/SELECT
+    {:ok,_,  result} = DBConnection.execute(conn,%ODBC.Query{statement: ~s/SELECT
     CONCAT('\"\', tc.table_schema,\'\".\"\', tc.table_name, \'\"\') as table_name,
     CONCAT('\"\', ccu.table_schema,\'\".\"\', ccu.table_name, \'\"\') as foreign_table_name,
     tc.constraint_name as name,
@@ -46,7 +43,7 @@ FROM
       ON tc.constraint_name = kcu.constraint_name
     JOIN information_schema.constraint_column_usage AS ccu
       ON ccu.constraint_name = tc.constraint_name
-WHERE constraint_type = 'FOREIGN KEY'/, [], opts())
+WHERE constraint_type = 'FOREIGN KEY'/}, [])
 
     result.rows
     |> Enum.map(fn row ->
@@ -55,10 +52,10 @@ WHERE constraint_type = 'FOREIGN KEY'/, [], opts())
   end
 
   def get_primary_keys(conn) do
-    {:ok, result} =
-      Postgrex.query(
+    {:ok,_, result} =
+      DBConnection.execute(
         conn,
-        ~s/SELECT
+        %ODBC.Query{statement: ~s/SELECT
         pg_attribute.attname as column_name, '"' + nspname + '"."' +  pg_class.relname + '"' as table_name
       FROM pg_index, pg_class, pg_attribute, pg_namespace
       WHERE
@@ -67,9 +64,8 @@ WHERE constraint_type = 'FOREIGN KEY'/, [], opts())
         pg_attribute.attrelid = pg_class.oid AND
         pg_attribute.attnum =  ANY(string_to_array(textin(int2vectorout(pg_index.indkey)), ' '))
         and nspname not in ('information_schema', 'pg_catalog', 'pg_toast')
-       AND indisprimary/,
-        [],
-        opts()
+       AND indisprimary/},
+        []
       )
 
     result.rows
@@ -79,15 +75,14 @@ WHERE constraint_type = 'FOREIGN KEY'/, [], opts())
   end
 
   def get_schema(conn) do
-    {:ok, data} =
-      Postgrex.query(
+    {:ok, _, data} =
+      DBConnection.execute(
         conn,
-        ~s/select '"' + table_schema + '"."' + table_name + '"' as table_name
+        %ODBC.Query{statement: ~s/select '"' + table_schema + '"."' + table_name + '"' as table_name
         , column_name name, data_type
         from information_schema.columns where table_schema not in ('information_schema', 'pg_catalog')
-        order by ordinal_position/,
-        [],
-        opts
+        order by ordinal_position/},
+        []
       )
 
     {:ok,
@@ -141,45 +136,29 @@ WHERE constraint_type = 'FOREIGN KEY'/, [], opts())
         query
       end
 
-    Postgrex.transaction(
-      pid,
-      fn conn ->
-        {:ok, query} = Postgrex.prepare(conn, "", query, opts)
-        columns = query.columns
+    {:ok, _ , results } = DBConnection.execute(pid, %ODBC.Query{statement: query}, []) 
+    mapper_fn.(results.rows , results.columns)
 
-        rows =
-          Postgrex.stream(conn, query, [], stream_opts)
-          |> Stream.map(fn %Postgrex.Result{rows: rows} -> rows end)
-
-        mapper_fn.(rows, columns)
-      end,
-      txn_opts
-    )
   end
 
   defp run_query(conn, query, exec_query, limited, frontend_limit) do
-    try do
-      query = Postgrex.prepare(conn, "", exec_query, opts)
+    case DBConnection.execute(conn, %ODBC.Query{statement: exec_query}, []) do
+      {:ok, _, results} ->
+        {:ok,
+         %{
+           columns: results.columns,
+           rows: results.rows,
+           limited: limited,
+           limit: frontend_limit,
+           limited_query: exec_query,
+           num_rows: results.num_rows
+         }}
 
-      case query do
-        {:ok, prepared_query} ->
-          {:ok, results} = Postgrex.execute(conn, prepared_query, [], opts)
+      {:error, %DBConnection.ConnectionError{}} ->
+        {:error, %{message: "database connection timed out"}}
 
-          {:ok,
-           %{
-             columns: results.columns,
-             rows: results.rows,
-             limited: limited,
-             limit: frontend_limit,
-             limited_query: exec_query
-           }}
-
-        {:error, error} ->
-          {:error, error.postgres}
-      end
-    rescue
-      DBConnection.ConnectionError ->
-        {:error, %{message: "Query Timed Out. Please Try to optimize your query"}}
+      {:error, error} ->
+        {:error, error}
     end
   end
 end

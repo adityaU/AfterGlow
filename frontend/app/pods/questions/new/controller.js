@@ -11,6 +11,7 @@ import DynamicQueryParamsControllerMixin from 'frontend/mixins/dynamic-query-par
 
 
 export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMixin, ResultViewMixin, AceTools, CustomEvents, DynamicQueryParamsControllerMixin, {
+  vueComponentsEnabled: true,
   ajax: Ember.inject.service(),
   queryParamsVariables: Ember.computed.alias('question.variables'),
   reloadBasedOnQueryParamsObserver: Ember.observer('reloadBasedOnQueryParams', function () {
@@ -222,6 +223,13 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMix
       queryObject = JSON.parse(JSON.stringify(queryObject));
       queryObject['rawQuery'] = this.get('aceEditor').getSelectedText();
     }
+
+    this.set('vueResultPath', null)
+    var iframePayload = new URLSearchParams();
+      iframePayload.append("payload", JSON.stringify(queryObject))
+      iframePayload.append("token", this.get('ajax.sessionService.token'))
+      this.set('vueResultPath', "http://localhost:9000/frontend?" + iframePayload.toString())
+
     this.get('ajax').apiCall({
       url: this.get('apiHost') + this.get('apiNamespace') + '/query_results',
       type: 'POST',
