@@ -11,6 +11,7 @@ import DynamicQueryParamsControllerMixin from 'frontend/mixins/dynamic-query-par
 
 
 export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMixin, ResultViewMixin, AceTools, CustomEvents, DynamicQueryParamsControllerMixin, {
+
   vueComponentsEnabled: true,
   ajax: Ember.inject.service(),
   queryParamsVariables: Ember.computed.alias('question.variables'),

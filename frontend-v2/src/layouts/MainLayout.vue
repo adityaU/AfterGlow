@@ -1,11 +1,12 @@
 <template>
-  <q-layout view="lHh Lpr lFf" ref="root">
       <router-view ref="root" />
-  </q-layout>
 </template>
+
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, onUpdated } from 'vue';
+
+import resizerUrl from '../assets/js/iframe.content.min.js?url'
 
 
 const linksList = [
@@ -76,6 +77,9 @@ export default defineComponent({
     }
 
     onMounted(() => {
+      let tag = document.createElement("script");
+      tag.setAttribute("src", resizerUrl);
+      document.head.appendChild(tag);
       updateHeight()
     })
 

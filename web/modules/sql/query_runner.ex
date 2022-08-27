@@ -11,6 +11,7 @@ defmodule AfterGlow.Sql.QueryRunner do
   alias AfterGlow.AuditLogs.AuditLogs
   alias AfterGlow.AuditLogs.AuditLog
   import Ecto.Query, only: [from: 2]
+  import IEx.Info, only: [info: 1]
 
   def make_final_query(db_record, params, question_variables) do
     query = Question.replace_variables(params[:raw_query], question_variables, params[:variables])
@@ -40,6 +41,7 @@ defmodule AfterGlow.Sql.QueryRunner do
         additional_filters_exists?(params[:additional_filters])
       )
       |> Question.insert_final_query(query)
+      |> insert_inferred_column_details()
 
     cache_results(params, results, params[:raw_query])
 
@@ -59,6 +61,86 @@ defmodule AfterGlow.Sql.QueryRunner do
     end
 
     {params[:raw_query], results}
+  end
+
+  def insert_inferred_column_details(results) do
+    resMap = results |> elem(1)
+    rows = resMap |> Map.get(:rows)
+
+    results
+    |> Tuple.insert_at(
+      1,
+      resMap
+      |> IO.inspect(label: "awesome")
+      |> Map.put(
+        "column_details",
+        resMap
+        |> Map.get(:columns)
+        |> Enum.with_index()
+        |> Enum.reduce(%{}, fn {col, index}, det ->
+          det
+          |> Map.put(col, %{data_type: infer_data_type(rows, index, 0, [], false)})
+        end)
+      )
+    )
+    |> Tuple.delete_at(2)
+  end
+
+  defp infer_data_type(rows, colIndex, rowIndex, possible_data_types, max_index_reached) do
+    if possible_data_types |> length == 5 || max_index_reached do
+      possible_data_types |> IO.inspect(label: "possi")
+
+      if possible_data_types |> Enum.uniq() |> length == 1 do
+        possible_data_types |> Enum.at(0)
+      else
+        "String"
+      end
+    else
+      possible_data_types =
+        if entry = rows |> Enum.at(rowIndex) |> Enum.at(colIndex) do
+          possible_data_types ++
+            [infer_dt(info(entry) |> Enum.into(%{}) |> Map.get("Data type"), entry)]
+        else
+          possible_data_types
+        end
+
+      rowIndex = rowIndex + 1
+      max_index_reached = rowIndex == rows |> length
+      infer_data_type(rows, colIndex, rowIndex, possible_data_types, max_index_reached)
+    end
+  end
+
+  def infer_dt("string", value), do: infer_dt("BitString", value)
+
+  def infer_dt("BitString", value) do
+    cond do
+      parse_datetime(value) -> "Inferred.DateTime"
+      parse_email(value) -> "Inferred.Email"
+      parse_url(value) -> "Inferred.Url"
+      true -> "string"
+    end
+  end
+
+  def parse_email(value) do
+    r = ~R<^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$>
+    Regex.match?(r, value)
+  end
+
+  def parse_datetime(value) do
+    cond do
+      DateTime.from_iso8601(value) |> elem(0) == :ok -> true
+      Timex.parse(value, "{YYYY}-{0M}-{D}") |> elem(0) == :ok -> true
+      true -> false
+    end
+  end
+
+  def parse_url(value) do
+    uri = URI.parse(value)
+    uri.scheme != nil && uri.host != nil
+  end
+
+  def infer_dt(datatype, _) do
+    datatype
   end
 
   def run_query_from_object(db_record, params, frontend_limit, tracking_details) do

@@ -1,16 +1,61 @@
 
-// app global css in SCSS form
-
-td
-{
+td{
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 350px;
+    max-width: 400px;
 }
 
-.q-table{
-    display: block;
-    width: 100%;
-    overflow-x: auto;
+.q-menu:after {
+    position: absolute;
+    bottom: -7px;
+    left: 12px;
+    display: inline-block;
+    border-right: 7px solid transparent;
+
+    border-top: 7px solid #fff;
+    border-left: 7px solid transparent;
+    content: '';
+}
+
+body *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    transition: .3s background;
+}
+
+// body ::-webkit-scrollbar-track {
+//     background: rgb(255 0 0 / 10%);
+//     border-radius: 0px;
+// }
+
+body *:hover::-webkit-scrollbar-thumb {
+    background: #adb5bd;
+}
+
+body *:focus-visible{
+    outline-width: 0;
+}
+
+body *::-webkit-scrollbar-thumb {
+    background: #ced4da;
+    border-radius: 100px;
+}
+
+.splitpanes.default-theme .splitpanes__pane{
+    background-color: white !important;
+}
+
+.splitpanes--vertical > .splitpanes__splitter {
+  min-width: 6px;
+  background: white;
+  border-left: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+}
+
+.splitpanes--horizontal > .splitpanes__splitter {
+  min-height: 6px;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
 }

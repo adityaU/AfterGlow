@@ -1,41 +1,38 @@
-
 <template>
   <Suspense>
-    <AGTable :resultsKey="resultsKey" :dataLoaded="dataLoaded"></AGTable>
+    <BaseDataRenderer :resultsKey="resultsKey" :dataLoaded="dataLoaded"></BaseDataRenderer>
   </Suspense>
 </template>
 
 <script lang="ts">
-import AGTable from 'components/table.vue';
-import { defineComponent  } from 'vue';
+import BaseDataRenderer from 'components/dataRenderers/base.vue';
+import { defineComponent } from 'vue';
 import { useRoute } from 'vue-router';
-import {api} from 'boot/axios';
+import { api } from 'boot/axios';
 import { resultsStore } from 'stores/results'
 import hash from '../helpers/hash'
 import apiConfig from '../helpers/apiConfig'
 
 export default defineComponent({
   name: 'QuestionPage',
-  components: { AGTable },
+  components: { BaseDataRenderer },
 
-  data(){
-    const route = useRoute();
+  data() {
     return {
-      resultsKey: null, 
-      dataLoaded: false
+        resultsKey: null,
+        dataLoaded: false
     }
   },
-  async created () {
+  async created() {
     const route = useRoute();
     const results = resultsStore();
     let key = await hash(route.query.payload)
-    let completed = api.post('query_results',  JSON.parse(route.query.payload), apiConfig(route.query.token)).then((response)=>{
+    let completed = api.post('query_results', JSON.parse(route.query.payload), apiConfig(route.query.token)).then((response) => {
       results.pushResults(response.data, key)
-
       this.dataLoaded = true
     })
     this.resultsKey = key
-    return { key , completed };
+    return { key, completed };
   }
 });
 </script>
