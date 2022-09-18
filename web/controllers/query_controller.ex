@@ -9,29 +9,7 @@ defmodule AfterGlow.QueryController do
   plug(:verify_authorized)
 
   def execute(conn, params) do
-    params |> IO.inspect(label: params)
-    db_identifier = params["database"]["unique_identifier"]
-    db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
-    frontend_limit = ApplicableSettings.max_frontend_limit(conn.assigns.current_user)
-
-    {query, results} =
-      case params["queryType"] do
-        "query_builder" ->
-          run_query_from_object(
-            db_record,
-            params,
-            frontend_limit,
-            %{current_user: conn.assigns.current_user}
-          )
-
-        "raw" ->
-          permit_prms =
-            params
-            |> permit_params
-            |> permit_prms_raw_query(params["rawQuery"])
-
-          run_raw_query(db_record, permit_prms, frontend_limit, %{current_user: conn.assigns.current_user})
-      end
+    {query, results} = run(params, conn.assigns.current_user)
 
     case results do
       {:ok, results} ->

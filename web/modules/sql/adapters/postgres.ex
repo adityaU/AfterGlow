@@ -8,7 +8,8 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
     connection_string =
       'Driver={Postgresql Unicode};Server=#{config["host_url"]};Port=#{config["host_port"]};Database=#{
         config["db_name"]
-      };Uid=#{config["username"]};Pwd=#{config["password"]}' |> IO.inspect(label: "conn+str")
+      };Uid=#{config["username"]};Pwd=#{config["password"]};ConnSettings=set client_encoding=UTF8;'
+     
 
     DBConnection.start_link(AfterGlow.ODBC.Protocol,
       conn_str: connection_string,
@@ -31,7 +32,7 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
   end
 
   def get_fkeys(conn) do
-    {:ok, _,  result} = DBConnection.execute(conn, %ODBC.Query{statement: ~s/SELECT conname as name
+    {:ok, _, result} = DBConnection.execute(conn, %ODBC.Query{statement: ~s/SELECT conname as name
     ,concat('"', n.nspname, '"."', conrelid::regclass::text, '"') AS "table_name"
     ,CASE WHEN pg_get_constraintdef(c.oid) LIKE 'FOREIGN KEY %' THEN substring(pg_get_constraintdef(c.oid), 14, position(')' in pg_get_constraintdef(c.oid))-14) END AS "column_name"
     ,concat('"', n.nspname, '"."', CASE WHEN pg_get_constraintdef(c.oid) LIKE 'FOREIGN KEY %' THEN substring(pg_get_constraintdef(c.oid), position(' REFERENCES ' in pg_get_constraintdef(c.oid))+12, position('(' in substring(pg_get_constraintdef(c.oid), 14))-position(' REFERENCES ' in pg_get_constraintdef(c.oid))+1) END, '"') AS "foreign_table_name"
@@ -49,7 +50,7 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/},
   end
 
   def get_primary_keys(conn) do
-    {:ok, _,  result} = DBConnection.execute(conn, %ODBC.Query{statement: ~s/SELECT
+    {:ok, _, result} = DBConnection.execute(conn, %ODBC.Query{statement: ~s/SELECT
     pg_attribute.attname as column_name, concat('"', nspname, '"."',  pg_class.relname, '"') as table_name
   FROM pg_index, pg_class, pg_attribute, pg_namespace
   WHERE
@@ -67,7 +68,7 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/},
   end
 
   def get_schema(conn) do
-    {:ok, _,  data} = DBConnection.execute(conn, %ODBC.Query{statement: ~s/select
+    {:ok, _, data} = DBConnection.execute(conn, %ODBC.Query{statement: ~s/select
       table_catalog,
       CONCAT('\"\', table_schema,\'\".\"\', table_name, \'\"\') as table_name,
       table_name as readable_table_name,
@@ -130,40 +131,75 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/},
 
   def execute_with_stream(pid, query, download_limit, mapper_fn, _options)
       when is_binary(query) do
-    query =
+    {limited, query} =
       if download_limit do
-        {_limited, query} =
-          query
-          |> limit_rows_in_query(download_limit)
-
         query
+        |> limit_rows_in_query(download_limit)
       else
-        query
+        {false, query}
       end
 
-    {:ok, _ , results } = DBConnection.execute(pid, %ODBC.Query{statement: query}, []) 
-    mapper_fn.(results.rows , results.columns)
+    case run_query(pid, query, query, limited, download_limit) do
+      {:ok, results} ->
+        mapper_fn.(results.rows, results.columns)
 
+      {:error, error} ->
+        error 
+    end
   end
 
   defp run_query(conn, _query, exec_query, limited, frontend_limit) do
-    case DBConnection.execute(conn, %ODBC.Query{statement: exec_query}, []) do
+    wrapped_query = "select json_agg(raw_data) as data from (#{exec_query}) as raw_data"
+
+    only_column_names_query =
+      "select * from (#{exec_query} ) as zero_query limit 0"
+
+    response =
+      DBConnection.execute(conn, %ODBC.Query{statement: only_column_names_query}, [])
+
+    case response do
       {:ok, _, results} ->
-        {:ok,
-         %{
-           columns: results.columns,
-           rows: results.rows,
-           limited: limited,
-           limit: frontend_limit,
-           limited_query: exec_query,
-           num_rows: results.num_rows
-         }}
+        columns = results.columns
+
+        case DBConnection.execute(conn, %ODBC.Query{statement: wrapped_query}, []) do
+          {:ok, _, results} ->
+            rows =
+              results.rows
+              |> Enum.at(0) 
+              |> Enum.at(0)
+            
+            rows = if rows &&  rows |> length >= 1 do
+              rows
+              |> Enum.map(fn x -> columns |> Enum.map(fn y -> x[y] end) end)
+              else
+              []
+              end
+
+            {:ok,
+             %{
+               columns: columns,
+               rows: rows,
+               limited: limited,
+               limit: frontend_limit,
+               limited_query: exec_query,
+               num_rows: results.num_rows
+             }}
+
+          {:error, %DBConnection.ConnectionError{}} ->
+            {:error, %{message: "database connection timed out"}}
+
+          {:error, error} ->
+            {:error, %{message: error.message}}
+        end
 
       {:error, %DBConnection.ConnectionError{}} ->
         {:error, %{message: "database connection timed out"}}
 
       {:error, error} ->
-        {:error, error}
+        {:error, %{message: error.message}}
+
+      error ->
+        error 
     end
   end
 end

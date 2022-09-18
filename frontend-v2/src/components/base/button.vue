@@ -1,7 +1,7 @@
 <template>
-  <button class="tw-w-full tw-text-center tw-rounded tw-py-1 tw-border" :class=[hoverClass]
-    :style="{ 'border-color': borderColor, 'color': textColor, 'background-color': backgroundColor }" @click="handleClick">{{ label
-    }}</button>
+  <button class="tw-w-full tw-text-center tw-rounded-sm tw-py-1 tw-border" @click="handleClick">
+  <slot />
+  </button>
 </template>
 
 <script>
@@ -18,12 +18,7 @@ export default {
     handleClick() {
       this.$emit('clicked')
     }
-  },
-
-  data() {
-    return {
-      hoverClass: "hover:tw-bg-[" + this.borderColor + "]"
-    }
   }
+
 }
 </script>

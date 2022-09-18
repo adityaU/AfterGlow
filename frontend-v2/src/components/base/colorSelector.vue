@@ -1,7 +1,7 @@
 <template>
 
-    <div
-        class="tw-text-primary tw-grid tw-grid-cols-2 tw-bg-white tw-w-full tw-border-primary tw-border tw-rounded tw-text-ellipsis ">
+    <a href="#"
+        class="">
 
         <q-menu transition-show="scale" class="tw-overflow-auto" transition-hide="scale" auto-close=true max-height="70vh">
             <div class="card tw-p-2">
@@ -15,14 +15,14 @@
                 <AGButton label="More Colors" @clicked="moreColors" />
             </div>
         </q-menu>
-        <div
-            class="tw-text-white tw-px-2 tw-rounded-l tw-border tw-border-primary tw-align-middle tw-bg-primary tw-text-ellipsis tw-overflow-hidden tw-whitespace-nowrap">
+        <span :class="selectedColor ? 'btn-left' : 'btn-full'" >
             {{ label }}
-        </div>
-        <div class="tw-m-1 tw-border-4 tw-border-secondary/20 tw-px-2.5 tw-rounded"
+        </span>
+        <span v-if="selectedColor" class="btn-right"
             :style="{ 'color': selectedColor, 'background-color': selectedColor }">
-        </div>
-    </div>
+            c
+        </span>
+    </a>
 </template>
 
 <script>

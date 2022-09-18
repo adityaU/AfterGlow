@@ -6,7 +6,8 @@ const conflictingClasses = [
   "order-first", "order-last", "cursor-not-alowed",
   "cursor-pointer", "block", "inline-block", "text-justify",
   "hidden", "invisible", "overflow-auto", "overflow-hidden",
-  "hover", "even", "odd", "focus", "active", "focus-visible"
+  "hover", "even", "odd", "focus", "active", "focus-visible",
+  "group-hover"
 ];
 // The plugin takes an object where the keys are the selectors and the values are the properties (or list of properties) to remove or all properties with "*".
 const removeObj = {

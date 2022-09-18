@@ -7,11 +7,55 @@ defmodule AfterGlow.Sql.QueryRunner do
   alias AfterGlow.Database
   alias AfterGlow.Table
   alias AfterGlow.Column
+  alias AfterGlow.Settings.ApplicableSettings
 
   alias AfterGlow.AuditLogs.AuditLogs
   alias AfterGlow.AuditLogs.AuditLog
   import Ecto.Query, only: [from: 2]
   import IEx.Info, only: [info: 1]
+
+  def run(params, current_user) do
+   run(params, current_user, nil, %{})
+  end
+
+  def make_question_query(params) do
+    db_identifier = params["database"]["unique_identifier"]
+    db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
+    permit_prms = permit_params(params)
+    DbConnection.query_string(db_record |> Map.from_struct(), permit_prms)
+  end
+
+  def run(params, current_user, limit, tracking_details) do
+    db_identifier = params["database"]["unique_identifier"]
+    db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
+    limit = if limit, do: limit, else: ApplicableSettings.max_frontend_limit(current_user)
+
+    tracking_details = if get_in(tracking_details, [:no_tracking]) do
+      nil
+    else
+      %{current_user: current_user} |> Map.merge(tracking_details)
+    end
+
+    {query, results} =
+      case params["queryType"] do
+        "query_builder" ->
+          run_query_from_object(
+            db_record,
+            params,
+            limit,
+            tracking_details
+          )
+
+        "raw" ->
+          permit_prms =
+            params
+            |> permit_params
+            |> permit_prms_raw_query(params["rawQuery"])
+
+          run_raw_query(db_record, permit_prms, limit, tracking_details )
+      end
+      {query, results}
+  end
 
   def make_final_query(db_record, params, question_variables) do
     query = Question.replace_variables(params[:raw_query], question_variables, params[:variables])
@@ -45,6 +89,20 @@ defmodule AfterGlow.Sql.QueryRunner do
 
     cache_results(params, results, params[:raw_query])
 
+    number_of_rows =
+      if results |> elem(1) |> Map.get(:rows) do
+        results |> elem(1) |> Map.get(:rows) |> length
+      else
+        0
+      end
+
+    queryError =
+      if results |> elem(1) |> Map.get(:message) do
+        results |> elem(1) |> Map.get(:message)
+      else
+        nil
+      end
+
     if tracking_details && tracking_details[:current_user] do
       AuditLogs.create_audit_log(%{
         whodunit: tracking_details[:current_user].id,
@@ -53,6 +111,8 @@ defmodule AfterGlow.Sql.QueryRunner do
           |> Map.merge(
             tracking_details
             |> Map.merge(%{query_time: time})
+            |> Map.merge(%{fetched_rows: number_of_rows})
+            |> Map.merge(%{error: queryError})
             |> Map.delete(:current_user)
             |> Map.delete(:database)
           ),
@@ -67,28 +127,37 @@ defmodule AfterGlow.Sql.QueryRunner do
     resMap = results |> elem(1)
     rows = resMap |> Map.get(:rows)
 
-    results
-    |> Tuple.insert_at(
-      1,
-      resMap
-      |> IO.inspect(label: "awesome")
-      |> Map.put(
-        "column_details",
+
+    if rows && rows |> length >= 1 do
+      results
+      |> Tuple.insert_at(
+        1,
         resMap
-        |> Map.get(:columns)
-        |> Enum.with_index()
-        |> Enum.reduce(%{}, fn {col, index}, det ->
-          det
-          |> Map.put(col, %{data_type: infer_data_type(rows, index, 0, [], false)})
-        end)
+        |> Map.put(
+          :column_details,
+          resMap
+          |> Map.get(:columns)
+          |> Enum.with_index()
+          |> Enum.reduce(%{}, fn {col, index}, det ->
+            det
+            |> Map.put(col, %{data_type: infer_data_type(rows, index, 0, [], false)})
+          end)
+        )
       )
-    )
-    |> Tuple.delete_at(2)
+      |> Tuple.delete_at(2)
+    else
+      results
+      |> Tuple.insert_at(
+        1,
+        resMap
+        |> Map.put(
+          :column_details, %{}))
+        |> Tuple.delete_at(2)
+    end
   end
 
   defp infer_data_type(rows, colIndex, rowIndex, possible_data_types, max_index_reached) do
     if possible_data_types |> length == 5 || max_index_reached do
-      possible_data_types |> IO.inspect(label: "possi")
 
       if possible_data_types |> Enum.uniq() |> length == 1 do
         possible_data_types |> Enum.at(0)
@@ -98,6 +167,7 @@ defmodule AfterGlow.Sql.QueryRunner do
     else
       possible_data_types =
         if entry = rows |> Enum.at(rowIndex) |> Enum.at(colIndex) do
+
           possible_data_types ++
             [infer_dt(info(entry) |> Enum.into(%{}) |> Map.get("Data type"), entry)]
         else
@@ -121,6 +191,10 @@ defmodule AfterGlow.Sql.QueryRunner do
     end
   end
 
+  def infer_dt(datatype, _) do
+    datatype
+  end
+
   def parse_email(value) do
     r = ~R<^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$>
     Regex.match?(r, value)
@@ -129,6 +203,7 @@ defmodule AfterGlow.Sql.QueryRunner do
   def parse_datetime(value) do
     cond do
       DateTime.from_iso8601(value) |> elem(0) == :ok -> true
+      DateTime.from_iso8601(value <> "Z") |> elem(0) == :ok -> true
       Timex.parse(value, "{YYYY}-{0M}-{D}") |> elem(0) == :ok -> true
       true -> false
     end
@@ -139,9 +214,6 @@ defmodule AfterGlow.Sql.QueryRunner do
     uri.scheme != nil && uri.host != nil
   end
 
-  def infer_dt(datatype, _) do
-    datatype
-  end
 
   def run_query_from_object(db_record, params, frontend_limit, tracking_details) do
     permit_prms = permit_params(params)
@@ -150,7 +222,7 @@ defmodule AfterGlow.Sql.QueryRunner do
 
     permit_prms = permit_prms_raw_query(permit_prms, query)
 
-    tracking_details = tracking_details |> Map.merge(permit_prms)
+    tracking_details = (tracking_details || %{}) |> Map.merge(permit_prms)
 
     {query, results} = run_raw_query(db_record, permit_prms, frontend_limit, tracking_details)
 
@@ -203,7 +275,7 @@ defmodule AfterGlow.Sql.QueryRunner do
 
   def permit_params(params) do
     table_record =
-      if table_id = params["table"]["id"] do
+      if table_id = params["table"] && params["table"]["id"] do
         Table |> Repo.get(table_id)
       else
         nil

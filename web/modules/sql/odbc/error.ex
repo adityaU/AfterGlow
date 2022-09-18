@@ -19,13 +19,11 @@ defmodule AfterGlow.ODBC.Error do
 
   @doc false
   @spec exception(binary()) :: t()
-  def exception({odbc_code, native_code, reason} = message) do
+  def exception({_, native_code, reason} = message) do
     %__MODULE__{
       message:
         to_string(reason) <>
-          " | ODBC_CODE " <>
-          to_string(odbc_code) <>
-          " | SQL_SERVER_CODE " <> to_string(native_code),
+          " | DATABASE_SERVER_CODE " <> to_string(native_code),
       odbc_code: get_code(message),
       constraint_violations: get_constraint_violations(to_string(reason))
     }

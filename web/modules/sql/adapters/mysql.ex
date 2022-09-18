@@ -157,7 +157,7 @@ WHERE
         {:error, %{message: "database connection timed out"}}
 
       {:error, error} ->
-        {:error, error}
+        {:error, %{message: error.message}}
     end
   end
 end

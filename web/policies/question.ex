@@ -9,6 +9,7 @@ defmodule AfterGlow.Question.Policy do
   def can?(user, :update, _question), do: has_permission(user, "Question.edit")
   def can?(user, :delete, _question), do: has_permission(user, "Question.delete")
   def can?(user, :create, _question), do: has_permission(user, "Question.create")
+  def can?(user, :get_query, _question), do: has_permission(user, "Question.create")
   def can?(_, _, _), do: false
 
   def scope(user, _action, scope) do

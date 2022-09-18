@@ -17,6 +17,8 @@ defmodule AfterGlow.QuestionController do
   import AfterGlow.Sql.QueryRunner
   alias AfterGlow.Settings.ApplicableSettings
 
+  alias AfterGlow.Questions.QueryFunctions, as: QuestionFunctions
+
   import Ecto.Query
 
   alias AfterGlow.Plugs.Authorization
@@ -251,45 +253,14 @@ defmodule AfterGlow.QuestionController do
     question =
       scope(conn, from(q in Question, where: q.id == ^id), policy: AfterGlow.Question.Policy)
       |> Repo.one()
-      |> Repo.preload(:variables)
-      |> Repo.preload(:api_action)
 
     results =
-      if question.query_type == :api_client do
-        results =
-          ApiActions.send_request(
-            question.api_action,
-            variables,
-            question.api_action.open_in_new_tab,
-            conn.assigns.current_user
-          )
-
-        Question.cache_results(question, variables, results)
-        {:ok, results}
-      else
-        frontend_limit = ApplicableSettings.max_frontend_limit(conn.assigns.current_user)
-        db_identifier = question.human_sql["database"]["unique_identifier"]
-        db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
-
-        params =
-          permitted_params(
-            question.id,
-            variables,
-            additional_filters || question.human_sql["additionalFilters"],
-            question.sql
-          )
-
-        {_query, results} = run_raw_query(db_record, params, question.variables, frontend_limit, %{current_user: conn.assigns.current_user ,question_id: question.id})
-
-        if question.human_sql && question.human_sql["queryType"] == "query_builder" &&
-             question.human_sql["table"] && !question.human_sql["table"]["sql"] do
-          results |> Table.insert_foreign_key_columns_in_results(question.human_sql["table"])
-        else
-          results
-        end
-      end
-
-
+      QuestionFunctions.get_results(
+        question,
+        variables,
+        additional_filters,
+        conn.assigns.current_user
+      )
 
     case results do
       {:ok, results} ->
@@ -301,6 +272,15 @@ defmodule AfterGlow.QuestionController do
         |> put_status(:unprocessable_entity)
         |> render(QueryView, "execute.json", error: error, query: question.sql)
     end
+  end
+
+  def get_query(conn, params) do
+    query = if params["queryType"] == "raw" do
+      params["rawQuery"]
+    else
+    make_question_query(params)
+    end
+    conn |> json(%{query: query})
   end
 
   defp query_and_send_index_reponse(query, conn) do

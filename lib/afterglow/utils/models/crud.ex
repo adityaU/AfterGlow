@@ -52,7 +52,7 @@ defmodule AfterGlow.Utils.Models.Crud do
       end
 
       def delete(%@model{} = model), do: _delete(%@model{} = model)
-      def _delete(id), do: _delete(id)
+      def delete(id), do: _delete(id)
 
       def _delete(%@model{} = model) do
         model |> Repo.delete() |> _preload(@default_preloads)

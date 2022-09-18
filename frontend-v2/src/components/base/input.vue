@@ -1,29 +1,25 @@
 <template>
-  <div>
-  <input :placeholder="placeholder" :class="invisible ? withOutBorderClass : withBorderClass" class="tw-px-2 tw-py-0.5" v-model="value" @keypress.down="$emit('keypress:down')" />
-
-  </div>
+  <input :placeholder="placeholder" :class="invisible ? 'input-no-border' : 'input-border'" class="tw-px-2 tw-py-0.5 tw-w-full" v-model="valueLocal" @keypress.down="$emit('keypress:down')" />
 </template>
 
 <script>
 export default {
-  name: 'AGInput',
+  name: 'BaseInput',
   props: {
+    value: {},
     invisible: {default: false},
     placeholder: {default: "Enter a value"}
   },
   data() {
     return {
-      value: "",
-      withBorderClass: "tw-border tw-border-primary tw-rounded focus-visible:tw-border-2 focus-visible:tw-border-primary focus-visible:tw-outline-0",
-      withOutBorderClass: "tw-border-0 focus-visible:tw-outline-0"
+      valueLocal: this.value,
     }
 
   },
 
   watch: {
-    value() {
-      this.$emit('inputed', this.value);
+    valueLocal() {
+      this.$emit('inputed', this.valueLocal);
     }
   }
 

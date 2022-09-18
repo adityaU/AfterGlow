@@ -90,108 +90,17 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit results=results}}
                         </div>
                     </div>
                     {{/if}}
-                    {{#if canEdit}}
-                    {{# if (or errors.final_query (or variablesReplacedQuery isQueryLimited))}}
-                    <div class="mb-5">
-                        {{#if (or results.final_query errors.final_query)}}
-                        {{final-query-accordian isQueryLimited=isQueryLimited
-                                queryLimit=queryLimit
-                                variablesReplacedQuery=variablesReplacedQuery
-                                aceMode=aceMode
-                                finalQuery=(or results.final_query errors.final_query)
-                                additionalFiltersApplied=results.additional_filters_applied
-                                aceTheme=aceTheme}}
-                        {{/if}}
-                    </div>
-                    {{/if}}
-                    {{/if}}
                     {{#if (or results errorMessage)}}
                     {{#if (and queryBuilderType canEdit)}}
-                            {{#unless (eq question.query_type 'api_client')}}
-                    <div class="card">
-                        <div class="card-header">
-
-                            {{additional-filters results=results error=errors question=question queryObject=queryObject}}
-                        </div>
-
-                    </div>
-                            {{/unless}}
-
                     {{/if}}
                     {{/if}}
                     {{#if vueComponentsEnabled}}
-                    {{embeddable-vue-component vueResultPath=vueResultPath class="card" }}
+                    {{embeddable-vue-component vueIframeID=vueIframeID vueResultPath=vueResultPath}}
                     {{/if}}
                     {{#if results}}
-                    <div class="card {{fullscreenClass}}">
-                        <div class="card-header row results-view-selector">
-                            <div class="col-9" bubbles=false>
-
-                                {{custom-single-select-content
-    widgetType='boxes'
-    hideSearch=true
-    selectCallbackAction='updateResultViewType'
-    elseMessage="No such Visualization"
-    options=availableResultsTypesHash value=resultsViewTypeTitle
-    dynamicIconOnly=true
-    keybindings=false
-    componentClass="d-inline-flex"
-    displayKey="title" iconKey="icon"}}
-                                <span>
-                                    {{#bs-tooltip placement="top" }}Configure Visualization{{/bs-tooltip}}
-                                    <i class="fe fe-settings text-gray" {{action 'toggleSettings'}}></i>
-                                </span>
-                            </div>
-                            <div class="col-3 text-right">
-                                {{#if (can "download question")}}
-                                <span class="px-1" {{action "downloadData"}}>
-                                    {{#bs-tooltip placement="top" }}Download Data{{/bs-tooltip}}
-                                    <i class="fe fe-save text-gray"></i>
-                                </span>
-                                {{/if}}
-                                {{#if question.updated_at}}
-                                <span class="px-1">
-                                    {{#bs-tooltip placement="top" }}Updated
-                                    {{moment-from-now question.updated_at interval=1000}}{{/bs-tooltip}}
-                                    <i class="fe fe-clock text-{{question.updatedAgoColor}}"></i>
-                                </span>
-                                {{/if}}
-                                <span class="pl-1" {{action "toggleFullscreen"}}>
-                                    {{#bs-tooltip placement="top" }}toggleFullScreen{{/bs-tooltip}}
-                                    <i class="fe fe-maximize text-gray"></i>
-                                </span>
-                            </div>
-                        </div>
-                        {{#if showSettings}}
-                        {{component resultsWidgetSettingsComponent canEdit=canEdit resultsViewSettings=resultsViewSettings results=results database=queryParams.database table=queryParams.table }}
-                        {{/if}}
-                        <div class="card-body p-0">
-                            {{question-widget results=results resultsViewSettings=resultsViewSettings resultsViewType=resultsViewType questionName=questionName
-                            hideMenu=true question=question resizeTime=resizeTime apply='apply' showQuickFilters=true}}
-                        </div>
-                    </div>
                     {{else}}
                     {{#if loading}}
-                    <div class="card results mx-auto">
-                        <div class="card-body">
-                            <div class="dimmer active p-8">
-                                <div class="loader big text-primary"> </div>
-                                <div class="dimmer-content full-height"></div>
-                            </div>
-                        </div>
-                    </div>
                     {{else}}
-                    <div class="card results mx-auto">
-                        {{#if errorMessage}}
-                        <div class="query error section text-red m-auto">
-                            <div class="ui big">
-                                <i class="fe fe-x-circle text-red"></i>
-                            </div> {{errorMessage}}
-                        </div>
-                        {{else}}
-                        <div class="section m-auto">Wanna see something cool? Run a Query!</div>
-                        {{/if}}
-                    </div>
                     {{/if}}
                     {{/if}}
                 </div>

@@ -61,6 +61,9 @@ defmodule AfterGlow.Router do
     resources("/search_items", SearchItemController)
     resources("/search_tables", SearchTableController)
 
+    resources("/visualizations", VisualizationController)
+    post("/visualizations/:id/results", VisualizationController, :results)
+    post("/visualizations/results", VisualizationController, :results)
     get("search_tables/:id/foreign_tables", SearchTableController, :foreign_tables)
 
     post("api_actions/:id/send_request", ApiActionController, :send_request)
@@ -68,6 +71,7 @@ defmodule AfterGlow.Router do
     post("users/:id/activate", UserController, :activate)
     post("users/:id/deactivate", UserController, :deactivate)
     post("questions/:id/results", QuestionController, :results)
+    post("questions/query", QuestionController, :get_query)
     post("snapshots/:id/stop_and_new", SnapshotController, :stop_and_new)
     get("snapshots/:snapshot_id/find", SnapshotController, :find)
     get("snapshots/:snapshot_id/suggest", SnapshotController, :suggest)

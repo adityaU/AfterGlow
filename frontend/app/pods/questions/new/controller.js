@@ -13,11 +13,32 @@ import DynamicQueryParamsControllerMixin from 'frontend/mixins/dynamic-query-par
 export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMixin, ResultViewMixin, AceTools, CustomEvents, DynamicQueryParamsControllerMixin, {
 
   vueComponentsEnabled: true,
+  vueIframeID: 'vueResultsComponent',
+  vueResultPath: Ember.computed('question.query_variables.content.isLoaded', function() {
+    const question = this.get('question')
+    if (question.get('query_variables.content.isLoaded')){
+    const query_variables = question.get('query_variables').map((item) => {
+      return {
+        name: item.get('name'),
+        value: item.get('value') || item.get('default'),
+        var_type: item.get('var_type'),
+        default_options: item.get('default_options')
+      };
+    })
+
+    let payload = {variables: [], iFrame: true}
+    return 'http://localhost:9000/frontend' +  window.location.pathname + "?payload=" + JSON.stringify(payload) + "&token=" + this.get('ajax.sessionService.token')
+
+    }
+    return ""
+  }),
+
   ajax: Ember.inject.service(),
   queryParamsVariables: Ember.computed.alias('question.variables'),
   reloadBasedOnQueryParamsObserver: Ember.observer('reloadBasedOnQueryParams', function () {
     this.set('question.resultsCanBeLoaded', true);
   }),
+
 
   newQuestion: true,
   databases: Ember.computed(function () {
@@ -168,7 +189,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMix
   }),
   scrollToResultsView() {
     $('html, body').animate({
-      scrollTop: $('.card.results').offset().top - 200
+      scrollTop: $('#' + this.get('vueIframeID')).offset().top -100
     }, 1000);
   },
   getResultsWithSelectedTextFunction() {
@@ -198,9 +219,6 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMix
     }));
 
     this.changeQueryParamsInUrl(queryObject.get('variables'), queryObject.get('name'));
-    this.set('loading', true);
-    this.set('results', null);
-
     if (question.get('query_type') == 'api_client') {
       let payload = JSON.parse(JSON.stringify(question.get('api_action.content')))
       payload["variables"] = queryObject.get('variables')
@@ -225,55 +243,74 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMix
       queryObject['rawQuery'] = this.get('aceEditor').getSelectedText();
     }
 
-    this.set('vueResultPath', null)
+
     var iframePayload = new URLSearchParams();
       iframePayload.append("payload", JSON.stringify(queryObject))
       iframePayload.append("token", this.get('ajax.sessionService.token'))
-      this.set('vueResultPath', "http://localhost:9000/frontend?" + iframePayload.toString())
-
-    this.get('ajax').apiCall({
-      url: this.get('apiHost') + this.get('apiNamespace') + '/query_results',
-      type: 'POST',
-      data: queryObject
-    }, (response, status) => {
-      this.set('loading', false);
-      this.set('errors', null);
-      if (question.get('query_type') == 'api_client') {
-        let results = this.parseApiActionResult(response, this.get('question.api_action'))
-        this.set('results', results);
-      } else {
-        this.set('results', response.data);
+      iframePayload.append("iFrame", true)
+      iframePayload.append("question_id", question.get('id'))
+      const vueResultPath = "http://localhost:9000/frontend/questions/new?" + iframePayload.toString()
+      if (vueResultPath === this.get('vueResultPath')) {
+          document.getElementById(this.get('vueIframeID')).contentWindow.postMessage({
+            message: 'refresh',
+          }, '*');
       }
-      if (!this.get('resultsViewType')) {
-        this.set('resultsViewType', this.autoDetect(response.data.rows));
+      else{
+        this.set('vueResultPath', vueResultPath)
       }
 
+      this.scrollToResultsView();
+      this.get('ajax').apiCall({
+        url: this.get('apiHost') + this.get('apiNamespace') + '/questions/query',
+        type: 'POST',
+        data: queryObject
+      }, (response, status) => {
       if (!(withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText())) {
         this.set('queryObject.rawQuery', response.query);
         this.set('validQuestion', true);
       }
-      this.set('isQueryLimited', response.data.limited);
-      this.set('queryLimit', response.data.limit);
-      this.set('limitedQuery', response.data.limited_query);
-      this.set('variablesReplacedQuery', response.data.variables_replaced_query);
-      this.scrollToResultsView();
-    }, (error, status) => {
-      this.set('loading', false);
-      this.scrollToResultsView();
-      (error && error.error) ? this.set('errors', error.error) : this.set('errors', {
-        message: 'Something isn\'t right. Please check the query elements.'
-      });
-      this.set('results', null);
+      }, (error, status) => {
       if (!(withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText())) {
         this.set('validQuestion', false);
         this.set('queryObject.rawQuery', error.query);
       }
-      this.set('isQueryLimited', null);
-      this.set('queryLimit', null);
-      this.set('limitQuery', null);
-      this.set('variablesReplacedQuery', error.error.variables_replaced_query);
-    });
-    // }
+      })
+  //     this.set('loading', false);
+  //     if (question.get('query_type') == 'api_client') {
+  //       let results = this.parseApiActionResult(response, this.get('question.api_action'))
+  //       this.set('results', results);
+  //     } else {
+  //       this.set('results', response.data);
+  //     }
+  //     if (!this.get('resultsViewType')) {
+  //       this.set('resultsViewType', this.autoDetect(response.data.rows));
+  //     }
+  //
+  //     if (!(withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText())) {
+  //       this.set('queryObject.rawQuery', response.query);
+  //       this.set('validQuestion', true);
+  //     }
+  //     this.set('isQueryLimited', response.data.limited);
+  //     this.set('queryLimit', response.data.limit);
+  //     this.set('limitedQuery', response.data.limited_query);
+  //     this.set('variablesReplacedQuery', response.data.variables_replaced_query);
+  //   }, (error, status) => {
+  //     this.set('loading', false);
+  //     this.scrollToResultsView();
+  //     (error && error.error) ? this.set('errors', error.error) : this.set('errors', {
+  //       message: 'Something isn\'t right. Please check the query elements.'
+  //     });
+  //     this.set('results', null);
+  //     if (!(withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText())) {
+  //       this.set('validQuestion', false);
+  //       this.set('queryObject.rawQuery', error.query);
+  //     }
+  //     this.set('isQueryLimited', null);
+  //     this.set('queryLimit', null);
+  //     this.set('limitQuery', null);
+  //     this.set('variablesReplacedQuery', error.error.variables_replaced_query);
+  //   });
+  //   // }
   },
 
   actions: {
@@ -325,6 +362,11 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMix
         }
         question.save().then((response) => {
           question.get('variables').invoke('save');
+          
+          document.getElementById(this.get('vueIframeID')).contentWindow.postMessage({
+            message: 'save_visualizations',
+            question_id: response.id
+          }, '*');
 
           this.set('retryingTransition', true);
           this.transitionToRoute('questions.show', response.id);

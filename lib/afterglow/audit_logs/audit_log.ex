@@ -7,8 +7,7 @@ defmodule AfterGlow.AuditLogs.AuditLog do
   @cast_params [
     :whodunit,
     :action,
-    :additional_data,
-    :action
+    :additional_data
   ]
 
   @required_params @cast_params

@@ -33,8 +33,10 @@ defmodule AfterGlow.Helpers.CsvHelpers do
       [columns]
       |> Kernel.++(get_preview_rows(stream))
 
+    downloaded_rows = stream |> length
+
     file |> File.close()
-    {file_name, data_preview}
+    {file_name, data_preview, downloaded_rows}
   end
 
   def get_preview_rows(stream) do
@@ -79,7 +81,7 @@ defmodule AfterGlow.Helpers.CsvHelpers do
   end
 
   defp fetch_and_upload(db_record, query, file_path, download_limit) do
-    {file_name, data_preview} =
+    {file_name, data_preview, downloaded_rows} =
       DbConnection.execute_with_stream(
         db_record |> Map.from_struct(),
         query,
@@ -88,7 +90,7 @@ defmodule AfterGlow.Helpers.CsvHelpers do
       )
 
     url = upload_file_and_return_url(file_name, file_path)
-    {url, data_preview}
+    {url, data_preview, downloaded_rows}
   end
 
   defp delete_file(file_name) do

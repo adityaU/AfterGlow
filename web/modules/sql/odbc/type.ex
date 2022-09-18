@@ -125,10 +125,8 @@ defmodule AfterGlow.ODBC.Type do
   end
 
   def decode(value, opts) when is_binary(value) do
-
     if opts[:preserve_encoding] || String.printable?(value) do
-      value
-      json_parse(value)
+      json_parse(value, value)
     else
       v = :unicode.characters_to_binary(value, :latin1, :unicode)
 
@@ -138,12 +136,10 @@ defmodule AfterGlow.ODBC.Type do
         if is_tuple(v) do
           "UNDECODABLE VALUE"
         else
-          v
-          json_parse(value)
+          json_parse(value, v)
         end
       else
-        v
-        json_parse(value)
+        json_parse(value, v)
       end
     end
   end
@@ -168,10 +164,10 @@ defmodule AfterGlow.ODBC.Type do
     value
   end
 
-  defp json_parse(value) do
+  defp json_parse(value, fallback) do
     case Jason.decode(value) do
       {:ok, v} -> v
-      {:error, _} -> value
+      {:error, _} -> fallback 
     end
   end
 end

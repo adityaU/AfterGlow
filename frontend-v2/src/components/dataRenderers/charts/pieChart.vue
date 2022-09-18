@@ -1,13 +1,398 @@
-
-
 <template>
-  <div>
-   pie 
-  </div>
+        <div ref="chart-block" class="tw-h-full tw-w-full tw-py-4 tw-bg-white"></div>
 </template>
 
 <script>
+
+import * as echarts from 'echarts/core';
+import {
+        TitleComponent,
+        ToolboxComponent,
+        TooltipComponent,
+        GridComponent,
+        LegendComponent
+} from 'echarts/components';
+import { PieChart, FunnelChart } from 'echarts/charts';
+import { UniversalTransition } from 'echarts/features';
+import { CanvasRenderer } from 'echarts/renderers';
+
+echarts.use([
+        TitleComponent,
+        ToolboxComponent,
+        TooltipComponent,
+        GridComponent,
+        LegendComponent,
+        PieChart,
+        FunnelChart,
+        CanvasRenderer,
+        UniversalTransition
+]);
+
+import { shallowRef } from 'vue';
+import { defaultColors, generateColors } from "../../../helpers/colorGenerator.ts"
+import { findDataType } from 'src/helpers/dataTypes';
 export default {
-  name: "AGPie"
+        name: "AGPie",
+        components: {},
+        props: ['results', 'resultsKey', 'showSettings', 'defaultChartType', 'hideFunnelOptions', 'settings', 'size'],
+        data() {
+
+                return {
+                        legendDetails: [],
+                        chartWidth: 0,
+                        chartHeight: 0,
+                        xTypesMapping: {
+                                "NaiveDateTime": "time",
+                                "Inferred.DateTime": "time",
+                                "Integer": "value",
+                                "Float": "value",
+                                "Decimal": "value"
+                        },
+                        chartBox: null,
+                        settingsLocal: {},
+                        options: {
+                        },
+                        data: []
+                }
+        },
+
+        watch: {
+                size() {
+                        setTimeout(() => {
+                                this.dimChanged()
+                        }, 250)
+                },
+                options() {
+                        this.chartBox.setOption(this.options, true)
+                        this.resizeChart()
+                },
+                settings: {
+                        handler() {
+                                this.updateChartConf(this.settings || {})
+                        }, deep: true
+                }
+        },
+
+        mounted() {
+                window.addEventListener('resize', this.dimChanged);
+                this.setChartDimensions()
+                const chartDom = this.$refs["chart-block"]
+                this.chartBox = shallowRef(echarts.init(chartDom))
+        },
+
+
+        unmounted() {
+                window.removeEventListener('resize', this.dimChanged);
+        },
+
+
+
+
+        methods: {
+                dimChanged() {
+                        this.setChartDimensions()
+                        const options = this.setChartPosition(this.options)
+                        this.chartBox.setOption(options, true)
+                        this.resizeChart()
+                },
+
+                legendDetailsUpdated(legendDetails) {
+                        this.legendDetails = legendDetails
+                        this.updateChartConf(this.settings)
+
+                },
+
+                setChartDimensions() {
+                        const chartDom = this.$refs["chart-block"]
+                        this.chartHeight = chartDom.clientHeight
+                        this.chartWidth = chartDom.clientWidth
+                },
+
+                resizeChart() {
+                        this.chartBox && this.chartBox.resize({ animation: { duration: 500 } })
+                },
+                getColumnIndex(columnName) {
+                        return this.results.columns.indexOf(columnName)
+                },
+
+                renderChartCondition(settings) {
+                        return settings.labels &&
+                                settings.series[0].dataColumn
+                },
+
+                getXType(labels) {
+                        return this.xTypesMapping[this.results.column_details[labels]["data_type"]] || "category"
+                },
+
+                labelFormatter(params) {
+                        return params.seriesName
+                },
+
+
+
+                prepareData(settings) {
+
+                        let options = {
+                                title: {
+                                        text: settings.title,
+                                        left: 'center',
+                                        textStyle: {
+                                                color: "#6e7687",
+                                                fontSize: 25
+                                        }
+
+                                },
+                                legend: { top: 'bottom' },
+                                tooltip: {
+                                        trigger: 'item'
+                                        // order: 'valueDesc',
+                                        // formatter: this.tooltipFormatter                                        // formatter: function (params) {
+                                        //         let tar;
+                                        //         if (params[1].value !== '-') {
+                                        //                 tar = params[1];
+                                        //         } else {
+                                        //                 tar = params[0];
+                                        //         }
+                                        //         return tar.name + '<br/>' + tar.seriesName + ' : ' + tar.value;
+                                        // }
+                                },
+                        }
+
+                        let max = 1
+                        const xIndex = this.getColumnIndex(settings.labels)
+                        if (xIndex >= 0 && this.renderChartCondition(settings)) {
+                                let labelsData = [...new Set(this.results.rows.map((row) => {
+                                        return row[xIndex]
+                                }))].sort((a, b) => { return a > b ? -1 : 1 })
+
+
+
+                                // options.labels = {
+                                //         type: this.getXType(settings.labels),
+                                //         name: settings.xTitle,
+                                //         nameLocation: 'middle',
+                                //         nameGap: 25,
+                                //         nameTextStyle: {
+                                //                 fontWeight: 'bold'
+                                //         },
+                                //         axisLine: {
+                                //                 lineStyle: {
+                                //                         color: "#6e7687"
+                                //                 }
+                                //         }
+                                // }
+                                // options.yAxis = {
+                                //         name: settings.yTitle,
+                                //         nameLocation: 'middle',
+                                //         nameTextStyle: {
+                                //                 fontWeight: 'bold'
+                                //         },
+                                //         axisLine: {
+                                //                 lineStyle: {
+                                //                         color: "#6e7687"
+                                //                 }
+                                //         }
+                                // }
+                                settings.series.forEach((s, index) => {
+
+                                        // options.yAxis.type = this.getXType(s.dataColumn)
+
+
+                                        let data = {}; let uniqueDimensions = {};
+
+                                        let yIndex = this.getColumnIndex(s.dataColumn)
+                                        let dimIndex = this.getColumnIndex(s.dimension.dataColumn)
+                                        this.results.rows.forEach((row) => {
+
+                                                let labels = row[xIndex]
+                                                let dimension = row[dimIndex]
+                                                let yaxis = row[yIndex]
+                                                data[labels] = data[labels] ? data[labels] : {}
+                                                data[labels][dimension] = yaxis
+                                                uniqueDimensions[dimension] = true
+                                        })
+
+                                        let dimensionsData = {}
+                                        labelsData.forEach((xItem) => {
+                                                Object.entries(uniqueDimensions).forEach((det, _) => {
+                                                        if (!dimensionsData[det[0]]) { dimensionsData[det[0]] = [] }
+                                                        const d = data[xItem][det[0]]
+                                                        dimensionsData[det[0]].push([xItem, d ? d : null])
+                                                })
+                                        })
+
+
+                                        // const hiddenLegends = [
+                                        //         ...this.legendDetails.filter((item) => { return item.show == false })
+                                        // ].map((item) => {return  item.name })
+
+                                        Object.entries(dimensionsData).forEach((det, i) => {
+                                                let opt = s.dimension.options && s.dimension.options.filter((option) => {
+                                                        return option.name == det[0]
+                                                })
+
+
+                                                if (opt && opt.length >= 0) { opt = opt[0] }
+                                                const legendName = opt ? (opt.legendName || opt.name) : s.dataColumn
+                                                const color = opt ? opt.color : s.color
+                                                const name = opt ? opt.name : s.dataColumn
+                                                const showLabel = opt ? opt.showLabel : s.showLabel
+
+
+                                                options.series = options.series ? options.series : []
+                                                options.legend = options.legend ? options.legend : {}
+                                                // options.legend.data = options.legend.data ? options.legend.data : []
+                                                //
+                                                // options.legend.data.push(legendName || name)
+
+                                                let seriesDatum1 = {
+                                                        name: legendName || name,
+                                                        avoidLabelOverlap: true,
+                                                        type: this.defaultChartType || 'pie',
+                                                        itemStyle: {
+                                                                borderRadius: 8
+                                                        },
+                                                        data: det[1].map((item) => {
+                                                                return {
+                                                                        value: item[1], name: item[0]
+                                                                }
+                                                        }).filter((datum) => { return !isNaN(datum.value) && datum.value }),
+                                                        color: generateColors(det[1].length),
+                                                        label: { show: showLabel, position: 'outside', formatter: "{b}", fontWeight: 'bold' },
+                                                        labelLine: {
+                                                                show: true
+                                                        },
+                                                }
+
+
+                                                seriesDatum1.chartType = s.chartType
+                                                if (s.chartType === 'doughnut') {
+                                                        seriesDatum1.radius = ['40%', '80%']
+                                                        seriesDatum1.label.show = true
+                                                        seriesDatum1.label.position = 'center'
+                                                        seriesDatum1.label.formatter = this.labelFormatter
+                                                        seriesDatum1.label.fontWeight = 'bold'
+                                                }
+                                                if (s.chartType === 'polar area') {
+                                                        seriesDatum1.radius = ['20%', '80%']
+                                                        seriesDatum1.roseType = 'area'
+                                                        seriesDatum1.label.show = true
+                                                        seriesDatum1.label.position = 'center'
+                                                        seriesDatum1.label.formatter = this.labelFormatter
+                                                        seriesDatum1.label.fontWeight = 'bold'
+                                                }
+
+                                                let seriesDatum2 = JSON.parse(JSON.stringify(seriesDatum1))
+                                                seriesDatum2.label.show = showLabel
+                                                seriesDatum2.label.position = 'inside'
+                                                seriesDatum2.label.formatter = '{c}({d}%)'
+                                                seriesDatum2.label.name += "1"
+
+
+
+
+                                                options.series.push(seriesDatum1)
+                                                options.series.push(seriesDatum2)
+
+                                                // options.series = options.series ? options.series : {}
+                                                // options.series[i] = { type: chartType, 'color': color, 'labelInLegend': legendName, 'pointsVisible': true }
+                                                //
+                                                // if (hiddenLegends.indexOf(legendName) < 0) {
+                                                //         legendDetails.push(
+                                                //                 { color: color, legendName: legendName, name: name, show: true }
+                                                //         )
+                                                //         seriesData[0].push(legendName)
+                                                //         det[1].forEach((entry, index) => {
+                                                //                 seriesData[index + 1].push(entry)
+                                                //         })
+                                                // } else {
+                                                //         legendDetails.push(
+                                                //                 { color: color, legendName: legendName, name: name, show: false }
+                                                //         )
+                                                //
+                                                // }
+                                                //
+
+
+
+                                        })
+                                        // options.yAxis.nameGap = Math.ceil(15 * 0.35 * longestY + 50)
+                                })
+
+                                if (options.series && (options.series.length / 2) > 1) {
+                                        if (settings.concentricRendering) {
+                                                const div = 85 / (options.series.length)
+                                                options.series = options.series.filter((_, i) => i % 2 != 0)
+
+                                                options.series.forEach((s, i) => {
+                                                        s.radius = [div * (i) + 4 + '%', div * (i + 1) + '%']
+                                                })
+
+                                        } else {
+                                                options = this.setChartPosition(options)
+                                        }
+                                }
+
+
+
+                                return { options: options, max: max }
+                        }
+                        return { options: options, max: 1 }
+                },
+
+                setChartPosition(options) {
+                        if (options.series && options.series.length / 2 > 1) {
+                                let guessedDiv = Math.floor(this.chartWidth / 250)
+                                let div = options.series.length / 2 > guessedDiv ? guessedDiv : options.series.length / 2
+
+                                options.series.forEach((s, i) => {
+                                        let j = Math.floor(i / 2)
+                                        let xBase = 0
+                                        const yBase = (100 / (Math.ceil(options.series.length / (2 * div)) + 1)) * Math.ceil((i + 1) / (2 * div))
+
+                                        if (options.series.length % (2 * div) != 0 && Math.ceil(options.series.length / (2 * div)) === Math.ceil((i + 1) / (2 * div))) {
+                                                const newDiv = (options.series.length % (2 * div)) / 2
+                                                xBase = (100 / (newDiv + 1)) * ((j % newDiv) + 1)
+                                        } else {
+                                                xBase = (100 / (div + 1)) * ((j % div) + 1)
+                                        }
+                                        const maxHeight = (this.chartHeight - 500) * (2 / (Math.ceil(options.series.length / div) + 2))
+                                        const maxWidth = this.chartWidth * (1 / ((2 * div) + 2))
+                                        let baseRadius = Math.min(maxWidth, maxHeight) - 10
+
+                                        if (['doughnut', 'polar area'].indexOf(s.chartType) >= 0) {
+                                                s.radius = [baseRadius * 0.4, baseRadius]
+                                                s.center = [xBase + '%', yBase + '%']
+                                        } else if (s.chartType === 'pie') {
+                                                s.radius = baseRadius
+                                                s.center = [xBase + '%', yBase + '%']
+                                        }
+
+                                        // if (s.type === 'funnel') {
+                                        //   // maxHeight = (this.chartHeight - 380) * (2 / (Math.ceil(options.series.length / div) + 2))
+                                        //   // maxWidth = this.chartWidth * (1 / ((2 * div) + 2))
+                                        //   s.width = 2*maxWidth
+                                        //   s.height = 2*maxHeight
+                                        //   s.left = ((j + 1) % div)*(xBase/2) + '%'
+                                        //   s.top = (j + 1)*(yBase/2) + '%' 
+                                        //   
+                                        // }
+
+                                })
+
+                        }
+
+                        return options
+                },
+
+                updateChartConf(settings) {
+                        const data = this.prepareData(settings)
+                        this.maxDataValue = data.max
+                        this.options = data.options
+                },
+
+
+        },
 }
 </script>
+

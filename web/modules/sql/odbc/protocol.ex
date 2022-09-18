@@ -210,27 +210,32 @@ defmodule AfterGlow.ODBC.Protocol do
           {:ok, query, result, state}
           | {:error | :disconnect, Exception.t(), state}
   def handle_execute(query, params, opts, state) do
-    {status, message, new_state} = do_query(query, params, opts, state)
+    case do_query(query, params, opts, state) do
+
+    {:ok, message, new_state} -> 
 
     case new_state.odbc do
       :idle ->
         with {:ok, _, post_commit_state} <- handle_commit(opts, new_state) do
-          {status, query, message, post_commit_state}
+          {:ok, query, message, post_commit_state}
         end
 
       :transaction ->
-        {status,query, message, new_state}
+        {:ok,query, message, new_state}
 
       :auto_commit ->
         with {:ok, post_connect_state} <- switch_auto_commit(:off, new_state) do
-          {status, query,  message, post_connect_state}
+          {:ok, query,  message, post_connect_state}
         end
+    end
+    {:error, message, new_state} -> 
+      {:error, message, new_state}
     end
   end
 
   defp do_query(query, params, opts, state) do
     case ODBC.query(state.pid, query.statement, params, opts) do
-      {:error, %AfterGlow.ODBC.Error{odbc_code: :not_allowed_in_transaction} = reason} ->
+      {:error, _,  %AfterGlow.ODBC.Error{odbc_code: :not_allowed_in_transaction} = reason} ->
         if state.odbc == :auto_commit do
           {:error, reason, state}
         else
@@ -238,9 +243,9 @@ defmodule AfterGlow.ODBC.Protocol do
                do: handle_execute(query, params, opts, new_state)
         end
 
-      {:error, %AfterGlow.ODBC.Error{odbc_code: :connection_exception} = reason} ->
+      {:error, _,  %AfterGlow.ODBC.Error{odbc_code: :connection_exception} = reason, _} ->
         {:disconnect, reason, state}
-
+      
       {:error, reason} ->
         {:error, reason, state}
 
@@ -254,6 +259,8 @@ defmodule AfterGlow.ODBC.Protocol do
 
       {:updated, num_rows} ->
         {:ok, %Result{num_rows: num_rows}, state}
+      error -> 
+        {:error, error , state}
     end
   end
 
