@@ -31,15 +31,15 @@ import _ from 'lodash'
 
 
 const eqSet = (xs, ys) =>
-    xs.size === ys.size &&
-    [...xs].every((x) => ys.has(x));
+  xs.size === ys.size &&
+  [...xs].every((x) => ys.has(x));
 
 export default {
 
   name: 'AGTable',
   components: { ChevronsRightIcon, ChevronsLeftIcon, },
 
-  props: ['results', 'showSettings', 'isTransposed', "settings"],
+  props: ['results', 'showSettings', 'isTransposed', "settings", "apiActionsQuesLevel", 'visualizationID', 'questionID'],
 
   data() {
     return {
@@ -57,8 +57,12 @@ export default {
     results() {
       this.updateProps()
     },
-    columns(){
-      this.updateProps()
+
+    apiActionsQuesLevel: {
+      deep: true,
+      handler() {
+        this.updateProps()
+      }
     },
     settings: {
       handler() {
@@ -94,46 +98,50 @@ export default {
       let r = this.results
       if (r) {
         let rows = []
-        const settingsColumns = new Set(this.settingsLocal && this.settingsLocal.columns && this.settingsLocal.columns.map(item => item.name) || [])
-        const columns = new Set(this.columns || []) 
+        const settingsColumns = new Set(this.settingsLocal && this.settingsLocal.columns && this.settingsLocal.columns.map(item => item.apiAction ? 'apiAction_' + item.apiActionID : item.name) || [])
+        const columns = new Set(r.columns || [])
+        const apiActionsQuesLevel = new Set(this.apiActionsQuesLevel &&
+          this.apiActionsQuesLevel.
+            filter(aa => (aa.visualization_id === null) || (aa.visualization_id === this.visualizationID)).
+            map(aa => 'apiAction_' + aa.id) || [])
 
-        if (eqSet(settingsColumns, columns) && [...settingsColumns].length > 0) {
+        const allNames = new Set()
+        columns.forEach(item => allNames.add(item))
+        apiActionsQuesLevel.forEach(item => allNames.add(item))
+
+        if (eqSet(settingsColumns, allNames) && [...settingsColumns].length > 0) {
           let columnSettings = {}
           this.settingsLocal.columns.forEach((col, i) => {
             col['newOrder'] = i
-            columnSettings[col.name] = col
+            columnSettings[col.apiAction ? 'apiAction_' + col.apiActionID : col.name] = col
           })
-          let hiddenColumnIndices = this.settingsLocal.columns.map((item) => {
-            return (item.show ? null : r.columns.indexOf(item.name))
-          })
-
-          this.columns = r.columns.filter((_, i) => {
-            return hiddenColumnIndices.indexOf(i) < 0
-          }).sort((a, b) => {
-
-            return columnSettings[a].newOrder - columnSettings[b].newOrder
-
-          })
+          this.columns = this.settingsLocal.columns.sort((a, b) => {
+            return a.newOrder - b.newOrder
+          }).filter(item => item.show).map(item => { return { type: item.apiAction ? 'apiAction' : 'column', name: item.name } })
           rows = r.rows.slice(((this.pageNumber - 1) * this.pageSize), this.pageNumber * this.pageSize).
-            map((row) => {
+            map((row, index) => {
 
               let newRow = []
               row.forEach((el, i) => {
-                columnSettings[r.columns[i]] && (newRow[columnSettings[r.columns[i]].newOrder] = el)
+                columnSettings[r.columns[i]] && (newRow[columnSettings[r.columns[i]].newOrder] = { type: 'column', value: el })
               })
-              return newRow
-            }).
-            map((row) => {
-              return row.filter((el, i) => {
-                return (Object.entries(columnSettings).filter((item) => { return (item[1] && item[1].newOrder) === i }))[0][1].show
+              this.settingsLocal.columns.filter(item => item.apiAction).forEach((item) => {
+                newRow[columnSettings['apiAction_' + item.apiActionID].newOrder] = { type: 'apiAction', value: item.name, details: item.details, vars: { cols: r.columns, row: r.rows[index] } }
               })
-            });
-
+              return newRow.filter((el, i) => this.settingsLocal.columns.filter((col) => col.newOrder === i)[0].show)
+            })
 
         } else {
-          rows = r.rows.slice(((this.pageNumber - 1) * this.pageSize), this.pageNumber * this.pageSize);
-          this.columns = r.columns
-
+          rows = r.rows.slice(((this.pageNumber - 1) * this.pageSize), this.pageNumber * this.pageSize).map((row) => {
+            return row.map((el) => { return { type: 'column', value: el } })
+          });
+          this.columns = _.cloneDeep(r.columns).map(col => { return { name: col, type: 'column' } })
+          this.apiActionsQuesLevel && this.apiActionsQuesLevel.filter(aa => (aa.visualization_id === null) || (aa.visualization_id === this.visualizationID)).forEach((apiAction) => {
+            this.columns.push({ type: 'apiAction', name: apiAction.name })
+            rows.forEach((row, index) => {
+              row.push({ type: 'apiAction', value: apiAction.name, details: apiAction, vars: { cols: r.columns, row: r.rows[index] } })
+            })
+          })
         }
 
         if (this.isTransposed) {

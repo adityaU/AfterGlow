@@ -79,7 +79,9 @@ export default {
       return rendererTypeIcons[rendererType] || rendererTypeIcons['table']
     },
     addNewViz() {
-      this.visualizationsLocal.push({ rendererType: 'table', name: "Visualization " + (this.visualizationsLocal.length + 1) })
+      let viz = { rendererType: 'table', name: "Visualization " + (this.visualizationsLocal.length + 1) }
+      this.visualizationsLocal.push(viz)
+      this.setCurrentViz(viz)
     },
     focusInput(index) {
       setTimeout(() => {

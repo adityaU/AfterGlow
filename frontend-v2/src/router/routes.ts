@@ -2,7 +2,7 @@ import { RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/frontend',
+    path: '',
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: 'questions/:id', component: () => import('pages/questionsPage.vue') }, 

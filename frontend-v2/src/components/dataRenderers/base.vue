@@ -9,7 +9,7 @@
 
     <VisualizationLayout v-model:visualizations="visualizationsLocal" @deleteViz="(index) => $emit('deleteViz', index)"
       @fetchVizResults="(viz) => $emit('fetchVizResults', viz)" />
-    <splitpanes class="pane-wrapper default-theme" ref="chart-parent" @resize="settingsPanesize = 100 -  $event[0].size">
+    <splitpanes class="pane-wrapper default-theme" ref="chart-parent" @resize="settingsPanesize = 100 - $event[0].size">
       <pane :size="100" class="pane" :class="showSettings ? 'pane-left' : ''">
 
         <AGLoader text="Updating" v-if="loading" class="tw-bg-white tw-border tw-shadow-sm tw-rounded-sm" />
@@ -17,7 +17,7 @@
           :colDetails="results.column_details" :resultsKey="resultskey"
           class="tw-mb-[10px] tw-shadow-sm tw-border tw-rounded-sm" :showSettings="showSettings"
           @updateShowSettings="(val) => showSettings = !val" @updateViz="$emit('updateViz', currentViz)"
-          v-model:queryTerms="currentViz.queryTerms" />
+          v-model:queryTerms="currentViz.queryTerms" :key="rerenderKey" />
         <div class="tw-h-full tw-w-full" v-if="!loading">
           <DebugInfo :query="results.final_query" v-model:showQuery="showQuery"
             class="tw-border tw-mb-[10px] tw-bg-white" v-if="showDebugInfo" />
@@ -30,9 +30,12 @@
                 LOOKS LIKE YOUR QUERY DID NOT RETURN ANY RESULT.
               </div>
             </div>
-            <component :is="componentDefs[currentViz.rendererType]['visComponent']" :results="results"
-              :resultsKey="resultskey" :settings="currentViz.settings[currentViz.rendererType]" :key="currentViz"
-              class="tw-bg-white" v-if="results.rows && results.rows.length > 0 && !results.message" :size="settingsPanesize" />
+              <component :is="componentDefs[currentViz.rendererType]['visComponent']" :results="results"
+                :resultsKey="resultskey" :queryKey="queryKey" :settings="currentViz.settings[currentViz.rendererType]"
+                :apiActionsVizLevel="apiActionsVizLevel" :apiActionsQuesLevel="apiActionsQuesLevel"
+                :questionID="questionID" :visualizationID="currentViz.id" class="tw-bg-white"
+                v-if="results.rows && results.rows.length > 0 && !results.message" :size="settingsPanesize"
+                :key="rerenderKey" />
 
             <div class="tw-h-full tw-w-full tw-bg-white tw-rounded-sm tw-shadow-sm tw-flex " v-if="results.message">
               <div class="tw-text-2xl tw-m-auto tw-text-center tw-text-red-600">
@@ -52,9 +55,11 @@
         <component :is="componentDefs[currentViz.rendererType]['settingsComponent']"
           class="tw-h-[calc(100%-55px)] tw-bg-white tw-overflow-auto tw-rounded-sm"
           @settings="(val) => currentViz.settings[currentViz.rendererType] = val" :columns="results.columns"
-          :rows="results.rows" :colDetails="results.column_details"
-          :additionalProps="componentDefs[currentViz.rendererType]['additionalProps']"
-          :settings="currentViz.settings[currentViz.rendererType]" :key="currentViz" />
+          :rows="results.rows" :colDetails="results.column_details" :queryKey="queryKey"
+          :apiActionsVizLevel="apiActionsVizLevel" :apiActionsQuesLevel="apiActionsQuesLevel"
+          :additionalProps="componentDefs[currentViz.rendererType]['additionalProps']" :questionID="questionID"
+          :visualizationID="currentViz.id" :settings="currentViz.settings[currentViz.rendererType]"
+          @updateApiActions="$emit('updateApiActions')" :key="rerenderKey" />
       </pane>
     </splitpanes>
   </div>
@@ -83,6 +88,7 @@ import { _ } from 'lodash'
 
 import { Splitpanes, Pane } from 'splitpanes'
 import { resultsStore } from 'stores/results'
+import { apiActionStore } from 'stores/apiActions'
 
 import 'splitpanes/dist/splitpanes.css'
 
@@ -172,16 +178,28 @@ export default {
   },
   props: {
     resultsKey: {},
+    queryKey: {},
     dataLoaded: {},
     visualizations: {},
     error: {},
     loading: {},
-    finalQuery: {}
+    finalQuery: {},
+    apiActionKeyQuesLevel: {},
+    apiActionKeyVizLevel: {},
+    questionID: {},
   },
 
   watch: {
     resultsKey() {
       this.updateProps()
+    },
+    apiActionKeyQuesLevel() {
+      const apiActions = apiActionStore()
+      this.apiActionsQuesLevel = apiActions.get(this.apiActionKeyQuesLevel)
+    },
+    apiActionKeyVizLevel() {
+      const apiActions = apiActionStore()
+      this.apiActionsVizLevel = apiActions.get(this.apiActionKeyVizLevel)
     },
     dataLoaded() {
       this.updateProps()
@@ -191,9 +209,6 @@ export default {
         console.log(this.componentDefs)
       },
       deep: true
-    },
-    settingsPanesize(){
-      console.log(this.settingsPanesize)
     },
     showSettings() {
       this.settingsPanesize = this.showSettings ? 30 : 0
@@ -219,12 +234,18 @@ export default {
             viz.queryTerms = _.cloneDeep(newQueryTerms)
           }
         })
-        this.currentViz = this.visualizationsLocal.details.filter((viz) => viz.current)[0] 
-        if (!this.currentViz){
+        this.currentViz = this.visualizationsLocal.details.filter((viz) => viz.current)[0]
+        if (!this.currentViz) {
           this.visualizationsLocal.details[0].current = true
           this.currentViz = this.visualizationsLocal.details[0]
         }
+
+        let index = -1
+        this.visualizationsLocal.details && this.visualizationsLocal.details.forEach((viz, i) => {
+          viz.current && (index = i)
+        })
         this.currentViz.queryTerms.towardsQTLayout = true
+        this.currentViz.index = index
         this.$emit('update:visualizations', { towardsBaseRenderer: false, details: this.visualizationsLocal })
       }
     },
@@ -250,6 +271,9 @@ export default {
   computed: {
     rendererType() {
       return this.currentViz.rendererType
+    },
+    rerenderKey() {
+      return { rendererType: this.currentViz && this.currentViz.rendererType, index: this.currentViz.index }
     }
   },
 
@@ -269,6 +293,8 @@ export default {
       currentViz: vizs.details.filter((item) => item.current)[0],
       showQuery: this.error === null ? true : false,
       showDebugInfo: this.error === null ? false : true,
+      apiActionsVizLevel: null,
+      apiActionsQuesLevel: null
     }
   },
 
@@ -276,7 +302,7 @@ export default {
     updateProps() {
       const results = resultsStore()
       if (this.resultsKey && this.dataLoaded) {
-        this.results = results.getResults(this.resultsKey) || { columns: [], rows: [], column_details: {} };
+        this.results = results.getResults(this.resultsKey)
       }
     }
   },

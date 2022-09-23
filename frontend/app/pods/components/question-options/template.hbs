@@ -51,10 +51,6 @@
                         {{/if}}
                         {{#if (and (and validQuestion question.id) canEdit)}}
                         {{#ddm.item}}
-                        <a class="dropdown-item border-bottom" {{action 'showApiActionModal'}}>Add an API
-                            Action</a>
-                        {{/ddm.item}}
-                        {{#ddm.item}}
                         <a class="dropdown-item border-bottom" {{action 'showAddTags'}}>Add Tags</a>
                         {{/ddm.item}}
                         {{#if (gt question.snapshots.length 0)}}

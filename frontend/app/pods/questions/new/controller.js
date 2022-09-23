@@ -9,6 +9,8 @@ import AceTools from 'frontend/mixins/ace-tools';
 import HelperMixin from 'frontend/mixins/helper-mixin';
 import DynamicQueryParamsControllerMixin from 'frontend/mixins/dynamic-query-params-controller-mixin';
 
+import ENV from '../../../config/environment'
+
 
 export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMixin, ResultViewMixin, AceTools, CustomEvents, DynamicQueryParamsControllerMixin, {
 
@@ -27,7 +29,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMix
     })
 
     let payload = {variables: [], iFrame: true}
-    return 'http://localhost:9000/frontend' +  window.location.pathname + "?payload=" + JSON.stringify(payload) + "&token=" + this.get('ajax.sessionService.token')
+    return ENV.vueHost + '/frontend' +  window.location.pathname + "?payload=" + JSON.stringify(payload) + "&token=" + this.get('ajax.sessionService.token')
 
     }
     return ""
@@ -249,7 +251,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMix
       iframePayload.append("token", this.get('ajax.sessionService.token'))
       iframePayload.append("iFrame", true)
       iframePayload.append("question_id", question.get('id'))
-      const vueResultPath = "http://localhost:9000/frontend/questions/new?" + iframePayload.toString()
+      const vueResultPath = ENV.vueHost + "/frontend/questions/new?" + iframePayload.toString()
       if (vueResultPath === this.get('vueResultPath')) {
           document.getElementById(this.get('vueIframeID')).contentWindow.postMessage({
             message: 'refresh',

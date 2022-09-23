@@ -264,8 +264,9 @@ export default {
                                                         },
                                                 }
 
-
+                                                
                                                 seriesDatum1.chartType = s.chartType
+                                                seriesDatum1.type = (s.chartType == 'funnel') ? 'funnel' : 'pie'
                                                 if (s.chartType === 'doughnut') {
                                                         seriesDatum1.radius = ['40%', '80%']
                                                         seriesDatum1.label.show = true

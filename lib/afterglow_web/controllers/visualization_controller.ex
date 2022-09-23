@@ -29,6 +29,7 @@ defmodule AfterGlow.VisualizationController do
 
   def results(conn, payload) do
     {res, query, additional_info} = Visualizations.results(payload["id"], payload, conn.assigns.current_user) 
+    additional_info |> IO.inspect(label: "additional_info")
     case res do
       {:ok, results} ->
         results = results |> Map.merge(%{original_query_columns: additional_info.columns,

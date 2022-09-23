@@ -172,7 +172,7 @@ defmodule AfterGlow.QueryTerms.Conversions do
   # end
 
   defp convert_views(%{"isAggregation" => true, "raw" => false, "agg" => agg = "percentile of", "column" => column, "value" => value}) do
-    %{"selected" => %{"raw" => false, "column" =>  column, "agg" => agg, "value" => value}}
+    %{"selected" => %{"raw" => false, "column" =>  column, "agg" => agg, "value" => value |> Float.parse() |> elem(0)}}
   end
   defp convert_views(%{"isAggregation" => true, "raw" => false, "agg" => agg, "column" => column}) do
     %{"selected" => %{"raw" => false, "column" =>  column, "agg" => agg}}

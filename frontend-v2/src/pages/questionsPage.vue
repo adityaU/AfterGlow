@@ -4,7 +4,11 @@
   <div class="tw-h-full tw-w-full tw-flex" v-if="dataLoaded">
     <BaseDataRenderer ref="root" :resultsKey="resultsKey" :dataLoaded="dataLoaded"
       v-model:visualizations="visualizations" @deleteViz="deleteViz"
+      :apiActionKeyQuesLevel="apiActionKeyQuesLevel"
+      :apiActionKeyVizLevel="apiActionKeyVizLevel"
+      :queryKey="queryKey" :questionID="questionID"
       @fetchVizResults="refreshVizResults" :loading="loading"
+      @updateApiActions="fetchQuestionApiActions"
       @updateViz="(viz) => updateVizResults(viz, true)" :finalQuery="finalQuery"></BaseDataRenderer>
   </div>
 </template>
@@ -15,6 +19,8 @@ import AGLoader from 'components/utils/loader.vue'
 import { useRoute } from 'vue-router';
 import { api } from 'boot/axios';
 import { resultsStore } from 'stores/results'
+import { apiActionStore } from 'stores/apiActions'
+import { queryStore } from 'stores/query'
 import hash from '../helpers/hash'
 import apiConfig from '../helpers/apiConfig'
 
@@ -37,30 +43,37 @@ export default {
       query: query,
       params: route.params,
       payload: JSON.parse(query.payload),
-      resultsStore: results
+      resultsStore: results,
+      apiActionStore: apiActionStore(),
+      queryKey: null,
+      questionID: null,
 
     }
   },
   async created() {
     if (this.payload && !this.payload.empty) {
-      let question_id = this.params.id || this.query.question_id || null
-      this.payload.question_id = question_id
-      if (question_id != null && question_id != 'null') {
-        api.get('visualizations' + "?question_id=" + question_id, apiConfig(this.query.token)).then((response) => {
+      this.queryKey = await hash(this.query)
+      queryStore().push(this.query, this.queryKey)
+      let questionID = this.params.id || this.query.question_id || null
+      this.questionID = questionID
+      this.payload.question_id = questionID
+      if (questionID != null && questionID != 'null') {
+        this.fetchQuestionApiActions(questionID)
+        api.get('visualizations' + "?question_id=" + questionID, apiConfig(this.query.token)).then((response) => {
           this.fetchVizResults(response)
           this.updateVisulaization(response)
         })
-      } else {
+      } else if (this.payload.database === null) {
+        this.dataLoaded = true
+        this.resultsKey = null
+      }else{
         this.fetchQuestionResults()
       }
-
       this.dataLoaded = true
     } else {
       this.resultsKey = 'empty'
       this.dataLoaded = true
     }
-
-
   },
   mounted() {
     window.addEventListener('message', this.receiveMessage)
@@ -70,6 +83,17 @@ export default {
   },
 
   methods: {
+    async fetchQuestionApiActions(){
+    this.loading = true
+      const questionID = this.questionID
+      let key = await hash("questionID=" + questionID + "&key=" + this.apiActionKeyQuesLevel)
+      const url = "api_actions?question_id=" + questionID 
+      api.get(url, apiConfig(this.query.token)).then((response) => {
+        this.apiActionStore.push(response.data.api_actions, key)
+        this.apiActionKeyQuesLevel = key
+        this.loading = false
+      })
+    },
     fetchVizResults(response, forced) {
       if (response.data.visualizations.length === 0) {
         this.fetchQuestionResults()
@@ -80,13 +104,13 @@ export default {
     },
 
     refreshVizResults(viz){ 
-      let vizID = viz.id
+      let vizTerms = viz.queryTerms
       let payload = {}
       if (this.payload) {
         payload = _.cloneDeep(this.payload)
       }
       payload.visualization = viz
-      hash("payload=" + JSON.stringify(payload) + "&questionID=" + this.query.question_id || this.params.id + "&vizID=" + vizID).then((key) => {
+      hash("payload=" + JSON.stringify(payload) + "&questionID=" + this.query.question_id || this.params.id + "&vizTerms=" + vizTerms).then((key) => {
         if (this.resultsStore.getResults(key)){
           this.resultsKey = key
           return
@@ -130,7 +154,12 @@ export default {
         this.resultsStore.pushResults(response.data.data, key)
         this.loading = false
         this.resultsKey = key
+      }).catch((error) => {
+        this.resultsStore.pushResults(error.response.data.error, key)
+        this.resultsKey = key
+        this.loading = false
       })
+
     },
     receiveMessage(event) {
       if (event.data.message == 'save_visualizations') {
@@ -173,9 +202,9 @@ export default {
         return
       }
 
-      const toBeDeleted = this.visualizations.details.details[0]
+      const toBeDeleted = this.visualizations.details.details[index]
       if (toBeDeleted.id) {
-        api.delete('visualizations/' + toBeDeleted.id, apiConfig(this.route.query.token))
+        api.delete('visualizations/' + toBeDeleted.id, apiConfig(this.query.token))
       }
 
       this.visualizations.details.details.splice(index, 1)

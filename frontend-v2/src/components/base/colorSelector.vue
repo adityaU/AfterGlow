@@ -1,24 +1,25 @@
 <template>
 
+        <div class="label tw-mb-1" v-if="!naked">
+            {{ label }}
+        </div>
     <a href="#"
         class="">
 
         <q-menu transition-show="scale" class="tw-overflow-auto" transition-hide="scale" auto-close=true max-height="70vh">
             <div class="card tw-p-2">
                 <div class="tw-my-2" v-for="arr in colors" :key=arr>
-                    <div class="tw-box-content tw-mx-0.5 tw-inline tw-border-4 tw-border-secondary/20 tw-px-2.5 tw-rounded"
+                    <a href="#" class="tw-box-content tw-mx-0.5 tw-inline tw-border-4 tw-border-secondary/20 tw-px-2.5 tw-rounded"
                         :class="selectedColor == color ? 'tw-border-primary' : ''"
                         :style="{ 'color': color, 'background-color': color }" @click="selectColor(color)"
                         v-for="color in arr" :key="color" v-close-popup>
-                    </div>
+                    </a>
                 </div>
                 <AGButton label="More Colors" @clicked="moreColors" />
             </div>
         </q-menu>
-        <span :class="selectedColor ? 'btn-left' : 'btn-full'" >
-            {{ label }}
-        </span>
-        <span v-if="selectedColor" class="btn-right"
+
+        <span class="btn-full tw-border-4 tw-rounded tw-border-secondary/20 padding-top-[1px]"
             :style="{ 'color': selectedColor, 'background-color': selectedColor }">
             c
         </span>
@@ -33,7 +34,7 @@ export default {
     name: 'ColorSelector',
 
     props: {
-      selectedColor: { default: defaultColors[0] }, label: {default: 'color'} },
+      selectedColor: { default: defaultColors[0] }, label: {default: 'color'}, naked: {default: false} },
 
     components: { AGButton },
 
@@ -52,6 +53,7 @@ export default {
         },
         selectColor(color) {
             this.$emit('selectColor', color)
+            this.$emit('update:selectedColor', color)
         }
     }
 

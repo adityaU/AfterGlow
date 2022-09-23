@@ -53,11 +53,6 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit results=results}}
                                     </div>
                                 </div>
                                 {{/if}}
-                                {{#if (or results errorMessage)}}
-                                <div class="card-footer {{if canEdit "" "border-top-0"}}">
-                                    {{additional-filters results=results error=errors question=question queryObject=queryObject}}
-                                </div>
-                                {{/if}}
                                 {{#if showGetResults}}
                                 <div class="card-footer">
                                     {{#if canEdit}}

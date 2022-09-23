@@ -45,7 +45,7 @@ defmodule AfterGlow.Visualizations.Visualizations do
     payload = payload |> Map.delete("id")
 
     if payload["database"] do
-      fetch_results(:direct, payload, id, query_terms, current_user)
+      fetch_results(:direct, payload , id, query_terms, current_user)
     else
       variables = payload["variables"]
 

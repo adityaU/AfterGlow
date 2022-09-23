@@ -16,6 +16,10 @@ defmodule AfterGlow.ApiActionController do
     api_actions = ApiActions.list_api_actions(ids)
     render(conn, "index.json", data: api_actions)
   end
+  def index(conn, %{"question_id" => question_id}) do
+    api_actions = ApiActions.list_api_actions_by_question_id(question_id)
+    conn |> json(%{api_actions: api_actions})
+  end
 
   def create(conn, %{
         "data" => data = %{"type" => "api-actions", "attributes" => _database_params}

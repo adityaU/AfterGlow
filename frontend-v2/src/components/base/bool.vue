@@ -1,40 +1,33 @@
 <template>
-    <div @click="updateValLocal"
-        class="">
-        <span
-            class="btn-left">
-            {{ label }}
-        </span>
-        <a href="#" class="btn-right">
-          {{valLocal ? 'Yes' : 'No'}}
-        </a>
-    </div>
+        <div class="tw-ml-[-10px]">
+                <q-toggle :modelValue="valLocal" @update:modelValue="updateValLocal" color="primary" :label="label" />
+        </div>
 </template>
 
 <script>
 export default {
-    name: 'AGBool',
-    props: ['val', 'label'],
-    components: {},
+        name: 'AGBool',
+        props: ['val', 'label'],
+        components: {},
 
-    watch: {
-        val() {
-          this.valLocal = this.val
-        }
-    },
+        watch: {
+                val() {
+                        this.valLocal = this.val
+                }
+        },
 
-    methods: {
-        updateValLocal() {
-            this.valLocal = !this.valLocal
-            this.$emit('updated', this.valLocal)
-        }
-    },
+        methods: {
+                updateValLocal() {
+                        this.valLocal = !this.valLocal
+                        this.$emit('updated', this.valLocal)
+                }
+        },
 
-    data() {
-        return {
-            valLocal: this.val
+        data() {
+                return {
+                        valLocal: this.val
+                }
         }
-    }
 
 }
 </script>

@@ -2,7 +2,7 @@
 
 module.exports = function (environment) {
   var ENV = {
-    VERSION: '0.16.13-dev',
+    VERSION: '0.17.0-dev',
     modulePrefix: 'frontend',
     podModulePrefix: 'frontend/pods',
     environment: environment,
@@ -78,6 +78,7 @@ module.exports = function (environment) {
 
   if (environment === 'development') {
     ENV.host = 'http://localhost:4000';
+    ENV.vueHost = 'http://localhost:9000';
 
     // ENV.APP.LOG_RESOLVER = true;
     // ENV.APP.LOG_ACTIVE_GENERATION = true;
@@ -99,6 +100,7 @@ module.exports = function (environment) {
 
   if (environment === 'production') {
     ENV.host = '';
+    ENV.vueHost = ''
 
   }
 

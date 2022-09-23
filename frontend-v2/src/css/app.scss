@@ -6,6 +6,9 @@
 
 
 @layer base {
+  .tw-inset-shadow{
+    @apply tw-shadow-[inset_0_0px_2px_0px]
+  }
   .btn-full {
     @apply tw-rounded-sm tw-px-2 tw-bg-white tw-border-primary tw-border tw-text-primary tw-font-semibold tw-px-2 tw-text-ellipsis tw-overflow-hidden tw-whitespace-nowrap hover:tw-bg-secondary;
   }
@@ -34,10 +37,13 @@
       @apply tw-border tw-border-default/20 tw-rounded-sm tw-border 
   }
  .input-border:focus-visible{
-          @apply tw-border-primary tw-outline-0 tw-border tw-shadow-sm tw-shadow-primary;
+          @apply tw-border-primary tw-outline-0 tw-border tw-inset-shadow  tw-shadow-primary;
   }
   .input-no-border{
       @apply tw-border-0;
+  }
+  .label{
+    @apply tw-text-sm tw-font-semibold;
   }
 
   .input-no-border:focus-visible { @apply tw-outline-0;}

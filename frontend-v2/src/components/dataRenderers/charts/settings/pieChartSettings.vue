@@ -1,20 +1,22 @@
 <template>
-    <div class="tw-divide-y">
-        <div class="tw-w-full tw-py-4 tw-px-2 tw-font-semibold tw-text-default tw-text-sm">
+    <div class="tw-divide-y-2">
+        <div class="tw-w-full tw-py-2 tw-px-2 tw-font-semibold tw-text-primary tw-text-sm">
             Settings
         </div>
-
-        <div class="tw-w-full tw-py-4 tw-px-2">
-            <AGInput class="tw-w-full tw-mb-2"
-                @inputed="(val) => ((settingsLocal.title = val) || true) && (settingsLocal.manualUpdate = true)"
-                label="Title" :value="settingsLocal.title" placeholder="Set Chart Title" />
+        <div>
+            <div class="tw-w-full tw-py-2 tw-px-2">
+                <AGInput class="tw-w-full tw-mb-2"
+                    @inputed="(val) => ((settingsLocal.title = val) || true) && (settingsLocal.manualUpdate = true)"
+                    label="Title" :value="settingsLocal.title" placeholder="Set Chart Title" />
+            </div>
+            <div class="tw-w-full tw-py-2 tw-px-2">
+                <AGSelect
+                    @select="(val) => ((settingsLocal.labels = val) || true) && (settingsLocal.manualUpdate = true)"
+                    :selected="settingsLocal.labels" :options="columns" label="Labels Column"
+                    description="Select a column" />
+            </div>
         </div>
-        <div class="tw-w-full tw-py-4 tw-px-2">
-            <AGSelect @select="(val) => ((settingsLocal.labels = val) || true) && (settingsLocal.manualUpdate = true)"
-                :selected="settingsLocal.labels" :options="columns" label="Labels Column"
-                description="Select a column" />
-        </div>
-        <div class="tw-w-full tw-py-4 tw-px-2"
+        <div class="tw-w-full tw-py-2 tw-px-2"
             v-if="showConcentricRenderingOption && !additionalProps.hideFunnelOptions">
             <AGBool
                 @updated="(val) => ((settingsLocal.concentricRendering = val) || true) && (settingsLocal.manualUpdate = true)"
@@ -23,8 +25,8 @@
 
         <div class="" v-for="s, index in settingsLocal.series" :key="s">
 
-            <div class="tw-divide-y">
-                <div class=" tw-py-4 tw-px-2 tw-font-semibold tw-text-default tw-text-sm" @click="s.show = !s.show">
+            <div class="">
+                <div class=" tw-py-2 tw-px-2 tw-font-semibold tw-text-primary tw-text-sm" @click="s.show = !s.show">
                     <a href="#">
                         Data Series {{ index + 1 }}
                         <ChevronDownIcon v-if="s.show" class="tw-float-right tw-h-5 tw-w-5" />
@@ -33,27 +35,27 @@
                 </div>
 
 
-                <div class="tw-divide-y" v-if="s.show">
-                    <div class="tw-w-full tw-py-4 tw-px-2">
+                <div class="" v-if="s.show">
+                    <div class="tw-w-full tw-py-2 tw-px-2">
                         <AGSelect
                             @select="(val) => ((s.dataColumn = val) || true) && (settingsLocal.manualUpdate = true)"
                             :options="dataColumnOptions" :selected="s.dataColumn" label="Data Column"
                             description="Select a column" />
                     </div>
 
-                    <div class="tw-w-full tw-py-4 tw-px-2" v-if="!additionalProps.hideFunnelOptions">
+                    <div class="tw-w-full tw-py-2 tw-px-2" v-if="!additionalProps.hideFunnelOptions">
                         <AGSelect
                             @select="(val) => ((s.chartType = val) || true) && (settingsLocal.manualUpdate = true)"
                             :selected="s.chartType" :options="chartTypes" label="ChartType"
                             description="Select a ChartType" />
                     </div>
-                    <div class="tw-w-full tw-py-4 tw-px-2">
+                    <div class="tw-w-full tw-py-2 tw-px-2">
                         <AGBool
                             @updated="(val) => updateIndividualSettings(val, settingsLocal, index, 'series', 'showLabel')"
                             :val="s.showLabel" label="Show Labels" />
                     </div>
 
-                    <div class="tw-w-full tw-py-4 tw-px-2" v-if="!additionalProps.hideFunnelOptions">
+                    <div class="tw-w-full tw-py-2 tw-px-2" v-if="!additionalProps.hideFunnelOptions">
                         <AGSelect
                             @select="(val) => ((s.dimension.dataColumn = val) || true) && (settingsLocal.manualUpdate = true)"
                             :selected="s.dimension.dataColumn" :options="columns" label="Dimension"
@@ -62,7 +64,7 @@
                     <div v-if="!additionalProps.hideFunnelOptions && s.dimension.dataColumn" class="tw-w-full">
                         <div class="tw-border-b tw-w-full" v-for="dimOption in s.dimension.options" :key="dimOption">
                             <div class=" tw-divide-y">
-                                <div class=" tw-py-4 tw-px-4 tw-font-semibold tw-text-default tw-text-sm"
+                                <div class=" tw-py-2 tw-px-4 tw-font-semibold tw-text-primary tw-text-sm"
                                     @click="dimOption.show = !dimOption.show">
                                     <a href="#">
                                         {{ dimOption.name }}
@@ -74,14 +76,14 @@
 
 
                                 <div class="tw-divide-y" v-if="dimOption.show">
-                                    <div class="tw-w-full tw-py-4  tw-px-6">
+                                    <div class="tw-w-full tw-py-2  tw-px-6">
                                         <AGInput class="tw-w-full tw-mb-2"
                                             @inputed="(val) => ((dimOption.legendName = val) || true) && (settingsLocal.manualUpdate = true)"
                                             label="Legend Text" :value="dimOption.legendName"
                                             placeholder="Set Legend Name" />
 
                                     </div>
-                                    <div class="tw-w-full tw-py-4  tw-px-6">
+                                    <div class="tw-w-full tw-py-2  tw-px-6">
                                         <AGBool
                                             @updated="(val) => ((dimOption.showLabel = val) || true) && (settingsLocal.manualUpdate = true)"
                                             :val="dimOption.showLabel" label="Show Labels" />
@@ -95,7 +97,10 @@
             </div>
         </div>
         <div class="tw-p-2" v-if="!additionalProps.hideFunnelOptions">
-            <AGButton label="Add Another" class="tw-px-2" @clicked="addNewSeries" />
+            <AGButton label="Add Another" class="tw-px-2 tw-text-primary tw-border-0 tw-font-semibold"
+                @clicked="addNewSeries">
+                <PlusIcon size=14 class="tw-inline" /> Add Another Series
+            </AGButton>
         </div>
     </div>
 </template>
@@ -106,12 +111,12 @@ import AGInput from 'components/base/agInput.vue';
 import AGBool from 'components/base/bool.vue';
 import AGButton from 'components/base/button.vue';
 
-import { ChevronRightIcon, ChevronDownIcon } from 'vue-tabler-icons';
+import { ChevronRightIcon, ChevronDownIcon, PlusIcon } from 'vue-tabler-icons';
 import { defaultColors, generateColors } from "../../../../helpers/colorGenerator.ts"
 
 import { findDataType } from 'src/helpers/dataTypes';
 export default {
-    components: { AGSelect, AGButton, AGInput, AGBool, ChevronDownIcon, ChevronRightIcon },
+    components: { AGSelect, AGButton, AGInput, AGBool, ChevronDownIcon, ChevronRightIcon, PlusIcon },
     props: ["columns", "hideFunnelOptions", 'settings', 'additionalProps', 'rows', 'colDetails'],
     name: 'PieChartSettings',
 
@@ -170,7 +175,7 @@ export default {
             return {
                 dataColumn: null,
                 dimension: { name: null, options: null },
-                chartType: 'pie',
+                chartType: this.additionalProps.defaultChartType || 'pie',
                 showLabel: true,
                 show: true
             }

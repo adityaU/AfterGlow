@@ -12,6 +12,14 @@ defmodule AfterGlow.ApiActions do
     |> Repo.all()
   end
 
+  def list_api_actions_by_question_id(question_id) do
+    from(
+      aa in ApiAction,
+      where: aa.question_id == ^question_id and fragment("? is not ?", aa.hidden, true)
+    )
+    |> Repo.all()
+  end
+
   def get_api_action!(id) do
     Repo.get!(ApiAction, id)
   end
@@ -125,7 +133,7 @@ defmodule AfterGlow.ApiActions do
     |> Map.merge(%{
       url: url,
       method: method,
-      request_body: body,
+      request_body: body ,
       request_headers: (headers || []) |> Enum.into(%{}),
       user_id: user_id,
       variables: variables,
@@ -134,6 +142,7 @@ defmodule AfterGlow.ApiActions do
   end
 
   def save_log(log_args) do
+    log_args |> IO.inspect(label: "log_args")
     ApiActionLogs.save(log_args)
     log_args
   end
@@ -141,9 +150,13 @@ defmodule AfterGlow.ApiActions do
   def parse_response(response) do
     case response do
       {:ok, resp} ->
+        resp_body = case  resp.body |> :unicode.characters_to_binary do
+        {:ok, body} -> body |> :erlang.list_to_binary
+        {:error, sal, _} -> sal 
+        end
         %{
           status_code: resp.status_code,
-          response_body: resp.body,
+          response_body: resp_body,
           response_headers: resp.headers |> Enum.into(%{})
         }
 

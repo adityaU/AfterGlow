@@ -6,7 +6,7 @@
         <div class="card tw-grid tw-grid-cols-1 tw-divider-y">
                 <a href="#" @click="select(el)" :tabindex="index + 1"
                         class="tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
-                        v-for="el, index in optionsLocal" :key=el :ref="'option_' + (index + 1)">
+                        v-for="el, index in optionsLocal" :key=el :ref="'option_' + (index + 1)" >
                         <span class="text-icon-primary" v-if="iconLetter"> {{iconLetter}} </span>
                         <span class="">{{ el }}</span>
                         <CheckIcon v-if="multiselect ? (selected.indexOf(el) >= 0) : (selected === el)"

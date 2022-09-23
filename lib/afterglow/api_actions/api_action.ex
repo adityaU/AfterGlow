@@ -8,8 +8,10 @@ defmodule AfterGlow.ApiActions.ApiAction do
   defenum(MethodEnum, GET: 1, POST: 2, PUT: 3, DELETE: 4, PATCH: 5)
   defenum(ActionLevelEnum, question_response: 1, question: 2)
 
+  @derive {Jason.Encoder, only: [:id, :question_id, :loading_message, :url, :headers, :body, :method, :name, :column, :color, :hidden, :open_in_new_tab, :response_settings, :visualization_id ]}
   schema "api_actions" do
     belongs_to(:question, Question)
+    belongs_to(:visualization, Question)
     field(:url, :string)
     field(:headers, :map)
     field(:body, :string)
@@ -18,6 +20,7 @@ defmodule AfterGlow.ApiActions.ApiAction do
     field(:name, :string)
     field(:column, :string)
     field(:color, :string)
+    field(:loading_message, :string)
     field(:hidden, :boolean)
     field(:open_in_new_tab, :boolean)
     field(:response_settings, :map)
@@ -35,7 +38,9 @@ defmodule AfterGlow.ApiActions.ApiAction do
       :open_in_new_tab,
       :method,
       :question_id,
+      :visualization_id,
       :action_level,
+      :loading_message,
       :hidden,
       :response_settings,
       :column
@@ -44,7 +49,7 @@ defmodule AfterGlow.ApiActions.ApiAction do
   end
 
   def cache_deletable_associations do
-    [:question]
+    [:question, :visualization]
   end
 
   def set_default_action_level(api_action) do
