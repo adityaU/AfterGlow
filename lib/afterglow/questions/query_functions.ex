@@ -44,7 +44,6 @@ defmodule AfterGlow.Questions.QueryFunctions do
             additional_filters || question.human_sql["additionalFilters"],
             question.sql
           )
-          |> IO.inspect(label: "params===========================")
 
         tracking_details =
           if tracking_details[:no_tracking] do
@@ -73,7 +72,7 @@ defmodule AfterGlow.Questions.QueryFunctions do
       id: id,
       raw_query: sql,
       additional_filters: additionalFilters,
-      variables: variables |> Enum.filter(fn x -> x |> Map.has_key?("name") end)
+      variables: (variables && variables |> Enum.filter(fn x -> x |> Map.has_key?("name") end)) || []
     }
   end
 end

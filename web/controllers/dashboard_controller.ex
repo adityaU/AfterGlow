@@ -4,6 +4,7 @@ defmodule AfterGlow.DashboardController do
   alias AfterGlow.Dashboard
   alias AfterGlow.Question
   alias AfterGlow.Tag
+  alias AfterGlow.Widgets.DwQueryFunctions, as: Widgets
   import Ecto.Query
 
   alias AfterGlow.Variable
@@ -141,19 +142,19 @@ defmodule AfterGlow.DashboardController do
     question_ids = prms["questions_ids"]
 
     questions =
-      if question_ids |> Enum.empty?(),
+      if (!question_ids) || (question_ids && question_ids |> Enum.empty?()),
         do: nil,
         else: Repo.all(from(q in Question, where: q.id in ^question_ids))
 
     tag_ids = prms["tags_ids"]
 
     tags =
-      if tag_ids |> Enum.empty?(),
+      if (!tag_ids) || (tag_ids && tag_ids |> Enum.empty?()),
         do: nil,
         else: Repo.all(from(t in Tag, where: t.id in ^tag_ids))
-
     case Dashboard.update(changeset, questions, tags) do
       {:ok, dashboard} ->
+        Widgets.sync(dashboard)
         dashboard =
           dashboard |> Repo.preload(:questions) |> Repo.preload(:tags) |> Repo.preload(:variables)
 

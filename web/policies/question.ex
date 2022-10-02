@@ -1,4 +1,7 @@
 defmodule AfterGlow.Question.Policy do
+  alias AfterGlow.Widgets.DashboardWidget
+  alias AfterGlow.Dashboard
+  alias AfterGlow.Visualizations.Visualization
   import Ecto.Query
   import AfterGlow.Policy.Helpers
   def can?(nil, _action, _question), do: false
@@ -19,12 +22,21 @@ defmodule AfterGlow.Question.Policy do
       from(
         s in scope,
         left_join: d in assoc(s, :dashboards),
+        left_join: dwq in DashboardWidget, on: dwq.widget_id == s.id and dwq.widget_type == "question",
+        left_join: ddwq in Dashboard, on: dwq.dashboard_id == ddwq.id,
+        left_join: v in Visualization, on: s.id == v.question_id,
+        left_join: dwv in DashboardWidget, on: dwv.widget_id == v.id and dwv.widget_type == "visualization",
+        left_join: ddwv in Dashboard, on: dwv.dashboard_id == ddwv.id,
         where:
           s.owner_id == ^user.id or fragment("? = ANY (?)", ^user.email, s.shared_to) or
             fragment("? = ANY (?)", ^user.email, d.shared_to) or
             fragment("? = ANY (?)", "all", s.shared_to) or
-            fragment("? = ANY (?)", "all", d.shared_to),
-        group_by: s.id
+            fragment("? = ANY (?)", "all", d.shared_to) or
+            fragment("? = ANY (?)", ^user.email, ddwq.shared_to) or
+            fragment("? = ANY (?)", "all", ddwq.shared_to) or
+            fragment("? = ANY (?)", ^user.email, ddwv.shared_to) or
+            fragment("? = ANY (?)", "all", ddwv.shared_to),
+        group_by: s.id,
       )
     end
   end

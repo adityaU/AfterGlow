@@ -1,6 +1,12 @@
 
 <template v-if="results">
-        <div ref="chart-block" class="tw-h-full tw-w-full tw-py-4"></div>
+
+        <div class="tw-h-full tw-w-full tw-flex" v-if="shouldShowChartInformation">
+                <div class="tw-m-auto">
+                        {{chartInformationMessage}}
+                </div>
+        </div>
+        <div ref="chart-block" class="tw-h-full tw-w-full" v-if="!shouldShowChartInformation"></div>
 </template>
 
 <script>
@@ -50,7 +56,9 @@ export default {
                         chartBox: null,
                         options: {
                         },
-                        data: []
+                        data: [],
+                        xIndex: null,
+                        yIndices: []
                 }
         },
 
@@ -61,7 +69,7 @@ export default {
                         }, 250)
                 },
                 options() {
-                        this.chartBox.setOption(this.options, true)
+                        this.chartBox && this.chartBox.setOption(this.options, true)
                         this.setChartDimensions()
                 },
 
@@ -69,14 +77,21 @@ export default {
                         handler() {
                                 this.updateChartConf(this.settings || {})
                         }, deep: true
+                },
+                shouldShowChartInformation() {
+                  setTimeout(() => {
+                  this.createChartDom()
+                        this.chartBox && this.chartBox.setOption(this.options, true)
+                        this.setChartDimensions()
+
+                  }, 100)
                 }
         },
 
         mounted() {
                 window.addEventListener('resize', this.setChartDimensions);
                 this.setChartDimensions()
-                const chartDom = this.$refs["chart-block"]
-                this.chartBox = shallowRef(echarts.init(chartDom))
+                this.createChartDom()
                 this.updateChartConf(this.settings || {})
         },
 
@@ -85,8 +100,73 @@ export default {
                 window.removeEventListener('resize', this.setChartDimensions);
         },
 
+        computed: {
+                shouldShowChartInformation() {
+                        if (!this.settings) {
+                                return true
+                        }
+                        if (!this.settings.xaxis) {
+                                return true
+                        }
+
+                        if (!this.settings.series || (this.settings.series && this.settings.series.length === 0)) {
+                                return true
+                        }
+
+                        if (!this.settings.series[0].dataColumn) {
+                                return true
+                        }
+                        if (this.xIndex < 0){
+                          return true
+                        }
+
+                        if (this.yIndices && this.yIndices.filter((y) => y >= 0).length === 0){
+                          return true
+                        }
+
+                        return false
+
+                },
+                chartInformationMessage() {
+                        const defaultMessage = "Please select xAxis and yAxis Columns from settings." 
+                        const xAxisMissing = "Looks like xAxis that you have specified in settings, was not returned in results."
+                        const yAxisMissing = "Looks like yAxis that you have specified in settings, was not returned in results."
+                        if (!this.settings) {
+                                return defaultMessage
+                        }
+                        if (!this.settings.xaxis) {
+                                return defaultMessage
+                        }
+
+                        if (!this.settings.series || (this.settings.series && this.settings.series.length === 0)) {
+                                return defaultMessage
+                        }
+
+                        if (!this.settings.series[0].dataColumn) {
+                                return defaultMessage
+                        }
+                        if (this.xIndex < 0){
+                          return xAxisMissing
+                        }
+
+                        if (this.yIndices && this.yIndices.filter((y) => y >= 0).length === 0){
+                          return yAxisMissing
+                        }
+
+                        return false
+
+                }
+        },
+
 
         methods: {
+                createChartDom(){
+                        const chartDom = this.$refs["chart-block"]
+                        if (chartDom) {
+                                this.chartBox = shallowRef(echarts.init(chartDom))
+                                this.chartBox.setOption(this.options, true)
+                        }
+                },
 
                 getColumnIndex(columnName) {
                         return this.results.columns.indexOf(columnName)
@@ -129,7 +209,7 @@ export default {
 
 
                 prepareData(settings) {
-
+                        this.yIndices = []
                         let options = {
                                 title: {
                                         text: settings.title,
@@ -140,7 +220,7 @@ export default {
                                         }
 
                                 },
-                                legend: { top: 'bottom' },
+                                legend: { bottom: '10', type: 'scroll', pageIconColor: '#6e7687', pageTextStyle: {color: '#6e7687'} , padding: [5, 10] },
                                 tooltip: {
                                         trigger: 'axis',
                                         order: 'valueDesc',
@@ -158,6 +238,7 @@ export default {
 
                         let max = 1
                         const xIndex = this.getColumnIndex(settings.xaxis)
+                        this.xIndex = xIndex
                         if (xIndex >= 0 && this.renderChartCondition(settings)) {
                                 let xaxisData = [...new Set(this.results.rows.map((row) => {
                                         return row[xIndex]
@@ -199,6 +280,7 @@ export default {
                                         let data = {}; let uniqueDimensions = {};
 
                                         let yIndex = this.getColumnIndex(s.dataColumn)
+                                        this.yIndices.push(yIndex)
                                         let dimIndex = this.getColumnIndex(s.dimension.dataColumn)
                                         this.results.rows.forEach((row) => {
 
@@ -250,7 +332,7 @@ export default {
                                                         type: chartType || this.defaultChartType,
                                                         data: det[1],
                                                         color: color,
-                                                        label: { show: showLabel, position: 'top' }
+                                                        label: { show: showLabel, position: 'top', backgroundColor: 'white', color: '#6e7687'  }
                                                 }
 
                                                 if (seriesDatum.type === 'area') {

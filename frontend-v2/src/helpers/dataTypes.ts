@@ -1,10 +1,21 @@
 
+const operatorOptions = {
+        'number': ['>', '<', '>=', '<=', '=', '!=',
+                'is NULL', 'is not NULL'],
+        'datetime': ['>', '<', '>=', '<=', '=', '!=', 'is NULL', 'is not NULL'],
+        'boolean' : ['is', 'is not', 'is NULL', 'is NOT NULL'],
+        'text': ['=', '!=',
+                'is NULL', 'is not NULL', 'matches',
+                'starts with', 'ends with']
+
+}
 const dataTypesMapping = {
                                 "NaiveDateTime": "datetime",
                                 "Inferred.DateTime": "datetime",
                                 "Integer": "number",
                                 "Float": "number",
-                                "Decimal": "number"
+                                "Decimal": "number",
+                                "Boolean" : 'boolean'
                         }
 
 const findDataType = function(colDetails, col){
@@ -20,4 +31,4 @@ const findDataType = function(colDetails, col){
 }
 
 
-export  {findDataType, dataTypesMapping};
+export  {findDataType, dataTypesMapping, operatorOptions};

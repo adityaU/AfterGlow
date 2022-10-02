@@ -1,6 +1,6 @@
 /* global pushObject */
 
-import Ember from 'ember';
+  import Ember from 'ember';
 import ChartSettings from 'frontend/mixins/chart-settings';
 import LoadingMessages from 'frontend/mixins/loading-messages';
 import ResultViewMixin from 'frontend/mixins/result-view-mixin';
@@ -11,7 +11,6 @@ import DynamicQueryParamsControllerMixin from 'frontend/mixins/dynamic-query-par
 
 import ENV from '../../../config/environment'
 
-
 export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMixin, ResultViewMixin, AceTools, CustomEvents, DynamicQueryParamsControllerMixin, {
 
   vueComponentsEnabled: true,
@@ -19,17 +18,17 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMix
   vueResultPath: Ember.computed('question.query_variables.content.isLoaded', function() {
     const question = this.get('question')
     if (question.get('query_variables.content.isLoaded')){
-    const query_variables = question.get('query_variables').map((item) => {
-      return {
-        name: item.get('name'),
-        value: item.get('value') || item.get('default'),
-        var_type: item.get('var_type'),
-        default_options: item.get('default_options')
-      };
-    })
+      const query_variables = question.get('query_variables').map((item) => {
+        return {
+          name: item.get('name'),
+          value: item.get('value') || item.get('default'),
+          var_type: item.get('var_type'),
+          default_options: item.get('default_options')
+        };
+      })
 
-    let payload = {variables: [], iFrame: true}
-    return ENV.vueHost + '/frontend' +  window.location.pathname + "?payload=" + JSON.stringify(payload) + "&token=" + this.get('ajax.sessionService.token')
+      let payload = {variables: query_variables, iFrame: true}
+      return ENV.vueHost + '/frontend' +  window.location.pathname + "?payload=" + JSON.stringify(payload) + "&token=" + this.get('ajax.sessionService.token')
 
     }
     return ""
@@ -190,9 +189,12 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMix
     });
   }),
   scrollToResultsView() {
-    $('html, body').animate({
-      scrollTop: $('#' + this.get('vueIframeID')).offset().top -100
-    }, 1000);
+    const iframeOffset = $('#' + this.get('vueIframeID')).offset()
+    if (iframeOffset){
+      $('html, body').animate({
+        scrollTop: iframeOffset.top -100
+      }, 1000);
+    }
   },
   getResultsWithSelectedTextFunction() {
     this.getResultsFunction(null, true);
@@ -205,115 +207,119 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMix
       return item != 'updated_at' && item != 'cached_results';
     });
     // if (question.id && ( changedAttributes == 0) && !this.get('variablesChanged') && !this.get('attributesChanged')){
-    //     question.set("updated_at", new Date())
-    //     question.set('resultsCanBeLoaded', true)
-    // }else{
-    question.set('updated_at', new Date());
-    queryObject = queryObject || this.get('queryObject');
-    queryObject.set('id', question.get('id'));
-    queryObject.set('variables', query_variables && query_variables.map((item) => {
-      return {
-        name: item.get('name'),
-        value: item.get('value') || item.get('default'),
-        var_type: item.get('var_type'),
-        default_options: item.get('default_options')
-      };
-    }));
+      //     question.set("updated_at", new Date())
+      //     question.set('resultsCanBeLoaded', true)
+      // }else{
+        question.set('updated_at', new Date());
+        queryObject = queryObject || this.get('queryObject');
+        queryObject.set('id', question.get('id'));
+        queryObject.set('variables', query_variables && query_variables.map((item) => {
+          return {
+            name: item.get('name'),
+            value: item.get('value') || item.get('default'),
+            var_type: item.get('var_type'),
+            default_options: item.get('default_options')
+          };
+        }));
 
-    this.changeQueryParamsInUrl(queryObject.get('variables'), queryObject.get('name'));
-    if (question.get('query_type') == 'api_client') {
-      let payload = JSON.parse(JSON.stringify(question.get('api_action.content')))
-      payload["variables"] = queryObject.get('variables')
-      let apiAction = question.get('api_action.content')
-      apiAction.preview(payload).then((response) => {
+        this.changeQueryParamsInUrl(queryObject.get('variables'), queryObject.get('name'));
+        if (question.get('query_type') == 'api_client') {
+          let payload = JSON.parse(JSON.stringify(question.get('api_action.content')))
+          payload["variables"] = queryObject.get('variables')
+          let apiAction = question.get('api_action.content')
+          apiAction.preview(payload).then((response) => {
 
-        this.set('loading', false)
-        if (response.status_code == 0 || response.status_code >= 400) {
-          this.set('errors', "Error: " + response.response_body);
-          this.set('results', null);
-        } else {
-          let results = this.parseApiActionResult(response, apiAction)
-          this.set('errors', null);
-          this.set('results', results);
+            this.set('loading', false)
+            if (response.status_code == 0 || response.status_code >= 400) {
+              this.set('errors', "Error: " + response.response_body);
+              this.set('results', null);
+            } else {
+              let results = this.parseApiActionResult(response, apiAction)
+              this.set('errors', null);
+              this.set('results', results);
+            }
+          })
+
+          return
         }
-      })
-
-      return
-    }
-    if (withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText()) {
-      queryObject = JSON.parse(JSON.stringify(queryObject));
-      queryObject['rawQuery'] = this.get('aceEditor').getSelectedText();
-    }
+        if (withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText()) {
+          queryObject = JSON.parse(JSON.stringify(queryObject));
+          queryObject['rawQuery'] = this.get('aceEditor').getSelectedText();
+        }
 
 
-    var iframePayload = new URLSearchParams();
-      iframePayload.append("payload", JSON.stringify(queryObject))
-      iframePayload.append("token", this.get('ajax.sessionService.token'))
-      iframePayload.append("iFrame", true)
-      iframePayload.append("question_id", question.get('id'))
-      const vueResultPath = ENV.vueHost + "/frontend/questions/new?" + iframePayload.toString()
-      if (vueResultPath === this.get('vueResultPath')) {
-          document.getElementById(this.get('vueIframeID')).contentWindow.postMessage({
-            message: 'refresh',
-          }, '*');
-      }
-      else{
-        this.set('vueResultPath', vueResultPath)
-      }
+        var iframePayload = new URLSearchParams();
+        iframePayload.append("payload", JSON.stringify(queryObject))
+        iframePayload.append("token", this.get('ajax.sessionService.token'))
+        iframePayload.append("iFrame", true)
+        iframePayload.append("question_id", question.get('id'))
+        // const vueResultPath = ENV.vueHost + "/frontend/questions/new?" + iframePayload.toString()
+        const iframe = document.getElementById(this.get('vueIframeID'))
+        if (iframe){
+        iframe.contentWindow.postMessage({
+          message: 'refresh',
+          query: iframePayload.toString(),
+        }, '*');
 
-      this.scrollToResultsView();
-      this.get('ajax').apiCall({
-        url: this.get('apiHost') + this.get('apiNamespace') + '/questions/query',
-        type: 'POST',
-        data: queryObject
-      }, (response, status) => {
+        }
+        // }
+    // else{
+      //   this.set('vueResultPath', vueResultPath)
+      // }
+
+    this.scrollToResultsView();
+    this.get('ajax').apiCall({
+      url: this.get('apiHost') + this.get('apiNamespace') + '/questions/query',
+      type: 'POST',
+      data: queryObject
+    }, (response, status) => {
       if (!(withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText())) {
         this.set('queryObject.rawQuery', response.query);
         this.set('validQuestion', true);
       }
-      }, (error, status) => {
+    }, (error, status) => {
       if (!(withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText())) {
         this.set('validQuestion', false);
         this.set('queryObject.rawQuery', error.query);
       }
-      })
-  //     this.set('loading', false);
-  //     if (question.get('query_type') == 'api_client') {
-  //       let results = this.parseApiActionResult(response, this.get('question.api_action'))
-  //       this.set('results', results);
-  //     } else {
-  //       this.set('results', response.data);
-  //     }
-  //     if (!this.get('resultsViewType')) {
-  //       this.set('resultsViewType', this.autoDetect(response.data.rows));
-  //     }
-  //
-  //     if (!(withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText())) {
-  //       this.set('queryObject.rawQuery', response.query);
-  //       this.set('validQuestion', true);
-  //     }
-  //     this.set('isQueryLimited', response.data.limited);
-  //     this.set('queryLimit', response.data.limit);
-  //     this.set('limitedQuery', response.data.limited_query);
-  //     this.set('variablesReplacedQuery', response.data.variables_replaced_query);
-  //   }, (error, status) => {
-  //     this.set('loading', false);
-  //     this.scrollToResultsView();
-  //     (error && error.error) ? this.set('errors', error.error) : this.set('errors', {
-  //       message: 'Something isn\'t right. Please check the query elements.'
-  //     });
-  //     this.set('results', null);
-  //     if (!(withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText())) {
-  //       this.set('validQuestion', false);
-  //       this.set('queryObject.rawQuery', error.query);
-  //     }
-  //     this.set('isQueryLimited', null);
-  //     this.set('queryLimit', null);
-  //     this.set('limitQuery', null);
-  //     this.set('variablesReplacedQuery', error.error.variables_replaced_query);
-  //   });
-  //   // }
-  },
+    })
+    //     this.set('loading', false);
+    //     if (question.get('query_type') == 'api_client') {
+      //       let results = this.parseApiActionResult(response, this.get('question.api_action'))
+      //       this.set('results', results);
+      //     } else {
+        //       this.set('results', response.data);
+        //     }
+    //     if (!this.get('resultsViewType')) {
+      //       this.set('resultsViewType', this.autoDetect(response.data.rows));
+      //     }
+    //
+      //     if (!(withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText())) {
+        //       this.set('queryObject.rawQuery', response.query);
+        //       this.set('validQuestion', true);
+        //     }
+    //     this.set('isQueryLimited', response.data.limited);
+    //     this.set('queryLimit', response.data.limit);
+    //     this.set('limitedQuery', response.data.limited_query);
+    //     this.set('variablesReplacedQuery', response.data.variables_replaced_query);
+    //   }, (error, status) => {
+      //     this.set('loading', false);
+      //     this.scrollToResultsView();
+      //     (error && error.error) ? this.set('errors', error.error) : this.set('errors', {
+        //       message: 'Something isn\'t right. Please check the query elements.'
+        //     });
+      //     this.set('results', null);
+      //     if (!(withSelected && this.get('aceEditor') && this.get('aceEditor').getSelectedText())) {
+        //       this.set('validQuestion', false);
+        //       this.set('queryObject.rawQuery', error.query);
+        //     }
+      //     this.set('isQueryLimited', null);
+      //     this.set('queryLimit', null);
+      //     this.set('limitQuery', null);
+      //     this.set('variablesReplacedQuery', error.error.variables_replaced_query);
+      //   });
+//   // }
+},
 
   actions: {
     removeVariable(variable) {
@@ -322,164 +328,164 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMix
       variable.destroyRecord();
     },
 
-    toggleSql() {
-      let queryType = this.get('queryObject.queryType');
-      if (queryType == 'query_builder') {
-        this.set('queryObject.queryType', 'raw');
-        (this.get('queryObject.rawQuery') == null) &&
-          this.set('queryObject.rawQuery', '');
-      } else {
-        this.set('queryObject.queryType', 'query_builder');
-      }
-      let plotlyComponent = Ember.$('.js-plotly-plot')[0];
-      plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize'));
-    },
-    getQuestionResults() {
-      this.set('results', null);
-      this.set('errors', null);
-      let question = this.get('question');
-      question.set('updated_at', new Date());
-      question.set('resultsCanBeLoaded', true);
-      this.scrolToResultsView();
-    },
-    getResults(queryObject) {
-      this.getResultsFunction(queryObject);
-    },
-    toggleSettings() {
-      this.toggleProperty('showSettings');
-    },
-    saveQuestion() {
-      if (this.get('newQuestion')) {
-        Ember.run.later(this, () => {
-          $('.js-question_title').focus();
-        }, 150);
-        this.set('newQuestion', false);
-
-      } else {
-        let question = this.get('question');
-        question.set('sql', question.get('sql') || question.get('human_sql.rawQuery'));
-        question.set('cached_results', null);
-        if (question.get('query_type') != 'api_client') {
-          question.set('query_type', question.get('human_sql.queryType') == 'raw' ? 'sql' : 'human_sql');
+      toggleSql() {
+        let queryType = this.get('queryObject.queryType');
+        if (queryType == 'query_builder') {
+          this.set('queryObject.queryType', 'raw');
+          (this.get('queryObject.rawQuery') == null) &&
+            this.set('queryObject.rawQuery', '');
+        } else {
+          this.set('queryObject.queryType', 'query_builder');
         }
-        question.save().then((response) => {
-          question.get('variables').invoke('save');
-          
-          document.getElementById(this.get('vueIframeID')).contentWindow.postMessage({
-            message: 'save_visualizations',
-            question_id: response.id
-          }, '*');
-
-          this.set('retryingTransition', true);
-          this.transitionToRoute('questions.show', response.id);
-        }).then((variable) => {
-          question.set('resultsCanBeLoaded', true);
-        });
-
-      }
-    },
-    transitionToQuestion(id) {
-      this.transitionToRoute('questions.show', id);
-
-      this.set('question.updated At', new Date());
-      this.set('question.resultsCanBeLoaded', true);
-    },
-    transitionToDashBoard(dashboard_id) {
-      this.transitionToRoute('dashboards.show', dashboard_id);
-    },
-    transitionToIndex() {
-      this.transitionToRoute('index');
-    },
-    downloadData() {
-      let question = this.get('question');
-      let queryObject = this.get('queryObject');
-      let query_variables = question.get('query_variables');
-      queryObject.set('variables', query_variables && query_variables.map((item) => {
-        return {
-          name: item.get('name'),
-          value: item.get('value') || item.get('default'),
-          var_type: item.get('var_type'),
-          default_options: item.get('default_options')
-        };
-      }));
-      this.get('ajax').apiCall({
-        url: this.get('apiHost') + this.get('apiNamespace') + '/create_csv',
-        type: 'POST',
-        data: queryObject
-      }, (response, status) => {
-
-        this.get('toast').success(
-          'Your CSV is getting uploaded to cloud. You\'ll get an email with download link shortly',
-          'YaY!', {
-          closeButton: true,
-          timeout: 1500,
-          progressBar: false
-        }
-        );
-      }, (error, status) => {
-        this.get('toast').success(
-          'Looks like CSV download process is not working as expected. Please try again. If problem persists, talk to your Admin',
-          'Sorry Mate!', {
-          closeButton: true,
-          timeout: 1500,
-          progressBar: false
-        }
-        );
-      });
-    },
-    addVariable() {
-      let variable = this.store.createRecord('variable', {
-        name: 'New Variable',
-        var_type: 'String',
-        default: 'value',
-        default_options: []
-      });
-      this.get('question.variables').pushObject(variable);
-      this.set('variablesChanged', true);
-    },
-
-
-    transitionToSnapshots(questionId) {
-      this.transitionToRoute('questions.show.snapshots.all', questionId);
-    },
-    updateResultViewType(selection) {
-      this.set('resultsViewType', selection.get('title'));
-    },
-    toggleFullscreen() {
-      let plotlyComponent = Ember.$('.js-plotly-plot')[0];
-      this.set('resizeTime', new Date());
-      if (this.get('fullscreenClass')) {
-        this.set('fullscreenClass', null);
+        let plotlyComponent = Ember.$('.js-plotly-plot')[0];
         plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize'));
-      } else {
-        this.set('fullscreenClass', 'fullscreen');
-        plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize'));
-      }
-    },
-    toggleSqlEditor() {
-      this.toggleProperty('collapseSqlEditor');
-    },
-    setEditorWhenReady(editor) {
-      this.set('aceEditor', editor);
-      $('.ace-resizable').resizable({
-        handles: 's',
-        alsoResize: $('.db-tree'),
-        resize: function (event, ui) {
-          editor.resize();
-          $('.db-tree').height($('.ace_editor').height());
-        }
-      });
-    },
-    apply() {
-      if (this.get('canEdit')) {
-        this.getResultsFunction(this.get('queryObject'));
-      } else {
+      },
+      getQuestionResults() {
+        this.set('results', null);
+        this.set('errors', null);
         let question = this.get('question');
-        question.set('resultsCanBeLoaded', true);
         question.set('updated_at', new Date());
+        question.set('resultsCanBeLoaded', true);
         this.scrolToResultsView();
+      },
+      getResults(queryObject) {
+        this.getResultsFunction(queryObject);
+      },
+      toggleSettings() {
+        this.toggleProperty('showSettings');
+      },
+      saveQuestion() {
+        if (this.get('newQuestion')) {
+          Ember.run.later(this, () => {
+            $('.js-question_title').focus();
+          }, 150);
+          this.set('newQuestion', false);
+
+        } else {
+          let question = this.get('question');
+          question.set('sql', question.get('sql') || question.get('human_sql.rawQuery'));
+          question.set('cached_results', null);
+          if (question.get('query_type') != 'api_client') {
+            question.set('query_type', question.get('human_sql.queryType') == 'raw' ? 'sql' : 'human_sql');
+          }
+          question.save().then((response) => {
+            question.get('variables').invoke('save');
+
+            document.getElementById(this.get('vueIframeID')).contentWindow.postMessage({
+              message: 'save_visualizations',
+              question_id: response.id
+            }, '*');
+
+            this.set('retryingTransition', true);
+            this.transitionToRoute('questions.show', response.id);
+          }).then((variable) => {
+            question.set('resultsCanBeLoaded', true);
+          });
+
+        }
+      },
+      transitionToQuestion(id) {
+        this.transitionToRoute('questions.show', id);
+
+        this.set('question.updated At', new Date());
+        this.set('question.resultsCanBeLoaded', true);
+      },
+      transitionToDashBoard(dashboard_id) {
+        this.transitionToRoute('dashboards.show', dashboard_id);
+      },
+      transitionToIndex() {
+        this.transitionToRoute('index');
+      },
+      downloadData() {
+        let question = this.get('question');
+        let queryObject = this.get('queryObject');
+        let query_variables = question.get('query_variables');
+        queryObject.set('variables', query_variables && query_variables.map((item) => {
+          return {
+            name: item.get('name'),
+            value: item.get('value') || item.get('default'),
+            var_type: item.get('var_type'),
+            default_options: item.get('default_options')
+          };
+        }));
+        this.get('ajax').apiCall({
+          url: this.get('apiHost') + this.get('apiNamespace') + '/create_csv',
+          type: 'POST',
+          data: queryObject
+        }, (response, status) => {
+
+          this.get('toast').success(
+            'Your CSV is getting uploaded to cloud. You\'ll get an email with download link shortly',
+            'YaY!', {
+              closeButton: true,
+              timeout: 1500,
+              progressBar: false
+            }
+          );
+        }, (error, status) => {
+          this.get('toast').success(
+            'Looks like CSV download process is not working as expected. Please try again. If problem persists, talk to your Admin',
+            'Sorry Mate!', {
+              closeButton: true,
+              timeout: 1500,
+              progressBar: false
+            }
+          );
+        });
+      },
+      addVariable() {
+        let variable = this.store.createRecord('variable', {
+          name: 'New Variable',
+          var_type: 'String',
+          default: 'value',
+          default_options: []
+        });
+        this.get('question.variables').pushObject(variable);
+        this.set('variablesChanged', true);
+      },
+
+
+      transitionToSnapshots(questionId) {
+        this.transitionToRoute('questions.show.snapshots.all', questionId);
+      },
+      updateResultViewType(selection) {
+        this.set('resultsViewType', selection.get('title'));
+      },
+      toggleFullscreen() {
+        let plotlyComponent = Ember.$('.js-plotly-plot')[0];
+        this.set('resizeTime', new Date());
+        if (this.get('fullscreenClass')) {
+          this.set('fullscreenClass', null);
+          plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize'));
+        } else {
+          this.set('fullscreenClass', 'fullscreen');
+          plotlyComponent && plotlyComponent.dispatchEvent(this.get('plotlyResize'));
+        }
+      },
+      toggleSqlEditor() {
+        this.toggleProperty('collapseSqlEditor');
+      },
+      setEditorWhenReady(editor) {
+        this.set('aceEditor', editor);
+        $('.ace-resizable').resizable({
+          handles: 's',
+          alsoResize: $('.db-tree'),
+          resize: function (event, ui) {
+            editor.resize();
+            $('.db-tree').height($('.ace_editor').height());
+          }
+        });
+      },
+      apply() {
+        if (this.get('canEdit')) {
+          this.getResultsFunction(this.get('queryObject'));
+        } else {
+          let question = this.get('question');
+          question.set('resultsCanBeLoaded', true);
+          question.set('updated_at', new Date());
+          this.scrolToResultsView();
+        }
       }
-    }
 
 
   }

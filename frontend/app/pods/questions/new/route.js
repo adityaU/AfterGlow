@@ -13,6 +13,7 @@ export default Ember.Route.extend(CanMixin, KeyboardShortcuts, DynamicQueryParam
     resetController() {
         this.controller.set('validQuestion', true);
         this.controller.set('queryObject.rawQuery', null);
+        // this.controller.set('queryObject', null);
         this.controller.set('isQueryLimited', false);
         this.controller.set('queryLimit', 0);
         this.controller.set('limitedQuery', null);
@@ -25,6 +26,7 @@ export default Ember.Route.extend(CanMixin, KeyboardShortcuts, DynamicQueryParam
     afterModel() {
         if (!this.can('create question')) {
             this.transitionTo('questions.all');
+            window.addEventListener('message', this.triggerRefresh(_this))
         }
     },
     actions: {

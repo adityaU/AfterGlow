@@ -1,11 +1,11 @@
 <template>
-        <a href="#" class="">
-            <span class="label">
-                {{ label }}
-            </span>
-            <BaseInput ref="input" class="tw-m-2 tw-inline tw-text-default" :value="value"
-                @inputed="(val) => $emit('inputed', val)" :placeholder="placeholder" />
-        </a>
+  <div class="">
+    <span class="label">
+        {{ label }}
+    </span>
+    <BaseInput ref="input" class="tw-m-2 tw-inline tw-text-default" :value="value"
+        @inputed="(val) => $emit('inputed', val)" :placeholder="placeholder" />
+        </div>
 </template>
 
 <script>

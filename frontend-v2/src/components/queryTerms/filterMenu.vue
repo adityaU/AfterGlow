@@ -102,17 +102,7 @@
 
 <script>
 
-const operatorOptions = {
-        'number': ['>', '<', '>=', '<=', '=', '!=',
-                'is NULL', 'is not NULL'],
-        'datetime': ['>', '<', '>=', '<=', '=', '!=', 'is NULL', 'is not NULL'],
-        'text': ['=', '!=',
-                'is NULL', 'is not NULL', 'matches',
-                'starts with', 'ends with']
-
-}
-
-import { findDataType } from 'src/helpers/dataTypes'
+import { findDataType, operatorOptions } from 'src/helpers/dataTypes'
 import StagedMenu from 'components/base/stagedMenu.vue'
 import SelectOptions from 'components/base/selectOptions.vue'
 import BoxSelect from 'components/base/boxSelect.vue'

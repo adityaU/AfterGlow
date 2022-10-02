@@ -78,7 +78,6 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
       end
 
       def options(query_record, adapter) do
-        query_record |> IO.inspect(label: "query Records================")
         group_bys = group_bys_maker(query_record[:group_bys])
         order_by_columns = order_by_columns(query_record[:order_bys])
         order_bys = order_bys_maker(query_record[:order_bys])
@@ -169,10 +168,10 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
       def group_bys_maker(options) when is_nil(options), do: nil
 
       def group_bys_maker(options) do
-        options |> IO.inspect(label: "group_bys================")
-        |> cleanup|> IO.inspect(label: "firse cleannup================")
-        |> parse_group_bys|> IO.inspect(label: "parse group_byy================")
-        |> cleanup|> IO.inspect(label: "second_cleanup================")
+        options
+        |> cleanup
+        |> parse_group_bys
+        |> cleanup
       end
 
       def order_bys_maker(options) when is_nil(options), do: nil
@@ -216,7 +215,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
           if get_in(x, ["selected", "raw"]) do
             get_in(x, ["selected", "value"])
           else
-          x["column"]["name"] <> " " <> (x["order"]["value"] |> parse_order_type || "ASC")
+            x["column"]["name"] <> " " <> (x["order"]["value"] |> parse_order_type || "ASC")
           end
         end)
       end
@@ -392,7 +391,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
       end
 
       def cast_group_by(el, nil), do: el
-      def cast_group_by(el, "day"), do: "CAST(#{el} AS date)  sep|rator as \"#{el} by Day\""
+      def cast_group_by(el, "day"), do: "CAST(#{el} AS date)  sep|rator as \"#{el}_by_Day\""
 
       def cast_group_by(el, "minutes"),
         do: "date_trunc('minute', #{el}) sep|rator as \"#{el} by Minute\""
@@ -439,20 +438,45 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
 
       def cast_group_by(el, "quarter_year"),
         do:
-          "CAST(extract(quarter from #{el}) AS integer) sep|rator as \"#{el}  by Quarter of the Year\""
+          "CAST(extract(quarter from #{el}) AS integer) sep|rator as \"#{el}  by_Quarter_of_the_Year\""
 
       def stringify_select(%{"raw" => true, "value" => value}, columns_required), do: value
       def stringify_select(%{"name" => _name, "value" => "raw_data"}, []), do: "*"
       def stringify_select(%{"name" => _name, "value" => "raw_data"}, columns_required), do: "*"
       def stringify_select(%{"name" => _name, "value" => "count"}, columns_required), do: "count"
-      def stringify_select(%{"agg" => "count of rows"}, columns_required), do: "count(*) sep|rator as \"count of rows\""
-      def stringify_select(%{"agg" => "minimum of", "column" => column}, columns_required), do: "min(#{column}) sep|rator as \"minimum of #{column}\""
-      def stringify_select(%{"agg" => "maximum of", "column" => column}, columns_required), do: "max(#{column}) sep|rator as \"max of #{column}\""
-      def stringify_select(%{"agg" => "average of", "column" => column}, columns_required), do: "avg(#{column}) sep|rator as \"average of #{column}\""
-      def stringify_select(%{"agg" => "sum of", "column" => column}, columns_required), do: "sum(#{column}) sep|rator as \"sum of #{column}\""
-      def stringify_select(%{"agg" => "standard deviation", "column" => column}, columns_required), do: "stddev(#{column})  sep|rator as \"standard_deviation of #{column}\""
-      def stringify_select(%{"agg" => "standard variance", "column" => column}, columns_required), do: "variance(#{column})  sep|rator as \"variance of #{column}\""
-      def stringify_select(%{"agg" => "percentile of", "column" => column, "value" => value}, columns_required), do: "percentile_cont(#{value/100}) within group (order by #{column}) sep|rator as \"p#{value} of #{column}\""
+
+      def stringify_select(%{"agg" => "count of rows"}, columns_required),
+        do: "count(*) sep|rator as \"count_of_rows\""
+
+      def stringify_select(%{"agg" => "minimum of", "column" => column}, columns_required),
+        do: "min(#{column}) sep|rator as \"minimum_of_#{column}\""
+
+      def stringify_select(%{"agg" => "maximum of", "column" => column}, columns_required),
+        do: "max(#{column}) sep|rator as \"max_of_#{column}\""
+
+      def stringify_select(%{"agg" => "average of", "column" => column}, columns_required),
+        do: "avg(#{column}) sep|rator as \"average_of_#{column}\""
+
+      def stringify_select(%{"agg" => "sum of", "column" => column}, columns_required),
+        do: "sum(#{column}) sep|rator as \"sum_of_#{column}\""
+
+      def stringify_select(
+            %{"agg" => "standard deviation", "column" => column},
+            columns_required
+          ),
+          do: "stddev(#{column})  sep|rator as \"standard_deviation_of_#{column}\""
+
+      def stringify_select(%{"agg" => "standard variance", "column" => column}, columns_required),
+        do: "variance(#{column})  sep|rator as \"variance_of_#{column}\""
+
+      def stringify_select(
+            %{"agg" => "percentile of", "column" => column, "value" => value},
+            columns_required
+          ),
+          do:
+            "percentile_cont(#{value / 100}) within group (order by #{column}) sep|rator as \"p#{
+              value
+            }_of_#{column}\""
 
       defoverridable stringify_select: 2,
                      parse_filter_date_obj_value: 3,

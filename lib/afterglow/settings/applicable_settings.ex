@@ -17,7 +17,6 @@ defmodule AfterGlow.Settings.ApplicableSettings do
 
   def sender_email_id() do
     global_setting_by_name("SENDER_EMAIL_ID")
-    |> IO.inspect(label: "sender_email")
   end
 
   def email_hostname() do

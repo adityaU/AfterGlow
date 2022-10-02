@@ -64,6 +64,7 @@ defmodule AfterGlow.Router do
     resources("/visualizations", VisualizationController)
     post("/visualizations/:id/results", VisualizationController, :results)
     post("/visualizations/results", VisualizationController, :results)
+    post("/visualizations/create_csv", DataFilesController, :fetch_and_upload_visualization)
     get("search_tables/:id/foreign_tables", SearchTableController, :foreign_tables)
 
     post("api_actions/:id/send_request", ApiActionController, :send_request)

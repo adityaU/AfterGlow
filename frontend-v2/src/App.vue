@@ -1,9 +1,3 @@
-<style>
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-</style>
-
 <template>
   <router-view />
 </template>

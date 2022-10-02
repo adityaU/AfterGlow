@@ -1,72 +1,81 @@
 
 <style scoped>
 .font-transition {
-        -webkit-transition: all 0.5s;
-        -moz-transition: all 0.5s;
-        -o-transition: all 0.5s;
-        transition: all 0.5s;
+        -webkit-transition: all 0.1s;
+        -moz-transition: all 0.1s;
+        -o-transition: all 0.1s;
+        transition: all 0.1s;
 }
 </style>
 <template>
-  <!-- <div v-for="datum, j in row" :key="datum" class="tw-col-span-2"> -->
-    <div class="tw-border tw-rounded tw-mx-3  tw-break-inside-avoid-column"
-      :style="{ 'padding-top': fontRef / 4 + 'px', 'padding-bottom': fontRef / 5 + 'px', 'padding-left': fontRef / 4 + 'px', 'padding-right': fontRef / 3 + 'px' }">
+        <!-- <div v-for="datum, j in row" :key="datum" class="tw-col-span-2"> -->
+        <div class="tw-border tw-rounded tw-break-inside-avoid-column tw-px-16 tw-py-8 tw-flex tw-flex-col tw-justify-center tw-items-center">
 
-      <div class="tw-block tw-text-right" :style="{
-        'position': 'relative',
-        'right': '0px',
-        'top': fontRef / 30 + 'px',
-        'height': '0px'
-      }">
-        <div class="tw-inline font-transition tw-text-right" :style="{ 'font-size': fontRef / 4 + 'px' }"
-          v-if="settings.trendColumn">
-          <div class="tw-inline tw-ml-3">
-            {{settings.trendPrefix}}
-            {{ data.referenceValues[index ]
-            }}{{ settings.trendSuffix || '%'}}
-          </div>
-          <ArrowLongDownIcon class="tw-inline tw-stroke-red-500"
-            :style="{ 'width': fontRef / 5 + 'px', 'height': fontRef / 4 + 'px' }"
-            v-if="data.referenceValues[index ] < 0" />
-          <ArrowLongUpIcon class="tw-inline tw-stroke-green-500"
-            :style="{ 'width': fontRef / 5 + 'px', 'height': fontRef / 4 + 'px' }"
-            v-if="data.referenceValues[index ] > 0" />
-          <Bars2Icon class="tw-inline tw-stroke-blue-500"
-            :style="{ 'width': fontRef / 5 + 'px', 'height': fontRef / 4 + 'px' }"
-            v-if="data.referenceValues[index ] === 0" />
-        </div>
-      </div>
-      <div class="tw-block tw-text-center">
-        <div class="tw-inline font-transition  tw-text-black/80" :style="{ 'font-size': fontRef + 'px' }">{{settings.dataPrefix}}
-        </div>
-        <div class="tw-inline font-transition  tw-text-black/80" :style="{ 'font-size': fontRef + 'px' }">
-        {{data.dataValues[index]}}
-        </div>
-        <div class="tw-inline font-transition  tw-text-black/80" :style="{ 'font-size': fontRef + 'px' }">
-        {{settings.dataSuffix}}
+                <div class="tw-flex tw-text-center tw-justify-center tw-items-baseline">
+                        <div>
+                                <div class="tw-inline font-transition  tw-text-black/80">{{ settings.dataPrefix }}
+                                </div>
+                                <div class="tw-inline font-transition  tw-text-black/80 font-data">
+                                        {{ formatNumber(precise(data.dataValues[index], settings.dataPrecision),
+                                                        settings.dataFormat)
+                                        }}
+                                </div>
+                                <div class="tw-inline font-transition  tw-text-black/80">
+                                        {{ settings.dataSuffix }}
+                                </div>
+                        </div>
+                        <div class="tw-flex font-transition font-trend tw-items-center tw-justify-start tw-flex-[0]"
+                                v-if="settings.trendColumn">
+                                <div class="tw-ml-3">
+                                        {{ settings.trendPrefix }}
+                                        {{ formatNumber(precise(data.referenceValues[index], settings.trendPrecision),
+                                                        settings.trendFormat)
+                                        }}{{ settings.trendSuffix || '%' }}
+                                </div>
+                                <div>
+                                        <ArrowDownIcon class="tw-stroke-red-500" v-if="data.referenceValues[index] < 0"
+                                                size=14 />
+                                        <ArrowUpIcon class="tw-stroke-green-500" v-if="data.referenceValues[index] > 0"
+                                                size=14 />
+                                        <MenuIcon class="tw-stroke-blue-500" v-if="data.referenceValues[index] === 0"
+                                                size=14 />
+
+                                </div>
+                        </div>
+                </div>
+                <div class="text-center tw-whitespace-nowrap tw-flex-[0]" v-if="settings.subtitleColumn">
+
+                        <AGTDRenderer :colDetails="colDetails" isColumnObject=false :value="data.subtitles[index]" :columns="columns" :index="subtitleColumnIndex" showFilters=false hideMenu=true />
+                </div>
+
         </div>
 
-      </div>
-      <div class="tw-block text-center" v-if="settings.subtitleColumn" :style="{ 'font-size': fontRef / 4 + 'px' }">
-        {{ data.subtitles[index ] }}
-      </div>
-
-    </div>
-
-  <!-- </div> -->
+        <!-- </div> -->
 </template>
 
 <script>
 
 // import FitText from 'components/utils/fitText.vue'
 
-import { ArrowLongUpIcon, ArrowLongDownIcon, Bars2Icon } from '@heroicons/vue/24/outline'
-export default {
-  name: "AGNumberDetails",
-  props: ['row', 'fontRef', 'settings', 'index', 'data', 'numberOfColumns'],
-  components: {
-    ArrowLongUpIcon, ArrowLongDownIcon, Bars2Icon
+import { precise, formatNumber } from 'src/helpers/numeralFormatting'
+import { ArrowUpIcon, ArrowDownIcon, MenuIcon } from 'vue-tabler-icons'
+import AGTDRenderer from 'components/dataRenderers/charts/td/renderer.vue'
 
-  }
+export default {
+        name: "AGNumberDetails",
+        props: ['row', 'fontRef', 'settings', 'index', 'data', 'numberOfColumns', 'subtitleColumnIndex', 'columns', 'colDetails'],
+        components: {
+                ArrowUpIcon, ArrowDownIcon, MenuIcon, AGTDRenderer
+        },
+
+        methods: {
+                precise(number, precision) {
+                        return precise(number, precision)
+                },
+                formatNumber(number, format) {
+                        return formatNumber(number, format)
+                }
+        }
+
 }
 </script>

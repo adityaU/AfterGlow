@@ -12,6 +12,10 @@ defmodule AfterGlow.VisualizationController do
 
   action_fallback(AfterGlow.Web.FallbackController)
 
+  def show(conn, %{"id" => id}) do
+    vizs = Visualizations.get(id) |> elem(1)
+    conn |> json(%{visualization: vizs})
+  end
   def index(conn, %{"question_id" => question_id}) do
     vizs = Visualizations.find_by_question_id(question_id)
     conn |> json(%{visualizations: vizs})
@@ -29,7 +33,6 @@ defmodule AfterGlow.VisualizationController do
 
   def results(conn, payload) do
     {res, query, additional_info} = Visualizations.results(payload["id"], payload, conn.assigns.current_user) 
-    additional_info |> IO.inspect(label: "additional_info")
     case res do
       {:ok, results} ->
         results = results |> Map.merge(%{original_query_columns: additional_info.columns,

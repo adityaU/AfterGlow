@@ -5,6 +5,8 @@ defmodule AfterGlow.DataFilesController do
   alias AfterGlow.Async
   alias AfterGlow.CsvTasks
   alias AfterGlow.Snapshots
+  alias AfterGlow.QueryTerms.Conversions
+  alias AfterGlow.Questions.QueryFunctions, as: Question
 
   alias AfterGlow.Plugs.Authorization
   alias AfterGlow.Settings.ApplicableSettings
@@ -19,6 +21,20 @@ defmodule AfterGlow.DataFilesController do
     )
 
     json(conn, %{success: true})
+  end
+
+  def fetch_and_upload_visualization(conn, params) do
+    visualization = get_in(params, ["visualization"])
+    query_terms = get_in(visualization, ["queryTerms"]) || get_in(visualization, ["query_terms"])
+    query_terms = Conversions.convert(query_terms)
+    params = if !params["database"] && params["question_id"] do
+      {:ok, question} =  Question.get(params["question_id"])
+      params |> Map.merge(question.human_sql)
+      else 
+      params
+    end
+    params = params |> Map.merge(%{"additionalFilters" =>  query_terms})
+    fetch_and_upload(conn, params )
   end
 
   def fetch_and_upload(conn, params) do
@@ -36,7 +52,7 @@ defmodule AfterGlow.DataFilesController do
         Async.perform(&CsvTasks.qb_fetch_and_upload/5, [
           db_record,
           permit_params(params),
-          conn.assigns.current_user,
+          conn.assigns.current_user.email,
           download_limit(conn.assigns.current_user),
           tracking_details
         ])

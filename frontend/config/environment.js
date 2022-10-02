@@ -77,8 +77,8 @@ module.exports = function (environment) {
   };
 
   if (environment === 'development') {
-    ENV.host = 'http://localhost:4000';
-    ENV.vueHost = 'http://localhost:9000';
+    ENV.host = '';
+    ENV.vueHost = '';
 
     // ENV.APP.LOG_RESOLVER = true;
     // ENV.APP.LOG_ACTIVE_GENERATION = true;

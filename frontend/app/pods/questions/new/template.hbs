@@ -2,6 +2,8 @@
 addToDashboard='addToDashboard' question=question newQuestion=newQuestion showVariables=showVariables transitionToIndex="transitionToIndex" transitionToSnapshots="transitionToSnapshots"
 canCreateSnapshot=canCreateSnapshot canEdit=canEdit results=results}}
 <div class="container p-0 mt-5">
+
+    {{#if canEdit}}
     <div class="row">
         <div class="{{if showVariables " col-9 " "col-12 "}}">
             {{variables-layer variables=question.query_variables showVariables=showVariables}}
@@ -61,7 +63,7 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit results=results}}
                                         <button class="btn btn-secondary"> Crunching Data ... </button>
                                     </div>
                                     {{else}}
-                                    <div class="content active text-align-center">
+                                    <div class="content active text-align-center" id="ag_get_results">
                                         <button class="btn btn-primary" {{action 'getResults'}}> Get
                                             Results <i class="fe fe-arrow-right text-white"></i>
                                         </button>
@@ -71,11 +73,6 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit results=results}}
                                     {{#if loading}}
                                     <div class="content active text-align-center">
                                         <button class="btn btn-secondary"> Crunching Data ... </button>
-                                    </div>
-                                    {{else}}
-                                    <div class="content active text-align-center">
-                                        <button class="btn btn-primary" {{action 'getQuestionResults'}}> Refresh
-                                        </button>
                                     </div>
                                     {{/if}}
                                     {{/if}}
@@ -90,7 +87,7 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit results=results}}
                     {{/if}}
                     {{/if}}
                     {{#if vueComponentsEnabled}}
-                    {{embeddable-vue-component vueIframeID=vueIframeID vueResultPath=vueResultPath}}
+                    {{embeddable-vue-component vueIframeID=vueIframeID vueResultPath=vueResultPath minHeight=650}}
                     {{/if}}
                     {{#if results}}
                     {{else}}
@@ -115,4 +112,11 @@ canCreateSnapshot=canCreateSnapshot canEdit=canEdit results=results}}
         </div>
         {{/if}}
     </div>
+    {{else }}
+                    {{#if vueComponentsEnabled}}
+                    {{embeddable-vue-component vueIframeID=vueIframeID vueResultPath=vueResultPath minHeight=650}}
+                    {{/if}}
+
+    {{/if}}
+
 </div> {{next-transition-warning open=showTransitionWarning goAheadWithNextTransition='goAheadWithNextTransition'}}

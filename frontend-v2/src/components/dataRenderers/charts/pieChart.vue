@@ -1,5 +1,10 @@
 <template>
-        <div ref="chart-block" class="tw-h-full tw-w-full tw-py-4 tw-bg-white"></div>
+        <div class="tw-h-full tw-w-full tw-flex" v-if="shouldShowChartInformation">
+                <div class="tw-m-auto">
+                        {{chartInformationMessage}}
+                </div>
+        </div>
+        <div ref="chart-block" class="tw-h-full tw-w-full" v-if="!shouldShowChartInformation"></div>
 </template>
 
 <script>
@@ -52,7 +57,10 @@ export default {
                         settingsLocal: {},
                         options: {
                         },
-                        data: []
+                        data: [],
+                        xIndex: null,
+                        yIndices: [],
+
                 }
         },
 
@@ -63,21 +71,30 @@ export default {
                         }, 250)
                 },
                 options() {
-                        this.chartBox.setOption(this.options, true)
+                        this.chartBox && this.chartBox.setOption(this.options, true)
                         this.resizeChart()
                 },
                 settings: {
                         handler() {
                                 this.updateChartConf(this.settings || {})
                         }, deep: true
+                },
+
+                shouldShowChartInformation() {
+                        setTimeout(() => {
+                                this.createChartDom()
+                                this.chartBox && this.chartBox.setOption(this.options, true)
+                                this.setChartDimensions()
+
+                        }, 100)
                 }
         },
 
         mounted() {
                 window.addEventListener('resize', this.dimChanged);
                 this.setChartDimensions()
-                const chartDom = this.$refs["chart-block"]
-                this.chartBox = shallowRef(echarts.init(chartDom))
+                this.createChartDom()
+                this.updateChartConf(this.settings || {})
         },
 
 
@@ -85,14 +102,82 @@ export default {
                 window.removeEventListener('resize', this.dimChanged);
         },
 
+        computed: {
+
+                shouldShowChartInformation() {
+                        if (!this.settings) {
+                                return true
+                        }
+                        if (!this.settings.labels) {
+                                return true
+                        }
+
+                        if (!this.settings.series || (this.settings.series && this.settings.series.length === 0)) {
+                                return true
+                        }
+
+                        if (!this.settings.series[0].dataColumn) {
+                                return true
+                        }
+                        if (this.xIndex < 0){
+                          return true
+                        }
+
+                        if (this.yIndices && this.yIndices.filter((y) => y >= 0).length === 0){
+                          return true
+                        }
+
+                        return false
+
+                },
+                chartInformationMessage() {
+                        const defaultMessage = "Please select labels and data columns from settings." 
+                        const xAxisMissing = "Looks like Label column that you have specified in settings, was not returned in results."
+                        const yAxisMissing = "Looks like data column that you have specified in settings, was not returned in results."
+                        if (!this.settings) {
+                                return defaultMessage
+                        }
+                        if (!this.settings.labels) {
+                                return defaultMessage
+                        }
+
+                        if (!this.settings.series || (this.settings.series && this.settings.series.length === 0)) {
+                                return defaultMessage
+                        }
+
+                        if (!this.settings.series[0].dataColumn) {
+                                return defaultMessage
+                        }
+                        if (this.xIndex < 0){
+                          return xAxisMissing
+                        }
+
+                        if (this.yIndices && this.yIndices.filter((y) => y >= 0).length === 0){
+                          return yAxisMissing
+                        }
+
+                        return false
+
+                }
+        },
+
+
 
 
 
         methods: {
+
+                createChartDom() {
+                        const chartDom = this.$refs["chart-block"]
+                        if (chartDom) {
+                                this.chartBox = shallowRef(echarts.init(chartDom))
+                                this.chartBox.setOption(this.options, true)
+                        }
+                },
                 dimChanged() {
                         this.setChartDimensions()
                         const options = this.setChartPosition(this.options)
-                        this.chartBox.setOption(options, true)
+                        this.chartBox && this.chartBox.setOption(options, true)
                         this.resizeChart()
                 },
 
@@ -104,8 +189,10 @@ export default {
 
                 setChartDimensions() {
                         const chartDom = this.$refs["chart-block"]
-                        this.chartHeight = chartDom.clientHeight
-                        this.chartWidth = chartDom.clientWidth
+                        if (chartDom) {
+                                this.chartHeight = chartDom.clientHeight
+                                this.chartWidth = chartDom.clientWidth
+                        }
                 },
 
                 resizeChart() {
@@ -131,6 +218,7 @@ export default {
 
 
                 prepareData(settings) {
+                        this.yIndices = []
 
                         let options = {
                                 title: {
@@ -142,7 +230,7 @@ export default {
                                         }
 
                                 },
-                                legend: { top: 'bottom' },
+                                legend: { bottom: '20', type: 'scroll', pageIconColor: '#6e7687', pageTextStyle: {color: '#6e7687'} , padding: [10, 20] },
                                 tooltip: {
                                         trigger: 'item'
                                         // order: 'valueDesc',
@@ -160,6 +248,7 @@ export default {
 
                         let max = 1
                         const xIndex = this.getColumnIndex(settings.labels)
+                        this.xIndex = xIndex
                         if (xIndex >= 0 && this.renderChartCondition(settings)) {
                                 let labelsData = [...new Set(this.results.rows.map((row) => {
                                         return row[xIndex]
@@ -201,6 +290,7 @@ export default {
                                         let data = {}; let uniqueDimensions = {};
 
                                         let yIndex = this.getColumnIndex(s.dataColumn)
+                                        this.yIndices.push(yIndex)
                                         let dimIndex = this.getColumnIndex(s.dimension.dataColumn)
                                         this.results.rows.forEach((row) => {
 
@@ -264,7 +354,7 @@ export default {
                                                         },
                                                 }
 
-                                                
+
                                                 seriesDatum1.chartType = s.chartType
                                                 seriesDatum1.type = (s.chartType == 'funnel') ? 'funnel' : 'pie'
                                                 if (s.chartType === 'doughnut') {
@@ -343,7 +433,7 @@ export default {
 
                 setChartPosition(options) {
                         if (options.series && options.series.length / 2 > 1) {
-                                let guessedDiv = Math.floor(this.chartWidth / 250)
+                                let guessedDiv = Math.floor(this.chartWidth / 250) + 1
                                 let div = options.series.length / 2 > guessedDiv ? guessedDiv : options.series.length / 2
 
                                 options.series.forEach((s, i) => {
@@ -357,7 +447,7 @@ export default {
                                         } else {
                                                 xBase = (100 / (div + 1)) * ((j % div) + 1)
                                         }
-                                        const maxHeight = (this.chartHeight - 500) * (2 / (Math.ceil(options.series.length / div) + 2))
+                                        const maxHeight = (this.chartHeight - 300) * (2 / (Math.ceil(options.series.length / div) + 2))
                                         const maxWidth = this.chartWidth * (1 / ((2 * div) + 2))
                                         let baseRadius = Math.min(maxWidth, maxHeight) - 10
 

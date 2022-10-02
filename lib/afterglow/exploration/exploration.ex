@@ -147,8 +147,8 @@ defmodule AfterGlow.Explorations do
     dependencies =
       dependencies(table)
       |> Enum.map(fn dep ->
-        dep_column = Repo.get!(Column, dep[:column_id]) |> Repo.preload(:table) |> IO.inspect(label: "column")
-        dep_foreign_column = Repo.get!(Column, dep[:foreign_column_id]) |> Repo.preload(:table) |> IO.inspect(label: "column")
+        dep_column = Repo.get!(Column, dep[:column_id]) |> Repo.preload(:table)
+        dep_foreign_column = Repo.get!(Column, dep[:foreign_column_id]) |> Repo.preload(:table) 
         dep_table = Repo.get(Table, dep[:id]) 
         value_column = column |> Repo.preload(:table)
 

@@ -7,6 +7,9 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: 'questions/:id', component: () => import('pages/questionsPage.vue') }, 
       { path: 'questions/new', component: () => import('pages/questionsPage.vue') }, 
+      { path: '/data_references/databases/:database_id/tables/:table_id/explore', component: () => import('pages/questionsPage.vue') }, 
+      { path: 'dashboards/:id', component: () => import('pages/dashboardPage.vue') }, 
+
     ],
   },
 
@@ -19,3 +22,4 @@ const routes: RouteRecordRaw[] = [
 ];
 
 export default routes;
+

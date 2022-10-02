@@ -4,25 +4,30 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Redshift do
   @time_fn_based_on_duration %{
     "seconds" => "getdate()",
     "minutes" => "getdate()",
-    "hours"  => "getdate()",
-    "days"  => "current_date",
-    "weeks"  => "current_date",
-    "months"  => "current_date",
-    "years"  => "current_date",
-    "quarters"  => "current_date",
+    "hours" => "getdate()",
+    "days" => "current_date",
+    "weeks" => "current_date",
+    "months" => "current_date",
+    "years" => "current_date",
+    "quarters" => "current_date"
   }
 
   def parse_filter_date_obj_value(val, dtt, dur) do
-    {val, duration} = case dur["value"] do
-                        "quarters" ->
-                          { (val |> String.to_integer)*3, "months"}
-                        _ ->
-                          {val , dur["value"]} 
-                      end
-    op = case dtt["value"] do
-           "ago" -> "-"
-           _ -> "+"
-         end
+    {val, duration} =
+      case dur["value"] do
+        "quarters" ->
+          {(val |> String.to_integer()) * 3, "months"}
+
+        _ ->
+          {val, dur["value"]}
+      end
+
+    op =
+      case dtt["value"] do
+        "ago" -> "-"
+        _ -> "+"
+      end
+
     "(#{@time_fn_based_on_duration[duration]} #{op} INTERVAL '#{val} #{duration}')"
   end
 
@@ -30,6 +35,36 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Redshift do
   def stringify_select(%{"name" => _name, "value" => "raw_data"}, []), do: "*"
   def stringify_select(%{"name" => _name, "value" => "raw_data"}, columns_required), do: "*"
   def stringify_select(%{"name" => _name, "value" => "count"}, columns_required), do: "count(*)"
+
+  def stringify_select(%{"agg" => "count of rows"}, columns_required),
+    do: "count(*) sep|rator as \"count_of_rows\""
+
+  def stringify_select(%{"agg" => "minimum of", "column" => column}, columns_required),
+    do: "min(#{column}) sep|rator as \"minimum_of_#{column}\""
+
+  def stringify_select(%{"agg" => "maximum of", "column" => column}, columns_required),
+    do: "max(#{column}) sep|rator as \"max_of_#{column}\""
+
+  def stringify_select(%{"agg" => "average of", "column" => column}, columns_required),
+    do: "avg(#{column}) sep|rator as \"average_of_#{column}\""
+
+  def stringify_select(%{"agg" => "sum of", "column" => column}, columns_required),
+    do: "sum(#{column}) sep|rator as \"sum_of_#{column}\""
+
+  def stringify_select(%{"agg" => "standard deviation", "column" => column}, columns_required),
+    do: "stddev(#{column})  sep|rator as \"standard_deviation_of_#{column}\""
+
+  def stringify_select(%{"agg" => "standard variance", "column" => column}, columns_required),
+    do: "variance(#{column})  sep|rator as \"variance_of_#{column}\""
+
+  def stringify_select(
+        %{"agg" => "percentile of", "column" => column, "value" => value},
+        columns_required
+      ),
+      do:
+        "percentile_cont(#{value / 100}) within group (order by #{column}) sep|rator as \"p#{
+          value
+        }_of_#{column}\""
 
   # def cast_group_by(el, nil),  do: el
   # def cast_group_by(el, "day"),  do: "DATE(CONCAT(year(#{el}),'-', month(#{el}), '-', day(#{el}), 'T00:00:00'))  sep|rator as \"#{el} by Day\""

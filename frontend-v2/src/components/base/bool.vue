@@ -20,6 +20,7 @@ export default {
                 updateValLocal() {
                         this.valLocal = !this.valLocal
                         this.$emit('updated', this.valLocal)
+                        this.$emit('update:val', this.valLocal)
                 }
         },
 

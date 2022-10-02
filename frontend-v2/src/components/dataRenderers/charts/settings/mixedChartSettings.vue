@@ -1,8 +1,5 @@
 <template>
     <div class="tw-divide-y-2">
-        <div class=" tw-py-2 tw-px-2 tw-font-semibold tw-text-sm tw-text-primary">
-            Settings
-        </div>
         <div >
         <div class=" tw-py-2 tw-px-2">
             <AGInput @inputed="(val) => ((settingsLocal.title = val) || true) && (settingsLocal.manualUpdate = true)"

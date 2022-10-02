@@ -23,9 +23,11 @@ export default QuestionNewController.extend(ResultViewMixin, CanMixin, {
             results_view_settings: {resultsViewType: "table", numbers: [], dataColumns: [{}]},
         })
     }),
-    questionObserver: Ember.observer("question.database", function(){
-        if(this.get('question.human_sql.database') && this.get('question.human_sql.table')){
-            this.getResultsFunction(null)
+    questionObserver: Ember.observer("question.database", "vueResultPath", function(){
+        if(this.get('question.human_sql.database') && this.get('question.human_sql.table') && this.get('vueResultPath')){
+            setTimeout(()=> {
+              this.getResultsFunction(null)
+            }, 1000)
         }
     })
 })

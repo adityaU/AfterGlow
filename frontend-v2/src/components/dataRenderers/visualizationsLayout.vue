@@ -8,18 +8,18 @@
         <component :is="icon(viz.rendererType).icon" class="tw-inline-flex tw-my-auto"
           :class="icon(viz.rendererType).isIconRotated ? 'tw-rotate-90' : ''" size=14 />
         <span class="tw-ml-2 tw-capitalize" v-if="!viz.edit">{{ viz.name }}</span>
-        <span class="tw-ml-2 tw-capitalize tw-my-auto hover:tw-text-primary  group-hover:tw-visible" v-if="!viz.edit"
+        <span class="tw-ml-2 tw-capitalize tw-my-auto hover:tw-text-primary  group-hover:tw-visible" v-if="!viz.edit && (!viz.id || currentUser.canEditQuestion)"
           @click='(viz.edit = true) && focusInput(index)'>
           <EditIcon size=10 />
         </span>
-        <span class="tw-ml-2 tw-capitalize tw-my-auto hover:tw-text-primary  group-hover:tw-visible" v-if="!viz.edit"
+        <span class="tw-ml-2 tw-capitalize tw-my-auto hover:tw-text-primary  group-hover:tw-visible" v-if="!viz.edit && (!viz.id || currentUser.canEditQuestion)"
           @click="$emit('deleteViz', index)">
           <XIcon size=10 />
         </span>
 
         <span class="tw-ml-2" v-if="viz.edit">
           <BaseInput invisible=true :value="viz.name" @inputed="(val) => viz.name = val" @keyup.enter="viz.edit = false"
-            :ref="'input_' + index" class="tw-bg-transparent" placeholder="A Meaningful name" />
+            :ref="'input_' + index" class="tw-bg-transparent" placeholder="A Meaningful name" @click="stopPropagation" />
         </span>
         <span class="tw-ml-2 tw-capitalize tw-my-auto hover:tw-text-primary" v-if="viz.edit" @click='viz.edit = false'>
           <CheckIcon size=10 />
@@ -38,9 +38,12 @@
 <script>
 import { _ } from 'lodash'
 import { rendererTypeIcons } from 'src/helpers/rendererConfig'
+import { currentUserStore } from 'src/stores/currentUser'
 
 import { PlusIcon, EditIcon, CheckIcon, XIcon } from 'vue-tabler-icons'
 import BaseInput from 'components/base/input.vue'
+
+const currentUser = currentUserStore()
 export default {
   name: 'VisualizationLayout',
 
@@ -71,6 +74,7 @@ export default {
     const vizLocal = _.cloneDeep(this.visualizations.details)
     return {
       visualizationsLocal: vizLocal,
+      currentUser: currentUser
     }
   },
 

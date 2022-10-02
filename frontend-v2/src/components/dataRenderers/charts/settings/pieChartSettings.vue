@@ -1,8 +1,5 @@
 <template>
     <div class="tw-divide-y-2">
-        <div class="tw-w-full tw-py-2 tw-px-2 tw-font-semibold tw-text-primary tw-text-sm">
-            Settings
-        </div>
         <div>
             <div class="tw-w-full tw-py-2 tw-px-2">
                 <AGInput class="tw-w-full tw-mb-2"
@@ -11,8 +8,8 @@
             </div>
             <div class="tw-w-full tw-py-2 tw-px-2">
                 <AGSelect
-                    @select="(val) => ((settingsLocal.labels = val) || true) && (settingsLocal.manualUpdate = true)"
-                    :selected="settingsLocal.labels" :options="columns" label="Labels Column"
+                    @select="(val) => ((settingsLocal.labels = val) || true) && (settingsLocal.manualUpdate = true) && (menuSettings.xaxis=false)"
+                    :selected="settingsLocal.labels" :options="columns" label="Labels Column" :menuShow="menuSettings.xaxis"
                     description="Select a column" />
             </div>
         </div>
@@ -132,7 +129,8 @@ export default {
             chartTypes: ['pie', 'doughnut', 'polar area'],
             titlePositions: ['top', 'bottom'],
             showConcentricRenderingOption: false,
-            settingsLocal: this.settings || this.newSettings()
+            settingsLocal: this.settings || this.newSettings(),
+            menuSettings: {}
         }
     },
 

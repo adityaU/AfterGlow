@@ -1,9 +1,35 @@
 import Ember from 'ember';
 
+import ENV from '../../../config/environment'
+
 import DynamicQueryParamsControllerMixin from 'frontend/mixins/dynamic-query-params-controller-mixin';
 export default Ember.Controller.extend(DynamicQueryParamsControllerMixin, {
   dashboard: Ember.computed.alias('model'),
   autoRefresh: false,
+  vueComponentsEnabled: true,
+  vueIframeID: "dashboardIframe",
+
+  dashboardIFrameID: 'vue-dashboard',
+  dashboardPath: Ember.computed('dashboard','dashboard.variables.content.isLoaded', function(){
+    let dashboard = this.get('dashboard')
+
+    let payload = {variables: [], iFrame: true}
+    if (dashboard.get('variables.content.isLoaded')){
+      const query_variables = dashboard.get('variables').map((item) => {
+        return {
+          name: item.get('name'),
+          value: item.get('value') || item.get('default'),
+          var_type: item.get('var_type'),
+          default_options: item.get('default_options')
+        };
+      })
+
+      payload = {variables: query_variables, iFrame: true}
+
+    }
+    return ENV.vueHost + '/frontend' +  window.location.pathname + "?payload=" + JSON.stringify(payload) + "&token=" + this.get('ajax.sessionService.token')
+
+  }),
 
   queryParamsVariables: Ember.computed.alias('dashboard.variables'),
 
@@ -92,6 +118,13 @@ export default Ember.Controller.extend(DynamicQueryParamsControllerMixin, {
 
   editModeObserver: Ember.observer('editMode', function () {
     this.set('dashboard.isEditing', this.get('editMode'));
+
+    if (document.getElementById(this.get('vueIframeID'))){
+      document.getElementById(this.get('vueIframeID')).contentWindow.postMessage({
+        message: 'ag_edit_dashboard',
+        value: this.get('editMode') 
+      }, '*');
+    }
   }),
   stopTimer: function () {
     Ember.run.cancel(this.get('timer'));
@@ -115,84 +148,119 @@ export default Ember.Controller.extend(DynamicQueryParamsControllerMixin, {
     }
   }),
   // setQuestionDashboardVariables() {
-  //     let questions = this.get('dashboard.questions');
-  //     questions && questions.forEach((item) => {
-  //         let variable = item.get('variables').findBy('name', this.get('name'));
-  //         variable && variable.set('value', this.get('value'));
-  //         variable && variable.set('default_options', this.get('default_options'));
-  //     });
-  // },
+    //     let questions = this.get('dashboard.questions');
+    //     questions && questions.forEach((item) => {
+      //         let variable = item.get('variables').findBy('name', this.get('name'));
+      //         variable && variable.set('value', this.get('value'));
+      //         variable && variable.set('default_options', this.get('default_options'));
+      //     });
+    // },
   refreshFunction() {
     this.changeQueryParamsInUrl(this.get('dashboard.variables'), this.get('dashboard.title'));
+
+    const variables = this.get('dashboard.variables').map((item) => {
+      return {
+        name: item.get('name'),
+        value: item.get('value') || item.get('default'),
+        var_type: item.get('var_type'),
+        default_options: item.get('default_options')
+      };
+    })
+
+    const payload = {iFrame: true, variables: variables}
+    if (this.get('vueIframeID')){
+      document.getElementById(this.get('vueIframeID')).contentWindow.postMessage({
+        message: 'ag_refresh_dashboard',
+        payload: JSON.stringify(payload)
+      }, '*');
+
+    }
     // this.setQuestionDashboardVariables();
-    let questions = this.get('dashboard.questions');
-    questions && questions.forEach((item) => {
-      item.set('resultsCanBeLoaded', true);
-      item.set('updated_at', new Date());
-    });
+    // let questions = this.get('dashboard.questions');
+    // questions && questions.forEach((item) => {
+      //   item.set('resultsCanBeLoaded', true);
+      //   item.set('updated_at', new Date());
+      // });
   },
   editMode: Ember.computed.alias('dashboard.isEditing'),
   actions: {
     editDashboard() {
       this.set('nonEditable', null);
       this.set('editMode', true);
+
     },
     addNewNote() {
       let dashboard = this.get('dashboard');
-      let note = this.store.createRecord('note', {
-        dashboard: this.get('dashboard')
-      });
-      note.set('isEditing', true);
-      dashboard.set('newNoteSettings', {
-        width: 24,
-        height: 14,
-        noMove: true
-      });
-      dashboard.set('newNote', note);
-      Ember.run.next(this, function () {
-        Ember.$('.grid-stack').data('gridstack').disable();
-      });
+      //
+        // let note = this.store.createRecord('note', {
+          //   dashboard: this.get('dashboard')
+          // });
+      // note.set('isEditing', true);
+      // dashboard.set('newNoteSettings', {
+        //   width: 24,
+        //   height: 14,
+        //   noMove: true
+        // });
+      // dashboard.set('newNote', note);
+      // Ember.run.next(this, function () {
+        //   Ember.$('.grid-stack').data('gridstack').disable();
+        // });
+      //
+        this.set('editMode', true);
+      if (document.getElementById(this.get('vueIframeID'))){
+        document.getElementById(this.get('vueIframeID')).contentWindow.postMessage({
+          message: 'ag_add_new_note',
+        }, '*');
+      }
     },
     saveDashboard() {
       let dashboard = this.get('dashboard');
-      let settings = {};
-      dashboard.get('questions').forEach((item) => {
-        let el = $('#js-question-' + item.get('id')).parents('.grid-stack-item');
-        settings[item.get('id')] = {
-          x: el.data('gs-x'),
-          y: el.data('gs-y'),
-          width: el.data('gs-width'),
-          height: el.data('gs-height')
-          // noMove: this.get('nonEditable'),
-          // noResize: this.get('nonEditable')
-        };
-      });
-      dashboard.set('settings', Ember.Object.create(settings));
-      settings = {};
-      dashboard.get('notes').forEach((item) => {
-        let el = $('#js-notes-' + item.get('id')).parents('.grid-stack-item');
+      if (document.getElementById(this.get('vueIframeID'))){
+        document.getElementById(this.get('vueIframeID')).contentWindow.postMessage({
+          message: 'ag_save_dashboard',
+        }, '*');
+      }
+      // let settings = {};
+      // dashboard.get('questions').forEach((item) => {
+        //   let el = $('#js-question-' + item.get('id')).parents('.grid-stack-item');
+        //   settings[item.get('id')] = {
+          //     x: el.data('gs-x'),
+          //     y: el.data('gs-y'),
+          //     width: el.data('gs-width'),
+          //     height: el.data('gs-height')
+          //     // noMove: this.get('nonEditable'),
+          //     // noResize: this.get('nonEditable')
+          //   };
+        // });
+      // dashboard.set('settings', Ember.Object.create(settings));
+      // settings = {};
+      // dashboard.get('notes').forEach((item) => {
+        //   let el = $('#js-notes-' + item.get('id')).parents('.grid-stack-item');
+        //
+          //   settings[item.get('id')] = {
+            //     x: el.data('gs-x'),
+            //     y: el.data('gs-y'),
+            //     width: el.data('gs-width'),
+            //     height: el.data('gs-height')
+            //     // noMove: this.get('nonEditable'),
+            //     // noResize: this.get('nonEditable')
+            //   };
+        // });
 
-        settings[item.get('id')] = {
-          x: el.data('gs-x'),
-          y: el.data('gs-y'),
-          width: el.data('gs-width'),
-          height: el.data('gs-height')
-          // noMove: this.get('nonEditable'),
-          // noResize: this.get('nonEditable')
-        };
-      });
-      dashboard.set('notes_settings', Ember.Object.create(settings));
-      dashboard.save().then((response) => {
-        dashboard.get('variables').invoke('save');
-      }).then((variables) => {
-        this.set('nonEditable', 'yes');
-        this.set('editMode', false);
-        this.get('dashboard').save();
-      });
+      dashboard.get('variables').invoke('save');
+      this.set('editMode', false);
+      // dashboard.set('notes_settings', Ember.Object.create(settings));
+      // dashboard.save().then((response) => {
+        // }).then((variables) => {
+          //   this.set('nonEditable', 'yes');
+          //   this.set('editMode', false);
+          //   this.get('dashboard').save();
+          // });
     },
     cancelEditingDashboard() {
       this.set('nonEditable', 'yes');
       this.set('editMode', false);
+
     },
     showShareDialogue() {
       this.set('toggleShareModal', 'true');

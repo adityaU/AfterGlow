@@ -7,7 +7,7 @@ export default Ember.Component.extend({
       // do whatever you want to calculate your values
       //
       // this.set('my-frame-with', "600px");
-      iFrameResize({log: true, checkOrigin: false}, "#" + this.elementId + "> iframe")
+      iFrameResize({log: false, checkOrigin: false}, "#" + this.elementId + "> iframe")
 
     }
   }

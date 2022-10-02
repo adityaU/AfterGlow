@@ -142,7 +142,6 @@ defmodule AfterGlow.ApiActions do
   end
 
   def save_log(log_args) do
-    log_args |> IO.inspect(label: "log_args")
     ApiActionLogs.save(log_args)
     log_args
   end

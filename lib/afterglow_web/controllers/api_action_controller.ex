@@ -26,7 +26,6 @@ defmodule AfterGlow.ApiActionController do
       }) do
     prms =
       Params.to_attributes(data)
-      |> IO.inspect(label: "attributes")
 
     with {:ok, %ApiAction{} = api_action} <- ApiActions.create_api_action(prms) do
       api_action

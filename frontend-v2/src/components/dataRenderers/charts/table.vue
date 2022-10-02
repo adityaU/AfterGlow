@@ -10,6 +10,7 @@
             :key="column">
             <div class="tw-inline" v-if="column.type === 'column'">
             {{ column.name }}
+            <AGTHMenu :column="column.name" :showSorting="!results.additional_filters_applied" @addSorting="(sorting) => $emit('addSorting', sorting)"/>
             </div>
             <div class="tw-inline" v-if="column.type === 'apiAction'">
             {{ column.name }}
@@ -20,9 +21,9 @@
       </thead>
       <tbody>
         <tr class="tw-py-2 even:tw-bg-secondary" v-for="row in rows" :key="row">
-          <td class="tw-px-4 tw-py-2 tw-border-b" v-for="el in row" :key="el">
+          <td class="tw-px-4 tw-py-2 tw-border-b" v-for="el, index in row" :key="el">
             <div class="tw-inline" v-if="el.type === 'column'">
-            {{ el.value }}
+            <AGTDRenderer :colDetails="colDetails" isColumnObject=true :value="el.value" :columns="columns" :index="index" :showFilters="!results.additional_filters_applied" @addFilter="(filter) => $emit('addFilter', filter)"/>
             </div>
             <div class="tw-inline tw-uppercase"  v-if="el.type === 'apiAction'">
              <ApiActionLink :link="el" :queryKey="queryKey" />
@@ -39,11 +40,13 @@
   <script>
   import BaseTable from 'components/dataRenderers/charts/baseTable.vue'
   import ApiActionLink from 'components/apiActions/link.vue'
+  import AGTDRenderer from 'components/dataRenderers/charts/td/renderer.vue'
+  import AGTHMenu from 'components/dataRenderers/charts/th/menu.vue'
   export default {
     name: 'AGTable',
   
-    props: ['results', 'showSettings', 'settings', 'queryKey', 'visualizationID', 'questionID'],
-    components: { BaseTable, ApiActionLink }
+    props: ['results', 'showSettings', 'settings', 'queryKey', 'visualizationID', 'questionID', 'colDetails'],
+    components: { BaseTable, ApiActionLink, AGTDRenderer, AGTHMenu }
  
   }
   </script>

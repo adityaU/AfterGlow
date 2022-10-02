@@ -1,8 +1,5 @@
 <template>
     <div class="tw-divide-y">
-        <div class="tw-w-full tw-py-4 tw-px-2 tw-font-semibold tw-text-default tw-text-sm">
-            Settings
-        </div>
 
         <div class="tw-w-full" v-if="settingsLocal">
             <draggable class="tw-divide-y" v-model="settingsLocal.columns" v-bind="dragOptions" @start="drag = true"

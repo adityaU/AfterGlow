@@ -87,7 +87,11 @@
         </div>
     </div>
     <div class="ui basic segment padded-content full no-top-margin"> {{variables-layer variables=dashboard.variables}}
-        {{dashboard-grid editing=editMode dashboard=dashboard }} </div>
+
+                    {{#if vueComponentsEnabled}}
+                    {{embeddable-vue-component vueIframeID=vueIframeID vueResultPath=dashboardPath minHeight=650}}
+                    {{/if}}
+        </div>
     {{delete-dialogue entityName="dashboard" open=toggleDeleteDialogue entity=dashboard delete="deleteDashboard"}}
     {{share-entity entityName="Dashboard" entity=dashboard open=toggleShareModal}}
     {{dashboard-select-variables dashboard=dashboard isEditing=editMode open=toggleDashboardVariablesModal}}

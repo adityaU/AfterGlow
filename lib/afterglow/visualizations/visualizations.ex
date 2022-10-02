@@ -39,14 +39,23 @@ defmodule AfterGlow.Visualizations.Visualizations do
     query_terms = get_in(visualization, ["queryTerms"]) || get_in(visualization, ["query_terms"])
     payload = rest |> Map.delete("visualization")
 
+    {visualization, query_terms} =
+      if !visualization && id do
+        viz = get(id) |> elem(1)
+        {viz, viz.query_terms}
+      else
+        {visualization, query_terms}
+      end
+
+
     query_terms = Conversions.convert(query_terms)
-    question_id = payload["question_id"]
 
     payload = payload |> Map.delete("id")
 
     if payload["database"] do
-      fetch_results(:direct, payload , id, query_terms, current_user)
+      fetch_results(:direct, payload, id, query_terms, current_user)
     else
+      question_id = payload["question_id"] || visualization.question_id
       variables = payload["variables"]
 
       fetch_results(
@@ -97,7 +106,7 @@ defmodule AfterGlow.Visualizations.Visualizations do
         {results, question.sql, additionalInfo}
 
       {:error, error} ->
-        {{:error, error}, question.sql,  %{query_terms_applied: false}}
+        {{:error, error}, question.sql, %{query_terms_applied: false}}
     end
   end
 end
