@@ -8,7 +8,9 @@ const routes: RouteRecordRaw[] = [
       { path: 'questions/:id', component: () => import('pages/questionsPage.vue') }, 
       { path: 'questions/new', component: () => import('pages/questionsPage.vue') }, 
       { path: '/data_references/databases/:database_id/tables/:table_id/explore', component: () => import('pages/questionsPage.vue') }, 
+      { path: '/data_references/databases/:database_id/tables', component: () => import('pages/questionsPage.vue') }, 
       { path: 'dashboards/:id', component: () => import('pages/dashboardPage.vue') }, 
+      { path: 'dashboards/:id/html', component: () => import('pages/dashboardHTMLPage.vue') }, 
 
     ],
   },

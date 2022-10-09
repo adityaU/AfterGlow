@@ -24,6 +24,7 @@ import { _ } from 'lodash'
 
 const newCompDefs = {
   'notes': AGNote,
+  'note': AGNote,
   'question': AGQues,
   'visualization': AGViz
 }
@@ -40,13 +41,7 @@ export default {
     return {
       compDefs: _.cloneDeep(newCompDefs),
       showRemoveFromDashboardModal: false,
-    }
-  },
-
-  computed: {
-
-    gridStackAttributes() {
-      return {
+      gridStackAttributes: {
         id: this.id,
         "gs-id": this.id,
         "gs-x": this.x,
@@ -56,7 +51,6 @@ export default {
       }
     }
   },
-
 }
 </script>
 <style scoped>

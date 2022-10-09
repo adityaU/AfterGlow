@@ -20,7 +20,7 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
   end
 
   def opts do
-    [timeout: 1_200_000, pool: DBConnection.Poolboy, pool_timeout: 1_200_000]
+    [timeout: 172800000, pool: DBConnection.Poolboy, pool_timeout: 1_200_000]
   end
 
   def stream_opts do
@@ -161,7 +161,7 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/},
       {:ok, _, results} ->
         columns = results.columns
 
-        case DBConnection.execute(conn, %ODBC.Query{statement: wrapped_query}, []) do
+        case DBConnection.execute(conn, %ODBC.Query{statement: wrapped_query}, [], opts()) do
           {:ok, _, results} ->
             rows =
               results.rows

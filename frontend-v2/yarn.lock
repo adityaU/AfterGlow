@@ -1810,10 +1810,10 @@
   "resolved" "https://registry.npmjs.org/grapheme-splitter/-/grapheme-splitter-1.0.4.tgz"
   "version" "1.0.4"
 
-"gridstack@^6.0.2":
-  "integrity" "sha512-23Tzimg7sKglCO+3U4HZwTOg9rgIClDwl4aEd4f7+ww0LppuknBorAht0AHz/TMLUsrNXeDxSGzgiaCkH2mHOA=="
-  "resolved" "https://registry.npmjs.org/gridstack/-/gridstack-6.0.2.tgz"
-  "version" "6.0.2"
+"gridstack@^6.0.3":
+  "integrity" "sha512-1ddtUXKkILK5xoiNhRpKCqIDPrQlXKu0rLwMQC9XjAwcFufFNxBJIK9IWcExFdweYtzqOx+M6qKnQaBZu52MEw=="
+  "resolved" "https://registry.npmjs.org/gridstack/-/gridstack-6.0.3.tgz"
+  "version" "6.0.3"
 
 "has-flag@^4.0.0":
   "integrity" "sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ=="

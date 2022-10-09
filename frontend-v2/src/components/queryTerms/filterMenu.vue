@@ -43,7 +43,7 @@
                                 <div class="tw-py-2 tw-px-2">
                                         <BaseInput :value="filterLocal.value"
                                                 @inputed="(val) => filterLocal.value = val" type="number" ref="option_0"
-                                                class="tw-p-2" />
+                                                 />
                                 </div>
                         </div>
                         <div class="" v-if="columnDataType == 'text'">
@@ -59,9 +59,10 @@
                                         <BoxSelect :options="datetimeValueTypes" :selected="filterLocal.value.type" class="tw-text-center" isTab=true
                                                 @selected="(val) => (filterLocal.value.type = val || true) && setDateTimeValueValue()" />
                                         <div class="" v-if="filterLocal.value.type === 'duration'">
+                                        <div class="tw-py-2">
                                                 <BaseInput :value="filterLocal.value.value.durationValue"
                                                         @inputed="(val) => filterLocal.value.value.durationValue = val"
-                                                        type="number" ref="option_0" placeholder="30" class="tw-p-2 tw-mt-2" />
+                                                        type="number" ref="option_0" placeholder="30" />
 
                                                 <BoxSelect :options="durationTypeOptions" class="tw-max-w-[400px]"
                                                         :selected="filterLocal.value.value.durationType"
@@ -71,6 +72,8 @@
                                                 <BoxSelect :options="durationTenseOptions"
                                                         :selected="filterLocal.value.value.durationTense"
                                                         @selected="(val) => filterLocal.value.value.durationTense = val" />
+
+                                        </div>
 
                                         </div>
                                         <div class="tw-inline-flex tw-mt-2" v-if="filterLocal.value.type === 'datepicker'">
@@ -83,12 +86,12 @@
                 <template #S4>
                         <div class="tw-py-2 tw-px-2">
                                 <BaseInput :value="filterLocal.value" @inputed="(val) => filterLocal.value = val"
-                                        type="text" ref="option_0" placeholder="joining_table.column = 'something'"
-                                        class="tw-p-2" />
+                                        type="text" ref="option_0" placeholder="lower(column) = 'value"
+                                        class="" />
                         </div>
                 </template>
                 <template #footer>
-                        <div class="tw-py-2 tw-px-2 tw-border-t" v-if="shouldShowAddFilter">
+                        <div class="tw-py-2 tw-px-2 tw-border-t tw-text-right" v-if="shouldShowAddFilter">
                                 <AGButton v-close-popup=10
                                         class="tw-bg-primary tw-border-primary tw-text-white hover:tw-bg-primary/80 hover:tw-text-white"
                                         @clicked="((filterLocal.showMenu = false) || true) && $emit('addFilter', filterLocal) && prevent">

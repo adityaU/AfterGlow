@@ -18,6 +18,17 @@ defmodule AfterGlow.Mailers.CsvMailer do
     deliver_now(Bamboo.SMTPAdapter, email, Mailers.config())
   end
 
+  def mail_generic(to, subject, html, text) do
+    email =
+      to
+      |> Mailers.define_mailer()
+      |> subject(subject)
+      |> html_body(html)
+      |> text_body(text)
+
+    deliver_now(Bamboo.SMTPAdapter, email, Mailers.config())
+  end
+
   defp mail_html_body(data_preview, link) do
     "Please download complete csv from <a href=#{link}>here</a> <br/> <br/> <table border='1' cellpadding='10' style='border-collapse:collapse; border-color: lightgray;'><thead><tr>" <>
       headers(data_preview) <> "</tr></thead><tbody>" <> body(data_preview) <> "</tbody></table>"

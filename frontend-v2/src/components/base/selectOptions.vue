@@ -1,7 +1,7 @@
 <template>
         <div class="" @keydown="onKeydown" tabindex="0">
                 <div class="tw-py-1 tw-px-2" v-if="!hideSearch">
-                        <BaseInput :value="query" @inputed="(val) => query = val" ref="option_0" class="tw-p-2" />
+                        <BaseInput :value="query" @inputed="(val) => query = val" ref="option_0" />
                 </div>
                 <div class="card tw-grid tw-grid-cols-1 tw-divider-y">
                         <a href="#" @click="select(el)" :tabindex="index + 1"

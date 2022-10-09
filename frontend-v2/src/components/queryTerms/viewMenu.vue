@@ -55,25 +55,28 @@
                         <div class="tw-py-2 tw-px-2" v-if="viewLocal.agg === 'percentile of'">
                                 <div class="tw-text-sm tw-font-semibold">Percentile Value: </div>
                                 <BaseInput :value="viewLocal.value" @inputed="(val) => viewLocal.value = val"
-                                        placeholder="Percentile value" type="number" ref="option_0" class="tw-p-2" />
+                                        placeholder="Percentile value" type="number" ref="option_0" class="" />
                         </div>
                         <div class="tw-py-2 ">
                                 <div class="tw-px-2 tw-text-sm tw-font-semibold"
                                         v-if="viewLocal.agg === 'percentile of'">Column: </div>
+                                <BoxSelect :options="countOfRowsApplicableColumns" :selected="viewLocal.column"
+                                        class="tw-max-w-[400px]"
+                                        @selected="(val) => ((viewLocal.column = val) || true)" v-if="viewLocal.agg === 'count of rows'" />
                                 <BoxSelect :options="numberColumns" :selected="viewLocal.column"
                                         class="tw-max-w-[400px]"
-                                        @selected="(val) => ((viewLocal.column = val) || true)" />
+                                        @selected="(val) => ((viewLocal.column = val) || true)" v-if="viewLocal.agg != 'count of rows'" />
                         </div>
                 </template>
                 <template #S3>
                         <div class="tw-py-2 tw-px-2">
                                 <BaseInput :value="viewLocal.value" @inputed="(val) => viewLocal.value = val"
-                                        type="text" ref="option_0" placeholder="joining_table.column = 'something'"
-                                        class="tw-p-2" />
+                                        type="text" ref="option_0" placeholder="count(distinct id)"
+                                        class="" />
                         </div>
                 </template>
                 <template #footer>
-                        <div class="tw-py-2 tw-px-2 tw-border-t" v-if="shouldShowAddView">
+                        <div class="tw-py-2 tw-px-2 tw-border-t tw-text-right" v-if="shouldShowAddView">
                                 <AGButton v-close-popup=10
                                         class="tw-bg-primary tw-border-primary tw-text-white hover:tw-bg-primary/80 hover:tw-text-white"
                                         @clicked="((viewLocal.showMenu = false) || true) && $emit('addView', viewLocal) && stopPropagation">
@@ -132,6 +135,9 @@ export default {
                         viewLocal: this.view || _.cloneDeep(newView),
                         viewTypeOptions: ['columns', 'aggregation'].map((item) => { return { name: item, value: item } }),
                         aggregationOptions: ['count of rows', 'minimum of', 'maximum of', 'sum of', 'average of', 'percentile of', 'standard deviation', 'standard variance'].map((item) => { return { name: item, value: item } }),
+                        countOfRowsApplicableColumns: ['all', ...(this.columns || [])].map((x) => {
+                        return {name: x, value: x}
+                        }),
                         stages: [
                                 { name: "S1" },
                                 { name: "S2" },

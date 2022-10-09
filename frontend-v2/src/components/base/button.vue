@@ -1,5 +1,5 @@
 <template>
-  <button class="tw-text-center tw-rounded-sm tw-px-2 tw-py-1 tw-border" @click="handleClick">
+  <button class="tw-text-center tw-rounded-sm tw-px-2 tw-py-1 tw-border tw-font-semibold" @click="handleClick">
   <slot />
   </button>
 </template>

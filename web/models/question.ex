@@ -26,6 +26,7 @@ defmodule AfterGlow.Question do
     field(:is_shareable_link_public, :boolean)
     field(:columns, {:array, :string})
     field(:shared_to, {:array, :string})
+    field(:config, :map)
     belongs_to(:owner, User, foreign_key: :owner_id)
 
     many_to_many(
@@ -90,7 +91,8 @@ defmodule AfterGlow.Question do
       :results_view_settings,
       :columns,
       :shared_to,
-      :owner_id
+      :owner_id,
+      :config
     ])
     |> cast_assoc(:variables)
     |> validate_required([

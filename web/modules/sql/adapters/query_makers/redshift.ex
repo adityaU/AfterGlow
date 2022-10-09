@@ -36,35 +36,38 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Redshift do
   def stringify_select(%{"name" => _name, "value" => "raw_data"}, columns_required), do: "*"
   def stringify_select(%{"name" => _name, "value" => "count"}, columns_required), do: "count(*)"
 
-  def stringify_select(%{"agg" => "count of rows"}, columns_required),
-    do: "count(*) sep|rator as \"count_of_rows\""
+  def stringify_select(%{"agg" => "count of rows", "column" => nil}, columns_required),
+    do: "count(*) sep|rator as \"count of rows\""
+
+  def stringify_select(%{"agg" => "count of rows", "column" => column}, columns_required),
+    do: ~s/count(distinct "#{column}") sep|rator as "count of #{column}"/
 
   def stringify_select(%{"agg" => "minimum of", "column" => column}, columns_required),
-    do: "min(#{column}) sep|rator as \"minimum_of_#{column}\""
+    do: ~s/min("#{column}") sep|rator as "minimum of #{column}"/
 
   def stringify_select(%{"agg" => "maximum of", "column" => column}, columns_required),
-    do: "max(#{column}) sep|rator as \"max_of_#{column}\""
+    do: ~s/max("#{column}") sep|rator as "max of #{column}"/
 
   def stringify_select(%{"agg" => "average of", "column" => column}, columns_required),
-    do: "avg(#{column}) sep|rator as \"average_of_#{column}\""
+    do: ~s/avg("#{column}") sep|rator as "average of #{column}"/
 
   def stringify_select(%{"agg" => "sum of", "column" => column}, columns_required),
-    do: "sum(#{column}) sep|rator as \"sum_of_#{column}\""
+    do: ~s/sum("#{column}") sep|rator as "sum of #{column}"/
 
   def stringify_select(%{"agg" => "standard deviation", "column" => column}, columns_required),
-    do: "stddev(#{column})  sep|rator as \"standard_deviation_of_#{column}\""
+    do: ~s/stddev("#{column}")  sep|rator as "standard deviation of #{column}"/
 
   def stringify_select(%{"agg" => "standard variance", "column" => column}, columns_required),
-    do: "variance(#{column})  sep|rator as \"variance_of_#{column}\""
+    do: ~s/variance("#{column}")  sep|rator as "variance of #{column}"/
 
   def stringify_select(
         %{"agg" => "percentile of", "column" => column, "value" => value},
         columns_required
       ),
       do:
-        "percentile_cont(#{value / 100}) within group (order by #{column}) sep|rator as \"p#{
+        ~s/percentile_cont(#{value / 100}) within group (order by #{column}) sep|rator as \"P#{
           value
-        }_of_#{column}\""
+        } of #{column}"/
 
   # def cast_group_by(el, nil),  do: el
   # def cast_group_by(el, "day"),  do: "DATE(CONCAT(year(#{el}),'-', month(#{el}), '-', day(#{el}), 'T00:00:00'))  sep|rator as \"#{el} by Day\""

@@ -54,74 +54,74 @@ export default DS.Model.extend(ResultViewMixin, {
   },
 
 
-  cachedResults: Ember.on('didLoad', Ember.observer('api_action.isLoaded', 'updated_at', 'resultsCanBeLoaded', 'cached_results', function () {
-    if (this.get('resultsCanBeLoaded') && !this.get('loading')) {
-      this.set('loading', true);
-      this.set('results', null);
-      let variables = this.get('query_variables');
-      variables = variables && variables.map((item) => {
-        return {
-          name: item.get('name'),
-          value: item.get('value') || item.get('default'),
-          var_type: item.get('var_type'),
-          default_options: item.get('default_options')
-        };
-      }).filter((item) => {
-        return item.hasOwnProperty('name') && item['name'];
-      });
-      if (this.get('query_type') == 'api_client' && this.get('api_action.isLoaded')) {
-        this.resultsCall({
-          variables: variables,
-          additionalFilters: this.get('human_sql.additionalFilters')
-        }).then((response) => {
-          let results = this.parseApiActionResult(response.data, this.get('api_action'))
-          this.set('results', results);
-          this.set('cached_results', results);
-
-          this.set('loading', false);
-          this.set('resultsCanBeLoaded', false);
-          this.set('errorMessage', null);
-          // }).then((error)=>{
-          //     this.set('resultError', error.error)
-          //     this.set("loading", false)
-          // })
-        }).catch((error) => {
-          this.set('errorMessage', 'Query could not be completed. Please check filters.');
-          this.set('loading', false);
-          this.set('results', null);
-          this.set('cached_results', null);
-          this.set('resultsCanBeLoaded', false);
-        });
-
-      } else if (this.get('query_type') != 'api_client') {
-
-        this.resultsCall({
-          variables: variables,
-          additionalFilters: this.get('human_sql.additionalFilters')
-        }).then((response) => {
-          this.set('results', response.data);
-          this.set('cached_results', response.data);
-          this.set('loading', false);
-          this.set('resultsCanBeLoaded', false);
-          this.set('errorMessage', null);
-          // }).then((error)=>{
-          //     this.set('resultError', error.error)
-          //     this.set("loading", false)
-          // })
-        }).catch((error) => {
-          this.set('errorMessage', 'Query could not be completed. Please check filters.');
-          this.set('loading', false);
-          this.set('results', null);
-          this.set('cached_results', null);
-          this.set('resultsCanBeLoaded', false);
-        });
-      } else {
-        this.set('loading', false);
-      }
-    } else if (!this.get('errorMessage') && !this.get('loading')) {
-      this.set('results', this.get('cached_results'));
-    }
-  })),
+  // cachedResults: Ember.on('didLoad', Ember.observer('api_action.isLoaded', 'updated_at', 'resultsCanBeLoaded', 'cached_results', function () {
+  //   if (this.get('resultsCanBeLoaded') && !this.get('loading')) {
+  //     this.set('loading', true);
+  //     this.set('results', null);
+  //     let variables = this.get('query_variables');
+  //     variables = variables && variables.map((item) => {
+  //       return {
+  //         name: item.get('name'),
+  //         value: item.get('value') || item.get('default'),
+  //         var_type: item.get('var_type'),
+  //         default_options: item.get('default_options')
+  //       };
+  //     }).filter((item) => {
+  //       return item.hasOwnProperty('name') && item['name'];
+  //     });
+  //     if (this.get('query_type') == 'api_client' && this.get('api_action.isLoaded')) {
+  //       this.resultsCall({
+  //         variables: variables,
+  //         additionalFilters: this.get('human_sql.additionalFilters')
+  //       }).then((response) => {
+  //         let results = this.parseApiActionResult(response.data, this.get('api_action'))
+  //         this.set('results', results);
+  //         this.set('cached_results', results);
+  //
+  //         this.set('loading', false);
+  //         this.set('resultsCanBeLoaded', false);
+  //         this.set('errorMessage', null);
+  //         // }).then((error)=>{
+  //         //     this.set('resultError', error.error)
+  //         //     this.set("loading", false)
+  //         // })
+  //       }).catch((error) => {
+  //         this.set('errorMessage', 'Query could not be completed. Please check filters.');
+  //         this.set('loading', false);
+  //         this.set('results', null);
+  //         this.set('cached_results', null);
+  //         this.set('resultsCanBeLoaded', false);
+  //       });
+  //
+  //     } else if (this.get('query_type') != 'api_client') {
+  //
+  //       this.resultsCall({
+  //         variables: variables,
+  //         additionalFilters: this.get('human_sql.additionalFilters')
+  //       }).then((response) => {
+  //         this.set('results', response.data);
+  //         this.set('cached_results', response.data);
+  //         this.set('loading', false);
+  //         this.set('resultsCanBeLoaded', false);
+  //         this.set('errorMessage', null);
+  //         // }).then((error)=>{
+  //         //     this.set('resultError', error.error)
+  //         //     this.set("loading", false)
+  //         // })
+  //       }).catch((error) => {
+  //         this.set('errorMessage', 'Query could not be completed. Please check filters.');
+  //         this.set('loading', false);
+  //         this.set('results', null);
+  //         this.set('cached_results', null);
+  //         this.set('resultsCanBeLoaded', false);
+  //       });
+  //     } else {
+  //       this.set('loading', false);
+  //     }
+  //   } else if (!this.get('errorMessage') && !this.get('loading')) {
+  //     this.set('results', this.get('cached_results'));
+  //   }
+  // })),
 
   mergedVariables: Ember.computed('dashboardVariables.@each', 'query_variables', function () {
     this.get('dashboardVariables') && this.get('dashboardVariables').forEach((item) => {

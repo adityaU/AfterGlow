@@ -90,6 +90,8 @@ defmodule AfterGlow.Router do
 
     post("/teams/:id/remove_user", TeamController, :remove_user)
     post("/teams/:id/remove_database", TeamController, :remove_database)
+
+    get("dashboards/:id/html", HTMLDashoardController, :get)
   end
 
   # Other scopes may use custom stacks.

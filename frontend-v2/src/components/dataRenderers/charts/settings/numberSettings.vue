@@ -52,11 +52,19 @@
         </div>
         </div>
         <div v-if="settingsCategory === 'Trend'">
-        <div class="tw-w-full tw-py-2  tw-px-2">
+        <div class="tw-w-full tw-py-2  tw-px-2" v-if="!settingsLocal.trendFromNextRow">
             <AGSelect class="tw-w-full tw-mb-2"
                 @select="(val) => ((settingsLocal.trendColumn = val) || true) && $emit('settings', settingsLocal)"
                 :selected="settingsLocal.trendColumn" :options="numberColumns" label="Trend Column"
                 description="Select a column" />
+        </div>
+        <div class="tw-w-full tw-py-2  tw-px-2">
+            <AGBool class="tw-w-full tw-mb-2"
+                @updated="(val) => ((settingsLocal.trendFromNextRow = val) || true) && $emit('settings', settingsLocal)"
+                :val="settingsLocal.trendFromNextRow" label="Pick from next row of data column" />
+            <div class="tw-text-sm">
+            Note: last value in data column will be ignored as there won't be any trend to show. 
+            </div>
 
         </div>
 

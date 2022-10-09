@@ -28,7 +28,7 @@
     "axios": "^0.21.1",
     "echarts": "^5.3.3",
     "fitty": "^2.3.6",
-    "gridstack": "^6.0.2",
+    "gridstack": "^6.0.3",
     "lodash": "^4.17.21",
     "numeral": "^2.0.6",
     "pinia": "^2.0.11",

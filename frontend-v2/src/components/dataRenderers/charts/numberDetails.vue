@@ -9,9 +9,10 @@
 </style>
 <template>
         <!-- <div v-for="datum, j in row" :key="datum" class="tw-col-span-2"> -->
-        <div class="tw-border tw-rounded tw-break-inside-avoid-column tw-px-16 tw-py-8 tw-flex tw-flex-col tw-justify-center tw-items-center">
+        <div
+                class="tw-border tw-rounded tw-break-inside-avoid-column tw-px-16 tw-py-8 tw-flex tw-flex-col tw-justify-center tw-items-center">
 
-                <div class="tw-flex tw-text-center tw-justify-center tw-items-baseline">
+                <div class="tw-flex tw-text-center tw-justify-center tw-items-end tw-whitespace-nowrap">
                         <div>
                                 <div class="tw-inline font-transition  tw-text-black/80">{{ settings.dataPrefix }}
                                 </div>
@@ -24,28 +25,30 @@
                                         {{ settings.dataSuffix }}
                                 </div>
                         </div>
-                        <div class="tw-flex font-transition font-trend tw-items-center tw-justify-start tw-flex-[0]"
-                                v-if="settings.trendColumn">
-                                <div class="tw-ml-3">
-                                        {{ settings.trendPrefix }}
-                                        {{ formatNumber(precise(data.referenceValues[index], settings.trendPrecision),
-                                                        settings.trendFormat)
-                                        }}{{ settings.trendSuffix || '%' }}
-                                </div>
-                                <div>
-                                        <ArrowDownIcon class="tw-stroke-red-500" v-if="data.referenceValues[index] < 0"
-                                                size=14 />
-                                        <ArrowUpIcon class="tw-stroke-green-500" v-if="data.referenceValues[index] > 0"
-                                                size=14 />
-                                        <MenuIcon class="tw-stroke-blue-500" v-if="data.referenceValues[index] === 0"
-                                                size=14 />
+                </div>
 
-                                </div>
+                <div class="tw-flex font-transition font-trend tw-items-center tw-justify-start tw-flex-[0] tw-whitespace-nowrap"
+                        v-if="data.referenceValues">
+                        <div class="tw-ml-3">
+                                {{ settings.trendPrefix }}
+                                {{ formatNumber(precise(data.referenceValues[index], settings.trendPrecision),
+                                                settings.trendFormat)
+                                }}{{ settings.trendSuffix || '%' }}
+                        </div>
+                        <div>
+                                <ArrowDownIcon class="tw-stroke-red-500" v-if="data.referenceValues[index] < 0"
+                                        size=14 />
+                                <ArrowUpIcon class="tw-stroke-green-500" v-if="data.referenceValues[index] > 0"
+                                        size=14 />
+                                <MenuIcon class="tw-stroke-blue-500" v-if="data.referenceValues[index] === 0" size=14 />
+
                         </div>
                 </div>
-                <div class="text-center tw-whitespace-nowrap tw-flex-[0]" v-if="settings.subtitleColumn">
+                <div class="text-center tw-whitespace-nowrap tw-flex-[0]"
+                        v-if="settings.subtitleColumn && data.subtitles">
 
-                        <AGTDRenderer :colDetails="colDetails" isColumnObject=false :value="data.subtitles[index]" :columns="columns" :index="subtitleColumnIndex" showFilters=false hideMenu=true />
+                        <AGTDRenderer :colDetails="colDetails" isColumnObject=false :value="data.subtitles[index]"
+                                :columns="columns" :index="subtitleColumnIndex" showFilters=false hideMenu=true />
                 </div>
 
         </div>

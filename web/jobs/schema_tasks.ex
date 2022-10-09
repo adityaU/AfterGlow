@@ -161,16 +161,18 @@ defmodule AfterGlow.SchemaTasks do
 
   defp save_table_and_columns(record, db_id) do
     Repo.transaction(fn ->
-      {:ok, table} = insert_or_update_table(record, db_id)
-      new_columns = record["columns"]
+      if String.printable?(record["table_name"]) do
+        {:ok, table} = insert_or_update_table(record, db_id)
+        new_columns = record["columns"] |> Enum.filter(fn x -> String.printable?(x["name"]) end)
 
-      Repo.all(from(t in Column, where: t.table_id == ^table.id))
-      |> remove_extra_columns(new_columns)
+        Repo.all(from(t in Column, where: t.table_id == ^table.id))
+        |> remove_extra_columns(new_columns)
 
-      new_columns
-      |> Enum.map(fn x ->
-        insert_or_update_column(x, table.id)
-      end)
+        new_columns
+        |> Enum.map(fn x ->
+          insert_or_update_column(x, table.id)
+        end)
+      end
     end)
   end
 

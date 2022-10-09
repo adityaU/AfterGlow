@@ -55,8 +55,19 @@ defmodule AfterGlow.Settings.ApplicableSettings do
   def max_frontend_limit(user) do
     limit = get_by_applicablity_order("MAX_FRONTEND_LIMIT", user)
 
+    limit = parse_integer(limit)
     if !limit || limit > 2000, do: 2000, else: limit
   end
+
+  defp parse_integer(limit) when is_nil(limit), do: nil
+  defp parse_integer(limit) when is_binary(limit) do
+    case parsed = Integer.parse(limit) do
+    :error -> nil
+    _ -> parsed |> elem(0)
+    end
+  end
+
+  defp parse_integer(limit) when is_integer(limit), do: limit
 
   def max_download_limit(user) do
     get_by_applicablity_order("MAX_DOWNLOAD_LIMIT", user)

@@ -46,12 +46,12 @@
                 <template #S3>
                         <div class="tw-py-2 tw-px-2">
                                 <BaseInput :value="sortingLocal.value" @inputed="(val) => sortingLocal.value = val"
-                                        type="text" ref="option_0" placeholder="joining_table.column = 'something'"
-                                        class="tw-p-2" />
+                                        type="text" ref="option_0" placeholder="1 desc"
+                                        class="" />
                         </div>
                 </template>
                 <template #footer>
-                        <div class="tw-py-2 tw-px-2 tw-border-t" v-if="shouldShowAddsorting">
+                        <div class="tw-py-2 tw-px-2 tw-border-t tw-text-right" v-if="shouldShowAddsorting">
                                 <AGButton v-close-popup=10
                                         class="tw-bg-primary tw-border-primary tw-text-white hover:tw-bg-primary/80 hover:tw-text-white"
                                         @clicked="((sortingLocal.showMenu = false) || true) && $emit('addsorting', sortingLocal) && stopPropagation">

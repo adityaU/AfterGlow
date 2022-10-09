@@ -24,7 +24,7 @@
                         </AGButton>
                         <AGButton
                             class="tw-text-white hover:tw-bg-primary/80 disabled:tw-bg-secondary disabled:tw-text-default tw-bg-primary tw-ml-2 tw-p-2"
-                            @clicked="$emit('removeWidget', widgetID)">
+                            @clicked="($emit('removeWidget', widgetID) || true) && $emit('update:open', false)">
                             Yes, Remove
                         </AGButton>
                     </div>

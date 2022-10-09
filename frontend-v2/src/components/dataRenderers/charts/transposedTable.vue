@@ -7,8 +7,8 @@
           v-for="el, i in row" :key="el">
             <div class="tw-inline" v-if="el.type === 'column'">
 
-            <AGTDRenderer :colDetails="colDetails" isColumnObject=true :value="el.value" :columns="columns" :index="index" :showFilters="!results.additional_filters_applied" @addFilter="(filter) => $emit('addFilter', filter)" v-if="i !=0"/>
-            <AGTHMenu :column="el.name" :showSorting="!results.additional_filters_applied" @addSorting="(sorting) => $emit('addSorting', sorting)" v-if="i === 0"/>
+            <AGTDRenderer :colDetails="colDetails" isColumnObject=true :value="el.value" :columns="columns" :index="index" :showFilters="!onDashboard && !results.additional_filters_applied" @addFilter="(filter) => $emit('addFilter', filter)" v-if="i !=0"/>
+            <AGTHMenu :column="el.name" :showSorting="!onDashboard && !results.additional_filters_applied" @addSorting="(sorting) => $emit('addSorting', sorting)" v-if="i === 0"/>
             {{i == 0 ? el.name : ''}}
             </div>
             <div class="tw-inline" v-if="el.type === 'apiAction'"> 
@@ -32,7 +32,7 @@ import AGTDRenderer from 'components/dataRenderers/charts/td/renderer.vue'
 import AGTHMenu from 'components/dataRenderers/charts/th/menu.vue'
 export default {
   name: 'AGTransposedTable',
-  props: ["results", "showSettings", "queryKey", "colDetails"],
+  props: ["results", "showSettings", "queryKey", "colDetails", "onDashboard"],
   components: {BaseTable, ApiActionLink, AGTDRenderer, AGTHMenu}
 }
 </script>

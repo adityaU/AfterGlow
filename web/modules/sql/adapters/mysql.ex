@@ -13,13 +13,12 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
     DBConnection.start_link(AfterGlow.ODBC.Protocol,
       conn_str: connection_string,
       pool: DBConnection.ConnectionPool,
-      pool_size: 10,
-      show_sensitive_data_on_connection_error: true
+      pool_size: 50
     )
   end
 
   def opts do
-    [timeout: 1_200_000, pool: DBConnection.Poolboy, pool_timeout: 1_200_000]
+    [timeout: 172_800_000, pool: DBConnection.Poolboy, pool_timeout: 1_200_000]
   end
 
   def stream_opts do
@@ -39,7 +38,7 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
   FROM
     INFORMATION_SCHEMA.KEY_COLUMN_USAGE
   WHERE
-  REFERENCED_TABLE_SCHEMA = DATABASE()/}, [])
+  REFERENCED_TABLE_SCHEMA = DATABASE()/}, [], opts())
 
     result.rows
     |> Enum.map(fn row ->
@@ -56,7 +55,7 @@ FROM
    information_schema.columns
 WHERE
    column_key = 'PRI'
-   and table_schema = DATABASE()/}, [])
+   and table_schema = DATABASE()/}, [],opts())
 
     result.rows
     |> Enum.map(fn row ->
@@ -68,7 +67,7 @@ WHERE
     {:ok, _, data} =
       DBConnection.execute(conn, %ODBC.Query{statement: "select table_name as table_name,
     column_name as name, column_type as data_type from information_schema.columns where
-    table_schema = DATABASE() order by table_name,ordinal_position"}, [])
+    table_schema = DATABASE() order by table_name,ordinal_position"}, [], opts() )
 
     {:ok,
      data.rows
@@ -141,7 +140,7 @@ WHERE
   end
 
   defp run_query(conn, _query, exec_query, limited, frontend_limit) do
-    case DBConnection.execute(conn, %ODBC.Query{statement: exec_query}, []) do
+    case DBConnection.execute(conn, %ODBC.Query{statement: exec_query}, [], opts() ) do
       {:ok, _, results} ->
         {:ok,
          %{

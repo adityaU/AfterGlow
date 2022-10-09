@@ -6,7 +6,9 @@
 @tailwind components;
 @tailwind utilities;
 
-
+* {
+  box-sizing: border-box;
+}
 @layer base {
   .tw-inset-shadow{
     @apply tw-shadow-[inset_0_0px_2px_0px]
@@ -51,11 +53,8 @@
   .input-no-border:focus-visible { @apply tw-outline-0;}
 
   .splitpanes.pane-wrapper{
-    @apply tw-bg-secondary tw-my-[10px];
-    @apply tw-h-[calc(100%-50px)]  #{!important};
-  }
-  .pane {
-    @apply tw-h-[calc(100%-10px)] #{!important};
+    @apply tw-bg-secondary ;
+    @apply tw-h-full  #{!important};
   }
   .pane-left {
     @apply  tw-mr-1;
@@ -92,6 +91,10 @@
   }
   .ag-card{
     @apply tw-bg-white tw-border tw-rounded-sm
+  }
+
+  .note{
+    @apply tw-text-sm tw-text-default/80
   }
 
   .editor-content {
@@ -151,7 +154,7 @@
   }
 
   .font-trend {
-    font-size: clamp(0.5rem, 1vh, 1rem);
+    font-size: clamp(1rem, 1vh, 2rem);
   }
 
 }

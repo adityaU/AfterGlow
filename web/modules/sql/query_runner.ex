@@ -9,13 +9,15 @@ defmodule AfterGlow.Sql.QueryRunner do
   alias AfterGlow.Column
   alias AfterGlow.Settings.ApplicableSettings
 
+  alias AfterGlow.ResultsCache.QueryFunctions, as: ResultsCache
+
   alias AfterGlow.AuditLogs.AuditLogs
   alias AfterGlow.AuditLogs.AuditLog
   import Ecto.Query, only: [from: 2]
   import IEx.Info, only: [info: 1]
 
   def run(params, current_user) do
-   run(params, current_user, nil, %{})
+    run(params, current_user, nil, %{})
   end
 
   def make_question_query(params) do
@@ -30,11 +32,7 @@ defmodule AfterGlow.Sql.QueryRunner do
     db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
     limit = if limit, do: limit, else: ApplicableSettings.max_frontend_limit(current_user)
 
-    tracking_details = if get_in(tracking_details, [:no_tracking]) do
-      nil
-    else
-      %{current_user: current_user} |> Map.merge(tracking_details)
-    end
+    tracking_details = %{current_user: current_user} |> Map.merge(tracking_details)
 
     {query, results} =
       case params["queryType"] do
@@ -52,9 +50,10 @@ defmodule AfterGlow.Sql.QueryRunner do
             |> permit_params
             |> permit_prms_raw_query(params["rawQuery"])
 
-          run_raw_query(db_record, permit_prms, limit, tracking_details )
+          run_raw_query(db_record, permit_prms, limit, tracking_details)
       end
-      {query, results}
+
+    {query, results}
   end
 
   def make_final_query(db_record, params, question_variables) do
@@ -75,8 +74,46 @@ defmodule AfterGlow.Sql.QueryRunner do
   def run_raw_query(db_record, params, question_variables, frontend_limit, tracking_details) do
     {variables_replaced_query, query} = make_final_query(db_record, params, question_variables)
 
-    {time, results} =
-      :timer.tc(&DbConnection.execute/3, [db_record |> Map.from_struct(), query, frontend_limit])
+    {time, updated_at, cached_until, from_cache, results} =
+      if tracking_details && tracking_details[:expire_after] && tracking_details[:cache_key] &&
+           tracking_details[:expire_after] != 0 do
+        {updated_at, cached_until, results} = ResultsCache.get_by(tracking_details[:cache_key], query)
+
+        if results do
+          {0, updated_at, cached_until, true, {:ok, results}}
+        else
+          {time, results} =
+            :timer.tc(&DbConnection.execute/3, [
+              db_record |> Map.from_struct(),
+              query,
+              frontend_limit
+            ])
+
+          case results do
+            {:ok, results} ->
+              ResultsCache.set_async(
+                tracking_details[:cache_key],
+                query,
+                tracking_details[:expire_after],
+                results
+              )
+
+            _ ->
+              :pass
+          end
+
+          {time, nil, nil,  false, results}
+        end
+      else
+        {time, results} =
+          :timer.tc(&DbConnection.execute/3, [
+            db_record |> Map.from_struct(),
+            query,
+            frontend_limit
+          ])
+
+        {time, nil, nil, false, results}
+      end
 
     results =
       results
@@ -86,6 +123,7 @@ defmodule AfterGlow.Sql.QueryRunner do
       )
       |> Question.insert_final_query(query)
       |> insert_inferred_column_details()
+      |> set_from_cache(from_cache, updated_at, cached_until)
 
     cache_results(params, results, params[:raw_query])
 
@@ -103,7 +141,7 @@ defmodule AfterGlow.Sql.QueryRunner do
         nil
       end
 
-    if tracking_details && tracking_details[:current_user] do
+    if tracking_details && tracking_details[:current_user] && !tracking_details[:no_tracking] do
       AuditLogs.create_audit_log(%{
         whodunit: tracking_details[:current_user].id,
         additional_data:
@@ -113,6 +151,7 @@ defmodule AfterGlow.Sql.QueryRunner do
             |> Map.merge(%{query_time: time})
             |> Map.merge(%{fetched_rows: number_of_rows})
             |> Map.merge(%{error: queryError})
+            |> Map.merge(%{from_cache: from_cache})
             |> Map.delete(:current_user)
             |> Map.delete(:database)
           ),
@@ -123,10 +162,23 @@ defmodule AfterGlow.Sql.QueryRunner do
     {params[:raw_query], results}
   end
 
+  defp set_from_cache(results, from_cache, updated_at, cached_until) do
+    resMap = results |> elem(1)
+
+    results
+    |> Tuple.insert_at(
+      1,
+      resMap
+      |> Map.put(:from_cache, from_cache)
+      |> Map.put(:cache_updated_at, updated_at)
+      |> Map.put(:cached_until, cached_until)
+    )
+    |> Tuple.delete_at(2)
+  end
+
   def insert_inferred_column_details(results) do
     resMap = results |> elem(1)
     rows = resMap |> Map.get(:rows)
-
 
     if rows && rows |> length >= 1 do
       results
@@ -151,14 +203,16 @@ defmodule AfterGlow.Sql.QueryRunner do
         1,
         resMap
         |> Map.put(
-          :column_details, %{}))
-        |> Tuple.delete_at(2)
+          :column_details,
+          %{}
+        )
+      )
+      |> Tuple.delete_at(2)
     end
   end
 
   defp infer_data_type(rows, colIndex, rowIndex, possible_data_types, max_index_reached) do
     if possible_data_types |> length == 5 || max_index_reached do
-
       if possible_data_types |> Enum.uniq() |> length == 1 do
         possible_data_types |> Enum.at(0)
       else
@@ -167,7 +221,6 @@ defmodule AfterGlow.Sql.QueryRunner do
     else
       possible_data_types =
         if entry = rows |> Enum.at(rowIndex) |> Enum.at(colIndex) do
-
           possible_data_types ++
             [infer_dt(info(entry) |> Enum.into(%{}) |> Map.get("Data type"), entry)]
         else
@@ -213,7 +266,6 @@ defmodule AfterGlow.Sql.QueryRunner do
     uri = URI.parse(value)
     uri.scheme != nil && uri.host != nil
   end
-
 
   def run_query_from_object(db_record, params, frontend_limit, tracking_details) do
     permit_prms = permit_params(params)

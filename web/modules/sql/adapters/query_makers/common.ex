@@ -38,7 +38,13 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
         case Regex.run(regex, query) do
           [_, _limit_text, limit] ->
             {true,
-             replace_limit(regex, limit |> String.to_integer(), query, "LIMIT #{rows_number}")}
+             replace_limit(
+               regex,
+               limit |> String.to_integer(),
+               query,
+               "LIMIT #{rows_number}",
+               rows_number
+             )}
 
           [_, _limit_text, limit, _offset_text, offset] ->
             {true,
@@ -46,7 +52,8 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
                regex,
                limit |> String.to_integer(),
                query,
-               "LIMIT #{rows_number} OFFSET #{offset}"
+               "LIMIT #{rows_number} OFFSET #{offset}",
+               rows_number
              )}
 
           _ ->
@@ -54,10 +61,12 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
         end
       end
 
-      defp replace_limit(regex, limit, query, text) when limit <= 2000, do: {false, query}
-
-      defp replace_limit(regex, limit, query, text) when limit > 2000 do
-        {true, Regex.replace(regex, query, text)}
+      defp replace_limit(regex, limit, query, text, rows_number) do
+        if limit <= rows_number do
+          {false, query}
+        else
+          {true, Regex.replace(regex, query, text)}
+        end
       end
 
       def sql(query_record, adapter) do
@@ -66,13 +75,19 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
         query =
           SqlDust.from(query_record[:table]["name"], options, query_record[:schema]) |> elem(0)
 
-        if query_record[:limit] && query_record[:limit] != "" do
-          query = query <> " " <> "LIMIT #{query_record[:limit]}"
-        end
+        query =
+          if query_record[:limit] && query_record[:limit] != "" do
+            query <> " " <> "LIMIT #{query_record[:limit]}"
+          else
+            query
+          end
 
-        if query_record[:offset] && query_record[:limit] != "" do
-          query = query <> " " <> "OFFSET #{query_record[:offset]}"
-        end
+        query =
+          if query_record[:offset] && query_record[:offset] != "" do
+            query <> " " <> "OFFSET #{query_record[:offset]}"
+          else
+            query
+          end
 
         query
       end
@@ -83,19 +98,23 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
         order_bys = order_bys_maker(query_record[:order_bys])
         order_bys_with_group_bys = sanitize_order_by(group_bys, order_bys)
 
-        columns_required = %{
-          select:
-            select_maker(
-              query_record[:selects],
-              find_columns_required_for_select(group_bys, order_by_columns)
-            )
-            |> Enum.map(fn x -> x |> String.split("sep|rator") |> Enum.join(" ") end),
-          group_by: sanitize_group_by(group_bys, order_by_columns),
-          where: where_maker(query_record[:filters]) || [],
-          order_by: order_bys_with_group_bys,
-          adapter: adapter,
-          limit: nil
-        }
+        query_record |> IO.inspect(label: "query_record")
+
+        columns_required =
+          %{
+            select:
+              select_maker(
+                query_record[:selects],
+                find_columns_required_for_select(group_bys, order_by_columns)
+              )
+              |> Enum.map(fn x -> x |> String.split("sep|rator") |> Enum.join(" ") end),
+            group_by: sanitize_group_by(group_bys, order_by_columns),
+            where: where_maker(query_record[:filters]) || [],
+            order_by: order_bys_with_group_bys,
+            adapter: adapter,
+            limit: nil
+          }
+          |> IO.inspect(label: "options====================")
       end
 
       def sanitize_order_by(group_bys, order_bys) do
@@ -143,7 +162,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
       def parse_order_by_and_find_columns(el) when is_list(el) do
         el
         |> Enum.map(fn x ->
-          x["column"]["name"]
+          ~s/"#{x["column"]["name"]}"/
         end)
       end
 
@@ -163,6 +182,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
         options
         |> cleanup
         |> parse_select(columns_required)
+        |> cleanup
       end
 
       def group_bys_maker(options) when is_nil(options), do: nil
@@ -195,7 +215,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
 
       def cleanup(el) do
         el
-        |> Enum.reject(fn x -> is_nil(x) or x == "" or x == %{} or x == [] end)
+        |> Enum.reject(fn x -> is_nil(x) or x == "" or x == %{} or x == [] or x == ~s/""/ end)
       end
 
       def parse_group_bys([]), do: nil
@@ -215,7 +235,8 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
           if get_in(x, ["selected", "raw"]) do
             get_in(x, ["selected", "value"])
           else
-            x["column"]["name"] <> " " <> (x["order"]["value"] |> parse_order_type || "ASC")
+            ~s/"#{x["column"]["name"]}"/ <>
+              " " <> (x["order"]["value"] |> parse_order_type || "ASC")
           end
         end)
       end
@@ -278,7 +299,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
             "value" => val,
             "valueDateObj" => valdate
           }) do
-        col["name"] <> " " <> "is NULL"
+        ~s/"#{col["name"]}"/ <> " " <> "is NULL"
       end
 
       def parse_filter(%{
@@ -287,7 +308,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
             "value" => _val,
             "valueDateObj" => _valdate
           }) do
-        col["name"] <> " " <> "is not NULL"
+        ~s/"#{col["name"]}"/ <> " " <> "is not NULL"
       end
 
       def parse_filter(%{
@@ -297,7 +318,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
             "valueDateObj" => valdate
           }) do
         "lower(" <>
-          col["name"] <>
+          ~s/"#{col["name"]}"/ <>
           ") like" <> " '%" <> (val |> String.downcase()) <> "%'"
       end
 
@@ -308,7 +329,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
             "valueDateObj" => valdate
           }) do
         "lower(" <>
-          col["name"] <>
+          ~s/"#{col["name"]}"/ <>
           ") like" <> " '%" <> (val |> String.downcase()) <> "'"
       end
 
@@ -319,7 +340,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
             "valueDateObj" => valdate
           }) do
         "lower(" <>
-          col["name"] <>
+          ~s/"#{col["name"]}"/ <>
           ") like" <> " '" <> (val |> String.downcase()) <> "%'"
       end
 
@@ -336,7 +357,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
           "duration" => valdate["duration"] || %{"value" => "days", "name" => "Days"}
         }
 
-        col["name"] <> " " <> op_value <> " " <> (val |> parse_filter_value(valdate))
+        ~s/"#{col["name"]}"/ <> " " <> op_value <> " " <> (val |> parse_filter_value(valdate))
       end
 
       def parse_filter_value(v, %{"date" => false}), do: "'#{v}'"
@@ -380,7 +401,11 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
       def parse_select([], columns_required) when length(columns_required) == 0, do: "*"
 
       def parse_select([], columns_required) when length(columns_required) != 0,
-        do: columns_required
+        do:
+          columns_required
+          |> Enum.map(fn x ->
+            if !Regex.match?(~r/".+"/, x), do: ~s/"#{x}"/, else: x
+          end)
 
       def parse_select(el, columns_required) when is_list(el) do
         ((el
@@ -388,95 +413,102 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
             stringify_select(x, columns_required)
           end)) ++ columns_required)
         |> Enum.uniq()
+        |> Enum.map(fn x ->
+          if !Regex.match?(~r/".+"/, x), do: ~s/"#{x}"/, else: x
+        end)
       end
 
-      def cast_group_by(el, nil), do: el
-      def cast_group_by(el, "day"), do: "CAST(#{el} AS date)  sep|rator as \"#{el}_by_Day\""
+      def cast_group_by(el, nil), do: ~s/"#{el}"/
+      def cast_group_by(el, "day"), do: ~s/CAST("#{el}" AS date)  sep|rator as "#{el} by Day"/
 
       def cast_group_by(el, "minutes"),
-        do: "date_trunc('minute', #{el}) sep|rator as \"#{el} by Minute\""
+        do: ~s/date_trunc('minute', "#{el}") sep|rator as "#{el} by Minute"/
 
       def cast_group_by(el, "seconds"),
-        do: "date_trunc('second', #{el}) sep|rator as \"#{el} by Second\""
+        do: ~s/date_trunc('second', "#{el}") sep|rator as "#{el} by Second"/
 
       def cast_group_by(el, "hour"),
-        do: "date_trunc('hour', #{el}) sep|rator as \"#{el}  by Hour\""
+        do: ~s/date_trunc('hour', "#{el}") sep|rator as "#{el}  by Hour"/
 
       def cast_group_by(el, "week"),
         do:
-          "(date_trunc('week', (#{el} + INTERVAL '1 day')) - INTERVAL '1 day') sep|rator as \"#{
+          ~s/(date_trunc('week', ("#{el}" + INTERVAL '1 day')) - INTERVAL '1 day') sep|rator as "#{
             el
-          }  by Week\""
+          }  by Week"/
 
       def cast_group_by(el, "month"),
-        do: "date_trunc('month', #{el}) sep|rator as \"#{el}  by Month\""
+        do: ~s/date_trunc('month', "#{el}") sep|rator as "#{el}  by Month"/
 
       def cast_group_by(el, "quarter"),
-        do: "date_trunc('quarter', #{el}) sep|rator as \"#{el}  by  Quarter\""
+        do: ~s/date_trunc('quarter', "#{el}") sep|rator as "#{el}  by  Quarter"/
 
       def cast_group_by(el, "year"),
-        do: "CAST(extract(year from #{el}) AS integer) sep|rator as \"#{el}  by Year\""
+        do: ~s/CAST(extract(year from "#{el}") AS integer) sep|rator as "#{el}  by Year"/
 
       def cast_group_by(el, "hour_day"),
-        do: "CAST(extract(year from #{el}) AS integer) sep|rator as \"#{el}  by hour of the day\""
+        do:
+          ~s/CAST(extract(hour from "#{el}") AS integer) sep|rator as "#{el}  by hour of the day"/
 
       def cast_group_by(el, "day_week"),
         do:
-          "(CAST(extract(dow from #{el}) AS integer) + 1) sep|rator as \"#{el}  by Day of the Week\""
+          ~s/(CAST(extract(dow from "#{el}") AS integer) + 1) sep|rator as "#{el}  by Day of the Week"/
 
       def cast_group_by(el, "day_month"),
         do:
-          "CAST(extract(day from #{el}) AS integer) sep|rator as \"#{el}  by By Day of the Month\""
+          ~s/CAST(extract(day from "#{el}") AS integer) sep|rator as "#{el}  by By Day of the Month"/
 
       def cast_group_by(el, "week_year"),
         do:
-          "CAST(extract(week from (#{el} + INTERVAL '1 day')) as integer) sep|rator as \"#{el}  by Week of the Year\""
+          ~s/CAST(extract(week from ("#{el}" + INTERVAL '1 day')) as integer) sep|rator as "#{el}  by Week of the Year"/
 
       def cast_group_by(el, "month_year"),
         do:
-          "CAST(extract(month from #{el}) AS integer) sep|rator as \"#{el}  by Month of the Year\""
+          ~s/CAST(extract(month from "#{el}") AS integer) sep|rator as "#{el}  by Month of the Year"/
 
       def cast_group_by(el, "quarter_year"),
         do:
-          "CAST(extract(quarter from #{el}) AS integer) sep|rator as \"#{el}  by_Quarter_of_the_Year\""
+          ~s/CAST(extract(quarter from "#{el}") AS integer) sep|rator as "#{el}  by Quarter of the Year"/
 
       def stringify_select(%{"raw" => true, "value" => value}, columns_required), do: value
       def stringify_select(%{"name" => _name, "value" => "raw_data"}, []), do: "*"
       def stringify_select(%{"name" => _name, "value" => "raw_data"}, columns_required), do: "*"
       def stringify_select(%{"name" => _name, "value" => "count"}, columns_required), do: "count"
 
-      def stringify_select(%{"agg" => "count of rows"}, columns_required),
-        do: "count(*) sep|rator as \"count_of_rows\""
+      def stringify_select(%{"agg" => "count of rows", "column" => nil}, columns_required),
+        do: "count(*) sep|rator as \"count of rows\""
+
+      def stringify_select(%{"agg" => "count of rows", "column" => column}, columns_required),
+        do: ~s/count(distinct "#{column}") sep|rator as "count of #{column}"/
 
       def stringify_select(%{"agg" => "minimum of", "column" => column}, columns_required),
-        do: "min(#{column}) sep|rator as \"minimum_of_#{column}\""
+        do: ~s/min("#{column}") sep|rator as "minimum of #{column}"/
 
       def stringify_select(%{"agg" => "maximum of", "column" => column}, columns_required),
-        do: "max(#{column}) sep|rator as \"max_of_#{column}\""
+        do: ~s/max("#{column}") sep|rator as "max of #{column}"/
 
       def stringify_select(%{"agg" => "average of", "column" => column}, columns_required),
-        do: "avg(#{column}) sep|rator as \"average_of_#{column}\""
+        do: ~s/avg("#{column}") sep|rator as "average of #{column}"/
 
       def stringify_select(%{"agg" => "sum of", "column" => column}, columns_required),
-        do: "sum(#{column}) sep|rator as \"sum_of_#{column}\""
+        do: ~s/sum("#{column}") sep|rator as "sum of #{column}"/
 
       def stringify_select(
             %{"agg" => "standard deviation", "column" => column},
             columns_required
           ),
-          do: "stddev(#{column})  sep|rator as \"standard_deviation_of_#{column}\""
+          do: ~s/stddev("#{column}")  sep|rator as "standard deviation of #{column}"/
 
       def stringify_select(%{"agg" => "standard variance", "column" => column}, columns_required),
-        do: "variance(#{column})  sep|rator as \"variance_of_#{column}\""
+        do: ~s/variance("#{column}")  sep|rator as "variance of #{column}"/
 
       def stringify_select(
             %{"agg" => "percentile of", "column" => column, "value" => value},
             columns_required
           ),
           do:
-            "percentile_cont(#{value / 100}) within group (order by #{column}) sep|rator as \"p#{
+            ~s/percentile_cont(#{value / 100}) within group (order by "#{column}") sep|rator as "p#{
               value
-            }_of_#{column}\""
+            } of #{column}"/
 
       defoverridable stringify_select: 2,
                      parse_filter_date_obj_value: 3,

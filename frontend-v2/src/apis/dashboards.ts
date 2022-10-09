@@ -18,6 +18,16 @@ const fetchDashboard = async function(id, payload, token, callback){
 
 }
 
+const fetchDashboardHTML = async function(id, token, callback){
+  callback(null, true)
+  api.get('dashboards/' + id + '/html' , apiConfig(token)).then((response) => {
+    callback(response.data.html, false)
+  }).catch(error => {
+    callback(null, false)
+  })
+
+}
+
 const fetchDashboards = async function(token, callback){
   callback(null, true)
   api.get('dashboards/' , apiConfig(token)).then((response) => {
@@ -53,7 +63,7 @@ const createDashboard = async function(payload, token, callback){
     callback(null, false)
   })
 }
-export {fetchDashboard, fetchDashboards, saveDashboard, createDashboard};
+export {fetchDashboard, fetchDashboards, saveDashboard, createDashboard, fetchDashboardHTML};
 
 
 

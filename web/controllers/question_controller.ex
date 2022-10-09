@@ -207,8 +207,8 @@ defmodule AfterGlow.QuestionController do
       |> Repo.preload(Question.default_preloads())
 
     changeset = Question.changeset(question, prms)
-    tag_ids = prms["tags_ids"]
-    widget_ids = prms["widgets_ids"]
+    tag_ids = prms["tags_ids"] || []
+    widget_ids = prms["widgets_ids"] || []
 
     widgets =
       if widget_ids |> Enum.empty?(),

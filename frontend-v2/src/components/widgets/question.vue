@@ -1,12 +1,12 @@
 <template>
-  <div class="tw-w-full">
+  <div class="tw-w-full tw-h-full">
     <AGLoader text="Fetching Details" v-if="loading" />
-    <div class="tw-h-full tw-w-full" v-if="!loading">
+    <div class="tw-flex tw-flex-col tw-w-full tw-h-full" v-if="!loading">
 
-    <div class="tw-grid tw-h-[40px] tw-border-b tw-w-full tw-grid-cols-12">
-      <div class="tw-my-auto tw-text-lg tw-font-semibold tw-pl-4 tw-col-span-11" v-if="question">{{ question.title }}
+      <div class="tw-flex tw-border-b tw-justify-between tw-items-center tw-py-2 tw-px-4">
+      <div class="tw-text-lg tw-font-semibold"  v-if="question">{{ question.title }}
       </div>
-      <div class="tw-col-span-1 tw-m-auto tw-mr-3 tw-text-right">
+        <div class="tw-text-right tw-whitespace-nowrap">
 
         <div class="tw-cursor-pointer tw-inline">
           <q-menu flat=true transition-show="scale" transition-hide="scale" max-height="400px" :offset="[0, 5]"
@@ -37,8 +37,8 @@
         <ArrowsMoveIcon size=14 class="grid-drag tw-cursor-move tw-inline tw-ml-2" v-if="editMode"/>
       </div>
     </div>
-    <VizComponent :results="results" :resultsKey="resultskey" :queryKey="queryKey" :visualization="emptyViz"
-      :apiActionsQuesLevel="apiActions" :questionID="id" :size="settingsPanesize" class="tw-h-[calc(100%-40px)]" />
+    <VizComponent :onDashboard=true :results="results" :resultsKey="resultskey" :queryKey="queryKey" :visualization="emptyViz"
+      :apiActionsQuesLevel="apiActions" :questionID="id" :size="settingsPanesize" class="tw-h-full tw-overflow-auto" />
     </div>
   </div>
 </template>

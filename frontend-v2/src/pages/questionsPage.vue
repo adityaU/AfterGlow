@@ -1,12 +1,13 @@
 <template>
   <!-- -->
-  <AGLoader text="Crunching Data" v-if="!dataLoaded" class="tw-bg-white tw-shadow-sm tw-rounded-sm" />
+  <AGLoader text="Initializing" v-if="!dataLoaded" class="tw-bg-white tw-shadow-sm tw-rounded-sm tw-min-h-[400px]" />
   <div class="tw-h-full tw-w-full tw-flex" v-if="dataLoaded">
     <BaseDataRenderer ref="root" :resultsKey="resultsKey" :dataLoaded="dataLoaded"
       v-model:visualizations="visualizations" @deleteViz="deleteViz" :apiActionKeyQuesLevel="apiActionKeyQuesLevel"
       :apiActionKeyVizLevel="apiActionKeyVizLevel" :queryKey="queryKey" :questionID="questionID"
-      @fetchVizResults="refreshVizResults" :loading="loading" @updateApiActions="fetchQuestionApiActions"
-      @updateViz="(viz) => emitToParent(viz, true)" :finalQuery="finalQuery" @download='download'></BaseDataRenderer>
+      @fetchVizResults="refreshVizResults" v-model:loading="loading" @updateApiActions="fetchQuestionApiActions"
+      @updateViz="(viz) => emitToParent(viz, true)" :finalQuery="finalQuery" @download='download' 
+      :startingPage="startingPage"></BaseDataRenderer>
   </div>
   <AGToast v-model:show="toastShow" :type="toastType">{{ toastMessage }}</AGToast>
 </template>
@@ -31,13 +32,6 @@ import { _ } from 'lodash'
 import { authMixin } from 'src/mixins/auth'
 
 
-const debounce = (func, timeout = 300) => {
-  let timer;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => { func.apply(this, args); }, timeout);
-  };
-}
 export default {
   name: 'QuestionPage',
   components: { BaseDataRenderer, AGLoader, AGToast },
@@ -60,12 +54,14 @@ export default {
       queryKey: null,
       questionID: null,
       toastShow: false,
+      startingPage: false,
       toastMessage: "",
       toastType: ""
 
     }
   },
   async created() {
+    console.log("starting...")
     if (this.payload && !this.payload.empty) {
       this.queryKey = await hash(this.query)
       queryStore().push(this.query, this.queryKey)
@@ -74,17 +70,18 @@ export default {
       this.payload.question_id = questionID
       if (questionID != null && questionID != 'null') {
         this.fetchQuestionApiActions(questionID)
+          this.dataLoaded = false
         api.get('visualizations' + "?question_id=" + questionID, apiConfig(this.query.token)).then((response) => {
           this.fetchVizResults(response)
           this.updateVisulaization(response)
         })
-      } else if (this.payload.database === null) {
+      } else if (!this.payload.database) {
+        this.startingPage = true
         this.dataLoaded = true
-        this.resultsKey = null
       } else {
+        this.dataLoaded = true
         fetchQuestionResults(this.payload, this.query.token, this.setLoadingAndResultsKey)
       }
-      this.dataLoaded = true
     } else {
       this.resultsKey = 'empty'
       this.dataLoaded = true
@@ -99,10 +96,15 @@ export default {
 
   methods: {
     setLoadingAndResultsKey(key, loading) {
+      this.startingPage = false
       this.loading = loading
       this.resultsKey = key
+      if (!this.loading){
+          this.dataLoaded = true
+      }
     },
     setLoadingAndApiActionKey(key, loading) {
+      this.startingPage = false
       this.loading = loading
       this.apiActionKeyQuesLevel = key
     },
@@ -113,7 +115,7 @@ export default {
 
     fetchVizResults(response, forced) {
       if (response.data.visualizations.length === 0) {
-        this.fetchQuestionResults()
+        fetchQuestionResults(this.payload, this.query.token, this.setLoadingAndResultsKey)
         return
       }
       const viz = response.data.visualizations[0]
@@ -126,18 +128,19 @@ export default {
       if (this.payload) {
         payload = _.cloneDeep(this.payload)
       }
-      payload.visualization = viz
-      hash("payload=" + JSON.stringify(payload) + "&questionID=" + this.query.question_id || this.params.id + "&vizTerms=" + vizTerms).then((key) => {
+      this.loading = true
+      hash("payload=" + JSON.stringify(payload) + "&questionID=" + (this.query.question_id || this.params.id) + "&vizTerms=" + JSON.stringify(vizTerms)).then((key) => {
         if (this.resultsStore.getResults(key)) {
+          this.loading = false
           this.resultsKey = key
           return
         }
-        this.updateVizResults(viz)
+        this.updateVizResults(viz, true, key)
       })
     },
 
 
-    async updateVizResults(viz, forced) {
+    async updateVizResults(viz, forced, key) {
       this.loading = true
       this.resultsKey = null
       let vizID = viz.id
@@ -149,26 +152,27 @@ export default {
         payload.forced = true
       }
       payload.visualization = viz
-      fetchVizResults(vizID, this.query.question_id || this.params.id, payload, this.query, this.setLoadingAndResultsKey)
+      fetchVizResults(vizID, this.query.question_id || this.params.id, payload, this.query, this.setLoadingAndResultsKey, key)
 
     },
 
 
-    async fetchQuestionResults() {
-      this.loading = true
-      this.resultsKey = null
-      let key = await hash(JSON.stringify(this.payload))
-      api.post('visualizations/results', this.payload, apiConfig(this.query.token)).then((response) => {
-        this.resultsStore.pushResults(response.data.data, key)
-        this.loading = false
-        this.resultsKey = key
-      }).catch((error) => {
-        this.resultsStore.pushResults(error.response.data.error, key)
-        this.resultsKey = key
-        this.loading = false
-      })
-
-    },
+    // async fetchQuestionResults() {
+    //   fetchQuestionResults(this.payload, this.query.token, this.setLoadingAndResultsKey)
+    //   // this.loading = true
+    //   // this.resultsKey = null
+    //   // let key = await hash(JSON.stringify(this.payload))
+    //   // api.post('visualizations/results', this.payload, apiConfig(this.query.token)).then((response) => {
+    //   //   this.resultsStore.pushResults(response.data.data, key)
+    //   //   this.loading = false
+    //   //   this.resultsKey = key
+    //   // }).catch((error) => {
+    //   //   this.resultsStore.pushResults(error.response.data.error, key)
+    //   //   this.resultsKey = key
+    //   //   this.loading = false
+    //   // })
+    //   //
+    // },
     refresh(event){
           let currentViz = this.visualizations && this.visualizations.details && this.visualizations.details.details.filter(viz => viz && viz.current)
           currentViz = currentViz && currentViz.length === 1 ? currentViz[0] : null
@@ -235,7 +239,7 @@ export default {
         api.post(url, payload, apiConfig(this.query.token)).then((response) => {
           this.updateVisulaization(response)
           this.dataLoaded = true
-        }).catch((error) => {
+        }).catch(() => {
           this.visualizations = { details: null }
           this.dataLoaded = true
         })

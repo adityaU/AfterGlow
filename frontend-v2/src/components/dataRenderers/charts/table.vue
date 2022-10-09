@@ -10,7 +10,7 @@
             :key="column">
             <div class="tw-inline" v-if="column.type === 'column'">
             {{ column.name }}
-            <AGTHMenu :column="column.name" :showSorting="!results.additional_filters_applied" @addSorting="(sorting) => $emit('addSorting', sorting)"/>
+            <AGTHMenu :column="column.name" :showSorting="!onDashboard && !results.additional_filters_applied" @addSorting="(sorting) => $emit('addSorting', sorting)"/>
             </div>
             <div class="tw-inline" v-if="column.type === 'apiAction'">
             {{ column.name }}
@@ -23,7 +23,7 @@
         <tr class="tw-py-2 even:tw-bg-secondary" v-for="row in rows" :key="row">
           <td class="tw-px-4 tw-py-2 tw-border-b" v-for="el, index in row" :key="el">
             <div class="tw-inline" v-if="el.type === 'column'">
-            <AGTDRenderer :colDetails="colDetails" isColumnObject=true :value="el.value" :columns="columns" :index="index" :showFilters="!results.additional_filters_applied" @addFilter="(filter) => $emit('addFilter', filter)"/>
+            <AGTDRenderer :colDetails="colDetails" isColumnObject=true :value="el.value" :columns="columns" :index="index" :showFilters="!onDashboard && !results.additional_filters_applied" @addFilter="(filter) => $emit('addFilter', filter)"/>
             </div>
             <div class="tw-inline tw-uppercase"  v-if="el.type === 'apiAction'">
              <ApiActionLink :link="el" :queryKey="queryKey" />
@@ -45,7 +45,7 @@
   export default {
     name: 'AGTable',
   
-    props: ['results', 'showSettings', 'settings', 'queryKey', 'visualizationID', 'questionID', 'colDetails'],
+    props: ['results', 'showSettings', 'settings', 'queryKey', 'visualizationID', 'questionID', 'colDetails', 'onDashboard'],
     components: { BaseTable, ApiActionLink, AGTDRenderer, AGTHMenu }
  
   }

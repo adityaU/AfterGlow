@@ -1,10 +1,21 @@
 <template>
   <div class="tw-flex tw-h-full tw-min-h-[400px]">
     <AGLoader :text="loaderText" v-if="loading" />
-    <div class="grid-stack tw-h-full tw-w-full" v-if="!loading">
-      <GridWidget v-for="widget, index in widgets" v-bind="widget" :widSize="widgetSizes[index]" v-model:widID="widget.widID"
-        :queryKey="queryKey" :id="widgetKey(widget, index)" :key="widgetKey(widget)" :editMode="editMode"
-        class="js-grid-widget" @widgetDeleted="deleteWidget" />
+    <div class="tw-h-full tw-w-full" v-if="!loading">
+
+      <splitpanes class="pane-wrapper default-theme" ref="chart-parent"
+        @resize="settingsPanesize = 100 - $event[0].size">
+        <pane :size="100" class="pane" :class="showSettings ? 'pane-left' : ''">
+          <div class="grid-stack tw-h-full tw-w-full tw-flex" :class="gridClass" >
+            <GridWidget v-for="widget, index in widgets" v-bind="widget" :widSize="widgetSizes[index]"
+              v-model:widID="widget.widID" :queryKey="queryKey" :id="widgetKey(widget, index)" :key="widgetKey(widget)"
+              :editMode="editMode" class="js-grid-widget" @widgetDeleted="deleteWidget" />
+          </div>
+        </pane>
+        <pane :size="settingsPanesize" ref="chart" class="pane pane-right tw-shadow-sm !tw-border" v-if="settingsPanesize">
+          <div id="dashboard-settings"></div>
+        </pane>
+      </splitpanes>
     </div>
   </div>
 </template>
@@ -16,11 +27,14 @@ import 'gridstack/dist/gridstack.min.css';
 import GridStack from 'gridstack/dist/gridstack-all';
 import { queryStore } from 'src/stores/query';
 
-import {convertWidgets} from 'src/helpers/dashboard';
+import { convertWidgets } from 'src/helpers/dashboard';
 
 import { dashboardsStore } from 'stores/dashboard';
 import { saveDashboard } from 'src/apis/dashboards'
 import { _ } from 'lodash';
+
+import { Splitpanes, Pane } from 'splitpanes'
+import 'splitpanes/dist/splitpanes.css'
 const dashboard = dashboardsStore()
 
 
@@ -28,17 +42,10 @@ const query = queryStore()
 const defaultLoaderText = "Fetching dashboard"
 
 
-const debounce = (func, timeout = 300) => {
-  let timer;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => { func.apply(this, args); }, timeout);
-  };
-}
 export default {
   name: 'AGDashboardGrid',
   props: ['dashboardKey', 'queryKey'],
-  components: { AGLoader, GridWidget },
+  components: { AGLoader, GridWidget, Splitpanes, Pane },
 
   watch: {
     editMode() {
@@ -73,7 +80,12 @@ export default {
       dashboard: null,
       loading: false,
       widgetSizes: [],
-      loaderText: defaultLoaderText
+      loaderText: defaultLoaderText,
+      resizeTimer: 0,
+      resizeArgs: [],
+      gridClass: null,
+      counter: 0,
+      settingsPanesize: 0,
     }
   },
 
@@ -88,8 +100,9 @@ export default {
 
   methods: {
     deleteWidget(widgetID) {
+      console.log(widgetID)
       this.widgets = this.widgets.filter((w, i) => this.widgetKey(w, i) != widgetID)
-      this.saveDashboard()
+      this.$nextTick(this.saveDashboard())
     },
     receiveMessage(event) {
       if (event.data.message == 'ag_edit_dashboard') {
@@ -107,27 +120,27 @@ export default {
     },
 
     initGridStack() {
-      if (this.grid) {
-        this.grid.destroy(false)
-      }
+      this.grid && this.grid.destroy(false)
       this.grid = GridStack.init({
         cellHeight: '10px', draggable: {
           handle: '.grid-drag',
         }
       })
-      this.grid && this.grid.compact()
-      this.grid && this.grid.setStatic(!this.editMode)
       this.grid && this.grid.on('resize', this.setWidgetSize)
+      this.grid && this.grid.setStatic(!this.editMode)
     },
     setWidgetSize(event, el) {
-      debounce(() => {
+      this.debounce(() => {
+        console.log(el)
+        console.log(event)
         this.widgets.forEach((w, i) => {
           if (this.widgetKey(w, i) === el.id) {
             this.widgetSizes[i] = Math.random()
           }
         })
+        this.updateWidgetCoordinates()
 
-      }, 300)()
+      }, 1000)()
     },
     resetLoading(dashboardID, loading) {
       if (!this.loading) {
@@ -169,12 +182,27 @@ export default {
 
     addNote() {
       console.log('adsd note called')
-      const widget = { w: 6, h: 55, x: 0, y: 0, widID: null, type: 'notes' }
+      let maxY = 0
+      this.grid && this.grid.engine.nodes.forEach((node) => {
+        if (isNaN(node.y)){ node.y = 0}
+        if (isNaN(node.h)){ node.h = 0}
+        if (node.y + node.h > maxY ){
+          maxY = node.y + node.h
+        }
+      })
+      const widget = { w: 6, h: 55, x: 0, y: maxY, widID: null, type: 'note' }
       this.widgets.push(widget)
-      const widgetID = '#' + this.widgetKey(widget, this.widgets.length - 1)
     },
 
 
+    debounce(func, timeout = 300) {
+      return (...args) => {
+        this.resizeArgs = args
+        console.log(this.resizeTimer)
+        clearTimeout(this.resizeTimer)
+        this.resizeTimer = setTimeout(() => { func.apply(this, this.resizeArgs); }, timeout);
+      };
+    },
 
     setupDashboard() {
       this.dashboard = dashboard.get(this.dashboardKey)

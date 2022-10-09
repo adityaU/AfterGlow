@@ -35,8 +35,9 @@ defmodule AfterGlow.VisualizationController do
     {res, query, additional_info} = Visualizations.results(payload["id"], payload, conn.assigns.current_user) 
     case res do
       {:ok, results} ->
-        results = results |> Map.merge(%{original_query_columns: additional_info.columns,
-        column_details: (get_in(results, [:column_details]) || %{}) |> Map.merge( get_in(additional_info, [:column_details] ) || %{})
+        results = results |> Map.merge(%{original_query_columns: get_in(additional_info,  [:columns]) || get_in(additional_info, ["columns"]),
+        column_details: (get_in(results, [:column_details]) || get_in(results, ["column_details"]) || %{})
+        |> Map.merge( get_in(additional_info, [:column_details] ) || get_in(additional_info, ["column_details"] )  || %{})
         })
         conn
         |> render(QueryView, "execute.json", data: results, query: query)

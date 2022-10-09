@@ -4,7 +4,7 @@
         {{ label }}
     </span>
     <BaseInput ref="input" class="tw-m-2 tw-inline tw-text-default" :value="value"
-        @inputed="(val) => $emit('inputed', val)" :placeholder="placeholder" />
+        @inputed="(val) => ($emit('inputed', val) || true) && $emit('update:value', val)" :placeholder="placeholder" :type="type" />
         </div>
 </template>
 
@@ -14,7 +14,7 @@ export default {
     name: 'AGInput',
 
     components: { BaseInput },
-    props: ['label', 'placeholder', 'value'],
+    props: ['label', 'placeholder', 'value', 'type'],
 
     methods: {
         menuShow() {

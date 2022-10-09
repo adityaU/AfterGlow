@@ -15,7 +15,7 @@ export default Ember.Controller.extend(LoadingMessages, ChartSettings, HelperMix
 
   vueComponentsEnabled: true,
   vueIframeID: 'vueResultsComponent',
-  vueResultPath: Ember.computed('question.query_variables.content.isLoaded', function() {
+  vueResultPath: Ember.computed('question.query_variables.content.isLoaded', 'question.database', function() {
     const question = this.get('question')
     if (question.get('query_variables.content.isLoaded')){
       const query_variables = question.get('query_variables').map((item) => {

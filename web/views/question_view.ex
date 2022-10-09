@@ -17,6 +17,7 @@ defmodule AfterGlow.QuestionView do
     :query_type,
     :columns,
     :shared_to,
+    :config,
     # :api_action,
     :has_permission
   ])

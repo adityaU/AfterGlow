@@ -1,18 +1,18 @@
 <template v-if="results.data">
-        <div class="tw-h-full">
+        <div class="tw-flex tw-flex-col tw-flex-[1_1_100%]">
 
 
-                <div class="tw-w-full tw-flex tw-justify-center tw-items-center" v-if="shouldShowChartInformation">
+                <div class="tw-w-full tw-flex tw-justify-center tw-items-center tw-flex-[1_1_100%]" v-if="shouldShowChartInformation">
                         <div class="">
                                 Please select a data column from settings.
                         </div>
                 </div>
                 <div class="tw-h-full" v-if="!shouldShowChartInformation">
-                        <div class="tw-flex tw-flex-col tw-justify-center tw-items-center" ref="chart">
+                        <div class="tw-flex tw-flex-col tw-justify-center tw-items-stretch" ref="chart">
                                 <div class="tw-text-3xl tw-w-full tw-text-center tw-py-4" v-if="settingsLocal.title">{{
                                                 settingsLocal.title
                                 }}</div>
-                                <div class="tw-flex tw-flex-wrap tw-gap-2 tw-p-2">
+                                <div class="tw-flex tw-flex-wrap tw-gap-2 tw-p-2 tw-flex-[1_0_100%] tw-overflow-auto">
                                         <div class="tw-flex-[1_0_10%]"
                                                 v-for="datum, index in data.dataValues" :key="datum">
                                                 <AGNumberDetails :data="data" :settings="settingsLocal"
@@ -133,7 +133,22 @@ export default {
                                 data.dataValues = this.results.rows.map((item) => {
                                         return item[dataColumnIndex]
                                 })
-                                data.chunkedDataValues = chunks(data.dataValues, this.numberOfColumns)
+                                if (settings.trendFromNextRow){
+                                        data.trendsValues = this.results.rows.map((item) => {
+                                                return item[dataColumnIndex]
+                                        })
+                                        data.trendsValues = data.trendsValues.slice(1, data.trendsValues.length)
+                                        data.dataValues = data.dataValues.slice(0, data.dataValues.length -1 )
+                                        if (settings.directReference) {
+                                                data.referenceValues = data.trendsValues
+                                        } else {
+                                                data.referenceValues = data.dataValues.map((dv, i) => {
+                                                        const val = 100 * ((dv - data.trendsValues[i]) / data.trendsValues[i])
+                                                        return Math.round((val + Number.EPSILON) * 100) / 100
+                                                })
+                                        }
+
+                                }else{
                                 let trendColumnIndex = this.results.columns.indexOf(settings.trendColumn)
 
                                 if (trendColumnIndex >= 0) {
@@ -148,6 +163,8 @@ export default {
                                                         return Math.round((val + Number.EPSILON) * 100) / 100
                                                 })
                                         }
+                                }
+
                                 }
 
                         }

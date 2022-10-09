@@ -22,13 +22,13 @@ defmodule AfterGlow.QueryTerms.Conversions do
   }
 
   def convert(viz_terms) do
-    viz_terms
-
     qt = %{
       "filters" => nil,
       "groupBys" => nil,
       "orderBys" => nil,
-      "views" => nil
+      "views" => nil,
+      "limit" => get_in(viz_terms, ["details", "limit"]),
+      "offset" => get_in(viz_terms, ["details", "offset"])
     }
 
     viz_filters = get_in(viz_terms, ["details", "filters", "details"])
@@ -69,7 +69,7 @@ defmodule AfterGlow.QueryTerms.Conversions do
       "groupBys" => groupings,
       "orderBys" => sortings,
       "views" => views
-    })
+    }) 
   end
 
   defp convert_filter(
@@ -172,7 +172,13 @@ defmodule AfterGlow.QueryTerms.Conversions do
   # end
 
   defp convert_views(%{"isAggregation" => true, "raw" => false, "agg" => agg = "percentile of", "column" => column, "value" => value}) do
-    %{"selected" => %{"raw" => false, "column" =>  column, "agg" => agg, "value" => value |> Float.parse() |> elem(0)}}
+    %{"selected" => %{"raw" => false, "column" =>  column, "agg" => agg, "value" => value }}
+  end
+  defp convert_views(%{"isAggregation" => true, "raw" => false, "agg" => agg = "count of rows", "column" => column = "all"}) do
+    %{"selected" => %{"raw" => false, "column" =>  nil, "agg" => agg}}
+  end
+  defp convert_views(%{"isAggregation" => true, "raw" => false, "agg" => agg = "count of rows", "column" => column}) do
+    %{"selected" => %{"raw" => false, "column" =>  column, "agg" => agg}}
   end
   defp convert_views(%{"isAggregation" => true, "raw" => false, "agg" => agg, "column" => column}) do
     %{"selected" => %{"raw" => false, "column" =>  column, "agg" => agg}}

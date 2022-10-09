@@ -46,14 +46,10 @@ defmodule AfterGlow.Questions.QueryFunctions do
           )
 
         tracking_details =
-          if tracking_details[:no_tracking] do
-            nil
-          else
             %{
               current_user: current_user,
               question_id: question.id
             } |> Map.merge(tracking_details)
-          end
 
         {_query, results} =
           run_raw_query(db_record, params, question.variables, frontend_limit, tracking_details)

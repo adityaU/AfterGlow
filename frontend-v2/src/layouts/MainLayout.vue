@@ -1,5 +1,5 @@
 <template>
-      <router-view ref="root" class="" />
+  <router-view ref="root" class="" />
 </template>
 
 
@@ -16,16 +16,21 @@ export default defineComponent({
   //   EssentialLink
   // },
 
-  methods :{
+  methods: {
   },
 
 
-  setup () {
+  setup() {
 
     onMounted(() => {
       let tag = document.createElement("script");
       tag.setAttribute("src", resizerUrl);
       document.head.appendChild(tag);
+
+      const preloader = window.document.getElementById('preloader')
+      if (preloader) {
+        preloader.remove()
+      }
     })
 
 

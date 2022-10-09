@@ -1,11 +1,11 @@
 <template>
-  <div class="tw-w-full tw-h-full">
+  <div class="tw-w-full tw-flex">
     <!-- :class="showDebugInfo ? (showQuery ? 'tw-h-[calc(100%-303px)]' : 'tw-h-[calc(100%-103px)]') : 'tw-h-[calc(100%-55px)]'"> -->
 
-    <div class="tw-h-full tw-w-full tw-flex" v-if="loading">
+    <div class="tw-w-full tw-flex tw-flex-[1_1_100%]" v-if="loading">
     <AGLoader text="Fetching details" />
     </div>
-    <div class="tw-h-full tw-w-full tw-flex" v-if="results && results.rows && results.rows.length === 0">
+    <div class="tw-w-full tw-flex tw-flex-[1_1_100%]" v-if="results && results.rows && results.rows.length === 0">
       <div class="tw-m-auto">
         LOOKS LIKE YOUR QUERY DID NOT RETURN ANY RESULT.
       </div>
@@ -16,7 +16,7 @@
       :visualizationID="visualization.id" class="tw-bg-white tw-overflow-auto"
       v-if="results && results.rows && results.rows.length > 0 && !results.message" :size="size"
       :colDetails="results.column_details" @addFilter="(filter) => $emit('addFilter', filter)"
-      @addSorting="(sorting) => $emit('addSorting', sorting)" />
+      @addSorting="(sorting) => $emit('addSorting', sorting)" :onDashboard="onDashboard" />
 
     <div class="tw-h-full tw-w-full tw-bg-white tw-rounded-sm tw-shadow-sm tw-flex " v-if="results && results.message">
       <div class="tw-text-2xl tw-m-auto tw-text-center tw-text-red-600">
@@ -37,7 +37,7 @@
   export default {
   
     name: 'AGViz',
-    props: ['results', 'resultskey', 'queryKey', 'apiActionsQuesLevel', 'questionID', 'size', 'visualization', 'loading'],
+    props: ['results', 'resultskey', 'queryKey', 'apiActionsQuesLevel', 'questionID', 'size', 'visualization', 'loading', 'onDashboard'],
     components: {AGLoader},
     data() {
       return {

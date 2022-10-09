@@ -1,8 +1,8 @@
 <template>
-  <a href="#" class="tw-inline">
+  <div class="tw-inline tw-cursor-pointer">
       <AGTDMenu :formattedValue="formattedValue" :value="value" :dataType="dataType" :column="column" :showFilters="showFilters" @addFilter="(filter) => $emit('addFilter', filter)" />
       {{ formattedValue }}
-  </a>
+  </div>
 
 </template>
 

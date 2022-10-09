@@ -1,4 +1,9 @@
 defmodule AfterGlow.Notes do
+
+  @model AfterGlow.Notes.Note
+  @default_preloads []
+
+  use AfterGlow.Utils.Models.Crud
   @moduledoc """
   The Notes context.
   """
