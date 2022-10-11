@@ -24,7 +24,7 @@
     "ember-browserify": "^1.2.1",
     "ember-can": "0.8.4",
     "ember-chartjs": "0.0.0",
-    "ember-cli": "2.18.0",
+    "ember-cli": "4.7.0",
     "ember-cli-app-version": "^2.0.0",
     "ember-cli-babel": "^5.1.7",
     "ember-cli-bootstrap-datetimepicker": "^0.6.1",
