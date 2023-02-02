@@ -8,7 +8,25 @@ defmodule AfterGlow.ApiActions.ApiAction do
   defenum(MethodEnum, GET: 1, POST: 2, PUT: 3, DELETE: 4, PATCH: 5)
   defenum(ActionLevelEnum, question_response: 1, question: 2)
 
-  @derive {Jason.Encoder, only: [:id, :question_id, :loading_message, :url, :headers, :body, :method, :name, :column, :color, :hidden, :open_in_new_tab, :response_settings, :visualization_id ]}
+  @derive {Jason.Encoder,
+           only: [
+             :id,
+             :question_id,
+             :loading_message,
+             :url,
+             :headers,
+             :body,
+             :method,
+             :name,
+             :column,
+             :color,
+             :hidden,
+             :open_in_new_tab,
+             :response_settings,
+             :visualization_id,
+             :display_settings,
+      :open_option
+           ]}
   schema "api_actions" do
     belongs_to(:question, Question)
     belongs_to(:visualization, Question)
@@ -24,6 +42,8 @@ defmodule AfterGlow.ApiActions.ApiAction do
     field(:hidden, :boolean)
     field(:open_in_new_tab, :boolean)
     field(:response_settings, :map)
+    field(:display_settings, :map)
+    field(:open_option, :string)
     timestamps()
   end
 
@@ -43,7 +63,9 @@ defmodule AfterGlow.ApiActions.ApiAction do
       :loading_message,
       :hidden,
       :response_settings,
-      :column
+      :column,
+      :display_settings,
+      :open_option
     ])
     |> validate_required([:url, :name, :method, :question_id])
   end

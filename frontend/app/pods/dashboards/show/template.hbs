@@ -71,6 +71,11 @@
                         <span> {{bs-tooltip title="Variables"}}
                             <i class="fe fe-code px-1" {{action 'showVariablesDialogue'}}></i>
                         </span>
+                        {{#if true}}
+                        <span> {{bs-tooltip title="Schedule Report"}}
+                            <i class="fe fe-mail px-1" {{action 'scheduleDashboard'}}></i>
+                        </span>
+                        {{/if}}
                         {{/if}}
                         {{#if fullScreen}}
                         <span> {{bs-tooltip title="Exit Fullscreen"}}

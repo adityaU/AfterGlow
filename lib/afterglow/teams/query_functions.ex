@@ -5,10 +5,33 @@ defmodule AfterGlow.Teams.QueryFunctions do
   alias AfterGlow.Teams.UserTeam
   import Ecto.Query
 
+  @team_regex ~r/^"(.+)"@team$/
+
   def create(attrs) do
     Team.changeset(%Team{}, attrs)
     |> Repo.insert()
     |> preload_defaults
+  end
+
+  def get_users_by_name(name) do
+    team =
+      from(t in Team, where: t.name == ^name)
+      |> Repo.all()
+      |> Repo.preload([:users])
+
+    if team |> length() > 0, do: (team |> Enum.at(0)).users, else: []
+  end
+
+  def get_name_from_pseudonym(pseudonym) do
+    match = Regex.scan(@team_regex, pseudonym)
+
+    if match |> length == 0 do
+      nil
+    else
+      match
+      |> Enum.at(0)
+      |> Enum.at(1)
+    end
   end
 
   def list() do

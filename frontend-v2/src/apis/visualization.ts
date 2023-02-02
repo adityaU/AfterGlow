@@ -12,15 +12,16 @@ const fetchVizResults = async function(vizID, questionID, payload, query, callba
     results.pushResults(response.data.data, key)
     callback(key, false)
   }).catch((error) => {
+      if (error.response.status > 500) {
 
-    if (error.response.status === 500) {
-      results.pushResults({ message: "Something went wrong. Please check the query" }, key)
+        if (!error.data.error) {
+          error.data.error = {message: "Server is Unavailable at the moment"}
+        }
+        error.response.data.error.hideFromViewer = true
+      }
+      results.pushResults(error.response.data.error, key)
       callback(key, false)
-      return
-    }
-    results.pushResults(error.response.data.error, key)
-    callback(key, false)
-  })
+    })
 }
 
 const fetchViz = function(vizID, query, callback) {
@@ -28,8 +29,8 @@ const fetchViz = function(vizID, query, callback) {
   api.get('/visualizations/' + vizID, apiConfig(query.token)).then((response) => {
     callback(makeVisualizationFromResponse(response.data.visualization), false)
   }).catch((error) => {
-    callback({}, false)
-  })
+      callback({}, false)
+    })
 }
 
 const downloadVizData = function(payload, query, callback) {
@@ -37,8 +38,8 @@ const downloadVizData = function(payload, query, callback) {
   api.post('/visualizations/create_csv', payload, apiConfig(query.token)).then((response) => {
     callback(true, false)
   }).catch((_) => {
-    callback(false, false)
-  })
+      callback(false, false)
+    })
 }
 
 

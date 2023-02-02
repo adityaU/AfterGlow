@@ -10,8 +10,11 @@
   box-sizing: border-box;
 }
 @layer base {
+  body{
+    @apply tw-bg-secondary;
+  }
   .tw-inset-shadow{
-    @apply tw-shadow-[inset_0_0px_2px_0px]
+    @apply tw-shadow-[inset_0_0px_2px_0px];
   }
   .btn-full {
     @apply tw-rounded-sm tw-px-2 tw-bg-white tw-border-primary tw-border tw-text-primary tw-font-semibold tw-px-2 tw-text-ellipsis tw-overflow-hidden tw-whitespace-nowrap hover:tw-bg-secondary;
@@ -38,7 +41,7 @@
     @apply tw-overflow-hidden tw-border tw-rounded-sm tw-shadow-sm tw-border;
   }
   .input-border {
-    @apply tw-border tw-border-default/20 tw-rounded-sm tw-border 
+    @apply tw-border tw-border-default/20 tw-rounded-sm tw-border;
   }
   .input-border:focus-visible{
     @apply tw-border-primary tw-outline-0 tw-border tw-inset-shadow  tw-shadow-primary;
@@ -54,7 +57,9 @@
 
   .splitpanes.pane-wrapper{
     @apply tw-bg-secondary ;
-    @apply tw-h-full  #{!important};
+  }
+  .splitpanes{
+    @apply tw-h-auto  ;
   }
   .pane-left {
     @apply  tw-mr-1;
@@ -68,8 +73,7 @@
   }
 
   .splitpanes.default-theme .splitpanes__pane{
-    @apply tw-bg-secondary #{!important}
-
+    @apply tw-bg-secondary #{!important};
   }
   .text-icon-primary{
     @apply tw-text-white tw-bg-primary tw-py-0.5 tw-px-2 tw-text-sm tw-font-semibold tw-rounded-sm tw-mr-1 hover:tw-text-default hover:tw-bg-white
@@ -77,6 +81,9 @@
 
   .icon-primary{
     @apply tw-text-white tw-bg-primary tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-rounded-sm tw-mr-1 hover:tw-text-default hover:tw-bg-white;
+  }
+  .icon-default{
+    @apply tw-text-default tw-bg-white tw-border tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-rounded-sm tw-mr-1 hover:tw-bg-primary hover:tw-text-white;
   }
   .grid-stack {
     @apply tw-bg-secondary tw-h-full tw-bg-repeat tw-bg-[length:80px_80px] ;
@@ -97,6 +104,13 @@
     @apply tw-text-sm tw-text-default/80
   }
 
+  .item-3070-columns > *{
+    @apply tw-flex-[1_1_30%] last:tw-flex-[1_1_70%];
+  }
+
+  .menu-item{
+    @apply tw-py-1 tw-cursor-pointer tw-whitespace-nowrap tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0;
+  }
   .editor-content {
     h1 {
       font-size: 3em;
@@ -159,17 +173,17 @@
 
 }
 // .grid-stack > .grid-stack-item {
-  //
-  //   $gridstack-columns: 24;
-  //
-  //   min-width: 100%/$gridstack-columns;
-  //
-  //   @for $i from 0 through $gridstack-columns {
-    //     &[gs-w='#{$i}'] { width: (100% / $gridstack-columns) * $i !important; }
-    //     &[gs-x='#{$i}'] { left: (100% / $gridstack-columns) * $i !important; }
-    //     &[gs-min-w='#{$i}'] { min-width: (100% / $gridstack-columns) * $i !important; }
-    //     &[gs-max-w='#{$i}'] { max-width: (100% / $gridstack-columns) * $i !important; }
-  //   }
+//
+//   $gridstack-columns: 24;
+//
+//   min-width: 100%/$gridstack-columns;
+//
+//   @for $i from 0 through $gridstack-columns {
+//     &[gs-w='#{$i}'] { width: (100% / $gridstack-columns) * $i !important; }
+//     &[gs-x='#{$i}'] { left: (100% / $gridstack-columns) * $i !important; }
+//     &[gs-min-w='#{$i}'] { min-width: (100% / $gridstack-columns) * $i !important; }
+//     &[gs-max-w='#{$i}'] { max-width: (100% / $gridstack-columns) * $i !important; }
+//   }
 // } 
 
 .v-enter-active,
@@ -186,8 +200,9 @@
   height: 100%
 }
 
-table{
-  border-collapse: unset !important;
+table, td, tr, thead, tbody{
+  border-collapse: collapse !important;
+  border-spacing: 0;
 }
 
 
@@ -201,7 +216,7 @@ td{
 
 html {
   font-family: 'Lato', sans-serif !important;
-  font-size: 0.8125rem;
+  font-size: 1rem;
   color: #6e7687;
 }
 
@@ -217,6 +232,10 @@ html {
   content: '';
 }
 
+.q-menu {
+  z-index: 100000 !important;
+}
+
 body *::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -224,8 +243,8 @@ body *::-webkit-scrollbar {
 }
 
 // body ::-webkit-scrollbar-track {
-  //     background: rgb(255 0 0 / 10%);
-  //     border-radius: 0px;
+//     background: rgb(255 0 0 / 10%);
+//     border-radius: 0px;
 // }
 
 body *:hover::-webkit-scrollbar-thumb {
@@ -240,6 +259,7 @@ body *::-webkit-scrollbar-thumb {
   background: #ced4da;
   border-radius: 100px;
 }
+
 
 
 .splitpanes--vertical > .splitpanes__splitter {
@@ -260,5 +280,5 @@ body *::-webkit-scrollbar-thumb {
 .splitpanes {
   display: flex;
   width: 100%;
-  height: auto !important;
 }
+

@@ -35,32 +35,36 @@ defmodule AfterGlow.QueryTerms.Conversions do
 
     filters =
       if viz_filters && viz_filters |> length() >= 0 do
-        viz_filters |> Enum.map(fn filter -> convert_filter(filter) end)
-        |> Enum.filter(&(&1))
+        viz_filters
+        |> Enum.map(fn filter -> convert_filter(filter) end)
+        |> Enum.filter(& &1)
       end
 
     viz_groupings = get_in(viz_terms, ["details", "groupings", "details"])
 
     groupings =
       if viz_groupings && viz_groupings |> length() > 0 do
-        viz_groupings |> Enum.map(fn grouping -> convert_groupings(grouping) end)
-        |> Enum.filter(&(&1))
+        viz_groupings
+        |> Enum.map(fn grouping -> convert_groupings(grouping) end)
+        |> Enum.filter(& &1)
       end
 
     viz_sortings = get_in(viz_terms, ["details", "sortings", "details"])
 
     sortings =
       if viz_sortings && viz_sortings |> length() > 0 do
-        viz_sortings |> Enum.map(fn sorting -> convert_sortings(sorting) end)
-        |> Enum.filter(&(&1))
+        viz_sortings
+        |> Enum.map(fn sorting -> convert_sortings(sorting) end)
+        |> Enum.filter(& &1)
       end
 
     viz_views = get_in(viz_terms, ["details", "views", "details"])
 
     views =
       if viz_views && viz_views |> length() > 0 do
-        viz_views |> Enum.map(fn view -> convert_views(view) end)
-        |> Enum.filter(&(&1))
+        viz_views
+        |> Enum.map(fn view -> convert_views(view) end)
+        |> Enum.filter(& &1)
       end
 
     qt
@@ -69,7 +73,7 @@ defmodule AfterGlow.QueryTerms.Conversions do
       "groupBys" => groupings,
       "orderBys" => sortings,
       "views" => views
-    }) 
+    })
   end
 
   defp convert_filter(
@@ -146,7 +150,7 @@ defmodule AfterGlow.QueryTerms.Conversions do
   end
 
   defp convert_groupings(grouping) do
-  nil
+    nil
   end
 
   defp convert_sortings(%{"raw" => false, "column" => col, "direction" => direction}) do
@@ -161,7 +165,7 @@ defmodule AfterGlow.QueryTerms.Conversions do
   end
 
   defp convert_groupings(grouping) do
-  nil
+    nil
   end
 
   # defp convert_views(%{"raw" => false, "column" => col, "direction" => direction}) do
@@ -171,17 +175,36 @@ defmodule AfterGlow.QueryTerms.Conversions do
   #   }
   # end
 
-  defp convert_views(%{"isAggregation" => true, "raw" => false, "agg" => agg = "percentile of", "column" => column, "value" => value}) do
-    %{"selected" => %{"raw" => false, "column" =>  column, "agg" => agg, "value" => value }}
+  defp convert_views(%{
+         "isAggregation" => true,
+         "raw" => false,
+         "agg" => agg = "percentile of",
+         "column" => column,
+         "value" => value
+       }) do
+    %{"selected" => %{"raw" => false, "column" => column, "agg" => agg, "value" => value}}
   end
-  defp convert_views(%{"isAggregation" => true, "raw" => false, "agg" => agg = "count of rows", "column" => column = "all"}) do
-    %{"selected" => %{"raw" => false, "column" =>  nil, "agg" => agg}}
+
+  defp convert_views(%{
+         "isAggregation" => true,
+         "raw" => false,
+         "agg" => agg = "count of rows",
+         "column" => column = "all"
+       }) do
+    %{"selected" => %{"raw" => false, "column" => nil, "agg" => agg}}
   end
-  defp convert_views(%{"isAggregation" => true, "raw" => false, "agg" => agg = "count of rows", "column" => column}) do
-    %{"selected" => %{"raw" => false, "column" =>  column, "agg" => agg}}
+
+  defp convert_views(%{
+         "isAggregation" => true,
+         "raw" => false,
+         "agg" => agg = "count of rows",
+         "column" => column
+       }) do
+    %{"selected" => %{"raw" => false, "column" => column, "agg" => agg}}
   end
+
   defp convert_views(%{"isAggregation" => true, "raw" => false, "agg" => agg, "column" => column}) do
-    %{"selected" => %{"raw" => false, "column" =>  column, "agg" => agg}}
+    %{"selected" => %{"raw" => false, "column" => column, "agg" => agg}}
   end
 
   defp convert_views(%{"isAggregation" => false, "raw" => false, "columns" => columns}) do
@@ -195,7 +218,7 @@ defmodule AfterGlow.QueryTerms.Conversions do
         end
       end)
 
-    %{"selected" => %{"raw" => true, "value" => columns |> Enum.join(", ")}}
+    %{"selected" => %{"raw" => true, "value" => columns}}
   end
 
   defp convert_views(view = %{"raw" => true, "value" => val}) do

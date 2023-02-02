@@ -2,13 +2,14 @@
   <div class="tw-w-full tw-bg-white tw-rounded-sm tw-border tw-shadow-sm tw-flex tw-min-h-[600px]"
     v-if="startingPage">
     <div class="tw-text-2xl tw-m-auto ">
-      Wanna See Something Cool ? Run a Query
+      Wanna See Something Cool?  Run a Query! 
     </div>
 
   </div>
+  <AGLoader class="tw-min-h-[450px] tw-bg-white tw-shadow-sm tw-rounded-sm" text="Initializing" v-if="loading && !results" />
   <div class="tw-w-full tw-bg-secondary" v-if="results">
 
-    <VisualizationLayout v-model:visualizations="visualizationsLocal" @deleteViz="(index) => $emit('deleteViz', index)"
+    <VisualizationLayout class="tw-mb-2" v-model:visualizations="visualizationsLocal" @deleteViz="(index) => $emit('deleteViz', index)"
       @fetchVizResults="(viz) => $emit('fetchVizResults', viz)" :quesConfig="question && question.config">
       <span class="tw-cursor-pointer tw-mr-4" :class="iconClass" @click="(showQuestionSettingsModal = true)"
         v-if="questionID && currentUser.canEditQuestion">
@@ -17,7 +18,7 @@
         <SettingsIcon class="tw-h-3 tw-w-3 tw-inline" />
       </span>
     </VisualizationLayout>
-    <splitpanes class="pane-wrapper default-theme tw-flex" ref="chart-parent"
+    <splitpanes class="pane-wrapper default-theme tw-flex !tw-h-full" ref="chart-parent"
       @resize="settingsPanesize = 100 - $event[0].size">
       <pane :size="100" class="pane tw-flex tw-flex-col" :class="showSettings ? 'pane-left' : ''">
 
@@ -43,7 +44,7 @@
                 <CodeIcon class="tw-h-3 tw-w-3 tw-inline" />
               </span>
             </div>
-            <div class=" tw-inline tw-px-0.5 tw-h-[30px]" v-if="results && results.rows && results.rows.length > 0">
+            <div class=" tw-inline tw-px-0.5 tw-h-[30px]" v-if="results && results.rows && results.rows.length > 0 && canSeeDebugInfo">
               <span class="tw-cursor-pointer" :class="[showSettings ? iconActiveClass : iconClass]"
                 @click="showSettings = !showSettings">
                 <q-tooltip transition-show="scale" transition-hide="scale"> Settings
@@ -61,7 +62,7 @@
               </span>
             </div>
             <div class=" tw-inline tw-px-0.5 tw-h-[30px]"
-              v-if="results && results.rows && results.rows.length > 0 && (currentUser.canDownload && currentUser.canCreateDashboard)">
+              v-if="results && results.rows && (currentUser.canDownload && currentUser.canCreateDashboard)">
               <span class="tw-cursor-pointer" :class="iconClass">
                 <q-tooltip transition-show="scale" transition-hide="scale"> More Actions
                 </q-tooltip>
@@ -91,15 +92,18 @@
         <div class="tw-flex-[1_1_100%] tw-flex tw-flex-col tw-shadow-sm" v-if="!loading">
           <DebugInfo :query="results.final_query" v-model:showQuery="showQuery" :fromCache="results.from_cache" :cacheUpdatedAt="results.cache_updated_at" :cachedUntil="results.cached_until"
             class="tw-border tw-mb-[10px] tw-bg-white" v-if="showDebugInfo && canSeeDebugInfo" />
-          <VizComponent :results="results" :resultsKey="resultskey" :queryKey="queryKey" :visualization="currentViz"
+          <div id="settings-container" v-if="showSettings && results.rows && results.rows.length > 0 && !loading && canSeeDebugInfo" ></div>
+          <VizComponent :results="results" :resultsKey="resultskey" :queryKey="queryKey" v-model:visualization="currentViz"
             :apiActionsQuesLevel="apiActionsQuesLevel" :questionID="questionID" :size="settingsPanesize"
             class="tw-overflow-auto tw-shadow-sm tw-border tw-bg-white tw-rounded-sm tw-flex-[1_1_100%] tw-min-h-[400px]"
-            @addFilter="(filter) => addFilter(filter)" @addSorting="(sorting) => addSorting(sorting)"
+            @addFilter="(filter) => addFilter(filter)" @addSorting="(sorting) => addSorting(sorting)" 
+            :showSettings="showSettings && results.rows && results.rows.length > 0 && !loading && canSeeDebugInfo"
+            @updatedSettings="(val) => settingsFromViz = val"
             :key="rerenderKey" />
         </div>
       </pane>
       <pane :size="settingsPanesize" ref="chart" class="pane pane-right tw-shadow-sm !tw-border"
-        v-if="showSettings && results.rows && results.rows.length > 0 && !loading">
+        v-if="showSettings && results.rows && results.rows.length > 0 && !loading && canSeeDebugInfo">
         <div class="tw-bg-white tw-border-b-2 tw-border-primary" v-if="currentUser.canEditQuestion && questionID">
           <BoxSelect :options="settingsCategories" :selected="settingsCategory"
             @selected="(val) => settingsCategory = val" class="tw-pt-2 tw-text-center" />
@@ -119,14 +123,16 @@
             :apiActionsVizLevel="apiActionsVizLevel" :apiActionsQuesLevel="apiActionsQuesLevel"
             :additionalProps="componentDefs[currentViz.rendererType]['additionalProps']" :questionID="questionID"
             :visualizationID="currentViz.id" :settings="currentViz.settings[currentViz.rendererType]"
+            :settingsFromViz="settingsFromViz"
+            :size="settingsPanesize"
             @updateApiActions="$emit('updateApiActions')" :key="rerenderKey" />
         </div>
       </pane>
     </splitpanes>
   </div>
   <AddToDashboard v-model:open="openAddToDashboard" :visualizationID="currentViz.id" :queryKey="queryKey" />
-  <AGQuestionsSettings v-model:open="showQuestionSettingsModal" v-model:question="question" @saveQuestion="saveQuestion"
-    v-if="questionID" :key="showQuestionSettingsModal" />
+  <!-- <AGQuestionsSettings v-model:open="showQuestionSettingsModal" v-model:question="question" @saveQuestion="saveQuestion" -->
+  <!--   v-if="questionID" :key="showQuestionSettingsModal" /> -->
 </template>
 
 <script>
@@ -181,7 +187,10 @@ export default {
     apiActionKeyVizLevel: {},
     questionID: {},
     startingPage: {},
+    question: {}
   },
+
+
 
   watch: {
     resultsKey() {
@@ -197,12 +206,6 @@ export default {
     },
     dataLoaded() {
       this.updateProps()
-    },
-    componentDefs: {
-      handler() {
-        console.log(this.componentDefs)
-      },
-      deep: true
     },
     showSettings() {
       this.settingsPanesize = this.showSettings ? 30 : 0
@@ -294,7 +297,6 @@ export default {
 
   data() {
     const vizs = this.visualizations.details || { towardsVizLayout: true, details: [_.cloneDeep(newVisualization)] }
-    console.log(vizs)
     if (vizs.details.filter(viz => viz.current).length === 0) {
       vizs.details[0].current = true
     }
@@ -319,8 +321,8 @@ export default {
       openAddToDashboard: false,
       currentUser: currentUser,
       showQuestionSettingsModal: false,
-      question: null,
       settingsCategory: 'visualization',
+      settingsFromViz: null,
       settingsCategories: settingsCategories.map(s => {
         return { name: s, value: s }
       })
@@ -348,17 +350,7 @@ export default {
       this.currentViz.queryTerms.details.sortings.details.push(sorting)
       this.currentViz.queryTerms.towardsQTLayout = true
     },
-    setQuestion(question, loading) {
-      this.question = question
-      if (!loading) {
-        this.showQuestionSettingsModal = false
-      }
-    },
 
-    saveQuestion() {
-      const query = queryStore().get(this.queryKey)
-      saveQuestion(this.questionID, this.question, query.token, this.setQuestion)
-    }
   },
 
 
@@ -367,7 +359,6 @@ export default {
     this.updateProps()
     if (this.questionID) {
       const query = queryStore().get(this.queryKey)
-      fetchQuestion(this.questionID, query.token, this.setQuestion)
       const apiActions = apiActionStore()
       this.apiActionsQuesLevel = apiActions.get(this.apiActionKeyQuesLevel)
     }

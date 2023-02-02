@@ -62,12 +62,6 @@
                         {{/ddm.item}}
                         {{/if}}
                         {{/if}}
-                        {{#if (and enableAddToDashboard canEdit)}}
-                        {{#ddm.item}}
-                        <a class="dropdown-item border-bottom" {{action 'showAddToDashboard'}}> Add
-                            Question to Dashboard</a>
-                        {{/ddm.item}}
-                        {{/if}}
                         {{#ddm.item}}
                         <a class="dropdown-item" {{action 'toggleVariableWindow'}}>Toggle Variable Window</a>
                         {{/ddm.item}}

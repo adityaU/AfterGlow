@@ -9,7 +9,7 @@ defmodule AfterGlow.Utils.Models.Crud do
       def list(%{}), do: _list(%{})
 
       def _list() do
-        from(m in @model, order_by: [:id, :asc]) |> Repo.all() |> _preload(@default_preloads)
+        from(m in @model, order_by: [asc: :id]) |> Repo.all() |> _preload(@default_preloads)
       end
 
       def _list(%{"filter" => %{"id" => ids}}) do

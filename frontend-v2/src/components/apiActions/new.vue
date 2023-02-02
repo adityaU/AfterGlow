@@ -1,6 +1,6 @@
 <template>
-  <div class="tw-text-indigo-700 tw-text-teal-700 tw-text-red-700 tw-text-yellow-700 tw-hidden"></div>
   <Teleport to="body">
+    <div class="tw-text-indigo-700 tw-text-teal-700 tw-text-red-700 tw-text-yellow-700 tw-hidden"></div>
     <AGModal :show="open" @update:show="(val) => $emit('update:show', val)" :loading="loading" :loadingMessage="loadingMessage">
       <template #header>
         <div class="tw-p-2 tw-text-2xl tw-font-semibold" v-if="!apiActionLocal.id">
@@ -15,8 +15,17 @@
           Pro tip: You can use column names/ question variables as variables. Use {{ escapedText }} in name, url,
           headers and body fields. Using this feature in name field replaces the action name by column value
         </div>
+        <div class="tw-p-2 tw-text-sm" v-if="apiAction?.display_settings?.renderForm">
+          These additional variables from form are also available for you to use in the action.
+          <template v-for="field in apiAction?.display_settings?.form.fields" :key="field" >
+            <span class="tw-px-2 tw-border tw-bg-secondary tw-mx-1" v-if="field.show && field.type === 'Field'">
+              {{wrapInCurly(field.label)}}
+            </span>
+          </template>
+          <span class="tw-cursor-pointer tw-text-primary tw-m-2" @click="$emit('editForm')">Edit Form</span>
+        </div>
         <div class="tw-grid tw-grid-cols-12">
-          <div class="tw-col-span-6 tw-px-2 tw-mb-2">
+          <div class="tw-col-span-4 tw-px-2 tw-mb-2">
             <div class="tw-text-sm tw-font-semibold">Name</div>
             <AGInput label="Name" placeholder="Give it a name" class="tw-mb-1" v-model:value="apiActionLocal.name" />
 
@@ -25,14 +34,21 @@
             </div>
           </div>
 
-          <div class="tw-col-span-5 tw-px-2 tw-mb-2 tw-ml-[-10px] tw-mt-2 tw-text-right">
-            <q-toggle v-model="availability" color="primary"
-              label="Available for current visualization only" />
-          </div>
           <div class="tw-col-span-1 tw-px-2 tw-mb-2 tw-text-right">
             <div class="tw-text-sm tw-font-semibold">color</div>
             <div class="tw-mb-1 tw-mt-1">
-              <ColorSelect v-model:selectedColor="apiActionLocal.color" naked=true />
+              <ColorSelect v-model:selectedColor="apiActionLocal.color" naked=true :additionalColors="additionalColors" />
+            </div>
+          </div>
+          <div class="tw-col-span-12 tw-px-2 tw-mb-2 tw-ml-[-10px] tw-mt-2">
+            <q-toggle v-model="availability" color="primary"
+              label="Available for current visualization only" />
+          </div>
+
+          <div class="tw-col-span-1 tw-px-2 tw-mb-2 tw-text-right" v-if="apiActionLocal.display_settings.show_as_button">
+            <div class="tw-text-sm tw-font-semibold">Background color</div>
+            <div class="tw-mb-1 tw-mt-1">
+              <ColorSelect v-model:selectedColor="apiActionLocal.display_settings.backgroundColor" naked=true :additionalColors="additionalColors" />
             </div>
           </div>
 
@@ -82,7 +98,7 @@
               rows=10 />
           </div>
           <div class="tw-col-span-12 tw-px-2 tw-mb-2 tw-ml-[-10px]" v-if="apiActionLocal.method === 'GET'">
-            <q-toggle v-model="apiActionLocal.open_in_new_tab" color="primary" label="Open in new tab" />
+            <BoxSelect :options="openOptions" v-model:selected="apiActionLocal.open_option" /> 
           </div>
         </div>
 
@@ -151,7 +167,7 @@ import { PlusIcon } from 'vue-tabler-icons'
 
 import { defaultColors } from 'src/helpers/colorGenerator'
 
-import { _ } from 'lodash'
+import { cloneDeep } from 'lodash'
 
 const newHeader = { name: null, value: '' }
 const newApiAction = {
@@ -160,26 +176,41 @@ const newApiAction = {
   color: defaultColors[0],
   url: null,
   headers: { '': null },
-  dummyHeaders: [_.cloneDeep(newHeader)],
+  dummyHeaders: [cloneDeep(newHeader)],
   open_in_new_tab: false,
   only_current_viz: false,
   question_id: null,
   visualization_id: null,
-  loading_message: 'Running API Action'
+  loading_message: 'Running API Action',
+  display_settings: {
+    icon: null,
+    display: 'name only',
+    icon_as: 'prefix',
+  },
+  open_option: 'open-same-tab',
 }
 export default {
   name: 'ApiActionLink',
   props: ['link', 'row', 'columns', 'queryKey', 'open', 'questionID', 'visualizationID', 'apiAction'],
-  components: { AGModal, AGInput, BoxSelect, ColorSelect, AGButton, PlusIcon },
+  components: { AGModal, AGInput, BoxSelect, ColorSelect, AGButton, PlusIcon},
   data() {
+    const openOption = this.apiAction && !this.apiAction.open_option && this.apiAction.open_in_new_tab ? "open-new-tab" : (this.apiAction && this.apiAction.open_option) || 'open-same-tab'
     return {
       escapedText: '{{ column_name }}',
       loading: false,
       contentType: 'json',
+      displayOptions: ['icon only', 'name only', 'both'].map(v => {
+        return {name: v, value: v}
+      }),
       methodOptions: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].map(item => {
         return { name: item, value: item }
       }),
-      apiActionLocal: this.apiAction ? _.cloneDeep(this.apiAction) : _.cloneDeep(newApiAction),
+      openOptions: [{name: 'Open in New Tab', value: 'open-new-tab'}, {name: 'Open in this tab', value: 'open-same-tab'}, {name: 'Show Results in Modal', value: 'show-in-modal'}],
+      apiActionLocal: {... cloneDeep(newApiAction), ...this.apiAction, ...{open_option: openOption}},
+      additionalColors: ["white", "#6e7687", "#f5f7fb"], 
+      prefixSuffixOptions: ['prefix', 'suffix'].map(v => {
+        return {name: v, value: v}
+      }),
       error: null
     }
   },
@@ -242,6 +273,9 @@ export default {
   },
 
   methods: {
+    wrapInCurly(name){
+      return `{{form:${name}}}`
+    },
     save() {
       const query = queryStore().get(this.queryKey)
       this.apiActionLocal.headers = {}
@@ -259,9 +293,9 @@ export default {
           this.$emit('update:apiAction')
           this.$emit('update:open', false)
         }).catch(error => {
-          this.loading = false
-          this.error = error.response.data
-        })
+            this.loading = false
+            this.error = error.response.data
+          })
         return
 
       }
@@ -271,9 +305,9 @@ export default {
         this.$emit('update:apiAction')
         this.$emit('update:open', false)
       }).catch(error => {
-        this.loading = false
-        this.error = error.response.data
-      })
+          this.loading = false
+          this.error = error.response.data
+        })
 
     }
   }

@@ -1,5 +1,8 @@
 <template>
-  <!-- -->
+
+  <AGWithLoginHeader />
+  <AGQuestionEditor v-model:question="question"/>
+
   <AGLoader text="Initializing" v-if="!dataLoaded" class="tw-bg-white tw-shadow-sm tw-rounded-sm tw-min-h-[400px]" />
   <div class="tw-h-full tw-w-full tw-flex" v-if="dataLoaded">
     <BaseDataRenderer ref="root" :resultsKey="resultsKey" :dataLoaded="dataLoaded"
@@ -7,12 +10,14 @@
       :apiActionKeyVizLevel="apiActionKeyVizLevel" :queryKey="queryKey" :questionID="questionID"
       @fetchVizResults="refreshVizResults" v-model:loading="loading" @updateApiActions="fetchQuestionApiActions"
       @updateViz="(viz) => emitToParent(viz, true)" :finalQuery="finalQuery" @download='download' 
-      :startingPage="startingPage"></BaseDataRenderer>
+      :startingPage="startingPage" :question="question" ></BaseDataRenderer>
   </div>
   <AGToast v-model:show="toastShow" :type="toastType">{{ toastMessage }}</AGToast>
 </template>
 
 <script >
+import AGQuestionEditor from 'components/question/editor.vue'
+import AGWithLoginHeader from 'components/header/withLogin.vue'
 import BaseDataRenderer from 'components/dataRenderers/base.vue';
 import AGLoader from 'components/utils/loader.vue'
 import AGToast from 'components/utils/toast.vue';
@@ -24,17 +29,22 @@ import { queryStore } from 'stores/query'
 import hash from '../helpers/hash'
 import apiConfig from '../helpers/apiConfig'
 
-import { fetchQuestionResults } from 'src/apis/questions'
+import { fetchQuestionResults, fetchQuestion } from 'src/apis/questions'
 import { fetchQuestionApiActions } from 'src/apis/apiActions'
 import { fetchVizResults, makeVisualizationFromResponse, downloadVizData } from 'src/apis/visualization'
 
+import {sessionStore} from 'src/stores/session'
+
+const session = sessionStore()
 import { _ } from 'lodash'
 import { authMixin } from 'src/mixins/auth'
 
 
 export default {
   name: 'QuestionPage',
-  components: { BaseDataRenderer, AGLoader, AGToast },
+  components: { BaseDataRenderer, AGLoader, AGToast,
+    AGWithLoginHeader, AGQuestionEditor
+  },
   mixins: [authMixin],
 
   data() {
@@ -42,13 +52,14 @@ export default {
     const query = route.query
     const results = resultsStore();
     return {
+      question: null,
       resultsKey: null,
       dataLoaded: false,
       visualizations: { details: null },
       loading: false,
       query: query,
       params: route.params,
-      payload: JSON.parse(query.payload),
+      payload: JSON.parse(query?.payload || '{}'),
       resultsStore: results,
       apiActionStore: apiActionStore(),
       queryKey: null,
@@ -61,7 +72,6 @@ export default {
     }
   },
   async created() {
-    console.log("starting...")
     if (this.payload && !this.payload.empty) {
       this.queryKey = await hash(this.query)
       queryStore().push(this.query, this.queryKey)
@@ -69,6 +79,7 @@ export default {
       this.questionID = questionID
       this.payload.question_id = questionID
       if (questionID != null && questionID != 'null') {
+        fetchQuestion(questionID, session.token, this.setQuestion)
         this.fetchQuestionApiActions(questionID)
           this.dataLoaded = false
         api.get('visualizations' + "?question_id=" + questionID, apiConfig(this.query.token)).then((response) => {
@@ -95,6 +106,13 @@ export default {
   },
 
   methods: {
+    setQuestion(question, loading) {
+      this.question = question
+      if (!loading) {
+        this.showQuestionSettingsModal = false
+      }
+    },
+
     setLoadingAndResultsKey(key, loading) {
       this.startingPage = false
       this.loading = loading
@@ -270,6 +288,11 @@ export default {
         this.toastType = "critical"
         return
       }
+    },
+
+    saveQuestion() {
+      const query = queryStore().get(this.queryKey)
+      saveQuestion(this.questionID, this.question, query.token, this.setQuestion)
     },
     download() {
       let currentViz = this.visualizations && this.visualizations.details && this.visualizations.details.details.filter(viz => viz && viz.current)

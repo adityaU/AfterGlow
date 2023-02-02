@@ -1,5 +1,6 @@
 defmodule AfterGlow.Router do
   use AfterGlow.Web, :router
+  use Plug.ErrorHandler
 
   pipeline :browser do
     plug(:accepts, ["html"])
@@ -35,7 +36,7 @@ defmodule AfterGlow.Router do
     resources("/questions", QuestionController)
     resources("/question_banks", QuestionBankController)
     resources("/databases", DatabaseController)
-    resources("/tables", TableController, except: [:new, :edi])
+    resources("/tables", TableController, except: [:new, :edit])
     resources("/columns", ColumnController, except: [:new, :edit])
     resources("/users", UserController, except: [:new, :edit])
     resources("/api_actions", ApiActionController)
@@ -92,10 +93,30 @@ defmodule AfterGlow.Router do
     post("/teams/:id/remove_database", TeamController, :remove_database)
 
     get("dashboards/:id/html", HTMLDashoardController, :get)
+    get("recipients", SearchItemController, :get_recipients)
+    post("dashboards/:id/schedule", ScheduleController, :save_for_dashbaord)
+    get("dashboards/:id/schedule", ScheduleController, :show)
+    get("dashboards/:id/possible_variables", NewDashboardController, :possible_variables)
   end
 
   # Other scopes may use custom stacks.
   # scope "/api", AfterGlow do
   #   pipe_through :api
   # end
+
+  @impl Plug.ErrorHandler
+  def handle_errors(conn, error = %{kind: _kind, reason: reason, stack: stack}) do
+    IO.inspect(error, label: "Internal Server Error")
+
+    message =
+      ("Unexpected Error : " <> (reason |> inspect()))
+      |> String.replace("Elixir.", "")
+      |> String.replace("elixir.", "")
+      |> String.replace("elixir", "")
+      |> String.replace("erlang", "")
+
+    json(conn, %{
+      error: %{message: message}
+    })
+  end
 end

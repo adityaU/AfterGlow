@@ -21,7 +21,6 @@ export default {
     vizConfigLocal: {
       deep: true,
       handler(){
-        console.log(this.vizConfigLocal)
         this.$emit('update:vizConfig', this.vizConfigLocal)
       }
     }

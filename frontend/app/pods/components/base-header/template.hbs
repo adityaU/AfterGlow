@@ -14,11 +14,11 @@
           <div class="menu-content">
             {{#each dashboards as |dashboard|}}
             {{#ddm.item}}
-            <a class="dropdown-item " {{action 'goToDashboard' dashboard}}> {{dashboard.title}} </a>
+            <a href="/frontend/dashboards/{{dashboard.id}}" class="dropdown-item " > {{dashboard.title}} </a>
             {{/ddm.item}}
             {{/each}} {{ddm.divider}}
             {{#ddm.item}}
-            {{#link-to 'dashboards.index' class="dropdown-item" }} All Dashboards {{/link-to}}
+            <a href="/frontend/dashboards/{{dashboard.id}}" class="dropdown-item " > All Dashboards </a>
             {{/ddm.item}}
 
           </div>

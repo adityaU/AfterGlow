@@ -8,6 +8,8 @@ defmodule AfterGlow.DashboardController do
   import Ecto.Query
 
   alias AfterGlow.Variable
+
+  alias AfterGlow.Dashboards.DQQueryFunctions, as: DashboardQuestions
   alias JaSerializer.Params
   alias AfterGlow.CacheWrapper
   alias AfterGlow.CacheWrapper.Repo
@@ -139,22 +141,27 @@ defmodule AfterGlow.DashboardController do
       |> Repo.preload(:notes)
 
     changeset = Dashboard.changeset(dashboard, prms)
-    question_ids = prms["questions_ids"]
+
+    question_ids =
+      prms["questions_ids"] ||
+        DashboardQuestions.get_question_ids_from_settings(prms)
 
     questions =
-      if (!question_ids) || (question_ids && question_ids |> Enum.empty?()),
+      if !question_ids || (question_ids && question_ids |> Enum.empty?()),
         do: nil,
         else: Repo.all(from(q in Question, where: q.id in ^question_ids))
 
     tag_ids = prms["tags_ids"]
 
     tags =
-      if (!tag_ids) || (tag_ids && tag_ids |> Enum.empty?()),
+      if !tag_ids || (tag_ids && tag_ids |> Enum.empty?()),
         do: nil,
         else: Repo.all(from(t in Tag, where: t.id in ^tag_ids))
+
     case Dashboard.update(changeset, questions, tags) do
       {:ok, dashboard} ->
         Widgets.sync(dashboard)
+
         dashboard =
           dashboard |> Repo.preload(:questions) |> Repo.preload(:tags) |> Repo.preload(:variables)
 

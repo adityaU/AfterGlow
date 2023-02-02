@@ -11,7 +11,8 @@ defmodule AfterGlow do
 
     Postgrex.Types.define(
       AfterGlow.PostgrexTypes,
-      [Postgrex.Extensions.JSON, Postgrex.Extensions.INET] ++ [Postgrex.Extensions.UUIDText],
+      [Postgrex.Extensions.JSON, Postgrex.Extensions.INET] ++
+        [Postgrex.Extensions.UUIDText, AfterGlow.Postgrex.Extensions.Super],
       json: Jason
     )
 
@@ -39,7 +40,7 @@ defmodule AfterGlow do
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: AfterGlow.Supervisor]
+    opts = [strategy: :one_for_all, name: AfterGlow.Supervisor, restart: :permanent]
     Supervisor.start_link(children, opts)
   end
 

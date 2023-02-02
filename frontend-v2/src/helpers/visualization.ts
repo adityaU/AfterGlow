@@ -1,4 +1,4 @@
-import {newQueryTerms} from './qtHelpers'
+import { newQueryTerms } from './qtHelpers'
 import cloneDeep from 'lodash/cloneDeep'
 const newSettings =
 {
@@ -11,6 +11,7 @@ const newSettings =
   area: null,
   bubble: null,
   number: null,
+  customList: null,
 }
 
 
@@ -21,4 +22,4 @@ const newVisualization = {
   queryTerms: cloneDeep(newQueryTerms)
 }
 
-export {newSettings, newVisualization}
+export { newSettings, newVisualization }

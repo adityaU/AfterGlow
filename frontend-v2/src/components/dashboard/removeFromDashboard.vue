@@ -1,7 +1,7 @@
 <template>
     <teleport to="body">
 
-        <AGModal size="small" :show="open" @update:show="(val) => $emit('update:show', val)" :loading="loading"
+        <AGModal class="!tw-fixed" size="small" :show="open" @update:show="(val) => $emit('update:show', val)" :loading="loading"
             :loadingMessage="loadingMessage">
             <template #header>
                 <div class="tw-p-2 tw-text-2xl tw-font-semibold">

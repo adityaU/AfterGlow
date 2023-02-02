@@ -121,7 +121,6 @@ export default {
                 },
                 columnDataType() {
                         const dt =  this.getColumnDataType(this.sortingLocal, this.colDetails)
-                        console.log(dt)
 
                         return dt
                 },

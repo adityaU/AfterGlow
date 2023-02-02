@@ -25,6 +25,11 @@ export default {
   name: "AGToast",
   props: ['show', 'type'],
   components: { XIcon },
+  watch: {
+    type(){
+      this.borderClass = borderClasses[this.type]
+    }
+  },
   data() {
     return {
       borderClass: borderClasses[this.type]
@@ -36,7 +41,7 @@ export default {
       if (this.show) {
         setTimeout(() => {
           this.$emit('update:show', false)
-        }, 5000000)
+        }, 5000)
       }
     }
   }

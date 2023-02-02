@@ -17,7 +17,8 @@ defmodule AfterGlow.ApiActionView do
     :inserted_at,
     :updated_at,
     :column,
-    :top_level_question_id
+    :top_level_question_id,
+    :display_settings
   ])
 
   def type do

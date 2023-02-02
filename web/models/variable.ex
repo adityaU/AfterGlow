@@ -33,9 +33,9 @@ defmodule AfterGlow.Variable do
       :question_filter_id,
       :dashboard_id,
       :question_id,
-      :value,
       :question_filter_id
     ])
+    |> cast(params, [:value], empty_values: [])
     |> make_default_from_default_options
     |> validate_required([:name, :var_type])
   end
@@ -110,7 +110,11 @@ defmodule AfterGlow.Variable do
     end
   end
 
-  def format_value(variable, nil) do
+  def format_value(_variable, "") do
+    ""
+  end
+
+  def format_value(_variable, nil) do
     ""
   end
 

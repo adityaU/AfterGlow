@@ -145,12 +145,20 @@ defmodule AfterGlow.Question do
   defp convert_to_variables(vars) do
     vars
     |> Enum.map(fn default_var ->
+      default_var
+
       if default_var |> Map.has_key?(:__struct__) do
         default_var
       else
         Variable.changeset(%Variable{}, default_var).changes
       end
     end)
+  end
+
+  def hashed(name) do
+    "q_" <>
+      (name
+       |> String.replace(~r/[^a-zA-Z0-9]/, "_"))
   end
 
   def replace_variables(query, default_variables, query_variables, snapshot \\ nil) do
@@ -160,6 +168,20 @@ defmodule AfterGlow.Question do
 
     query_variables =
       query_variables
+      |> Enum.map(fn v ->
+        matched =
+          default_variables
+          |> Enum.find(fn x ->
+            x.name == get_in(v, ["name"]) || hashed(x.name) == get_in(v, ["name"])
+          end)
+
+        new_name = if matched, do: matched.name, else: nil
+        default_options = if matched, do: matched.default_options, else: nil
+
+        v
+        |> Map.merge(%{"name" => new_name, "default_options" => default_options})
+      end)
+      |> Enum.filter(&get_in(&1, ["name"]))
       |> convert_to_variables
 
     final_variables =
@@ -177,7 +199,7 @@ defmodule AfterGlow.Question do
         default_options_values = Variable.default_option_values(q_var)
 
         value =
-          if q_var && Map.has_key?(q_var, :value) && q_var.value,
+          if q_var && Map.has_key?(q_var, :value) && (q_var.value || q_var.value == ""),
             do: q_var.value,
             else: if(var |> Map.has_key?(:default), do: var.default, else: nil)
 
@@ -211,7 +233,8 @@ defmodule AfterGlow.Question do
         end)
       )
     rescue
-      _ -> query
+      _ ->
+        query
     end
   end
 

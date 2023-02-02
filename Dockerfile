@@ -9,7 +9,7 @@ RUN apt-get update
 RUN apt-get install -y wget telnet vim nginx libtool build-essential autoconf automake locales alien unixodbc unixodbc-dev odbc-postgresql odbcinst1debian2 odbcinst libodbc1 odbc-mariadb 
 RUN dpkg-reconfigure locales 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
-    locale-gen
+  locale-gen
 RUN mkdir -p /var/app/frontend
 
 WORKDIR /temp
@@ -21,6 +21,13 @@ RUN dpkg -i amazonredshiftodbc-64-bit_2.0.0-2_amd64.deb
 RUN wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb
 RUN dpkg -i libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb
 
+WORKDIR /var/app/chart_renderer/
+COPY ./chart_renderer/* /var/app/chart_renderer/
+RUN apt-get update
+RUN apt-get install -y nodejs npm
+RUN npm install n -g 
+RUN n 18.7.0 && npm install pm2 -g
+RUN n 18.7.0 && npm install
 
 WORKDIR /var/app
 ENV MIX_ENV=prod
@@ -34,6 +41,7 @@ COPY frontend-v2/dist/spa/ ./
 WORKDIR /var/app
 COPY ./start.sh /var/app
 #RUN bundle exec rake assets:precompile
+
 
 
 RUN rm -v /etc/nginx/nginx.conf

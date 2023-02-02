@@ -1,23 +1,27 @@
-import {verifyToken} from 'src/apis/auth';
-import {currentUserStore} from 'stores/currentUser' 
-import {useRoute} from 'vue-router';
+import { verifyToken } from 'src/apis/auth';
+import { currentUserStore } from 'stores/currentUser'
+import { useRoute } from 'vue-router';
+import { sessionStore } from 'stores/session'
+
+const session = sessionStore()
 
 const currentUser = currentUserStore()
+
 const authMixin = {
-  mounted(){
+  mounted() {
     const route = useRoute();
-    const token = route.query.token
+    const token = route.query.token || session.token
     verifyToken(token, this.setPermissions, this.redirect)
   },
 
   methods: {
-    redirect(){
+    redirect() {
       // window.parent.location.href = '/login'
     },
-    setPermissions(response){
+    setPermissions(response) {
       currentUser.set(response)
     }
   }
 }
 
-export {authMixin}
+export { authMixin }

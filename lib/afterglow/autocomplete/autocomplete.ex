@@ -9,6 +9,8 @@ defmodule AfterGlow.AutoComplete do
   alias AfterGlow.Question
   alias AfterGlow.Dashboard
   alias AfterGlow.Tag
+  alias AfterGlow.User
+  alias AfterGlow.Teams.Team
   alias AfterGlow.Question.Policy, as: QuestionPolicy
   alias AfterGlow.Dashboard.Policy, as: DashboardPolicy
 
@@ -17,7 +19,7 @@ defmodule AfterGlow.AutoComplete do
     ifel: "<%= if var do %>\n\tand col =  <%= var %>\n<% else %>\n\tdefault_condition\n<% end %>"
   ]
 
-  def column_suggestions_autocomplete(query, database_id, table_id, column_id ) do
+  def column_suggestions_autocomplete(query, database_id, table_id, column_id) do
     database = Repo.get(Database, database_id)
     table = Repo.get(Table, table_id)
     column = Repo.get(Column, column_id)
@@ -48,37 +50,50 @@ defmodule AfterGlow.AutoComplete do
     |> Enum.map(fn x -> %{displayName: x |> Enum.at(0)} end)
   end
 
-  def table_autocomplete("", database_id) do
+  def table_autocomplete("", database_id, _only_tables) do
     from(t in Table,
       where: t.database_id == ^database_id,
-      order_by: [fragment("? ASC, length(?) ASC", t.readable_table_name, t.readable_table_name)]
+      order_by: [fragment("? ASC, length(?) ASC", t.readable_table_name, t.readable_table_name)],
+      limit: 200
     )
     |> Repo.all()
     |> Repo.preload(columns: {from(c in Column, limit: 0), :belongs_to})
   end
 
-  def table_autocomplete(q, database_id) do
+  def table_autocomplete(q, database_id, only_tables) do
     tables =
       from(t in Table,
         where:
-          (ilike(t.readable_table_name, ^"#{q}%") or
-             ilike(t.readable_table_name, ^"_#{q}%")) and t.database_id == ^database_id,
-        order_by: [fragment("? ASC, length(?) ASC", t.readable_table_name, t.readable_table_name)]
+          ilike(t.readable_table_name, ^"%#{q |> String.split() |> Enum.join("%")}%") and
+            t.database_id == ^database_id,
+        order_by: [fragment("? ASC, length(?) ASC", t.readable_table_name, t.readable_table_name)],
+        limit: 20
       )
       |> Repo.all()
       |> Repo.preload(columns: {from(c in Column, limit: 0), :belongs_to})
 
     table_with_columns =
-      from(t in Table,
-        left_join: c in Column,
-        on: c.table_id == t.id,
-        where: ilike(c.name, ^"%#{q}%") and t.database_id == ^database_id,
-        order_by: [fragment("? ASC, length(?) ASC", t.readable_table_name, t.readable_table_name)],
-        group_by: t.id
-      )
-      |> Repo.all()
-      |> Repo.preload(columns: {from(c in Column, where: ilike(c.name, ^"%#{q}%")), :belongs_to})
-      |> Enum.map(fn t -> %{t | open: true, expandable: true} end)
+      if !only_tables || only_tables != "true" do
+        from(t in Table,
+          left_join: c in Column,
+          on: c.table_id == t.id,
+          where:
+            ilike(c.name, ^"%#{q |> String.split() |> Enum.join("%")}%") and
+              t.database_id == ^database_id,
+          order_by: [
+            fragment("? ASC, length(?) ASC", t.readable_table_name, t.readable_table_name)
+          ],
+          group_by: t.id,
+          limit: 20
+        )
+        |> Repo.all()
+        |> Repo.preload(
+          columns: {from(c in Column, where: ilike(c.name, ^"%#{q}%")), :belongs_to}
+        )
+        |> Enum.map(fn t -> %{t | open: true, expandable: true} end)
+      else
+        []
+      end
 
     tables =
       tables
@@ -141,6 +156,19 @@ defmodule AfterGlow.AutoComplete do
       end)
     )
     |> set_ids
+  end
+
+  def get_recipients(query) do
+    from(u in User)
+    |> where([q], ilike(q.email, ^"%#{query}%"))
+    |> Repo.all()
+    |> Enum.map(fn u -> u.email end)
+    |> Kernel.++(
+      from(u in Team)
+      |> where([q], ilike(q.name, ^"%#{query}%"))
+      |> Repo.all()
+      |> Enum.map(fn t -> ~s/"#{t.name}"/ <> "@team" end)
+    )
   end
 
   defp set_ids(arr) do

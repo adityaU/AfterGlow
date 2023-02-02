@@ -63,7 +63,28 @@ defmodule AfterGlow.ApiActions do
 
   def send_request(id, variables, user) do
     api_action = get_api_action!(id)
-    send_request(api_action, variables, api_action.open_in_new_tab, user)
+
+    open_option =
+      case api_action.open_option do
+        "open-new-tab" -> true
+        "open-same-tab" -> {true, :same}
+        "show-in-modal" -> false
+        _ -> false
+      end
+
+    send_request(api_action, variables, open_option, user)
+  end
+
+  def send_request(%ApiAction{} = api_action, variables, {true, :same}, user) do
+    url =
+      api_action.url
+      |> replace_variables(variables)
+
+    %{status_code: 307, response_body: "redirect", response_headers: nil}
+    |> log_args(url, "GET", nil, nil, user.id, variables, api_action.id)
+    |> save_log
+
+    %{redirect_url: url, status: 307}
   end
 
   def send_request(%ApiAction{} = api_action, variables, true, user) do
@@ -75,7 +96,7 @@ defmodule AfterGlow.ApiActions do
     |> log_args(url, "GET", nil, nil, user.id, variables, api_action.id)
     |> save_log
 
-    %{redirect_url: url}
+    %{redirect_url: url, status: 301}
   end
 
   def send_request(%ApiAction{} = api_action, variables, false, user) do
@@ -90,7 +111,9 @@ defmodule AfterGlow.ApiActions do
       |> Poison.decode!()
       |> Enum.into([])
 
-    body = api_action.body |> replace_variables(variables)
+    body =
+      api_action.body
+      |> replace_variables(variables)
 
     method = api_action.method
 
@@ -112,11 +135,24 @@ defmodule AfterGlow.ApiActions do
       variable_name =
         variable["name"]
         |> String.trim()
+        |> String.replace(
+          ~r(q_),
+          ""
+        )
 
       string
-      |> String.replace(~r({{\W*#{variable_name}\W*?}}), variable["value"] |> to_string() || "")
+      |> String.replace(
+        ~r({{\W*#{variable_name}\W*?}}),
+        variable["value"] |> validate() |> to_string() || ""
+      )
     end)
   end
+
+  def validate(value) when is_binary(value), do: value
+  def validate(value) when is_integer(value), do: value
+  def validate(value) when is_float(value), do: value
+
+  def validate(_), do: ""
 
   def make_request(url, method, body, headers) do
     case method |> to_string() do
@@ -133,7 +169,7 @@ defmodule AfterGlow.ApiActions do
     |> Map.merge(%{
       url: url,
       method: method,
-      request_body: body ,
+      request_body: body,
       request_headers: (headers || []) |> Enum.into(%{}),
       user_id: user_id,
       variables: variables,
@@ -149,10 +185,12 @@ defmodule AfterGlow.ApiActions do
   def parse_response(response) do
     case response do
       {:ok, resp} ->
-        resp_body = case  resp.body |> :unicode.characters_to_binary do
-        {:ok, body} -> body |> :erlang.list_to_binary
-        {:error, sal, _} -> sal 
-        end
+        resp_body =
+          case resp.body |> :unicode.characters_to_binary() do
+            {:ok, body} -> body |> :erlang.list_to_binary()
+            {:error, sal, _} -> sal
+          end
+
         %{
           status_code: resp.status_code,
           response_body: resp_body,

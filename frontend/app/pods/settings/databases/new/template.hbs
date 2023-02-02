@@ -27,6 +27,15 @@
             <div class="form-group">
                 <label class="form-label">Database Password</label> {{input class="form-control" type="password" name="first-name" placeholder="Password" value=db.config.password}}
                 </div>
+            <div class="form-group">
+                <label class="form-label">Connection Pool Size</label> {{input class="form-control" type="number" name="first-name" placeholder="10" value=db.config.pool_size}}
+                </div>
+            <div class="form-group">
+                <label class="form-label">Connection Checkout Timeout in Seconds</label> {{input class="form-control" type="number" name="first-name" placeholder="45" value=db.config.checkout_timeout}}
+                </div>
+            <div class="form-group">
+                <label class="form-label">Query Timeout in Seconds</label> {{input class="form-control" type="password" name="first-name" placeholder="Password" value=db.config.query_timeout}}
+                </div>
         </div>
         <div class="card-footer text-right">
             <button class="btn btn-primary" type="submit" {{action 'saveDatabase'}}>SAVE</button>

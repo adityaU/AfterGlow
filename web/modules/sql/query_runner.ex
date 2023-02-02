@@ -16,6 +16,8 @@ defmodule AfterGlow.Sql.QueryRunner do
   import Ecto.Query, only: [from: 2]
   import IEx.Info, only: [info: 1]
 
+  alias AfterGlow.Utils.Map, as: UtilsMap
+
   def run(params, current_user) do
     run(params, current_user, nil, %{})
   end
@@ -77,7 +79,8 @@ defmodule AfterGlow.Sql.QueryRunner do
     {time, updated_at, cached_until, from_cache, results} =
       if tracking_details && tracking_details[:expire_after] && tracking_details[:cache_key] &&
            tracking_details[:expire_after] != 0 do
-        {updated_at, cached_until, results} = ResultsCache.get_by(tracking_details[:cache_key], query)
+        {updated_at, cached_until, results} =
+          ResultsCache.get_by(tracking_details[:cache_key], query)
 
         if results do
           {0, updated_at, cached_until, true, {:ok, results}}
@@ -102,7 +105,7 @@ defmodule AfterGlow.Sql.QueryRunner do
               :pass
           end
 
-          {time, nil, nil,  false, results}
+          {time, nil, nil, false, results}
         end
       else
         {time, results} =
@@ -178,7 +181,7 @@ defmodule AfterGlow.Sql.QueryRunner do
 
   def insert_inferred_column_details(results) do
     resMap = results |> elem(1)
-    rows = resMap |> Map.get(:rows)
+    rows = resMap |> UtilsMap.get(:rows)
 
     if rows && rows |> length >= 1 do
       results
@@ -188,7 +191,7 @@ defmodule AfterGlow.Sql.QueryRunner do
         |> Map.put(
           :column_details,
           resMap
-          |> Map.get(:columns)
+          |> UtilsMap.get(:columns)
           |> Enum.with_index()
           |> Enum.reduce(%{}, fn {col, index}, det ->
             det
@@ -241,6 +244,14 @@ defmodule AfterGlow.Sql.QueryRunner do
       parse_email(value) -> "Inferred.Email"
       parse_url(value) -> "Inferred.Url"
       true -> "string"
+    end
+  end
+
+  def infer_dt("Atom", value) do
+    if value == true || value == false do
+      "Boolean"
+    else
+      "string"
     end
   end
 

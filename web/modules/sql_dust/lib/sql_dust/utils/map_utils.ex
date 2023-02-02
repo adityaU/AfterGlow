@@ -2,7 +2,7 @@ defmodule SqlDust.MapUtils do
   def get(map, key, default \\ nil) do
     key = "#{key}"
 
-    if key |> String.length() > 255 do
+    if key |> String.length() > 25 do
       default
     else
       Map.get(map, key, Map.get(map, String.to_atom(key), default))

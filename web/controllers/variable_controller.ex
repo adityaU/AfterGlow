@@ -5,22 +5,28 @@ defmodule AfterGlow.VariableController do
   alias JaSerializer.Params
   alias AfterGlow.CacheWrapper.Repo
 
-  plug :scrub_params, "data" when action in [:create, :update]
+  plug(:scrub_params, "data" when action in [:create, :update])
 
   def index(conn, %{"filter" => %{"id" => ids}}) do
     ids = ids |> String.split(",")
-    variables = (from v in Variable, where: v.id in ^ids) |> Repo.all()
+    variables = from(v in Variable, where: v.id in ^ids) |> Repo.all()
     render(conn, :index, data: variables)
+  end
+
+  def index(conn, %{"filter" => json}) do
+    index(conn, %{"filter" => Jason.decode!(json)})
   end
 
   def create(conn, %{"data" => data = %{"type" => "variables", "attributes" => _variable_params}}) do
     changeset = Variable.changeset(%Variable{}, Params.to_attributes(data))
+
     case Repo.insert_with_cache(changeset) do
       {:ok, variable} ->
         conn
         |> put_status(:created)
         |> put_resp_header("location", variable_path(conn, :show, variable))
         |> render(:show, data: variable)
+
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -33,13 +39,17 @@ defmodule AfterGlow.VariableController do
     render(conn, :show, data: variable)
   end
 
-  def update(conn, %{"id" => id, "data" => data = %{"type" => "variables", "attributes" => _variable_params}}) do
+  def update(conn, %{
+        "id" => id,
+        "data" => data = %{"type" => "variables", "attributes" => _variable_params}
+      }) do
     variable = Repo.get!(Variable, id)
     changeset = Variable.changeset(variable, Params.to_attributes(data))
 
     case Repo.update_with_cache(changeset) do
       {:ok, variable} ->
         render(conn, :show, data: variable)
+
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)
@@ -56,5 +66,4 @@ defmodule AfterGlow.VariableController do
 
     send_resp(conn, :no_content, "")
   end
-
 end

@@ -40,7 +40,7 @@
           <CheckIcon size=10 />
         </span>
       </div>
-      <div class="tw-p-2 tw-font-semibold tw-text-primary tw-cursor-pointer tw-flex tw-items-center" @click="addNewViz" v-if="currentUser.canEditQuestion || quesConfig.can_viewers_see_in_new_visualization">
+      <div class="tw-p-2 tw-font-semibold tw-text-primary tw-cursor-pointer tw-flex tw-items-center" @click="addNewViz" v-if="currentUser.canEditQuestion || (quesConfig && quesConfig.can_viewers_see_in_new_visualization)">
         <PlusIcon class="tw-inline tw-my-auto" size=14 />
         <span class="tw-ml-2 tw-whitespace-nowrap">New visualization</span>
       </div>

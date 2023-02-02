@@ -26,21 +26,25 @@ defmodule AfterGlow.Helpers.CsvHelpers do
     |> Enum.each(&IO.write(file, &1))
 
     stream
-    |> CSV.encode()
-    |> Enum.each(&IO.write(file, &1))
+    |> Enum.each(fn row ->
+      row
+      |> CSV.encode()
+      |> Enum.each(&IO.write(file, &1))
+    end)
 
     data_preview =
       [columns]
       |> Kernel.++(get_preview_rows(stream))
 
-    downloaded_rows = stream |> length
+    downloaded_rows = stream |> Enum.reduce(0, fn rows, acc -> (rows |> length()) + acc end)
 
     file |> File.close()
+
     {file_name, data_preview, downloaded_rows}
   end
 
   def get_preview_rows(stream) do
-    preview = stream |> Enum.take(50) |> Enum.to_list()
+    preview = stream |> Enum.at(0) |> Enum.take(50) |> Enum.to_list()
 
     unless preview |> Enum.at(0) do
       preview = stream |> Enum.at(1) |> Enum.take(50) |> Enum.to_list()
@@ -81,7 +85,7 @@ defmodule AfterGlow.Helpers.CsvHelpers do
   end
 
   defp fetch_and_upload(db_record, query, file_path, download_limit) do
-    {file_name, data_preview, downloaded_rows} =
+    {:ok, {file_name, data_preview, downloaded_rows}} =
       DbConnection.execute_with_stream(
         db_record |> Map.from_struct(),
         query,
@@ -103,7 +107,7 @@ defmodule AfterGlow.Helpers.CsvHelpers do
   end
 
   defp aws_config() do
-    config = [scheme: "https://",host: "s3-#{aws_region()}.amazonaws.com", region: aws_region()]
+    config = [scheme: "https://", host: "s3-#{aws_region()}.amazonaws.com", region: aws_region()]
 
     if ApplicableSettings.aws_access_key_id() && ApplicableSettings.aws_secret_access_key() do
       config

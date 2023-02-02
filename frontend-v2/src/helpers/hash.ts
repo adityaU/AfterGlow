@@ -1,19 +1,11 @@
+import sjcl from 'sjcl';
 
-
-const  hash = async function(message){
-
-    const msgBuffer = new TextEncoder('utf-8').encode(message);
-
-    // hash the message
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-
-    // convert ArrayBuffer to Array
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-
-    // convert bytes to hex string
-    const hashHex = hashArray.map(b => ('00' + b.toString(16)).slice(-2)).join('');
-    return hashHex;
-  }
-
+const hash = async function(message) {
+  const hash = sjcl.hash.sha256.hash(message)
+  const hashHex = sjcl.codec.hex.fromBits(hash)
+  return new Promise(function(resolve, reject) {
+    resolve(hashHex)
+  })
+}
 
 export default hash;

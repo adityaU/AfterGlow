@@ -9,6 +9,7 @@
       <template #body>
         <div class="tw-p-2">
         <AGInput label="URL" :value="linkUrl" @inputed="(val) => $emit('update:linkUrl', val)" />
+        <AGBool label="Open in New Tab" :value="openNewTab" @update:value="(v) =>  $emit('update:openNewTab', v)"/>
         </div>
 
       </template>
@@ -35,14 +36,15 @@ import { queryStore } from 'stores/query'
 import { api } from 'boot/axios';
 import apiConfig from 'src/helpers/apiConfig'
 import AGModal from 'components/utils/modal.vue'
+import AGBool from 'components/base/bool.vue'
 import AGButton from 'components/base/button.vue'
 import AGInput from 'components/base/agInput.vue'
 
 
 export default {
   name: 'AGEditorLink',
-  props: ['apiActionID', 'queryKey', 'open', 'linkUrl'],
-  components: { AGModal,AGButton, AGInput},
+  props: ['apiActionID', 'queryKey', 'open', 'linkUrl', 'openNewTab'],
+  components: { AGModal,AGButton, AGInput, AGBool},
   data() {
     return {
       loading: false,

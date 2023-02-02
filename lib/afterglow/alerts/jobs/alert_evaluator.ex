@@ -157,7 +157,7 @@ defmodule AfterGlow.Alerts.Jobs.AlertEvaluator do
     {stream, critical_raised} =
       evaluate_level(stream, traversal, operator, critical_level.value, :critical)
 
-    {event_level(warning_raised, critical_raised), stream} |> IO.inspect(label: "error_level")
+    {event_level(warning_raised, critical_raised), stream}
   end
 
   defp evaluate_level(stream, :all, operator, value, level) do
@@ -178,13 +178,9 @@ defmodule AfterGlow.Alerts.Jobs.AlertEvaluator do
   end
 
   defp evaluate_level(stream, _traversal, operator, value, level) do
-    level |> IO.inspect(label: "level")
-    value |> IO.inspect(label: "value")
-
     stream =
       stream
       |> Enum.to_list()
-      |> IO.inspect(label: "stream")
       |> Enum.map(fn val ->
         if apply(@operator_methods[operator], [val, value |> Float.parse() |> elem(0)]) do
           {val, level}

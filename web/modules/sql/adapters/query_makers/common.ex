@@ -3,6 +3,9 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
     quote location: :keep do
       import SqlDust.Query
 
+      @with_query_regex ~r/((WITH|with)(.|\n)*\)( |\n)*)select/
+      @query_end_of_line ~r/\r\n/
+
       @time_fn_based_on_duration %{
         "seconds" => "now()",
         "minutes" => "now()",
@@ -69,6 +72,19 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
         end
       end
 
+      defp adjust_with(query) do
+        query = Regex.replace(@query_end_of_line, query, "\n")
+
+        with_part_match = Regex.scan(@with_query_regex, query)
+
+        if with_part_match && with_part_match |> length != 0 do
+          with_part = with_part_match |> Enum.at(0) |> Enum.at(1)
+          with_part <> String.replace(query, with_part, "")
+        else
+          query
+        end
+      end
+
       def sql(query_record, adapter) do
         options = options(query_record, adapter)
 
@@ -89,6 +105,8 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
             query
           end
 
+        query = adjust_with(query)
+
         query
       end
 
@@ -98,23 +116,19 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
         order_bys = order_bys_maker(query_record[:order_bys])
         order_bys_with_group_bys = sanitize_order_by(group_bys, order_bys)
 
-        query_record |> IO.inspect(label: "query_record")
-
-        columns_required =
-          %{
-            select:
-              select_maker(
-                query_record[:selects],
-                find_columns_required_for_select(group_bys, order_by_columns)
-              )
-              |> Enum.map(fn x -> x |> String.split("sep|rator") |> Enum.join(" ") end),
-            group_by: sanitize_group_by(group_bys, order_by_columns),
-            where: where_maker(query_record[:filters]) || [],
-            order_by: order_bys_with_group_bys,
-            adapter: adapter,
-            limit: nil
-          }
-          |> IO.inspect(label: "options====================")
+        columns_required = %{
+          select:
+            select_maker(
+              query_record[:selects],
+              find_columns_required_for_select(group_bys, order_by_columns)
+            )
+            |> Enum.map(fn x -> x |> String.split("sep|rator") |> Enum.join(" ") end),
+          group_by: sanitize_group_by(group_bys, order_by_columns),
+          where: where_maker(query_record[:filters]) || [],
+          order_by: order_bys_with_group_bys,
+          adapter: adapter,
+          limit: nil
+        }
       end
 
       def sanitize_order_by(group_bys, order_bys) do
@@ -413,8 +427,9 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
             stringify_select(x, columns_required)
           end)) ++ columns_required)
         |> Enum.uniq()
+        |> List.flatten()
         |> Enum.map(fn x ->
-          if !Regex.match?(~r/".+"/, x), do: ~s/"#{x}"/, else: x
+          if !Regex.match?(~r/".+"/, x) && x != "*", do: ~s/"#{x}"/, else: x
         end)
       end
 
@@ -432,9 +447,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
 
       def cast_group_by(el, "week"),
         do:
-          ~s/(date_trunc('week', ("#{el}" + INTERVAL '1 day')) - INTERVAL '1 day') sep|rator as "#{
-            el
-          }  by Week"/
+          ~s/(date_trunc('week', ("#{el}" + INTERVAL '1 day')) - INTERVAL '1 day') sep|rator as "#{el}  by Week"/
 
       def cast_group_by(el, "month"),
         do: ~s/date_trunc('month', "#{el}") sep|rator as "#{el}  by Month"/
@@ -472,7 +485,9 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
       def stringify_select(%{"raw" => true, "value" => value}, columns_required), do: value
       def stringify_select(%{"name" => _name, "value" => "raw_data"}, []), do: "*"
       def stringify_select(%{"name" => _name, "value" => "raw_data"}, columns_required), do: "*"
-      def stringify_select(%{"name" => _name, "value" => "count"}, columns_required), do: "count"
+
+      def stringify_select(%{"name" => _name, "value" => "count"}, columns_required),
+        do: ~s/count(*) as "count"/
 
       def stringify_select(%{"agg" => "count of rows", "column" => nil}, columns_required),
         do: "count(*) sep|rator as \"count of rows\""
@@ -506,9 +521,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
             columns_required
           ),
           do:
-            ~s/percentile_cont(#{value / 100}) within group (order by "#{column}") sep|rator as "p#{
-              value
-            } of #{column}"/
+            ~s/percentile_cont(#{value / 100}) within group (order by "#{column}") sep|rator as "p#{value} of #{column}"/
 
       defoverridable stringify_select: 2,
                      parse_filter_date_obj_value: 3,

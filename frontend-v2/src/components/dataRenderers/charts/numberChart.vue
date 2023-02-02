@@ -103,7 +103,7 @@ export default {
                         if (ref){
                         const height = ref.clientHeight
                         const width = ref.clientWidth
-                        const numberOfColumns = Math.ceil(width / 380)
+                        let numberOfColumns = Math.ceil(width / 380)
                         if (numberOfColumns > 6) {
                                 numberOfColumns = 6
                         }

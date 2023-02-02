@@ -5,7 +5,7 @@ defmodule AfterGlow.Mixfile do
     [
       app: :afterglow,
       version: "0.0.1",
-      elixir: "~> 1.10.4",
+      elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       build_embedded: Mix.env() == :prod,
@@ -73,10 +73,10 @@ defmodule AfterGlow.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.3.0"},
-      {:phoenix_pubsub, "~> 1.0"},
+      {:phoenix, "~> 1.6.0"},
+      {:phoenix_pubsub, "~> 2.0"},
       {:postgrex, ">= 0.14.0", override: true},
-      {:phoenix_html, "~> 2.6"},
+      {:phoenix_html, "~> 2.14"},
       {:ecto, "~> 3.1"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
@@ -84,7 +84,7 @@ defmodule AfterGlow.Mixfile do
       {:ja_serializer, "~> 0.14.0"},
       {:sql_dust, path: 'web/modules/sql_dust'},
       {:ecto_enum, "~> 1.2"},
-      {:cowboy, "~> 1.0"},
+      {:cowboy, "~> 2.0"},
       {:oauth2, "~> 2.0"},
       {:joken, "~> 1.1"},
       {:libsodium, "~> 0.0.3"},
@@ -109,11 +109,12 @@ defmodule AfterGlow.Mixfile do
       {:mariaex, "0.9.1", override: true},
       {:db_connection, "~> 2.0", override: true},
       {:ecto_sql, "~> 3.1.0"},
-      {:plug_cowboy, "~> 1.0"},
+      {:plug_cowboy, "~> 2.0"},
       {:mustache, "~> 0.3.0"},
       {:numerix, "~> 0.5.1"},
       {:hackney, github: "benoitc/hackney", override: true},
-      {:gen_smtp, "~> 0.14.0", override: true}
+      {:gen_smtp, "~> 0.14.0", override: true},
+      {:jsonrpc2, "~> 2.0", override: true}
     ]
   end
 

@@ -20,4 +20,8 @@ defmodule AfterGlow.SearchItemController do
         AutoComplete.entity_autocomplete("", conn.assigns.current_user)
     })
   end
+
+  def get_recipients(conn, %{"query" => q}) do
+    conn |> json(%{recipients: AutoComplete.get_recipients(q)})
+  end
 end

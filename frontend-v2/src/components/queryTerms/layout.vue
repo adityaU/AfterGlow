@@ -1,5 +1,5 @@
 <template>
-  <div class="tw-flex  tw-py-2 tw-px-2 tw-border tw-bg-white tw-flex-wrap">
+  <div :class="naked ? 'tw-flex tw-flex-wrap' : 'tw-flex  tw-py-2 tw-px-2 tw-border tw-bg-white tw-flex-wrap'">
     <div class="tw-flex tw-divide-x tw-justify-start tw-items-center tw-flex-wrap ">
       <div class="" v-if="currentUser.canEditQuestion || showQTs">
 
@@ -53,7 +53,7 @@ import { _ } from 'lodash'
 const currentUser = currentUserStore()
 export default {
   name: 'AGQBHorizontalLayout',
-  props: ['columns', 'showSettings', 'rows', 'colDetails', 'queryTerms', 'vizConfig', 'quesConfig'],
+  props: ['columns', 'showSettings', 'rows', 'colDetails', 'queryTerms', 'vizConfig', 'quesConfig', 'naked'],
   components: { AGFilters, AGGroupings, AGViews, AGSortOrders, AGLimit, AGOffset },
   data() {
     return {

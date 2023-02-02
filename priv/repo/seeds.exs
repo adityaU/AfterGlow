@@ -96,10 +96,29 @@ defmodule AfterGlow.Repo.Seed do
             permission_set_id: admin.id
           })
         )
+
+      system_user_email = "AG::System"
+      admin_user = Repo.one(from(u in User, where: u.email == ^system_user_email))
+
       admin_user =
-        Repo.one(
-          from(u in User, where: u.email == "admin@example.com")
+        unless admin_user do
+          Repo.insert!(User.changeset(%User{}, %{email: system_user_email}))
+        else
+          admin_user
+        end
+
+      Repo.get_by(UserPermissionSet, %{
+        user_id: admin_user.id,
+        permission_set_id: admin.id
+      }) ||
+        Repo.insert!(
+          UserPermissionSet.changeset(%UserPermissionSet{}, %{
+            user_id: admin_user.id,
+            permission_set_id: admin.id
+          })
         )
+
+      admin_user = Repo.one(from(u in User, where: u.email == "admin@example.com"))
 
       admin_user =
         unless admin_user do
@@ -120,10 +139,8 @@ defmodule AfterGlow.Repo.Seed do
             permission_set_id: admin.id
           })
         )
-      viewer_user =
-        Repo.one(
-          from(u in User, where: u.email == "viewer@example.com")
-        )
+
+      viewer_user = Repo.one(from(u in User, where: u.email == "viewer@example.com"))
 
       viewer_user =
         unless viewer_user do
@@ -155,20 +172,24 @@ defmodule AfterGlow.Repo.Seed do
       UserSettings.verify_general_settings(user)
     end)
 
+    api_client =
+      Repo.one(
+        from(u in Database, where: u.name == "Generic API Client" and u.db_type == "api_client")
+      )
 
-      api_client =
-        Repo.one(
-          from(u in Database, where: u.name == "Generic API Client" and u.db_type ==  "api_client")
-        )
     unless api_client do
-    Repo.insert!(
-    Database.changeset(%Database{}, %{name: "Generic API Client", db_type: "api_client", config: %{}})
-    )
+      Repo.insert!(
+        Database.changeset(%Database{}, %{
+          name: "Generic API Client",
+          db_type: "api_client",
+          config: %{}
+        })
+      )
 
-    ApiAction
-    |> Repo.all()
-    |> Enum.each(fn api_action ->
-      ApiAction.set_default_action_level(api_action)
+      ApiAction
+      |> Repo.all()
+      |> Enum.each(fn api_action ->
+        ApiAction.set_default_action_level(api_action)
       end)
     end
   end

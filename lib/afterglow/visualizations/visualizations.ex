@@ -7,6 +7,7 @@ defmodule AfterGlow.Visualizations.Visualizations do
   alias AfterGlow.Questions.QueryFunctions, as: Questions
   alias AfterGlow.QueryTerms.Conversions
   alias AfterGlow.Sql.QueryRunner
+  alias AfterGlow.Database.QueryFunctions, as: Database
 
   def find_by_question_id(question_id) do
     from(m in @model, where: m.question_id == ^question_id, order_by: [asc: m.id]) |> Repo.all()
@@ -58,7 +59,9 @@ defmodule AfterGlow.Visualizations.Visualizations do
     payload = payload |> Map.delete("id")
 
     if payload["database"] do
-      fetch_results(:direct, payload, id, query_terms, viz_cache_time, current_user)
+      if Database.has_access(payload["database"]["id"], current_user) do
+        fetch_results(:direct, payload, id, query_terms, viz_cache_time, current_user)
+      end
     else
       question_id = payload["question_id"] || (visualization && visualization.question_id)
       variables = payload["variables"]

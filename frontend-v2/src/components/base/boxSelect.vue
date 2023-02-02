@@ -1,26 +1,48 @@
 <template>
-  <div :class="isTab ? 'tw-border-b' : 'tw-p-1'">
+  <div :class="isTab ? 'tw-border-b' : 'tw-px-1'">
 
-  <div class="tw-bg-primary tw-text-white tw-border-colapse tw-border-b-0 !tw-border-primary hover:tw-bg-primary/80 tw-border-collapse tw-hidden hover:tw-bg-secondary"></div>
   <div 
 :class="klass(item.value)"
   class="tw-border tw-inline-flex tw-rounded-sm tw-px-2 tw-py-0.5 tw-text-sm tw-capitalize first:tw-ml-0" v-for="item in options" :key="item">
-    <a href="#"  @click="($emit('selected', item.value) || true) && $emit('update:selected', item.value)">
+    <div class="tw-cursor-pointer"  @click="select(item)">
       {{ item.name }}
-    </a>
+    </div>
   </div>
+
+  <div class="tw-bg-primary tw-text-white tw-border-colapse tw-border-b-0 !tw-border-primary hover:tw-bg-primary/80 tw-border-collapse tw-hidden hover:tw-bg-secondary"></div>
   </div>
 </template>
 
 <script>
+import cloneDeep from 'lodash/cloneDeep'
 export default {
   name: "AGBoxSelect",
-  props: ['options', 'selected', 'isTab'],
+  props: ['options', 'selected', 'isTab', 'multi'],
 
   methods: {
+    select(item){
+      if (!this.multi){
+        this.$emit('selected', item.value);
+        this.$emit('update:selected', item.value);
+        return
+      }
+
+      const localSelected = this.selected ? cloneDeep(this.selected) : []
+
+      const i = this.selected && this.selected.indexOf(item.value) 
+      if (i < 0){
+        localSelected.push(item.value)
+      }else{
+        localSelected.splice(i, 1)
+      }
+
+      this.$emit('selected', localSelected);
+      this.$emit('update:selected', localSelected );
+
+    },
     klass(val){
       let selected = false
-      if (this.multiselect){
+      if (this.multi){
           selected = this.selected && (this.selected.indexOf(val) >= 0) 
       }else{
         selected = this.selected === val
@@ -34,7 +56,7 @@ export default {
       if (this.isTab){
         klass += ' tw-border-colapse tw-border-b-0'
       }else{
-        klass += ' tw-m-1 hover:tw-bg-secondary'
+        klass += ' tw-mx-1 hover:tw-bg-secondary'
       }
 
       return klass

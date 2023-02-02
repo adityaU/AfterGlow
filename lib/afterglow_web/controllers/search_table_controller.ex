@@ -8,11 +8,31 @@ defmodule AfterGlow.SearchTableController do
 
   action_fallback(AfterGlow.Web.FallbackController)
 
+  def index(conn, %{
+        "q" => query,
+        "database_id" => database_id,
+        "type" => "json",
+        "only_tables" => only_tables
+      }) do
+    conn
+    |> json(%{
+      "data" => AutoComplete.table_autocomplete(query, database_id, only_tables)
+    })
+  end
+
   def index(conn, %{"q" => query, "database_id" => database_id}) do
     conn
     |> render("index.json", %{
-      ("search-tables" |> String.to_atom()) => AutoComplete.table_autocomplete(query, database_id)
+      ("search-tables" |> String.to_atom()) =>
+        AutoComplete.table_autocomplete(query, database_id, false)
     })
+  end
+
+  def show(conn, %{"id" => id, "type" => "json"}) do
+    table = CacheWrapper.get_by_id(Table, id) |> Repo.preload(columns: :belongs_to)
+
+    conn
+    |> json(%{data: table})
   end
 
   def show(conn, %{"id" => id}) do

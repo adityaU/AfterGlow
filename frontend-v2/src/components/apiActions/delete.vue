@@ -3,7 +3,7 @@
   <Teleport to="body">
 
     <div class="tw-text-indigo-700 tw-text-teal-700 tw-text-red-700 tw-text-yellow-700 tw-hidden"></div>
-    <AGModal :show="open" @update:show="(val) => $emit('update:show', val)" :loading="loading" :loadingMessage="loadingMessage">
+    <AGModal size="small" :show="open" @update:show="(val) => $emit('update:show', val)" :loading="loading" :loadingMessage="loadingMessage">
       <template #header>
         <div class="tw-p-2 tw-text-2xl tw-font-semibold">
           Delete API Action

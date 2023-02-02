@@ -7,12 +7,12 @@
 <script>
 export default {
         name: 'AGBool',
-        props: ['val', 'label'],
+        props: ['val', 'label', 'value'],
         components: {},
 
         watch: {
                 val() {
-                        this.valLocal = this.val
+                        this.valLocal = this.val || this.value
                 }
         },
 
@@ -21,12 +21,13 @@ export default {
                         this.valLocal = !this.valLocal
                         this.$emit('updated', this.valLocal)
                         this.$emit('update:val', this.valLocal)
+                        this.$emit('update:value', this.valLocal)
                 }
         },
 
         data() {
                 return {
-                        valLocal: this.val
+                        valLocal: this.val || this.value || false
                 }
         }
 

@@ -86,31 +86,34 @@ defmodule AfterGlow.User do
   end
 
   def encrypt(str) do
-     :crypto.hash(:sha256, str) |> Base.encode64 |> String.downcase
+    :crypto.hash(:sha256, str) |> Base.encode64() |> String.downcase()
   end
 
   def encrypt_password(user) do
-    if Map.has_key?( user.changes, :password) do
-      Ecto.Changeset.change(user, %{ password: encrypt(user.changes[:password])})
+    if Map.has_key?(user.changes, :password) do
+      Ecto.Changeset.change(user, %{password: encrypt(user.changes[:password])})
     else
       user
     end
   end
 
   def save_or_update_user(user) do
-    verifiedUser = if user["names"] |> Enum.at(0) do
-      %{
-        "given_name" => user["names"] |> Enum.at(0) |> Access.get("ga1ivenName"),
-        "family_name" => user["names"] |> Enum.at(0) |> Access.get("familyName"),
-        "name" => user["names"] |> Enum.at(0) |> Access.get("displayName")
-      }
-    else 
-      %{}
-    end
+    verifiedUser =
+      if user["names"] |> Enum.at(0) do
+        %{
+          "given_name" => user["names"] |> Enum.at(0) |> Access.get("ga1ivenName"),
+          "family_name" => user["names"] |> Enum.at(0) |> Access.get("familyName"),
+          "name" => user["names"] |> Enum.at(0) |> Access.get("displayName")
+        }
+      else
+        %{}
+      end
 
-    verifiedUser =  verifiedUser |> Map.merge(%{"email" =>  user["emailAddresses"] |> Enum.at(0) |> Access.get("value")})
+    verifiedUser =
+      verifiedUser
+      |> Map.merge(%{"email" => user["emailAddresses"] |> Enum.at(0) |> Access.get("value")})
+
     saved_user = Repo.one(from(u in __MODULE__, where: u.email == ^verifiedUser["email"]))
-
 
     {:ok, user} =
       if saved_user do

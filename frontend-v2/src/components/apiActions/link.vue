@@ -1,9 +1,25 @@
+<style scoped>
+.btn {
+  color: var(--color);
+}
+
+.btn:hover{
+  opacity: 0.90;
+}
+
+</style>
 <template>
-  <a href="#" :style="{ 'color': link.details.color }" @click="sendRequest">
-    {{ format(link.value) }}
-  </a>
-  <Teleport to="body">
-    <AGModal v-model:show="open" :loading="loading" :loadingMessage="link.details.loading_message">
+  <div :style="buttonStyle" class="tw-rounded-sm tw-cursor-pointer tw-flex tw-items-center tw-gap-1 btn tw-font-semibold"  @click="clicked()">
+    <AGTableCellFormatter :parentStyle="parentStyle" @update:parentStyle="(val) => $emit('update:parentStyle', val)" :formattingSettings="link.formattingSettings" dataType="text" :value="format(link.value)" :displayName="link.displayName" />
+    <!--   <div v-html="iconHtmlWithCorrectSize" v-if="showIconPrefix && link.details.display_settings.icon" > -->
+    <!--   </div> -->
+    <!--   <div v-if="showText" class="tw-uppercase"> -->
+    <!--   {{ format(link.value) }} -->
+    <!--   </div> -->
+    <!--   <div v-html="iconHtmlWithCorrectSize" v-if="showIconSuffix && link.details.display_settings.icon" > -->
+    <!--   </div> -->
+  </div>
+    <AGModal v-model:show="open" :loading="loading" :size="loading ? 'small' : 'large' " :loadingMessage="link.details.loading_message">
       <template #header>
         <div class="tw-p-2 tw-text-2xl">
           Response
@@ -14,7 +30,6 @@
           min-lines=2 max-lines=35 />
       </template>
       <template #footer>
-
       </template>
     </AGModal>
 
@@ -37,7 +52,6 @@
     <!--     </div> -->
     <!--   </div> -->
     <!-- </div> -->
-  </Teleport>
 </template>
 
 <script>
@@ -47,6 +61,9 @@ import apiConfig from 'src/helpers/apiConfig'
 
 import { VAceEditor } from 'vue3-ace-editor';
 import AGModal from 'components/utils/modal.vue'
+import AGTableCellFormatter from 'components/widgets/tableWidgets/dataFormatting/widget.vue'
+
+import cloneDeep from 'lodash/cloneDeep';
 
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/mode-html';
@@ -54,26 +71,83 @@ import 'ace-builds/src-noconflict/mode-xml';
 import 'ace-builds/src-noconflict/theme-dracula';
 export default {
   name: 'ApiActionLink',
-  props: ['link',  'queryKey'],
-  components: { AGModal, VAceEditor },
+  props: ['link',  'queryKey', 'variables', 'showForm'],
+  components: { AGModal, VAceEditor, AGTableCellFormatter},
   data() {
-    return { open: false, loading: false, contentType: 'json' }
+    return { open: false, loading: false, contentType: 'json'}
   },
 
   computed: {
-    variables(){
-      const query = queryStore().get(this.queryKey)
-      const payload = query && query.payload
-      let variables = payload && payload.variables && payload.variables.map(v => {
-        return { name: v.name, value: v.value }
-      }) || []
+    showIconPrefix(){
+      if (!(this.link.details && this.link.details.display_settings)){
+        return false
+      }
+      if ((['icon only', 'both'].indexOf(this.link.details.display_settings.display) >= 0) && (this.link.details.display_settings.icon_as != 'suffix')){
+        return true
+      }
+      return false
+    },
 
-      this.link.vars.cols && this.link.vars.cols.forEach((c, i) => {
-          variables.push({ name: c, value: this.link.vars.row && this.link.vars.row[i] })
-      })
+    showIconSuffix(){
+      if (!(this.link.details && this.link.details.display_settings)){
+        return false
+      }
+      if (['icon only', 'both'].indexOf(this.link.details.display_settings.display) >= 0 && (this.link.details.display_settings.icon_as === 'suffix')){
+        return true
+      }
+      return false
+    },
 
-      return variables
-    }
+    showText(){
+      if (!(this.link.details && this.link.details.display_settings)){
+        return true
+      }
+      if (this.link.details.display_settings.display === 'icon only'){
+        return false
+      }
+      return true
+
+    },
+
+    buttonStyle(){
+
+      if (!(this.link.details && this.link.details.display_settings)){
+        return {
+          '--background-color' : null,
+          '--color' : this.link.details.color,
+          '--padding': "0px 0px"
+        }  
+
+      }
+      if (this.link.details.display_settings.show_as_button){
+        return {
+          '--background-color' : this.link.details.display_settings.backgroundColor ,
+          '--color' : this.link.details.color,
+          '--border-color' : this.link.details.display_settings.backgroundColor === 'white' ? "#e5e7eb" : this.link.details.display_settings.backgroundColor,
+          '--padding': "0.5rem 1rem"
+
+        }  
+      }
+      return {
+        '--background-color' : null, 
+        '--color' : this.link.details.color
+      }  
+
+
+    },
+
+    iconHtmlWithCorrectSize(){
+      if (!(this.link.details && this.link.details.display_settings)){
+        return null
+      }
+      let html = this.link.details.display_settings.icon
+      if (!html){
+        return null
+      }
+      html = html.replace(/width="\w*\d+\w*"/, 'width="16px"') 
+      html = html.replace(/height="\w*\d+\w*"/, 'height="16px"') 
+      return html
+    },
   },
 
   methods: {
@@ -84,6 +158,22 @@ export default {
       }) 
       return name
     },
+    clicked(){
+      if (this?.link?.details?.display_settings?.renderForm){
+        this.$emit('update:showForm', true)
+        return 
+      }
+      this.sendRequest()
+    },
+
+    inIframe() {
+      try {
+        return window.self !== window.top;
+      } catch (e) {
+        return true;
+      }
+    }, 
+
     sendRequest() {
       this.open = false
 
@@ -99,9 +189,21 @@ export default {
       this.loading = true
       this.open = true
       api.post(url, actionPayload, apiConfig(query.token)).then((response) => {
+        if (response.data.redirect_url ) {
+          if (response.data.status === 301){
+            window.parent.window.open(response.data.redirect_url, '_blank');
+          }else{
+            if (response.data.redirect_url.match(/^http/)){
+              window.parent.window.open(response.data.redirect_url, '_self');
 
-        if (response.data.redirect_url) {
-          window.open(response.data.redirect_url, '_blank');
+            }else{
+              if (response.data.redirect_url.match(/^\/frontend/) && !this.inIframe()){
+                this.$router.push(response.data.redirect_url.replace('/frontend', ''))
+              }else{
+                window.parent.window.open(response.data.redirect_url, '_self');
+              }
+            }
+          }
           // this.loading = false
           this.open = false
           return
@@ -121,9 +223,9 @@ export default {
         this.loading = false
         this.response = response.data
       }).catch(error => {
-        this.loading = false
-        this.response = error.data
-      })
+          this.loading = false
+          this.response = error.data
+        })
 
     }
   }

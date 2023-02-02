@@ -1,15 +1,16 @@
 <template>
   <span class="">
-    <input :type="type" :placeholder="placeholder" :class="invisible ? 'input-no-border' : 'input-border'"
+    <input :type="type" :min="min" :max="max" :placeholder="placeholder" :class="invisible ? 'input-no-border' : 'input-border'"
       class="tw-px-2 tw-py-0.5 tw-w-full tw-bg-inherit" v-model="valueLocal" @keypress.down="$emit('keypress:down')"
       v-if="!textArea" />
-    <textarea :type="type" :rows="rows" :placeholder="placeholder"
-      :class="invisible ? 'input-no-border' : 'input-border'" class="tw-px-2 tw-py-0.5 tw-w-full" v-model="valueLocal"
+    <textarea :type="type" :min="min" :max="max" :rows="rows" :placeholder="placeholder"
+      :class="invisible ? 'input-no-border' : 'input-border'" class="tw-px-2 tw-py-0.5 tw-w-full tw-bg-inherit" v-model="valueLocal"
       @keypress.down="$emit('keypress:down')" v-if="textArea" />
   </span>
 </template>
 
 <script>
+import debounce from 'lodash/debounce'
 export default {
   name: 'BaseInput',
   props: {
@@ -18,19 +19,31 @@ export default {
     placeholder: { default: "Enter a value" },
     textArea: { default: false },
     rows: { default: 5 },
-    type: { default: "text" }
+    type: { default: "text" },
+    max: { default: Infinity },
+    min: { default: -Infinity },
+    debounce: { default: null }
   },
   data() {
     return {
-      valueLocal: this.value || null,
+      valueLocal: (this.value || this.value === 0) ? this.value  : null,
     }
 
   },
 
   watch: {
     valueLocal() {
+      if (!this.debounce){
       this.$emit('inputed', this.valueLocal);
       this.$emit('update:value', this.valueLocal);
+        return
+      }
+
+      debounce(()=> {
+      this.$emit('inputed', this.valueLocal);
+      this.$emit('update:value', this.valueLocal);
+      }, this.debounce)()
+      
     }
   }
 

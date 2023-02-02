@@ -83,8 +83,23 @@ defmodule AfterGlow.Sql.DbConnection do
     {:ok, nil}
   end
 
+  defp handle_errors({:error, reason}) do
+    {:error, reason}
+  end
+
   def handle_call({:connection, db_record}, _from, _) do
-    key = db_record[:unique_identifier]
+    db_record = %{
+      id: db_record |> Map.get(:id),
+      config: db_record.config,
+      name: db_record.name,
+      db_type: db_record.db_type
+    }
+
+    key =
+      :crypto.hash(:sha256, Jason.encode!(db_record |> Map.delete(:__meta__)))
+      |> Base.encode16()
+      |> String.downcase()
+
     stored_value = Registry.lookup(AfterGlow.DbConnectionStore, key) |> Enum.at(0)
 
     pid =

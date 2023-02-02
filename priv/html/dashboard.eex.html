@@ -1,0 +1,275 @@
+<html>
+
+<head>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    .email_html {
+      width: 800px;
+      margin: auto;
+      color: #6e7687;
+    }
+
+    .widget_container {
+      overflow: auto;
+      width: 100%;
+      background: white;
+      border-radius: 2px;
+      border: 1px solid #eaeaea;
+      margin: 10px 0px;
+      box-shadow: 0 1px 2px 0 #eaeaea;
+    }
+
+    .note_container {
+      padding: 5px;
+    }
+
+    .dashbaord-header {
+      font-size: 3em;
+      width: 100%;
+      background: #6574cd !important;
+      box-shadow: 0 1px 2px 0 #eaeaea;
+      display: flex;
+    }
+
+    .dashbaord-header a {
+      color: white !important;
+      margin: auto;
+    }
+
+    table {
+      table-layout: inherit;
+      width: 100%;
+      overflow: auto;
+      border-collapse: collapse !important;
+      border-radius: 3px;
+    }
+
+    thead {
+      background: #f5f7fb;
+    }
+
+    td,
+    th {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 400px;
+      min-width: 10px;
+      padding: 4px;
+      text-align: left;
+    }
+
+    tr {
+      border-bottom: 1px solid #eaeaea;
+    }
+
+    th {
+      text-transform: uppercase;
+    }
+
+    .chart_image {
+      width: 798px;
+      height: 500px
+    }
+
+    h1 {
+      font-size: 3em;
+      font-weight: 600;
+    }
+
+    h2 {
+      font-size: 2em;
+      font-weight: 600;
+    }
+
+    h3 {
+      font-size: 1.5em;
+      font-weight: 600;
+    }
+
+    h4 {
+      font-size: 1.25em;
+      font-weight: 600;
+    }
+
+    h5 {
+      font-size: 1em;
+      font-weight: 600;
+    }
+
+    h6 {
+      font-size: 0.75em;
+      font-weight: 600;
+    }
+
+    blockquote {
+      margin-left: 5px;
+      padding-left: 5px;
+      font-style: italic;
+      font-weight: 600;
+      border-left: 3px solid #a3adc3;
+    }
+
+    code {
+      background: #f5f7fb;
+      border-radius: 3px;
+    }
+
+    a {
+      color: #6574cd !important;
+      text-decoration: none !important;
+    }
+
+    ul {
+      padding-left: 8px;
+      list-style-type: disc;
+    }
+
+    ol {
+      padding-left: 8px;
+      list-style-type: decimal;
+    }
+
+    .colored {
+      color: green;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="email_wrapper" style=" width: 100%; background: #f5f7fb; ">
+
+    <div class="dashbaord-header" style="">
+      <a href="<%= dashboard_url %>">
+        <%= name %>
+    </div>
+    </a>
+
+    <div class="email_html" style="">
+
+      <%= for widget <- settings do %>
+
+        <div class="widget_container" style="">
+          <%= if widget.title do %>
+            <div class="widget_title"
+              style=" font-weight: 600; font-size: 1.5em; padding: 5px; border-bottom: 1px solid #eaeaea; box-shadow: 0 1px 2px 0 #eaeaea; ">
+              <%= if widget.link do %>
+                <a href="<%= widget.link %>" style="">
+                  <%= widget.title %>
+                </a>
+                <% else %>
+                  <%= widget.title %>
+                    <% end %>
+            </div>
+            <% end %>
+              <%= if widget.type=="error" do %>
+                <div class="note_container" style="display: flex">
+                  <div style="color: #dc2626; margin: auto; padding: 10px;">
+                    <%= widget.results %>
+                  </div>
+                </div>
+                <% end %>
+                  <%= if widget.type=="note" do %>
+                    <div class="note_container" style="">
+                      <%= widget.results %>
+                    </div>
+                    <% end %>
+
+                      <%= if widget.type=="notes" do %>
+                        <div class="note_container" style="">
+                          <%= widget.results %>
+                        </div>
+                        <% end %>
+
+                          <%= if Enum.member?(["question", "visualization" ], widget.type) do %>
+                            <%= if Enum.member?(["table", "transposed_table" ], widget.renderer_type) do %>
+                              <table style="">
+                                <thead style="">
+                                  <%= for column <- widget.results.columns do %>
+                                    <th stle="">
+                                      <%= column %>
+                                    </th>
+                                    <% end %>
+                                </thead>
+                                <tbody>
+                                  <%= for row <- widget.results.rows do %>
+                                    <tr style="">
+                                      <%= for {el, i} <- row |> Enum.with_index() do %>
+                                        <td <%=if i==0 && widget.renderer_type=="transposed_table" do %>
+                                          style="text-transform: uppercase; font-weight: 600"
+                                          <% end %>
+                                            ><%= el %>
+                                        </td>
+                                        <% end %>
+                                    </tr>
+                                    <% end %>
+                                </tbody>
+                              </table>
+                              <% end %>
+
+                                <%= if widget.renderer_type=="number" do %>
+                                  <table style="">
+                                    <thead style="">
+                                      <%= if widget.results.dataValues |> length() > 0 do %>
+                                        <th style="">
+                                          <%= widget.results.data_column_name %>
+                                        </th>
+                                        <% end %>
+                                          <%= if widget.results.referenceValues |> length() > 0 do %>
+                                            <th style="">Trend</th>
+                                            <% end %>
+                                              <%= if widget.results.subtitles |> length() > 0 do %>
+                                                <th style="">Subtitle</th>
+                                                <% end %>
+                                    </thead>
+                                    <tbody>
+                                      <%= for {_, i} <- widget.results.dataValues |> Enum.with_index() do %>
+                                        <tr style="">
+                                          <%= if widget.results.dataValues |> length() > 0 do %>
+                                            <td style="">
+                                              <%= widget.results.dataValues |> Enum.at(i) %>
+                                            </td>
+                                            <% end %>
+                                              <%= if widget.results.referenceValues |> length() > 0 do %>
+                                                <td style="">
+                                                  <%= widget.results.referenceValues |> Enum.at(i) %>
+                                                </td>
+                                                <% end %>
+                                                  <%= if widget.results.subtitles |> length() > 0 do %>
+                                                    <td style="">
+                                                      <%= widget.results.subtitles |> Enum.at(i) %>
+                                                    </td>
+                                                    <% end %>
+                                        </tr>
+                                        <% end %>
+                                    </tbody>
+                                  </table>
+                                  <% end %>
+
+                                    <%= if Enum.member?(["line", "bar" , "funnel" , "bubble" , "pie" , "area" ],
+                                      widget.renderer_type) do %>
+                                      <img class="chart_image" src="<%= widget.results %>" style="" />
+                                      <% end %>
+                                        <% end %>
+        </div>
+        <% end %>
+          </ div>
+    </div>
+</body>
+
+</html>
+
+
+
+<!-- <html> -->
+<!--   <head> -->
+
+<!-- <style> -->
+<!-- </style> -->
+<!-- </head> -->
+<!-- <body> -->
+<!-- </body> -->
+<!-- </html> -->

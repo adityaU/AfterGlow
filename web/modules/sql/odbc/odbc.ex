@@ -101,7 +101,6 @@ defmodule AfterGlow.ODBC do
       opts
       |> Keyword.delete_first(:conn_str)
       |> Keyword.put_new(:auto_commit, :off)
-      |> Keyword.put_new(:timeout, 5000)
       |> Keyword.put_new(:extended_errors, :on)
       |> Keyword.put_new(:tuple_row, :off)
       |> Keyword.put_new(:binary_strings, :on)
@@ -139,4 +138,3 @@ defmodule AfterGlow.ODBC do
   defp handle_errors({:error, reason}), do: {:error, Error.exception(reason)}
   defp handle_errors(term), do: term
 end
-

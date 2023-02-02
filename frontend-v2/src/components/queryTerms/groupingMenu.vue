@@ -124,7 +124,6 @@ export default {
                 },
                 columnDataType() {
                         const dt =  this.getColumnDataType(this.groupingLocal, this.colDetails)
-                        console.log(dt)
 
                         return dt
                 },

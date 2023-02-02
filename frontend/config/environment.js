@@ -1,8 +1,8 @@
 /* jshint node: true */
 
-module.exports = function (environment) {
+module.exports = function(environment) {
   var ENV = {
-    VERSION: '0.17.0-dev',
+    VERSION: '0.19.0-dev',
     modulePrefix: 'frontend',
     podModulePrefix: 'frontend/pods',
     environment: environment,

@@ -1,122 +1,128 @@
 <!DOCTYPE html>
 <html class="">
-  <head>
-    <title>AfterGlow</title>
 
-    <meta charset="utf-8">
-    <meta name="description" content="<%= productDescription %>">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="msapplication-tap-highlight" content="no">
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width<% if (ctx.mode.cordova || ctx.mode.capacitor) { %>, viewport-fit=cover<% } %>">
+<head>
+  <title>AfterGlow</title>
 
-    <link rel="icon" type="image/png" sizes="128x128" href="icons/favicon-128x128.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
-    <link rel="icon" type="image/ico" href="favicon.ico">
-  </head>
-  <body class="">
-    <div id="preloader">
-      <div class="top-parent">
-          <div class="preloader-parent">
-            <div class="preloader icon ">
-              <div class=""> </div>
-              <div class=""> </div>
-              <div class=""> </div>
-              <div class=""> </div>
-              <div class=""> </div>
-            </div>
-          </div>
-        <div class="preloader-text">Initializing</div>
+  <meta charset="utf-8">
+  <meta name="description" content="<%= productDescription %>">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport"
+    content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width<% if (ctx.mode.cordova || ctx.mode.capacitor) { %>, viewport-fit=cover<% } %>">
+
+  <link rel="icon" type="image/png" sizes="128x128" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="96x96" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon.ico">
+  <link rel="icon" type="image/ico" href="favicon.ico">
+</head>
+
+<body class="">
+  <div id="preloader">
+    <div class="top-parent">
+      <div class="preloader-parent">
+        <div class="preloader icon ">
+          <div class=""> </div>
+          <div class=""> </div>
+          <div class=""> </div>
+          <div class=""> </div>
+          <div class=""> </div>
+        </div>
       </div>
+      <div class="preloader-text">Initializing</div>
     </div>
-    <!-- quasar:entry-point -->
-  </body>
+  </div>
+  <!-- quasar:entry-point -->
+</body>
+
 </html>
 
 <style>
-@font-face {
-  font-family: Lato;
-  src: url(https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap);
-}
+  @font-face {
+    font-family: Lato;
+    src: url(https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap);
+  }
 
-body{
-  font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
-  --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  --font-family-monospace: Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
+  body {
+    font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    --font-family-monospace: Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
 
-.preloader-parent{
-  height: 40px;
-  font-family: Lato-mine;
-  transform: rotate(180deg);
-  padding: 5px;
-}
+  .preloader-parent {
+    height: 40px;
+    font-family: Lato-mine;
+    transform: rotate(180deg);
+    padding: 5px;
+  }
 
-.preloader-text{
-  font-weight: 600;
-  color: #6574cd;
-}
+  .preloader-text {
+    font-weight: 600;
+    color: #6574cd;
+  }
 
-.top-parent{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 400px;
-  background: white;
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  border-radius: 0.125rem;
-  margin-bottom: 10px;
-}
+  .top-parent {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    background: white;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    border-radius: 0.125rem;
+    margin-bottom: 10px;
+  }
 
-.preloader.icon{
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
-}
-.preloader.icon>* {
-  width: 8px;
-  height: 25px;
-  margin: 0px 2px;
-  background: #6574cd;
-}
+  .preloader.icon {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+  }
 
-.preloader.icon :nth-child(1) {
-  margin-left: 0px;
-  animation: animate-1 0.5s infinite;
-  animation-direction: alternate;
-}
+  .preloader.icon>* {
+    width: 8px;
+    height: 25px;
+    margin: 0px 2px;
+    background: #6574cd;
+  }
 
-.preloader.icon :nth-child(2) {
-  animation: animate-1 0.5s infinite;
-  animation-direction: alternate;
-  animation-delay: 30ms
-}
+  .preloader.icon :nth-child(1) {
+    margin-left: 0px;
+    animation: animate-1 0.5s infinite;
+    animation-direction: alternate;
+  }
 
-.preloader.icon :nth-child(3) {
-  animation: animate-1 0.5s infinite;
-  animation-direction: alternate;
-  animation-delay: 60ms
-}
+  .preloader.icon :nth-child(2) {
+    animation: animate-1 0.5s infinite;
+    animation-direction: alternate;
+    animation-delay: 30ms
+  }
 
-.preloader.icon :nth-child(4) {
-  animation: animate-1 0.5s infinite;
-  animation-direction: alternate;
-  animation-delay: 90ms
-}
+  .preloader.icon :nth-child(3) {
+    animation: animate-1 0.5s infinite;
+    animation-direction: alternate;
+    animation-delay: 60ms
+  }
 
-.preloader.icon :nth-child(5) {
-  animation: animate-1 0.5s infinite;
-  animation-direction: alternate;
-  animation-delay: 120ms
-}
+  .preloader.icon :nth-child(4) {
+    animation: animate-1 0.5s infinite;
+    animation-direction: alternate;
+    animation-delay: 90ms
+  }
+
+  .preloader.icon :nth-child(5) {
+    animation: animate-1 0.5s infinite;
+    animation-direction: alternate;
+    animation-delay: 120ms
+  }
 
   @keyframes animate-1 {
     from {
       height: 5px;
     }
-    to{
+
+    to {
       height: 25px;
     }
   }

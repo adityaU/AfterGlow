@@ -45,6 +45,9 @@ config :oauth2,
     "application/xml" => MyApp.XmlParser
   }
 
+config :quantum,
+  date_library: Quantum.DateLibrary.Timex
+
 config :afterglow, AfterGlow.Scheduler,
   debug_logging: false,
   jobs: [
@@ -57,6 +60,11 @@ config :afterglow, AfterGlow.Scheduler,
       name: AfterGlow.DatabaseSync,
       schedule: {:cron, "*/30 * * * *"},
       task: {AfterGlow.Database.SyncSchedule, :sync, []}
+    ],
+    [
+      name: AfterGlow.CronScheduler,
+      schedule: {:cron, "* * * * *"},
+      task: {AfterGlow.Scheduler.Jobs.CronScheduler, :run, []}
     ]
   ]
 

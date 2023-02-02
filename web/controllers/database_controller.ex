@@ -34,6 +34,17 @@ defmodule AfterGlow.DatabaseController do
     end
   end
 
+  def index(conn, %{"type" => "json"}) do
+    databases =
+      scope(conn, from(d in Database, select: [:id]), policy: AfterGlow.Database.Policy)
+      |> Repo.all()
+      |> Enum.map(fn x -> x.id end)
+      |> CacheWrapper.get_by_ids(Database)
+      |> Repo.preload(:tables)
+
+    json(conn, %{data: databases})
+  end
+
   def index(conn, _params) do
     databases =
       scope(conn, from(d in Database, select: [:id]), policy: AfterGlow.Database.Policy)

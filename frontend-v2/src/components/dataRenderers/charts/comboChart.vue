@@ -343,7 +343,6 @@ export default {
 
                                                         if (options.yAxis.type === 'value') {
                                                                 let maxLocal = Math.max(...det[1].map((tuple) => { return tuple[1] }))
-                                                                console.log('max', max)
                                                                 max = maxLocal > max ? maxLocal : max
                                                         }
                                                         seriesDatum.symbolSize = this.bubbleSymbolSize
