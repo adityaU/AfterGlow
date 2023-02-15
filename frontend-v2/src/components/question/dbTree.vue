@@ -1,15 +1,17 @@
 <template>
   <div class="tw-p-3 ">
-    <AGInput v-model:value="q" placeholder="Search tables and columns" />
+    <AGInput v-model:value="q" placeholder="Search tables and columns" debounce=300 />
     <AGLoader text="Fetching search results" v-if="loading" />
     <div class="tw-overflow-auto tw-h-[calc(100%-35px)] tw-mt-2">
       <template v-for="table in tables" :key="table">
         <div class="tw-flex tw-items-center tw-gap-2">
           <CaretDownIcon size="16" class="tw-stroke-primary tw-cursor-pointer" v-if="table.open" @click="table.open = false"/>
           <CaretRightIcon size="16" class="tw-stroke-primary tw-cursor-pointer "  v-if="!table.open" @click="(table.open = true) && loadColumns(table)"/>
-          <div class="tw-flex tw-flex-1 tw-items-center tw-gap-1 tw-cursor-pointer" :ref="table.readable_table_name" @click="((table.open = !table.open) || true) && loadColumns(table)">
+          <div class="tw-flex tw-flex-1 tw-items-center tw-gap-1 tw-cursor-pointer tw-w-[85%]" :ref="table.readable_table_name" @click="((table.open = !table.open) || true) && loadColumns(table)">
             <TableIcon size="16" class="tw-stroke-primary"/>
-            {{table.readable_table_name}}
+            <div class="tw-overflow-ellipsis tw-whitespace-nowrap tw-overflow-hidden" >
+              {{table.readable_table_name}}
+            </div>
           </div>
           <div class="tw-justify-self-end tw-flex tw-gap-1">
             <span>
@@ -18,13 +20,13 @@
                 Paste At Cursor
               </q-tooltip>
             </span>
-            <a :href="'/data_references/databases/' +  database.id +  '/tables/' + table.id + '/explore'" target="_blank">
+            <router-link :to="{path: '/questions/new' , query: {database_id: database.id , table_id:  table.id}}" target="_blank">
               <ZoomInIcon size="16" class="tw-stroke-primary tw-cursor-pointer " />
 
               <q-tooltip>
                 Explore In New Tab
               </q-tooltip>
-            </a>
+            </router-link>
           </div>
         </div>
         <div class="" v-if="table.open">
@@ -110,7 +112,10 @@ export default {
 
   methods: {
     search(q){
-      searchTables(this.database.id, q , false, session.token, this.setTables)
+      if (this.database?.id){
+        searchTables(this.database.id, q , false, session.token, this.setTables)
+
+      }
     },
     loadColumns(table){
       getColumns(table.id, session.token, this.setTable(table))

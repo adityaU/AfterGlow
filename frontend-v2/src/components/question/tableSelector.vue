@@ -5,7 +5,7 @@
       <div class="tw-border tw-border-primary tw-bg-primary tw-text-white tw-px-2 tw-rounded-r-sm" v-if="selectedTableLocal?.name"> {{selectedTableLocal?.name}} </div>
       <q-menu flat=true transition-show="scale" transition-hide="scale" max-height="800px" 
         class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown">
-        <SelectOptions :options="tables" v-model:selected="selectedTableLocal" :menuShow="menuShow" iconLetter="D"
+        <SelectOptions :options="tables" v-model:selected="selectedTableLocal" :menuShow="menuShow" iconLetter="T"
           displayKey="name" areOptionObjects="true" disableLocalSearch="true" v-model:searchQuery="q" hideOnClick=true />
       </q-menu>
     </div>
@@ -66,7 +66,17 @@ export default {
 
   methods: {
     setUpTables(tables, _loading){
+      if (tables){
+      tables = tables.map(t => {
+          return {
+            database: t.database_id,
+            name: t.name,
+            id: t.id,
+            readable_table_name: t.readable_table_name,
+          }
+        })
       this.tables = tables || []
+      }
     },
 
     fetchTables(q){

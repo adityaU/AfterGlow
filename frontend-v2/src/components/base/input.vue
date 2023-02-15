@@ -1,16 +1,17 @@
 <template>
   <span class="">
     <input :type="type" :min="min" :max="max" :placeholder="placeholder" :class="invisible ? 'input-no-border' : 'input-border'"
-      class="tw-px-2 tw-py-0.5 tw-w-full tw-bg-inherit" v-model="valueLocal" @keypress.down="$emit('keypress:down')"
+      class="tw-px-2 tw-py-0.5 tw-w-full tw-bg-inherit" v-model="valueLocal" @keypress.down="$emit('keypress:down')" :disabled="disabled"
       v-if="!textArea" />
     <textarea :type="type" :min="min" :max="max" :rows="rows" :placeholder="placeholder"
       :class="invisible ? 'input-no-border' : 'input-border'" class="tw-px-2 tw-py-0.5 tw-w-full tw-bg-inherit" v-model="valueLocal"
-      @keypress.down="$emit('keypress:down')" v-if="textArea" />
+      @keypress.down="$emit('keypress:down')" v-if="textArea" :disabled="disabled" />
   </span>
 </template>
 
 <script>
 import debounce from 'lodash/debounce'
+import isEqual from 'lodash/isEqual'
 export default {
   name: 'BaseInput',
   props: {
@@ -22,7 +23,8 @@ export default {
     type: { default: "text" },
     max: { default: Infinity },
     min: { default: -Infinity },
-    debounce: { default: null }
+    debounce: { default: null },
+    disabled: {default: false}, 
   },
   data() {
     return {
@@ -32,18 +34,25 @@ export default {
   },
 
   watch: {
+    value(){
+      if (!isEqual(this.value, this.valueLocal)){
+        this.valueLocal = this.value
+      }
+    },
     valueLocal() {
-      if (!this.debounce){
-      this.$emit('inputed', this.valueLocal);
-      this.$emit('update:value', this.valueLocal);
-        return
+      if (!isEqual(this.value, this.valueLocal)){
+        if (!this.debounce){
+          this.$emit('inputed', this.valueLocal);
+          this.$emit('update:value', this.valueLocal);
+          return
+        }
+
+        debounce(()=> {
+          this.$emit('inputed', this.valueLocal);
+          this.$emit('update:value', this.valueLocal);
+        }, this.debounce)()
       }
 
-      debounce(()=> {
-      this.$emit('inputed', this.valueLocal);
-      this.$emit('update:value', this.valueLocal);
-      }, this.debounce)()
-      
     }
   }
 

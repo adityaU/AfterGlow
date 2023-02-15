@@ -52,6 +52,7 @@ defmodule AfterGlow.TeamController do
     send_resp(conn, :no_content, "")
   end
 
+
   def add_user(conn, %{"id" => team_id, "user_id" => user_id}) do
     team = Teams.add_user_to_team(user_id, team_id)
 

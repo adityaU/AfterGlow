@@ -1,312 +1,124 @@
 <template>
+  <WithLoginHeader />
+  <AllQuestionsHeader />
+  <div class="tw-mx-6 tw-my-3">
+    <div class="tw-flex tw-flex-col tw-p-2 tw-gap-2 tw-flex-wrap tw-justify-center tw-w-full">
+      <div class="tags tw-flex tw-gap-2 "> 
+        <div class="tw-py-1 tw-px-2 tw-rounded tw-flex tw-items-center tw-gap-1 tw-cursor-pointer" v-for="tag in tags" :key="tag" :style="{'background-color': tag.color, 'color': autoTextColor(tag.color)}" @click="filterByTags(tag)">
+          {{tag.name}}
+          <TagIcon size=16 />
+        </div>
+      </div>
+      <AGInput class="tw-bg-white" v-model:value="q" placeholder="Search Questions" debounce=300 />
 
-  <AGWithLoginHeader />
-  <AGQuestionEditor v-model:question="question"/>
+      <AGLoader v-if="loading" />
+      <div class="tw-flex tw-bg-white tw-p-2 tw-border tw-items-center tw-flex-1" v-for="question in questions" :key="question" >
 
-  <AGLoader text="Initializing" v-if="!dataLoaded" class="tw-bg-white tw-shadow-sm tw-rounded-sm tw-min-h-[400px]" />
-  <div class="tw-h-full tw-w-full tw-flex" v-if="dataLoaded">
-    <BaseDataRenderer ref="root" :resultsKey="resultsKey" :dataLoaded="dataLoaded"
-      v-model:visualizations="visualizations" @deleteViz="deleteViz" :apiActionKeyQuesLevel="apiActionKeyQuesLevel"
-      :apiActionKeyVizLevel="apiActionKeyVizLevel" :queryKey="queryKey" :questionID="questionID"
-      @fetchVizResults="refreshVizResults" v-model:loading="loading" @updateApiActions="fetchQuestionApiActions"
-      @updateViz="(viz) => emitToParent(viz, true)" :finalQuery="finalQuery" @download='download' 
-      :startingPage="startingPage" :question="question" ></BaseDataRenderer>
+        <div  class="icon-primary tw-py-2 tw-px-4 tw-text-2xl tw-mx-2" >Q</div>
+        <div class="tw-flex tw-flex-1">
+          <div class="tw-flex tw-flex-col tw-flex-1" >
+            <router-link class="tw-font-semibold tw-text-primary tw-text-xl" :to="'/questions/'+ question.id">{{question.title}}</router-link>
+            <div class="note"> {{question.description}}</div>
+            <div class="note"> from {{question.human_sql.database.name}}</div>
+          </div>
+          <div class="tw-flex tw-flex-col tw-mx-2" >
+            <div class="note">
+              Updated {{moment(question.updated_at)}}
+            </div>
+            <div class=" tw-flex tw-gap-1">By <div class="tw-font-semibold">{{owners[question?.owner?.data?.id]?.full_name || owners[question?.owner?.data?.id]?.email}}</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <AGToast v-model:show="toastShow" :type="toastType">{{ toastMessage }}</AGToast>
+
+  <AGFooter />
 </template>
 
-<script >
-import AGQuestionEditor from 'components/question/editor.vue'
-import AGWithLoginHeader from 'components/header/withLogin.vue'
-import BaseDataRenderer from 'components/dataRenderers/base.vue';
+<script>
+import WithLoginHeader from 'components/header/withLogin.vue'
 import AGLoader from 'components/utils/loader.vue'
-import AGToast from 'components/utils/toast.vue';
-import { useRoute } from 'vue-router';
-import { api } from 'boot/axios';
-import { resultsStore } from 'stores/results'
-import { apiActionStore } from 'stores/apiActions'
-import { queryStore } from 'stores/query'
-import hash from '../helpers/hash'
-import apiConfig from '../helpers/apiConfig'
+import AGFooter from 'components/footer/static.vue'
+import AGInput from 'components/base/input.vue'
+import AllQuestionsHeader from 'components/question/allQuestionsHeader.vue'
 
-import { fetchQuestionResults, fetchQuestion } from 'src/apis/questions'
-import { fetchQuestionApiActions } from 'src/apis/apiActions'
-import { fetchVizResults, makeVisualizationFromResponse, downloadVizData } from 'src/apis/visualization'
+import { fetchTags } from 'src/apis/tags'
 
-import {sessionStore} from 'src/stores/session'
 
-const session = sessionStore()
-import { _ } from 'lodash'
+import {fetchQuestions, searchQuestions} from 'src//apis/questions'
+
 import { authMixin } from 'src/mixins/auth'
 
+import {sessionStore} from 'stores/session'
+import moment from 'moment'
+import { autoTextColor } from 'src/helpers/colorGenerator'
 
+import { TagIcon } from 'vue-tabler-icons'
+import {fetchUsersByIDs} from 'src/apis/user'
+
+const session = sessionStore()
 export default {
-  name: 'QuestionPage',
-  components: { BaseDataRenderer, AGLoader, AGToast,
-    AGWithLoginHeader, AGQuestionEditor
-  },
+  name: "AGDashboardsPage",
+  components: {WithLoginHeader, AGLoader, AGFooter, AllQuestionsHeader, AGInput, TagIcon},
   mixins: [authMixin],
 
-  data() {
-    const route = useRoute();
-    const query = route.query
-    const results = resultsStore();
-    return {
-      question: null,
-      resultsKey: null,
-      dataLoaded: false,
-      visualizations: { details: null },
-      loading: false,
-      query: query,
-      params: route.params,
-      payload: JSON.parse(query?.payload || '{}'),
-      resultsStore: results,
-      apiActionStore: apiActionStore(),
-      queryKey: null,
-      questionID: null,
-      toastShow: false,
-      startingPage: false,
-      toastMessage: "",
-      toastType: ""
+  watch: {
+    $route( newValue, oldValue){
+      this.tag = this.$route?.query?.tag || ""
+      this.q = this.$route?.query?.q || ""
+    },
+    tag(){
 
+      this.$router.push({query: {q: this.q, tag: this.tag}})
+      searchQuestions(this.q, this.tag,  session.token, this.updateQuestions )
+    },
+    q(){
+      this.$router.push({query: {q: this.q, tag: this.tag}})
+      searchQuestions(this.q, this.tag,  session.token, this.updateQuestions )
     }
   },
-  async created() {
-    if (this.payload && !this.payload.empty) {
-      this.queryKey = await hash(this.query)
-      queryStore().push(this.query, this.queryKey)
-      let questionID = this.params.id || this.query.question_id || null
-      this.questionID = questionID
-      this.payload.question_id = questionID
-      if (questionID != null && questionID != 'null') {
-        fetchQuestion(questionID, session.token, this.setQuestion)
-        this.fetchQuestionApiActions(questionID)
-          this.dataLoaded = false
-        api.get('visualizations' + "?question_id=" + questionID, apiConfig(this.query.token)).then((response) => {
-          this.fetchVizResults(response)
-          this.updateVisulaization(response)
-        })
-      } else if (!this.payload.database) {
-        this.startingPage = true
-        this.dataLoaded = true
-      } else {
-        this.dataLoaded = true
-        fetchQuestionResults(this.payload, this.query.token, this.setLoadingAndResultsKey)
-      }
-    } else {
-      this.resultsKey = 'empty'
-      this.dataLoaded = true
+  mounted(){
+    this.loading = true
+    fetchTags( (tags, loading) => {
+      this.tags = tags
+    }) 
+    searchQuestions(this.q, this.tag,  session.token, this.updateQuestions )
+  },
+
+  data(){
+    return {
+      questions: [],
+      tags: [],
+      loading: false,
+      q: "",
+      owners: {},
+      tag: "", 
     }
   },
-  mounted() {
-    window.addEventListener('message', this.receiveMessage)
-  },
-  beforeUnmount() {
-    window.removeEventListener('message', this.receiveMessage)
-  },
+
+
 
   methods: {
-    setQuestion(question, loading) {
-      this.question = question
-      if (!loading) {
-        this.showQuestionSettingsModal = false
-      }
+    filterByTags(tag){
+      this.tag = tag.id
     },
-
-    setLoadingAndResultsKey(key, loading) {
-      this.startingPage = false
-      this.loading = loading
-      this.resultsKey = key
-      if (!this.loading){
-          this.dataLoaded = true
-      }
-    },
-    setLoadingAndApiActionKey(key, loading) {
-      this.startingPage = false
-      this.loading = loading
-      this.apiActionKeyQuesLevel = key
-    },
-    async fetchQuestionApiActions() {
-      const questionID = this.questionID
-      fetchQuestionApiActions(questionID, this.query.token, this.apiActionKeyQuesLevel, this.setLoadingAndApiActionKey)
-    },
-
-    fetchVizResults(response, forced) {
-      if (response.data.visualizations.length === 0) {
-        fetchQuestionResults(this.payload, this.query.token, this.setLoadingAndResultsKey)
-        return
-      }
-      const viz = response.data.visualizations[0]
-      this.updateVizResults(viz, forced)
-    },
-
-    refreshVizResults(viz) {
-      let vizTerms = viz.queryTerms
-      let payload = {}
-      if (this.payload) {
-        payload = _.cloneDeep(this.payload)
-      }
-      this.loading = true
-      hash("payload=" + JSON.stringify(payload) + "&questionID=" + (this.query.question_id || this.params.id) + "&vizTerms=" + JSON.stringify(vizTerms)).then((key) => {
-        if (this.resultsStore.getResults(key)) {
-          this.loading = false
-          this.resultsKey = key
-          return
+    updateQuestions(questions, loading){
+      this.questions = questions
+      const ownerIDs = questions?.map(q => q?.owner?.data?.id) || []
+      fetchUsersByIDs(ownerIDs, (owners, loading) => {
+        if (owners){
+          owners.forEach(o => {
+            this.owners[o.id] = o
+          })
         }
-        this.updateVizResults(viz, true, key)
       })
+      this.loading = loading
     },
-
-
-    async updateVizResults(viz, forced, key) {
-      this.loading = true
-      this.resultsKey = null
-      let vizID = viz.id
-      let payload = {}
-      if (this.payload) {
-        payload = _.cloneDeep(this.payload)
-      }
-      if (forced) {
-        payload.forced = true
-      }
-      payload.visualization = viz
-      fetchVizResults(vizID, this.query.question_id || this.params.id, payload, this.query, this.setLoadingAndResultsKey, key)
-
+    moment(t){
+      return moment(t).fromNow()
     },
-
-
-    // async fetchQuestionResults() {
-    //   fetchQuestionResults(this.payload, this.query.token, this.setLoadingAndResultsKey)
-    //   // this.loading = true
-    //   // this.resultsKey = null
-    //   // let key = await hash(JSON.stringify(this.payload))
-    //   // api.post('visualizations/results', this.payload, apiConfig(this.query.token)).then((response) => {
-    //   //   this.resultsStore.pushResults(response.data.data, key)
-    //   //   this.loading = false
-    //   //   this.resultsKey = key
-    //   // }).catch((error) => {
-    //   //   this.resultsStore.pushResults(error.response.data.error, key)
-    //   //   this.resultsKey = key
-    //   //   this.loading = false
-    //   // })
-    //   //
-    // },
-    refresh(event){
-          let currentViz = this.visualizations && this.visualizations.details && this.visualizations.details.details.filter(viz => viz && viz.current)
-          currentViz = currentViz && currentViz.length === 1 ? currentViz[0] : null
-          if (event){
-              this.query = Object.fromEntries(new URLSearchParams(event.data.query))
-              this.payload = JSON.parse(this.query.payload)
-              this.payload.question_id = this.questionID
-          }
-          currentViz && this.updateVizResults(currentViz, true)
-    },
-    receiveMessage(event) {
-      if (event.data.message == 'save_visualizations') {
-        this.save(event.data.question_id)
-        return
-      }
-
-      if (event.data.message == 'refresh') {
-        if (!this.loading) {
-          this.refresh(event)
-          return
-        }
-      }
-
-    },
-
-    updateVisulaization(response) {
-
-      if (response.data && response.data.visualizations && response.data.visualizations.length >= 1) {
-        this.visualizations = {
-          towardsBaseRenderer: true, details: {
-            details: response.data.visualizations.map((viz) => {
-              return makeVisualizationFromResponse(viz)
-            })
-          }
-        }
-        return
-      }
-      this.visualizations = { details: null }
-    },
-
-    deleteViz(index) {
-      if (this.visualizations.details.details.length === 1) {
-        return
-      }
-
-      const toBeDeleted = this.visualizations.details.details[index]
-      if (toBeDeleted.id) {
-        api.delete('visualizations/' + toBeDeleted.id, apiConfig(this.query.token))
-      }
-
-      this.visualizations.details.details.splice(index, 1)
-      this.visualizations.towardsBaseRenderer = true
-    },
-
-    save(question_id) {
-      if (!question_id) {
-        return
-      }
-      this.dataLoaded = false
-      const url = 'visualizations'
-      const payload = { question_id: question_id, visualizations: this.visualizations && this.visualizations.details && this.visualizations.details.details }
-      if (payload.visualizations) {
-
-        api.post(url, payload, apiConfig(this.query.token)).then((response) => {
-          this.updateVisulaization(response)
-          this.dataLoaded = true
-        }).catch(() => {
-          this.visualizations = { details: null }
-          this.dataLoaded = true
-        })
-      }
-    },
-
-    emitToParent() {
-      const el = window.parent.$('#ag_get_results button')
-      if (el.length) {
-        el.trigger('click')
-        return
-      }
-      this.refresh()
-    },
-    showDownloadToast(download, _) {
-      if (download === null) {
-        return
-      }
-
-      this.toastShow = true
-      if (download) {
-        this.toastMessage = "We are creating a csv for you. You'll get an email shortly with the details."
-        this.toastType = "ok"
-        return
-      }
-      if (!download) {
-        this.toastMessage = "we were not able to create csv. Csv flow has some issues. please contact administrator"
-        this.toastType = "critical"
-        return
-      }
-    },
-
-    saveQuestion() {
-      const query = queryStore().get(this.queryKey)
-      saveQuestion(this.questionID, this.question, query.token, this.setQuestion)
-    },
-    download() {
-      let currentViz = this.visualizations && this.visualizations.details && this.visualizations.details.details.filter(viz => viz && viz.current)
-      currentViz = currentViz && currentViz.length === 1 ? currentViz[0] : null
-
-      if (currentViz) {
-        let payload = {}
-        if (this.payload) {
-          payload = _.cloneDeep(this.payload)
-        }
-        payload.visualization = currentViz
-        downloadVizData(payload, this.query, this.showDownloadToast)
-
-      }
+    autoTextColor(c){
+      return autoTextColor(c)
     }
   }
 }

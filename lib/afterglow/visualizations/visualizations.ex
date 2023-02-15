@@ -13,6 +13,11 @@ defmodule AfterGlow.Visualizations.Visualizations do
     from(m in @model, where: m.question_id == ^question_id, order_by: [asc: m.id]) |> Repo.all()
   end
 
+  def delete_by_question_id(question_id) do
+    from(m in @model, where: m.question_id == ^question_id)
+    |> Repo.delete_all()
+  end
+
   def save(visualizations, question_id) do
     visualizations =
       visualizations
@@ -59,9 +64,13 @@ defmodule AfterGlow.Visualizations.Visualizations do
     payload = payload |> Map.delete("id")
 
     if payload["database"] do
-      if Database.has_access(payload["database"]["id"], current_user) do
-        fetch_results(:direct, payload, id, query_terms, viz_cache_time, current_user)
-      end
+      payload =
+        if payload |> get_in(["version"]) == 1,
+          do: payload |> Map.merge(Conversions.convert(%{"details" =>  payload})),
+          else:
+          payload
+
+      fetch_results(:direct, payload, id, query_terms, viz_cache_time, current_user)
     else
       question_id = payload["question_id"] || (visualization && visualization.question_id)
       variables = payload["variables"]
@@ -83,6 +92,7 @@ defmodule AfterGlow.Visualizations.Visualizations do
       if payload["question_id"] do
         {:ok, question} = Questions.get(payload["question_id"])
         question = question |> Map.from_struct()
+
         {:ok, question}
       else
         {:ok, %{}}
@@ -120,14 +130,14 @@ defmodule AfterGlow.Visualizations.Visualizations do
   end
 
   def fetch_results(
-        :via_question,
-        question_id,
-        viz_id,
-        query_terms,
-        variables,
-        viz_cache_time,
-        current_user
-      ) do
+    :via_question,
+    question_id,
+    viz_id,
+    query_terms,
+    variables,
+    viz_cache_time,
+    current_user
+  ) do
     {:ok, question} = Questions.get(question_id)
 
     expire_after =

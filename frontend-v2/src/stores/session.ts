@@ -3,21 +3,24 @@ import { defineStore } from 'pinia';
 
 export const sessionStore = defineStore('session', {
   state: () => ({
-    token: ""
+    accessToken: ""
   }),
 
   getters: {
     token() {
-      if (this.token) { return this.token }
+      if (this.accessToken) { return this.accessToken }
       return localStorage.getItem('ag_access_token')
     }
   },
 
   actions: {
-    set(token: string) {
-      this.token = token;
+    setToken(token: string) {
+      this.accessToken = token;
       localStorage.setItem('ag_access_token', token)
     },
+    logout(){
+      localStorage.setItem('ag_access_token', "")
+    }
 
   }
 });

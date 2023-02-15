@@ -4,7 +4,7 @@
   }
 </style>
 <template>
-  <div class="" @keydown="onKeydown" tabindex="0">
+  <div class="tw-h-full" @keydown="onKeydown" tabindex="0">
     <div class="tw-py-1 tw-px-2" v-if="!hideSearch">
       <BaseInput :value="query" @inputed="(val) => query = val" placeholder="Search" ref="option_0" />
     </div>
@@ -56,10 +56,8 @@ export default {
       this.menuShowFn()
     },
     query(q) {
-      if (this.disableLocalSearch){
-        this.$emit('update:searchQuery', q)
-        return 
-      }
+
+      this.$emit('update:searchQuery', q)
       if (!q || q === '') {
         this.optionsLocal = [...this.options]
         return

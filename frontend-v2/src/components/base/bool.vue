@@ -26,8 +26,9 @@ export default {
         },
 
         data() {
+                const valLocal = typeof(this.value) === 'string' ? (this.value === 'true') : this.value
                 return {
-                        valLocal: this.val || this.value || false
+                        valLocal: this.val || valLocal || false
                 }
         }
 

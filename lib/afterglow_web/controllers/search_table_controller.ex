@@ -1,9 +1,15 @@
 defmodule AfterGlow.SearchTableController do
   use AfterGlow.Web, :controller
+  alias AfterGlow.Column
   alias AfterGlow.AutoComplete
   alias AfterGlow.Table
   alias AfterGlow.Plugs.Authorization
   alias AfterGlow.CacheWrapper
+
+  alias AfterGlow.Tables.QueryFunctions, as: Tables
+
+  import Ecto.Query, only: [from: 2]
+
   plug(Authorization)
 
   action_fallback(AfterGlow.Web.FallbackController)
@@ -29,7 +35,17 @@ defmodule AfterGlow.SearchTableController do
   end
 
   def show(conn, %{"id" => id, "type" => "json"}) do
-    table = CacheWrapper.get_by_id(Table, id) |> Repo.preload(columns: :belongs_to)
+    {:ok, table} = Tables.get(id)
+
+    table =
+      table
+      |> Repo.preload(
+        columns:
+          {from(
+             a in Column,
+             order_by: [asc: a.name]
+           ),  :belongs_to}
+      )
 
     conn
     |> json(%{data: table})

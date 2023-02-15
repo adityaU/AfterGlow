@@ -85,7 +85,7 @@ export default {
       let dashboardID = this.params.id || null
       if (dashboardID) {
         this.dashboardID = dashboardID
-        fetchDashboard(dashboardID, {}, this.query.token || session.token, this.setResultsKeyAndLoading)
+        fetchDashboard(dashboardID, {shareID: this.$route.query.share_id}, this.query.token || session.token, this.setResultsKeyAndLoading)
       }
     },
     resetData(){

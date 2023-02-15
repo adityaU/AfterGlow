@@ -1,6 +1,6 @@
 <template>
   <teleport to="body">
-    <div class="tw-flex tw-basis-8 tw-absolute tw-top-2 tw-right-2 ag-card tw-p-3" v-if="show"
+    <div class="tw-flex tw-basis-8 tw-absolute tw-top-2 tw-right-2 ag-card tw-p-3 tw-max-w-[400px]" v-if="show"
       :class="'tw-border-l-4 ' + borderClass">
       <div class="tw-border-l-red-600 tw-border-l-green-600 tw-border-l-yellow-600 tw-hidden"></div>
       <div class="col">

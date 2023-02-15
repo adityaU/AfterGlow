@@ -217,7 +217,6 @@ defmodule AfterGlow.Alerts.Jobs.AlertEvaluator do
         true -> false
       end
 
-    original_data |> Enum.to_list() |> IO.inspect(level: "original_data")
 
     if save_alert_event do
       alert_event =

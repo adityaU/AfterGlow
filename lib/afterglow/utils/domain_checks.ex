@@ -20,10 +20,18 @@ defmodule AfterGlow.Utils.DomainChecks do
   defp regex_match(to) do
     env_var_domains = Application.get_env(:afterglow, :allowed_google_domain)
 
-    if (!env_var_domains || env_var_domains == "") && all_org_domains() |> length == 0 do
+    env_var_domains =
+      env_var_domains
+      |> String.split(",")
+      |> Enum.map(&(&1 |> String.trim()))
+      |> Enum.filter(&(&1 != ""))
+
+    all_domains = env_var_domains ++ all_org_domains()
+
+    if all_domains |> length == 0 do
       true
     else
-      Regex.match?(~r/#{env_var_domains}/, to)
+      to in all_domains
     end
   end
 

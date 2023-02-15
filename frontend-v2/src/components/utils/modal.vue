@@ -17,7 +17,7 @@
 <template>
   <Teleport to="body">
   
-    <div v-if="show" class="modal-mask tw-absolute tw-inset-0 tw-bg-primary/20 tw-flex tw-z-[99999]"
+    <div v-if="show" class="modal-mask tw-fixed tw-inset-0 tw-bg-primary/20 tw-flex tw-z-[99999]"
       @click="$emit('update:show', false)">
 
       <div class="tw-max-w-[95%] tw-max-w-[75%] tw-max-w-[35%] tw-hidden"></div>

@@ -16,10 +16,205 @@ defmodule AfterGlow.QueryTerms.Conversions do
     "by quarter of year" => "quarter_year"
   }
 
+  @reverse_datetime_groupings %{
+    nil => "As It is",
+    "seconds" => "by Seconds",
+    "minutes" => "by Minute",
+    "day" => "by Day",
+    "hour" => "by Hour",
+    "week" => "by Week",
+    "month" => "by Month",
+    "quarter" => "by Quarter",
+    "year" => "by year",
+    "hour_day" => "by Hour of the day",
+    "day_week" => "by Day of the week",
+    "week_year" => "by week of year",
+    "month_year" => "by month of year",
+    "quarter_year" => "by quarter of year"
+  }
+
   @sortings %{
     "ascending" => "ASC",
     "descending" => "DESC"
   }
+
+  @reverse_sortings %{
+    "ASC" => "ascending",
+    "DESC" => "descending"
+  }
+
+  def reverse_convert(old_terms) do
+    qt = %{
+      "filters" => %{"details" => []},
+      "groupings" => %{"details" => []},
+      "sortings" => %{"details" => []},
+      "views" => %{"details" => []},
+      "offset" => nil,
+      "limit" => nil,
+      "database" => old_terms["database"],
+      "queryType" => old_terms["QueryType"],
+      "rawQuery" => old_terms["rawQuery"]
+    }
+
+
+    qt = qt |> reverse_convert_table(old_terms)
+    qt = qt |> reverse_convert_filters(old_terms)
+    qt = qt |> reverse_convert_views(old_terms)
+    qt = qt |> reverse_convert_groupings(old_terms)
+    qt |> reverse_convert_sortings(old_terms)
+  end
+
+  def reverse_convert_sortings(qt, old_terms) do
+    sortings = old_terms |> get_in(["orderBys"])
+
+    if sortings do
+      details =
+        sortings
+        |> Enum.map(fn g ->
+          currentStage = if g |> get_in(["selected", "raw"]), do: 3, else: 0
+
+          %{
+            raw: g |> get_in(["selected", "raw"]),
+            column: g |> get_in(["column", "name"]),
+            currentStage: currentStage,
+            value: g |> get_in(["selected", "value"]),
+            direction:
+              @reverse_sortings |> get_in([g |> get_in(["order", "value"])]) || "ascending"
+          }
+        end)
+
+      qt |> Map.merge(%{"sortings" => %{"details" => details}})
+    else
+      qt
+    end
+  end
+
+  def reverse_convert_groupings(qt, old_terms) do
+    groupings = old_terms |> get_in(["groupBys"])
+
+    if groupings do
+      details =
+        groupings
+        |> Enum.map(fn g ->
+          currentStage = if g |> get_in(["selected", "raw"]), do: 3, else: 0
+
+          duration =
+            if Regex.match?(~r/time|date/, g |> get_in(["selected", "data_type"]) || "") do
+              @reverse_datetime_groupings |> get_in([g |> get_in(["castType", "value"])])
+            else
+              nil
+            end
+
+          %{
+            raw: g |> get_in(["selected", "raw"]),
+            column: g |> get_in(["selected", "name"]),
+            currentStage: currentStage,
+            value: g |> get_in(["selected", "value"]),
+            duration: duration
+          }
+        end)
+
+      qt |> Map.merge(%{"groupings" => %{"details" => details}})
+    else
+      qt
+    end
+  end
+
+  def reverse_convert_views(qt, old_terms) do
+    views = old_terms |> get_in(["views"])
+
+    if views do
+      details =
+        views
+        |> Enum.map(fn v ->
+          isAggregation = v |> get_in(["selected", "value"]) == "count"
+
+          columns =
+            if v |> get_in(["selected", "value"]) == "raw_data", do: ["All Columns"], else: []
+
+          agg = if isAggregation, do: "count of rows", else: nil
+          column = if isAggregation, do: "all", else: nil
+          currentStage = if v |> get_in(["selected", "raw"]), do: 3, else: 0
+
+          %{
+            raw: v |> get_in(["selected", "raw"]) || false,
+            isAggregation: isAggregation,
+            columns: columns,
+            agg: agg,
+            column: column,
+            currentStage: currentStage,
+            value: v |> get_in(["selected", "value"])
+          }
+        end)
+        |> Enum.filter(fn v ->
+          v |> get_in([:value])
+        end)
+
+      qt |> Map.merge(%{"views" => %{"details" => details}})
+    else
+      qt
+    end
+  end
+
+  def reverse_convert_filters(qt, old_terms) do
+    filters = old_terms |> get_in(["filters"])
+
+    if filters do
+      filters |> IO.inspect(label: "filters====================")
+
+      details =
+        filters
+        |> Enum.map(fn f ->
+          currentStage = if f |> get_in(["raw"]), do: 3, else: 0
+          %{
+            "column" => f |> get_in(["column", "name"]),
+            "operator" => f |> get_in(["operator", "value"]),
+            "value" => reverse_convert_filter_value(f),
+            "raw" => f |> get_in(["raw"]),
+            "currentStage" => currentStage
+          }
+        end)
+
+      qt |> Map.merge(%{"filters" => %{"details" => details}})
+    else
+      qt
+    end
+  end
+
+  def reverse_convert_filter_value(f = %{"value" => nil, "valueDateObj" => %{"date" => true}}) do
+    %{
+      "type" => "duration",
+      "value" => %{
+        "durationValue" => f |> get_in(["valueDateObj", "value"]),
+        "durationType" => f |> get_in(["valueDateObj", "duration", "value"]),
+        "durationTense" => f |> get_in(["valueDateObj", "dtt", "value"])
+      }
+    }
+  end
+
+  def reverse_convert_filter_value(f = %{"value" => value}) do
+    case Timex.parse(value, "{ISO:Extended:Z}") do
+      {:ok, datetime} ->
+        %{
+          "type" => "datepicker",
+          "value" => Timex.format!(datetime, "{Mshort} {0D}, {YYYY} {h12}:{m} {_AM} {Z:}")
+        }
+
+      _ ->
+        value
+    end
+  end
+
+  def reverse_convert_table(qt, old_terms) do
+    if old_terms |> get_in(["table"]) do
+      qt
+      |> Map.merge(%{
+        "table" => old_terms["table"] |> Map.merge(%{name: old_terms |> get_in(["human_name"])})
+      })
+    else
+      qt
+    end
+  end
 
   def convert(viz_terms) do
     qt = %{

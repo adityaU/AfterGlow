@@ -88,7 +88,6 @@ defmodule AfterGlow.Question do
       :last_updated,
       :shareable_link,
       :is_shareable_link_public,
-      :results_view_settings,
       :columns,
       :shared_to,
       :owner_id,
@@ -100,7 +99,6 @@ defmodule AfterGlow.Question do
       :sql,
       :human_sql,
       :query_type,
-      :results_view_settings,
       :owner_id
     ])
     |> add_shareable_link
@@ -196,7 +194,6 @@ defmodule AfterGlow.Question do
           end)
           |> Enum.at(0)
 
-        default_options_values = Variable.default_option_values(q_var)
 
         value =
           if q_var && Map.has_key?(q_var, :value) && (q_var.value || q_var.value == ""),
@@ -204,7 +201,6 @@ defmodule AfterGlow.Question do
             else: if(var |> Map.has_key?(:default), do: var.default, else: nil)
 
         value = Variable.format_value(var, value)
-        value = if default_options_values, do: default_options_values, else: value
 
         %{
           name: var.name,

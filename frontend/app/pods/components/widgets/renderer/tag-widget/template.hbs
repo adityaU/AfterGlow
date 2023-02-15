@@ -1,8 +1,0 @@
-{{#if applicableWidgetItem}}
-    <span class="tag" style="color: {{applicableWidgetItem.config.text_color}};background-color: {{applicableWidgetItem.config.color}}">
-    {{format-object applicableWidgetItem.text}}
-        <a href=" # " class="tag-addon ">
-            <i class="fe fe-{{applicableWidgetItem.config.icon}} "></i>
-        </a>
-    </span>
-{{else}}{{format-object el}} {{/if}}

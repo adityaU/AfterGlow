@@ -1,5 +1,6 @@
 defmodule AfterGlow.AuthController do
   use AfterGlow.Web, :controller
+  alias Mix.Tasks.Hex.Organization
   alias AfterGlow.Oauth.Google
   alias AfterGlow.User
   alias AfterGlow.Permission
@@ -92,28 +93,39 @@ defmodule AfterGlow.AuthController do
     case match_domain(user["emailAddresses"] |> Enum.at(0) |> Access.get("value")) do
       true ->
         {:ok, user} = User.save_or_update_user(user)
-        auth_token = create_jwt(user)
-        perm = user |> Repo.preload(permission_sets: :permissions) |> permissions
+        if user.is_deactivated do 
 
-        conn
-        |> put_status(:created)
-        |> put_resp_header("content-type", "application/json")
-        |> json(%{
-          token: auth_token,
-          permissions: perm,
-          user: %{
-            id: user.id,
-            email: user.email,
-            full_name: user.full_name,
-            profile_pic: user.profile_pic
-          }
-        })
+          conn
+          |> put_status(:unprocessable_entity)
+          |> json(%{
+            error: "Your account has been deactivated. Please contact admins."
+          })
+        else
+          auth_token = create_jwt(user)
+          perm = user |> Repo.preload(permission_sets: :permissions) |> permissions
+
+
+          conn
+          |> put_status(:created)
+          |> put_resp_header("content-type", "application/json")
+          |> json(%{
+            token: auth_token,
+            permissions: perm,
+            user: %{
+              id: user.id,
+              email: user.email,
+              full_name: user.full_name,
+              profile_pic: user.profile_pic
+            }
+          })
+        end
+
 
       false ->
         conn
         |> put_status(:unprocessable_entity)
         |> json(%{
-          error: "You are not allowed to access this page with email: #{user["email"]}"
+          error: "Your organization is not allowed to access this page" 
         })
     end
   end
@@ -121,7 +133,7 @@ defmodule AfterGlow.AuthController do
   defp authorize_url!("google") do
     Google.authorize_url!(
       scope:
-        "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email"
+      "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email"
     )
   end
 

@@ -1,16 +1,16 @@
 <template >
   <div class="tw-w-full tw-bg-white tw-rounded-sm tw-border tw-shadow-sm tw-flex tw-min-h-[600px]"
-    v-if="startingPage">
+    v-if="startingPage || !currentViz">
     <div class="tw-text-2xl tw-m-auto ">
       Wanna See Something Cool?  Run a Query! 
     </div>
 
   </div>
   <AGLoader class="tw-min-h-[450px] tw-bg-white tw-shadow-sm tw-rounded-sm" text="Initializing" v-if="loading && !results" />
-  <div class="tw-w-full tw-bg-secondary" v-if="results">
+  <div class="tw-w-full tw-bg-secondary" v-if="results && currentViz">
 
     <VisualizationLayout class="tw-mb-2" v-model:visualizations="visualizationsLocal" @deleteViz="(index) => $emit('deleteViz', index)"
-      @fetchVizResults="(viz) => $emit('fetchVizResults', viz)" :quesConfig="question && question.config">
+      @fetchVizResults="(viz) => $emit('fetchVizResults', viz)" :quesConfig="question && question.config" v-if="currentViz">
       <span class="tw-cursor-pointer tw-mr-4" :class="iconClass" @click="(showQuestionSettingsModal = true)"
         v-if="questionID && currentUser.canEditQuestion">
         <q-tooltip transition-show="scale" transition-hide="scale"> Show question Settings
@@ -18,14 +18,14 @@
         <SettingsIcon class="tw-h-3 tw-w-3 tw-inline" />
       </span>
     </VisualizationLayout>
-    <splitpanes class="pane-wrapper default-theme tw-flex !tw-h-full" ref="chart-parent"
+    <splitpanes class="pane-wrapper default-theme tw-flex !tw-h-full tw-mb-[35px]" id="results-view" ref="chart-parent"
       @resize="settingsPanesize = 100 - $event[0].size">
       <pane :size="100" class="pane tw-flex tw-flex-col" :class="showSettings ? 'pane-left' : ''">
 
         <QBHorizontalLayout :columns="results.original_query_columns || results.columns" :rows="results.rows"
           :colDetails="results.column_details" :resultsKey="resultskey"
           class="tw-mb-[10px] tw-shadow-sm tw-border tw-rounded-sm" v-model:queryTerms="currentViz.queryTerms"
-          :key="rerenderKey" :vizConfig="currentViz.settings.general" :quesConfig="question && question.config">
+          :key="rerenderKey" :vizConfig="currentViz.settings.general" :quesConfig="question && question.config" v-if="currentViz">
 
           <template #actions>
             <div class=" tw-inline tw-px-0.5 tw-h-[30px]">
@@ -91,7 +91,7 @@
           class="tw-bg-white tw-border tw-shadow-sm tw-rounded-sm tw-flex-[1_1_100%] tw-min-h-[400px]" />
         <div class="tw-flex-[1_1_100%] tw-flex tw-flex-col tw-shadow-sm" v-if="!loading">
           <DebugInfo :query="results.final_query" v-model:showQuery="showQuery" :fromCache="results.from_cache" :cacheUpdatedAt="results.cache_updated_at" :cachedUntil="results.cached_until"
-            class="tw-border tw-mb-[10px] tw-bg-white" v-if="showDebugInfo && canSeeDebugInfo" />
+            class="tw-border tw-mb-[10px] tw-bg-white" v-if="showDebugInfo && canSeeDebugInfo && currentViz" />
           <div id="settings-container" v-if="showSettings && results.rows && results.rows.length > 0 && !loading && canSeeDebugInfo" ></div>
           <VizComponent :results="results" :resultsKey="resultskey" :queryKey="queryKey" v-model:visualization="currentViz"
             :apiActionsQuesLevel="apiActionsQuesLevel" :questionID="questionID" :size="settingsPanesize"
@@ -99,7 +99,7 @@
             @addFilter="(filter) => addFilter(filter)" @addSorting="(sorting) => addSorting(sorting)" 
             :showSettings="showSettings && results.rows && results.rows.length > 0 && !loading && canSeeDebugInfo"
             @updatedSettings="(val) => settingsFromViz = val"
-            :key="rerenderKey" />
+            :key="rerenderKey" v-if="currentViz" />
         </div>
       </pane>
       <pane :size="settingsPanesize" ref="chart" class="pane pane-right tw-shadow-sm !tw-border"
@@ -130,7 +130,7 @@
       </pane>
     </splitpanes>
   </div>
-  <AddToDashboard v-model:open="openAddToDashboard" :visualizationID="currentViz.id" :queryKey="queryKey" />
+  <AddToDashboard v-model:open="openAddToDashboard" :visualizationID="currentViz.id" :queryKey="queryKey" v-if="currentViz" />
   <!-- <AGQuestionsSettings v-model:open="showQuestionSettingsModal" v-model:question="question" @saveQuestion="saveQuestion" -->
   <!--   v-if="questionID" :key="showQuestionSettingsModal" /> -->
 </template>
@@ -157,6 +157,8 @@ import 'splitpanes/dist/splitpanes.css'
 import { resultsStore } from 'stores/results'
 import { apiActionStore } from 'stores/apiActions'
 import { currentUserStore } from 'src/stores/currentUser';
+
+import isEqual from 'lodash/isEqual'
 
 
 import { newComponentDefs } from 'src/helpers/componentDefs'
@@ -213,9 +215,8 @@ export default {
     visualizations: {
       deep: true,
       handler() {
-        if (this.visualizations.towardsBaseRenderer) {
-          this.visualizationsLocal.towardsVizLayout = true
-          this.visualizationsLocal = this.visualizations.details || { details: null }
+        if (!isEqual(this.visualizations, this.visualizationsLocal)) {
+          this.visualizationsLocal = this.visualizations?.details || { details: null }
         }
       }
 
@@ -223,7 +224,13 @@ export default {
     visualizationsLocal: {
       deep: true,
       handler() {
-        this.visualizationsLocal.details.forEach((viz) => {
+        if (!this.visualizationsLocal) {
+          this.visualizationsLocal = this.visualizations?.details || { towardsVizLayout: true, details: [_.cloneDeep(newVisualization)] }
+          if (vizs.details.filter(viz => viz.current).length === 0) {
+            vizs.details[0].current = true
+          }
+        }
+        this.visualizationsLocal?.details?.forEach((viz) => {
           if (!viz.settings) {
             viz.settings = _.cloneDeep(newSettings)
           }
@@ -231,18 +238,19 @@ export default {
             viz.queryTerms = _.cloneDeep(newQueryTerms)
           }
         })
-        this.currentViz = this.visualizationsLocal.details.filter((viz) => viz.current)[0]
-        if (!this.currentViz) {
+        this.currentViz = this.visualizationsLocal?.details?.filter((viz) => viz.current)[0]
+        if (!this.currentViz & this.visualizationsLocal?.details && this.visualizationsLocal?.details?.length > 0) {
           this.visualizationsLocal.details[0].current = true
           this.currentViz = this.visualizationsLocal.details[0]
         }
+        if (this.currentViz){
+          let index = -1
+          this.visualizationsLocal?.details && this.visualizationsLocal?.details.forEach((viz, i) => {
+            viz.current && (index = i)
+          })
+          this.currentViz.index = index
 
-        let index = -1
-        this.visualizationsLocal.details && this.visualizationsLocal.details.forEach((viz, i) => {
-          viz.current && (index = i)
-        })
-        this.currentViz.queryTerms.towardsQTLayout = true
-        this.currentViz.index = index
+        }
         this.$emit('update:visualizations', { towardsBaseRenderer: false, details: this.visualizationsLocal })
       }
     },
@@ -267,10 +275,10 @@ export default {
 
   computed: {
     rendererType() {
-      return this.currentViz.rendererType
+      return this.currentViz?.rendererType
     },
     rerenderKey() {
-      return { rendererType: this.currentViz && this.currentViz.rendererType, index: this.currentViz.index, resultsKey: this.resultsKey, apiActionKeyQuesLevel: this.apiActionKeyQuesLevel }
+      return { rendererType: this.currentViz?.rendererType, index: this.currentViz?.index, resultsKey: this.resultsKey, apiActionKeyQuesLevel: this.apiActionKeyQuesLevel }
     },
     vizConfigRenderKey(){
       let renderKey = _.cloneDeep(this.rerenderKey)
@@ -296,7 +304,7 @@ export default {
   },
 
   data() {
-    const vizs = this.visualizations.details || { towardsVizLayout: true, details: [_.cloneDeep(newVisualization)] }
+    const vizs = this.visualizations?.details || { towardsVizLayout: true, details: [_.cloneDeep(newVisualization)] }
     if (vizs.details.filter(viz => viz.current).length === 0) {
       vizs.details[0].current = true
     }

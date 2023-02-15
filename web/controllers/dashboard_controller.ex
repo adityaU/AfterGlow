@@ -31,7 +31,7 @@ defmodule AfterGlow.DashboardController do
       changeset =
         Dashboard.changeset(dashboard, %{
           shared_to:
-            dashboard.shared_to |> Kernel.++([conn.assigns.current_user.email]) |> Enum.uniq()
+          dashboard.shared_to |> Kernel.++([conn.assigns.current_user.email]) |> Enum.uniq()
         })
 
       {:ok, dashboard} = Dashboard.update(changeset, dashboard.questions, dashboard.tags)
@@ -41,7 +41,24 @@ defmodule AfterGlow.DashboardController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
+  def show(conn, %{"id" => id, "share_id" => share_id}) do
+    if share_id do
+      dashboard =
+        CacheWrapper.get_by_id(id |> Integer.parse() |> elem(0), Dashboard)
+        |> Repo.preload(:questions)
+        |> Repo.preload(:tags)
+        |> Repo.preload(:variables)
+        |> Repo.preload(:notes)
+      if dashboard.shareable_link == share_id do
+        changeset =
+          Dashboard.changeset(dashboard, %{
+            shared_to:
+            dashboard.shared_to |> Kernel.++([conn.assigns.current_user.email]) |> Enum.uniq()
+          })
+
+        {:ok, dashboard} = Dashboard.update(changeset, dashboard.questions, dashboard.tags)
+      end
+    end
     dashboard =
       scope(conn, Dashboard)
       |> select([:id])
@@ -91,8 +108,8 @@ defmodule AfterGlow.DashboardController do
   end
 
   def create(conn, %{
-        "data" => data = %{"type" => "dashboards", "attributes" => _dashboard_params}
-      }) do
+    "data" => data = %{"type" => "dashboards", "attributes" => _dashboard_params}
+  }) do
     prms = Params.to_attributes(data)
     prms = prms |> Map.merge(%{"owner_id" => conn.assigns.current_user.id})
     changeset = Dashboard.changeset(%Dashboard{}, prms)
@@ -127,9 +144,9 @@ defmodule AfterGlow.DashboardController do
   end
 
   def update(conn, %{
-        "id" => id,
-        "data" => data = %{"type" => "dashboards", "attributes" => _dashboard_params}
-      }) do
+    "id" => id,
+    "data" => data = %{"type" => "dashboards", "attributes" => _dashboard_params}
+  }) do
     prms = Params.to_attributes(data)
 
     dashboard =

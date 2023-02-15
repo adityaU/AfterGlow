@@ -16,7 +16,7 @@ const authMixin = {
 
   methods: {
     redirect() {
-      // window.parent.location.href = '/login'
+      this.$router.push('/login')
     },
     setPermissions(response) {
       currentUser.set(response)

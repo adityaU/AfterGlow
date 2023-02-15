@@ -52,7 +52,18 @@ export default {
 
   methods: {
     setUpDatabases(databases, _loading){
-      this.databases = databases || []
+      if (databases){
+         databases = databases.map(d => {
+          return {
+            db_type : d.db_type,
+            id: d.id,
+            name: d.name,
+            unique_identifier: d.unique_identifier,
+          }
+        })
+         this.databases = databases || []
+
+      }
     }
   }
   

@@ -12,11 +12,11 @@
               <q-menu flat=true transition-show="scale" transition-hide="scale" max-height="400px" :offset="[0, 5]"
                 class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown">
                 <div class="card tw-grid tw-grid-cols-1 tw-divider-y">
-                  <a :href="'/questions/' + viz.questionID" target="_blank" :tabindex="index + 1"
+                  <router-link :to="'/questions/' + viz.questionID" target="_blank" :tabindex="index + 1"
                     class="tw-py-1 tw-px-2 tw-whitespace-nowrap tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0">
                     <ArrowBearRightIcon size="16" class="icon-primary tw-mr-2" />
                     <span class="">View Details</span>
-                  </a>
+                  </router-link>
                   <div @click="refresh" :tabindex="index + 1"
                     class="tw-cursor-pointer tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0">
                     <RefreshIcon size="16" class="icon-primary tw-mr-2" />
@@ -45,11 +45,11 @@
               <q-menu flat=true transition-show="scale" transition-hide="scale" max-height="400px" :offset="[0, 5]"
                 class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown">
                 <div class="card tw-grid tw-grid-cols-1 tw-divider-y">
-                  <a :href="'/questions/' + viz.questionID" target="_blank" :tabindex="index + 1"
+                  <router-link :to="'/questions/' + viz.questionID" target="_blank" :tabindex="index + 1"
                     class="tw-py-1 tw-px-2 tw-whitespace-nowrap tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0">
                     <ArrowBearRightIcon size="16" class="icon-primary tw-mr-2" />
                     <span class="">View Details</span>
-                  </a>
+                  </router-link>
                   <div @click="refresh" :tabindex="index + 1"
                     class="tw-cursor-pointer tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0">
                     <RefreshIcon size="16" class="icon-primary tw-mr-2" />
@@ -187,7 +187,7 @@ export default {
       this.apiActionsLoading = loading
       this.apiActionsKey = key
     },
-    setLoadingAndResultsKey(key, loading) {
+    setLoadingAndResultsKey(key, _query, loading) {
       this.loading = loading
       this.resultsKey = key
     },

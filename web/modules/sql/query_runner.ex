@@ -46,7 +46,7 @@ defmodule AfterGlow.Sql.QueryRunner do
             tracking_details
           )
 
-        "raw" ->
+        _ ->
           permit_prms =
             params
             |> permit_params

@@ -12,30 +12,20 @@ import resizerUrl from '../assets/js/iframe.content.min.js?url'
 export default defineComponent({
   name: 'MainLayout',
 
-  // components: {
-  //   EssentialLink
-  // },
+  mounted(){
+    if (this.$route.path === '/'){
+      this.$router.push('/questions/new')
+    }
+    let tag = document.createElement("script");
+    tag.setAttribute("src", resizerUrl);
+    document.head.appendChild(tag);
 
-  methods: {
-  },
-
-
-  setup() {
-
-    onMounted(() => {
-      let tag = document.createElement("script");
-      tag.setAttribute("src", resizerUrl);
-      document.head.appendChild(tag);
-
-      const preloader = window.document.getElementById('preloader')
-      if (preloader) {
-        preloader.remove()
-      }
-    })
-
-
-    return {
+    const preloader = window.document.getElementById('preloader')
+    if (preloader) {
+      preloader.remove()
     }
   }
+
+
 });
 </script>

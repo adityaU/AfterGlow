@@ -6,15 +6,15 @@
         <div class="tw-px-0.5 tw-py-1 tw-inline-flex tw-flex-nowrap">
           <sortingMenu @addsorting="prevent" addLabel="Done" @editsorting="(val) => sorting = val" :sorting="sorting" :columns="columns"
             :colDetails="colDetails" />
-          <a href="#" class="btn tw-bg-primary tw-text-white hover:tw-bg-primary/80" v-for="dv, i in getDisplayValues(sorting, colDetails)"
+          <div class="tw-cursor-pointer btn tw-bg-primary tw-text-white hover:tw-bg-primary/80" v-for="dv, i in getDisplayValues(sorting, colDetails)"
             :key="dv"
             :class="i === 0 ? 'btn-left' : 'btn-center'"
             @click="sorting.currentStage = dv[1]">{{
                 dv[0]
-            }}</a>
-          <a href="#" class="btn btn-right" @click="removesorting(index)">
+            }}</div>
+          <div class="tw-cursor-pointer btn btn-right" @click="removesorting(index)">
             <XIcon class="tw-inline tw-h3 tw-w-3" size=18 />
-          </a>
+          </div>
         </div>
 
       </div>
@@ -37,6 +37,7 @@ import SortingMenu from 'components/queryTerms/sortOrderMenu.vue'
 import { XIcon } from 'vue-tabler-icons';
 
 import {SortingMixin} from 'src/mixins/sortingMixin'
+import isEqual from 'lodash/isEqual'
 
 import { _ } from 'lodash';
 export default {
@@ -58,7 +59,7 @@ export default {
 
   watch: {
     sortings(){
-      if (this.sortings.towardsChild){
+      if (!isEqual(this.sortingsLocal, this.sortings.details)){
         this.sortingsLocal = this.sortings.details
       }
     },

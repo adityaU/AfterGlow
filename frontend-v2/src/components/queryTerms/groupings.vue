@@ -6,15 +6,15 @@
         <div class="tw-px-0.5 tw-py-1 tw-inline-flex tw-flex-nowrap">
           <groupingMenu @addgrouping="prevent" addLabel="Done" @editgrouping="(val) => grouping = val" :grouping="grouping" :columns="columns"
             :colDetails="colDetails" />
-          <a href="#" class="btn tw-bg-primary tw-text-white hover:tw-bg-primary/80" v-for="dv, i in getDisplayValues(grouping, colDetails)"
+          <div class="btn tw-bg-primary tw-text-white hover:tw-bg-primary/80 tw-cursor-pointer" v-for="dv, i in getDisplayValues(grouping, colDetails)"
             :key="dv"
             :class="i === 0 ? 'btn-left' : 'btn-center'"
             @click="grouping.currentStage = dv[1]">{{
                 dv[0]
-            }}</a>
-          <a href="#" class="btn btn-right" @click="removegrouping(index)">
+            }}</div>
+          <div class="btn btn-right tw-cursor-pointer " @click="removegrouping(index)">
             <XIcon class="tw-inline tw-h3 tw-w-3" size=18 />
-          </a>
+          </div>
         </div>
 
       </div>
@@ -35,6 +35,7 @@ import FloatingMenu from 'components/base/floatingMultiSelect.vue'
 import GroupingMenu from 'components/queryTerms/groupingMenu.vue'
 
 import { XIcon } from 'vue-tabler-icons';
+import isEqual from 'lodash/isEqual'
 
 import {GroupingMixin} from 'src/mixins/groupingMixin'
 
@@ -58,7 +59,7 @@ export default {
 
   watch: {
     groupings(){
-      if (this.groupings.towardsChild){
+      if (!isEqual(this.groupingsLocal, this.groupings.details)){
         this.groupingsLocal = this.groupings.details
       }
     },

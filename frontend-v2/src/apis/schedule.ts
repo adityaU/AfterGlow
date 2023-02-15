@@ -6,7 +6,8 @@ const saveDashboardSchedule = async function(id, payload, token, callback) {
   callback(null, true)
   api.post('dashboards/' + id + '/schedule', payload, apiConfig(token)).then((response) => {
     callback(response.data.schedule, false)
-  }).catch(() => {
+  }).catch(error => {
+    console.error(error)
     callback([], false)
   })
 
@@ -16,7 +17,8 @@ const fetchDashboardSchedule = async function(id, token, callback) {
   callback(null, true)
   api.get('dashboards/' + id + '/schedule', apiConfig(token)).then((response) => {
     callback(response.data.schedule, false)
-  }).catch(() => {
+  }).catch(error => {
+    console.error(error)
     callback([], false)
   })
 

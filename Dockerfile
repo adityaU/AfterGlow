@@ -33,8 +33,8 @@ WORKDIR /var/app
 ENV MIX_ENV=prod
 RUN mkdir -p /var/app/_build/prod
 COPY _build/prod /var/app/_build/prod
-WORKDIR /var/app/frontend/
-COPY frontend/dist/ ./
+# WORKDIR /var/app/frontend/
+# COPY frontend/dist/ ./
 WORKDIR /var/app/frontend-v2/
 COPY frontend-v2/dist/spa/ ./ 
 

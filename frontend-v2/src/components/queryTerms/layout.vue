@@ -28,8 +28,8 @@
     <!-- <AGLimit/> -->
     <!-- </div> -->
     <div class="tw-text-right tw-my-auto tw-whitespace-nowrap tw-self-end tw-flex-1">
-      <div class="tw-inline"><a href="#" class="tw-text-primary" @click="clearQueryTerms"
-          v-if="currentUser.canEditQuestion || showQTs">clear</a></div>
+      <div class="tw-text-primary tw-cursor-pointer tw-inline" @click="clearQueryTerms"
+          v-if="currentUser.canEditQuestion || showQTs">clear</div>
       <slot name="actions" />
     </div>
   </div>
@@ -49,6 +49,7 @@ import { currentUserStore } from 'src/stores/currentUser'
 
 import { newQueryTerms } from 'src/helpers/qtHelpers';
 import { _ } from 'lodash'
+import isEqual from 'lodash/isEqual'
 
 const currentUser = currentUserStore()
 export default {
@@ -66,12 +67,8 @@ export default {
     queryTerms: {
       deep: true,
       handler() {
-        if (this.queryTerms.towardsQTLayout) {
+      if (!isEqual(this.queryTermsLocal, this.queryTerms.details)){
           this.queryTermsLocal = this.queryTerms.details || _.cloneDeep(newQueryTerms)
-          this.queryTermsLocal.filters.towardsChild = true
-          this.queryTermsLocal.views.towardsChild = true
-          this.queryTermsLocal.groupings.towardsChild = true
-          this.queryTermsLocal.sortings.towardsChild = true
         }
       }
 

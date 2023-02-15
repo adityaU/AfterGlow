@@ -5,18 +5,18 @@
                 <template #header>
                         <div class="tw-grid tw-grid-cols-6">
 
-                                <div class="tw-p-2 tw-col-span-5">
-                                        <a href="#" class="btn tw-bg-primary tw-text-white hover:tw-bg-primary/80"
+                                <div class="tw-cursor-pointer tw-p-2 tw-col-span-5 tw-flex">
+                                        <div class="btn tw-bg-primary tw-text-white hover:tw-bg-primary/80"
                                                 v-for="dv, i in displayValues" :key="dv"
                                                 :class="displayValues.length == 1 ? 'btn-full' : (i === 0 ? 'btn-left' : (displayValues.length === i + 1 ? 'btn-right' : 'btn-center'))"
                                                 @click="viewLocal.currentStage = dv[1]">{{
                                                                 dv[0]
-                                                }}</a>
+                                                }}</div>
 
                                 </div>
                                 <div class="tw-p-2 tw-col-span-1 tw-text-right tw-text-default">
-                                        <a href="#"
-                                                class="tw-inline-flex tw-border tw-rounded-sm tw-p-1 tw-bg-secondary"
+                                        <div
+                                                class="tw-cursor-pointer tw-inline-flex tw-border tw-rounded-sm tw-p-1 tw-bg-secondary"
                                                 @click="((viewLocal.raw = !viewLocal.raw) || true) && (viewLocal.currentStage = viewLocal.raw ? 2 : 0)">
 
                                                 <q-tooltip transition-show="scale" transition-hide="scale"> {{
@@ -26,7 +26,7 @@
                                                 </q-tooltip>
                                                 <CodeIcon v-if="!viewLocal.raw" class="tw-h-3 tw-w-3" />
                                                 <CodePlusIcon v-if="viewLocal.raw" class="tw-h-3 tw-w-3" />
-                                        </a>
+                                        </div>
 
                                 </div>
                         </div>

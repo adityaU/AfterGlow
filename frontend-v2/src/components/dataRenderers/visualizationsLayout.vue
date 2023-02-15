@@ -53,6 +53,7 @@ import { _ } from 'lodash'
 import { rendererTypeIcons } from 'src/helpers/rendererConfig'
 import { currentUserStore } from 'src/stores/currentUser'
 
+import isEqual from 'lodash/isEqual'
 import { PlusIcon, EditIcon, CheckIcon, XIcon } from 'vue-tabler-icons'
 import BaseInput from 'components/base/input.vue'
 
@@ -68,8 +69,8 @@ export default {
     visualizations: {
       deep: true,
       handler() {
-        if (this.visualizations.towardsVizLayout) {
-          this.visualizationsLocal = this.visualizations.details
+        if (!isEqual(this.visualizations?.details, this.visualizationsLocal)) {
+          this.visualizationsLocal = this.visualizations?.details
         }
       }
     },

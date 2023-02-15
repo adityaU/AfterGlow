@@ -1,8 +1,0 @@
-{{#bs-modal position="center" open=open onHide=(action 'clearTransition') as |modal|}}
-    {{#modal.body}} If You leave this page, you will loose all the edits on this page. Are you sure you want to leave this page? {{/modal.body}}
-    {{#modal.footer as |footer|}}
-        {{#bs-button onClick=(action 'clearTransition') type="danger" }}No Way{{/bs-button}}
-        {{#bs-button onClick=(action 'goAheadWithNextTransition') class="btn-primary" type="primary"
-            }}Yes, I am Sure{{/bs-button}}
-    {{/modal.footer}}
-{{/bs-modal}}

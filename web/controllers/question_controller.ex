@@ -13,6 +13,8 @@ defmodule AfterGlow.QuestionController do
   alias JaSerializer.Params
   alias AfterGlow.CacheWrapper
   alias AfterGlow.CacheWrapper.Repo
+  alias AfterGlow.Visualizations.Visualizations
+  alias AfterGlow.QueryTerms.Conversions
 
   import AfterGlow.Sql.QueryRunner
   alias AfterGlow.Settings.ApplicableSettings
@@ -63,11 +65,12 @@ defmodule AfterGlow.QuestionController do
         limit: 10
       )
 
-    if tag_id && tag_id != "" do
-      search_query =
-        search_query
-        |> join(:left, [q], tq in TagQuestion, on: q.id == tq.question_id)
-        |> where([q, tq], tq.tag_id == ^tag_id)
+    search_query = if tag_id && tag_id != "" do
+      search_query
+      |> join(:left, [q], tq in TagQuestion, on: q.id == tq.question_id)
+      |> where([q, tq], tq.tag_id == ^tag_id)
+    else
+      search_query
     end
 
     scope(conn, search_query, policy: AfterGlow.Question.Policy)
@@ -121,9 +124,9 @@ defmodule AfterGlow.QuestionController do
       changeset =
         Question.changeset(question, %{
           shared_to:
-            (question.shared_to || [])
-            |> Kernel.++([conn.assigns.current_user.email])
-            |> Enum.uniq()
+          (question.shared_to || [])
+          |> Kernel.++([conn.assigns.current_user.email])
+          |> Enum.uniq()
         })
 
       {:ok, question} = Question.update(changeset, nil, nil)
@@ -182,7 +185,25 @@ defmodule AfterGlow.QuestionController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
+  def show(conn, %{"id" => id, "version" => version, "share_id" => share_id}) do
+    if share_id do
+      question =
+        Repo.get!(Question, id |> Integer.parse() |> elem(0))
+        |> Repo.preload(Question.default_preloads())
+
+      if question.shareable_link == share_id do
+        changeset =
+          Question.changeset(question, %{
+            shared_to:
+            (question.shared_to || [])
+            |> Kernel.++([conn.assigns.current_user.email])
+            |> Enum.uniq()
+          })
+
+        {:ok, _} = Question.update(changeset, nil, nil)
+      end
+    end
+
     question =
       scope(conn, Question)
       |> select([:id])
@@ -192,13 +213,26 @@ defmodule AfterGlow.QuestionController do
       CacheWrapper.get_by_id(question.id, Question)
       |> Repo.preload(Question.default_preloads())
 
+
+    question =
+      if version == "1" && question.human_sql  |> get_in(["version"]) != 1 do
+        question
+        |> Map.merge(%{human_sql: Conversions.reverse_convert(question.human_sql)})
+      else
+        question
+      end
+
     render(conn, :show, data: question)
   end
 
+  def show(conn, %{"id" => id}) do
+    show(conn, %{"id" => id, "version" => 0})
+  end
+
   def update(conn, %{
-        "id" => id,
-        "data" => data = %{"type" => "questions", "attributes" => _question_params}
-      }) do
+    "id" => id,
+    "data" => data = %{"type" => "questions", "attributes" => _question_params}
+  }) do
     prms = Params.to_attributes(data)
 
     question =
@@ -240,16 +274,17 @@ defmodule AfterGlow.QuestionController do
 
     # Here we use delete! (with a bang) because we expect
     # it to always work (and if it does not, it will raise).
+    Visualizations.delete_by_question_id(id)
     Repo.delete_with_cache(question)
 
     send_resp(conn, :no_content, "")
   end
 
   def results(conn, %{
-        "id" => id,
-        "variables" => variables,
-        "additionalFilters" => additional_filters
-      }) do
+    "id" => id,
+    "variables" => variables,
+    "additionalFilters" => additional_filters
+  }) do
     question =
       scope(conn, from(q in Question, where: q.id == ^id), policy: AfterGlow.Question.Policy)
       |> Repo.one()
@@ -275,11 +310,13 @@ defmodule AfterGlow.QuestionController do
   end
 
   def get_query(conn, params) do
-    query = if params["queryType"] == "raw" do
-      params["rawQuery"]
-    else
-    make_question_query(params)
-    end
+    query =
+      if params["queryType"] == "raw" do
+        params["rawQuery"]
+      else
+        make_question_query(params)
+      end
+
     conn |> json(%{query: query})
   end
 

@@ -36,48 +36,14 @@ defmodule AfterGlow.Variable do
       :question_filter_id
     ])
     |> cast(params, [:value], empty_values: [])
-    |> make_default_from_default_options
     |> validate_required([:name, :var_type])
   end
 
-  def make_default_from_default_options(changeset) do
-    default_options =
-      (changeset.changes
-       |> Map.has_key?(:default_options) && changeset.changes.default_options) ||
-        (changeset.data
-         |> Map.has_key?(:default_options) && changeset.data.default_options)
-
-    changeset =
-      case default_options do
-        nil ->
-          changeset
-
-        [] ->
-          changeset
-
-        _ ->
-          changeset
-          |> Ecto.Changeset.change(
-            default:
-              default_options
-              |> default_option_values_from_default_options
-          )
-      end
-
-    changeset
-  end
 
   def cache_deletable_associations do
     [:column, :question, :dashboard, :question_filter]
   end
 
-  def default_option_values_from_default_options(default_options) do
-    default_options
-    |> Enum.map(fn x ->
-      x["value"] |> parse_value
-    end)
-    |> Enum.join(", ")
-  end
 
   defp parse_value(value) when is_integer(value), do: value |> to_string
   defp parse_value(value) when is_float(value), do: value |> to_string
@@ -99,16 +65,6 @@ defmodule AfterGlow.Variable do
     end
   end
 
-  def default_option_values(nil), do: nil
-
-  def default_option_values(variable) do
-    if variable.default_options |> length > 0 do
-      variable.default_options
-      |> default_option_values_from_default_options
-    else
-      nil
-    end
-  end
 
   def format_value(_variable, "") do
     ""

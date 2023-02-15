@@ -23,7 +23,7 @@
       <div class="tw-flex tw-gap-4 tw-leading-4 tw-items-center" v-if="editMode" >
         <div class="tw-font-semibold tw-text-primary tw-uppercase tw-cursor-pointer" @click="($emit('save') || true) && (editMode = false)" > Save </div>
         <div class="tw-font-semibold tw-text-default/80 tw-uppercase tw-cursor-pointer" @click="editMode = false" > cancel </div>
-        <div class="tw-font-semibold tw-text-red-700 tw-uppercase tw-cursor-pointer" @click="deleteDashboard" > delete </div>
+        <div class="tw-font-semibold tw-text-red-700 tw-uppercase tw-cursor-pointer" @click="openDeleteModal = true" > delete </div>
       </div>
       <div v-if="!editMode">
         <q-tooltip transition-show="scale" transition-hide="scale"> Edit 
@@ -76,7 +76,8 @@
       </div>
     </div>
 
-    <AGShareDashboard v-model:open="openShareModal" v-model:dashboard="dashboard" :key="dashboard" v-if="dashboard.id" @save="$emit('save')"/>
+    <AGShareDashboard v-model:open="openShareModal" v-model:entity="dashboard" :key="dashboard" entityName="Dashboard" v-if="dashboard.id" @save="$emit('save')"/>
+    <AGDeleteDashboardModal v-model:open="openDeleteModal" entityName="dashboard" :entityID="dashboard.id" :key="dashboard"  v-if="dashboard.id" @deleted="deleted"/>
 
   </div>
 
@@ -84,7 +85,8 @@
 <script>
 import {EditIcon, RefreshIcon, MailIcon, UploadIcon, CodeIcon, MaximizeIcon, HourglassIcon, NotesIcon} from 'vue-tabler-icons'
 import AGInput from 'components/base/input.vue'
-import AGShareDashboard from 'components/dashboard/shareDashboard.vue'
+import AGShareDashboard from 'components/utils/shareEntity.vue'
+import AGDeleteDashboardModal from 'components/utils/deleteEntityModal.vue'
 import cloneDeep from 'lodash/cloneDeep'
 
 import {variableQuery} from 'stores/variableQuery'
@@ -95,7 +97,9 @@ export default {
   props: ["dashboardModel", "showScheduleReport", "editModeModel"],
   components: {
     EditIcon, RefreshIcon, MailIcon, UploadIcon, CodeIcon, MaximizeIcon, HourglassIcon,
-    AGInput, AGShareDashboard, NotesIcon
+    AGInput, AGShareDashboard, NotesIcon,
+    AGDeleteDashboardModal
+
   },
 
   watch: {
@@ -144,6 +148,7 @@ export default {
       dashboard: cloneDeep(this.dashboardModel || {}),
       refreshTime: 0,
       openShareModal: false,
+      openDeleteModal: false,
       refreshTimeTimer: null,
       varStore: variableQuery(),
       refreshTimes: [
@@ -159,6 +164,9 @@ export default {
     }
   },
   methods: {
+    deleted(){
+      window.location.pathname = '/dashboards'
+    },
     refresh(){
       this.varStore.updateQuery(this.$router)
       window.postMessage({

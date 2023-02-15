@@ -6,15 +6,15 @@
         <div class="tw-px-0.5 tw-py-1 tw-inline-flex tw-flex-nowrap">
           <FilterMenu @addFilter="prevent" addLabel="Done" @editFilter="(val) => filter = val" :filter="filter"
             :columns="columns" :colDetails="colDetails" :rows="rows" />
-          <a href="#" class="btn tw-bg-primary tw-text-white hover:tw-bg-primary/80" v-for="dv, i in getDisplayValues(filter, colDetails)"
+          <div class="btn tw-cursor-pointer tw-bg-primary tw-text-white hover:tw-bg-primary/80" v-for="dv, i in getDisplayValues(filter, colDetails)"
             :key="dv"
             :class="i === 0 ? 'btn-left' : 'btn-center'"
             @click="filter.currentStage = dv[1]">{{
                 dv[0]
-            }}</a>
-          <a href="#" class="btn btn-right" @click="(event) => removeFilter(index)">
+            }}</div>
+          <div class="btn btn-right tw-cursor-pointer" @click="(event) => removeFilter(index)">
             <XIcon class="tw-inline tw-h3 tw-w-3" size=18 />
-          </a>
+          </div>
         </div>
 
       </div>
@@ -37,6 +37,7 @@ import FilterMenu from 'components/queryTerms/filterMenu.vue'
 import { FilterMixin } from 'src/mixins/filterMixins'
 
 import { XIcon } from 'vue-tabler-icons';
+import isEqual from 'lodash/isEqual'
 
 import { _ } from 'lodash';
 export default {
@@ -59,7 +60,7 @@ export default {
 
   watch: {
     filters(){
-      if (this.filters.towardsChild){
+      if (!isEqual(this.filtersLocal, this.filters.details)){
         this.filtersLocal = this.filters.details
       }
     },

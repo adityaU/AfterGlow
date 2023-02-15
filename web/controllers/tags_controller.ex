@@ -12,12 +12,25 @@ defmodule AfterGlow.TagController do
 
   plug :scrub_params, "data" when action in [:create, :update]
 
-  def index(conn, _params) do
+  def index(conn, %{"filter"=> filter}) do
+    %{"id" => ids } = Jason.decode!(filter)
+    ids = ids |> String.split(",")
+
+    if ids != [""] do
+      tags = Repo.all(from t in Tag, where: t.id in ^ids, select: [:id])
+        |> Enum.map(fn x -> x.id end)
+        |> CacheWrapper.get_by_ids(Tag) |> Repo.preload(:dashboards) |> Repo.preload(:questions)
+      render(conn, :index, data: tags)
+    end
+  end
+
+  def index(conn, params) do
     tags = Repo.all(from t in Tag, select: [:id])
-    |> Enum.map(fn x -> x.id end)
-    |> CacheWrapper.get_by_ids(Tag) |> Repo.preload(:dashboards) |> Repo.preload(:questions)
+      |> Enum.map(fn x -> x.id end)
+      |> CacheWrapper.get_by_ids(Tag) |> Repo.preload(:dashboards) |> Repo.preload(:questions)
     render(conn, :index, data: tags)
   end
+
 
   def create(conn, %{"data" => data = %{"type" => "tags", "attributes" => _tag_params}}) do
     prms =  Params.to_attributes(data)

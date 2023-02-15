@@ -7,15 +7,15 @@
         <div class="tw-px-0.5 tw-py-1 tw-inline-flex tw-flex-nowrap">
           <ViewMenu @addView="prevent" addLabel="Done" @editView="(val) => view = val" :view="view" :columns="columns"
             :colDetails="colDetails" />
-          <a href="#" class="btn tw-bg-primary tw-text-white hover:tw-bg-primary/80" v-for="dv, i in getDisplayValues(view)"
+          <div class="btn tw-cursor-pointer tw-bg-primary tw-text-white hover:tw-bg-primary/80" v-for="dv, i in getDisplayValues(view)"
             :key="dv"
             :class="i === 0 ? 'btn-left' : 'btn-center'"
             @click="view.currentStage = dv[1]">{{
                 dv[0]
-            }}</a>
-          <a href="#" class="btn btn-right" @click="removeView(index)">
+            }}</div>
+          <div class="btn tw-cursor-pointer btn-right" @click="removeView(index)">
             <XIcon class="tw-inline tw-h3 tw-w-3" size=18 />
-          </a>
+          </div>
         </div>
 
       </div>
@@ -38,7 +38,7 @@ import ViewMenu from 'components/queryTerms/viewMenu.vue'
 import { XIcon } from 'vue-tabler-icons';
 
 import {ViewMixin} from 'src/mixins/viewMixin'
-
+import isEqual from 'lodash/isEqual'
 import { _ } from 'lodash';
 export default {
 
@@ -51,7 +51,7 @@ export default {
 
   watch: {
     views(){
-      if (this.views.towardsChild){
+      if (!isEqual(this.viewsLocal, this.viewsLocal.details)){
         this.viewsLocal = this.views.details
       }
     },

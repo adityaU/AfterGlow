@@ -1,4 +1,3 @@
-require IEx
 
 defmodule AfterGlow.UserController do
   use AfterGlow.Web, :controller
@@ -27,7 +26,7 @@ defmodule AfterGlow.UserController do
 
   def index(conn, _params) do
     users =
-      Repo.all(from(u in User, select: [:id]))
+      Repo.all(from(u in User, select: [:id], order_by: [asc: u.full_name]))
       |> Enum.map(fn x -> x.id end)
       |> CacheWrapper.get_by_ids(User)
       |> Repo.preload(:permission_sets)

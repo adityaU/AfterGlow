@@ -48,7 +48,7 @@ defmodule AfterGlow.TableController do
         "id" => id,
         "data" => data = %{"type" => "tables", "attributes" => _table_params}
       }) do
-    table = CacheWrapper.get_by_id(Table, [id])
+    table = CacheWrapper.get_by_id(Table, id)
     changeset = Table.update_changeset(table, Params.to_attributes(data))
 
     case Repo.update_with_cache(changeset) do

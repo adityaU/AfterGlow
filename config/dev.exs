@@ -38,4 +38,5 @@ config :phoenix, :stacktrace_depth, 20
 config :afterglow, AfterGlow.Repo,
   adapter: Ecto.Adapters.Postgres,
   url: System.get_env("AG_DATABASE_URL"),
-  pool_size: 50
+  pool_size: 50,
+  log_level: :error

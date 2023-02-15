@@ -37,6 +37,14 @@ defmodule AfterGlow.Questions.QueryFunctions do
         db_identifier = question.human_sql["database"]["unique_identifier"]
         db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
 
+
+
+       # human_sql =  if question.human_sql |> get_in(["version"]) == 1,
+       #    do: question.human_sql |> Map.merge(Conversions.convert(%{"details" =>  payload})),
+       #    else:
+       #    question.human_sql
+       #  end
+
         params =
           permitted_params(
             question.id,
@@ -46,10 +54,11 @@ defmodule AfterGlow.Questions.QueryFunctions do
           )
 
         tracking_details =
-            %{
-              current_user: current_user,
-              question_id: question.id
-            } |> Map.merge(tracking_details)
+          %{
+            current_user: current_user,
+            question_id: question.id
+          }
+          |> Map.merge(tracking_details)
 
         {_query, results} =
           run_raw_query(db_record, params, question.variables, frontend_limit, tracking_details)
@@ -68,7 +77,8 @@ defmodule AfterGlow.Questions.QueryFunctions do
       id: id,
       raw_query: sql,
       additional_filters: additionalFilters,
-      variables: (variables && variables |> Enum.filter(fn x -> x |> Map.has_key?("name") end)) || []
+      variables:
+        (variables && variables |> Enum.filter(fn x -> x |> Map.has_key?("name") end)) || []
     }
   end
 end

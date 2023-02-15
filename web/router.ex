@@ -97,6 +97,7 @@ defmodule AfterGlow.Router do
     post("dashboards/:id/schedule", ScheduleController, :save_for_dashbaord)
     get("dashboards/:id/schedule", ScheduleController, :show)
     get("dashboards/:id/possible_variables", NewDashboardController, :possible_variables)
+    post("create_bulk_users", NewUserController, :create_bulk)
   end
 
   # Other scopes may use custom stacks.
