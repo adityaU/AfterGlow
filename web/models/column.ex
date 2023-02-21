@@ -1,6 +1,16 @@
 defmodule AfterGlow.Column do
   use AfterGlow.Web, :model
 
+  @derive {Jason.Encoder,
+           only: [
+             :id,
+             :name,
+             :data_type,
+             :primary_key,
+             :highlighted,
+             :description,
+             :belongs_to
+           ]}
   schema "columns" do
     field(:name, :string)
     field(:data_type, :string)

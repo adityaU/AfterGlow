@@ -1,6 +1,7 @@
 defmodule AfterGlow.TableController do
   use AfterGlow.Web, :controller
 
+  alias AfterGlow.Tables.QueryFunctions, as: Tables
   alias AfterGlow.Table
   alias JaSerializer.Params
   alias AfterGlow.Plugs.Authorization
@@ -15,6 +16,11 @@ defmodule AfterGlow.TableController do
   def index(conn, %{"filter" => %{"id" => ids}}) do
     ids = ids |> String.split(",")
     tables = CacheWrapper.get_by_ids(Table, ids) |> Repo.preload(:columns)
+    render(conn, :index, data: tables)
+  end
+
+  def index(conn, %{"filter" => %{"database_id" => id}}) do
+    tables = Tables.find_by_database_id(id) |> Repo.preload(:columns)
     render(conn, :index, data: tables)
   end
 

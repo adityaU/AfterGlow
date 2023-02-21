@@ -41,6 +41,7 @@ defmodule AfterGlow.DatabaseController do
       |> Enum.map(fn x -> x.id end)
       |> CacheWrapper.get_by_ids(Database)
       |> Repo.preload(:tables)
+      |> Enum.map(fn d -> d |> Map.drop([:config]) end)
 
     json(conn, %{data: databases})
   end

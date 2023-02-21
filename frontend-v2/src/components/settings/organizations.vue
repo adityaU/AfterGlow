@@ -3,7 +3,7 @@
   <div class="tw-flex tw-flex-col tw-w-full"> 
     <div class="tw-cursor-pointer tw-font-semibold tw-text-primary tw-uppercase tw-text-right tw-py-2" v-if="organizations?.length > 0" @click="((openOrgNewModal = true) || true) && (editingOrg = null)" > + Add New Organization </div> 
     <div class="tw-flex tw-flex-col tw-mx-3 tw-gap-1 tw-w-full">
-      <AGLoader text="Fetching organizations" v-if="loading" />
+      <AGLoader class="tw-my-6" text="Fetching organizations" v-if="loading" />
       <div class="tw-border tw-flex tw-items-center tw-py-2 tw-px-4 tw-gap-2 tw-rounded-sm tw-shadow-sm tw-border-l-4"  :class="organization.is_deactivated ? 'tw-bg-default/10 tw-border-l-default' : 'tw-bg-white tw-border-l-primary'" v-for="organization in organizations" :key="organization">
         <AffiliateIcon size="32" class="icon-primary tw-rounded-sm tw-shadow-sm" />
         <div class="tw-flex-1 tw-flex tw-flex-col tw-justify-between">

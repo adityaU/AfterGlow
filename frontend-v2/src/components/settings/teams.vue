@@ -2,7 +2,7 @@
  <div class="tw-flex tw-flex-col tw-w-full"> 
     <div class="tw-cursor-pointer tw-font-semibold tw-text-primary tw-uppercase tw-text-right tw-py-2" v-if="teams?.length > 0" @click="openTeamModal = true" > + Add New Team </div> 
   <div class="tw-flex tw-flex-col tw-mx-3 tw-gap-1 tw-w-full">
-    <AGLoader text="Fetching teams" v-if="loading" />
+    <AGLoader class="tw-my-6" text="Fetching teams" v-if="loading" />
     <div class="tw-border tw-flex tw-items-center tw-py-2 tw-px-4 tw-gap-2 tw-bg-white tw-rounded-sm tw-shadow-sm"  v-for="team in teams" :key="team">
       <UsersIcon size="32" class="icon-primary tw-rounded-sm tw-shadow-sm" />
       <div class="tw-flex-1 tw-flex tw-flex-col tw-justify-between">

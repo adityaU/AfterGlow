@@ -74,35 +74,25 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Mysql do
         columns_required
       ),
       do:
-        ~s/percentile_cont(#{value / 100}) within group (order by "#{column}") sep|rator as "p#{
-          value
-        } of #{column}"/
+        ~s/percentile_cont(#{value / 100}) within group (order by "#{column}") sep|rator as "p#{value} of #{column}"/
 
   def cast_group_by(el, nil), do: ~s/"#{el}"/
 
   def cast_group_by(el, "day"),
     do:
-      ~s/DATE(CONCAT(year("#{el}"),'-', month("#{el}"), '-', day("#{el}"), 'T00:00:00'))  sep|rator as "#{
-        el
-      } by Day"/
+      ~s/DATE(CONCAT(year("#{el}"),'-', month("#{el}"), '-', day("#{el}"), 'T00:00:00'))  sep|rator as "#{el} by Day"/
 
   def cast_group_by(el, "minutes"),
     do:
-      "TIMESTAMP(CONCAT(year(#{el}),'-', month(#{el}), '-', day(#{el}), 'T', hour(#{el}),':', minute(#{
-        el
-      }), ':00')) sep|rator as \"#{el} by Minute\""
+      "TIMESTAMP(CONCAT(year(#{el}),'-', month(#{el}), '-', day(#{el}), 'T', hour(#{el}),':', minute(#{el}), ':00')) sep|rator as \"#{el} by Minute\""
 
   def cast_group_by(el, "seconds"),
     do:
-      ~s/TIMESTAMP(CONCAT(year("#{el}"),'-', month("#{el}"), '-', day("#{el}"), 'T', hour("#{el}"),':', minute("#{
-        el
-      }"), ':', second("#{el}"))) sep|rator as "#{el} by Second"/
+      ~s/TIMESTAMP(CONCAT(year("#{el}"),'-', month("#{el}"), '-', day("#{el}"), 'T', hour("#{el}"),':', minute("#{el}"), ':', second("#{el}"))) sep|rator as "#{el} by Second"/
 
   def cast_group_by(el, "hour"),
     do:
-      ~s/TIMESTAMP(CONCAT(year(#{el}),'-', month(#{el}), '-', day(#{el}), 'T', hour("#{el}"),':00:00')) sep|rator as "#{
-        el
-      }  by Hour"/
+      ~s/TIMESTAMP(CONCAT(year(#{el}),'-', month(#{el}), '-', day(#{el}), 'T', hour("#{el}"),':00:00')) sep|rator as "#{el}  by Hour"/
 
   def cast_group_by(el, "week"),
     do: ~s/CONCAT(year("#{el}"),', Week: ', week("#{el}")) sep|rator as "#{el}  by Week"/

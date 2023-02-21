@@ -14,6 +14,18 @@ defmodule AfterGlow.Question do
   import Ecto.Query
   defenum(QueryTypeEnum, human_sql: 0, sql: 1, api_client: 2)
 
+  @derive {Jason.Encoder,
+           only: [
+             :id,
+             :title,
+             :sql,
+             :human_sql,
+             :query_type,
+             :is_shareable_link_public,
+             :shared_to,
+             :shareable_link,
+             :config
+           ]}
   schema "questions" do
     field(:title, :string)
     field(:last_updated, :utc_datetime)
@@ -193,7 +205,6 @@ defmodule AfterGlow.Question do
             end
           end)
           |> Enum.at(0)
-
 
         value =
           if q_var && Map.has_key?(q_var, :value) && (q_var.value || q_var.value == ""),

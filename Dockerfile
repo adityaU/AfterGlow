@@ -14,12 +14,12 @@ RUN mkdir -p /var/app/frontend
 
 WORKDIR /temp
 
-RUN wget https://s3.amazonaws.com/redshift-downloads/drivers/odbc/2.0.0.1/AmazonRedshiftODBC-64-bit-2.0.0.1.x86_64.rpm
-RUN alien AmazonRedshiftODBC-64-bit-2.0.0.1.x86_64.rpm
-RUN dpkg -i amazonredshiftodbc-64-bit_2.0.0-2_amd64.deb
+# RUN wget https://s3.amazonaws.com/redshift-downloads/drivers/odbc/2.0.0.1/AmazonRedshiftODBC-64-bit-2.0.0.1.x86_64.rpm
+# RUN alien AmazonRedshiftODBC-64-bit-2.0.0.1.x86_64.rpm
+# RUN dpkg -i amazonredshiftodbc-64-bit_2.0.0-2_amd64.deb
 
-RUN wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb
-RUN dpkg -i libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb
+# RUN wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb
+# RUN dpkg -i libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb
 
 WORKDIR /var/app/chart_renderer/
 COPY ./chart_renderer/* /var/app/chart_renderer/

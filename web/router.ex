@@ -63,6 +63,8 @@ defmodule AfterGlow.Router do
     resources("/search_tables", SearchTableController)
 
     resources("/visualizations", VisualizationController)
+    resources("/snippets", SnippetController)
+    get("/snippets/:id/referenced_by", SnippetController, :find_referenced_by)
     post("/visualizations/:id/results", VisualizationController, :results)
     post("/visualizations/results", VisualizationController, :results)
     post("/visualizations/create_csv", DataFilesController, :fetch_and_upload_visualization)

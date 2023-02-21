@@ -8,10 +8,17 @@ defmodule AfterGlow.Questions.QueryFunctions do
   alias AfterGlow.Database
   alias AfterGlow.Table
 
+  import Ecto.Query, only: [from: 2]
+
   import AfterGlow.Sql.QueryRunner
 
   def get_results(question, variables, additional_filters, current_user) do
     get_results(question, variables, additional_filters, current_user, nil, %{})
+  end
+
+  def fetch_when_sql_has(text) do
+    text = "%#{text}%"
+    from(m in @model, where: ilike(m.sql, ^text)) |> Repo.all()
   end
 
   def get_results(question, variables, additional_filters, current_user, limit, tracking_details) do
@@ -37,13 +44,11 @@ defmodule AfterGlow.Questions.QueryFunctions do
         db_identifier = question.human_sql["database"]["unique_identifier"]
         db_record = Repo.one(from(d in Database, where: d.unique_identifier == ^db_identifier))
 
-
-
-       # human_sql =  if question.human_sql |> get_in(["version"]) == 1,
-       #    do: question.human_sql |> Map.merge(Conversions.convert(%{"details" =>  payload})),
-       #    else:
-       #    question.human_sql
-       #  end
+        # human_sql =  if question.human_sql |> get_in(["version"]) == 1,
+        #    do: question.human_sql |> Map.merge(Conversions.convert(%{"details" =>  payload})),
+        #    else:
+        #    question.human_sql
+        #  end
 
         params =
           permitted_params(

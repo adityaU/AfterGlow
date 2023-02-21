@@ -3,7 +3,7 @@
  <div class="tw-flex tw-flex-col tw-w-full"> 
     <div class="tw-cursor-pointer tw-font-semibold tw-text-primary tw-uppercase tw-text-right tw-py-2" v-if="databases?.length > 0" @click="openDatabaseNewModal = true" > + Add New Database </div> 
   <div class="tw-flex tw-flex-col tw-mx-3 tw-gap-1 tw-w-full">
-    <AGLoader text="Fetching Databases" v-if="loading" />
+    <AGLoader class="tw-my-6" text="Fetching Databases" v-if="loading" />
     <div class="tw-bg-white tw-border tw-flex tw-items-center tw-py-2 tw-px-4 tw-gap-2" v-for="db in databases" :key="db">
       <DatabaseIcon size="32" class="icon-primary" />
       <div class="tw-flex-1 tw-flex tw-flex-col tw-justify-between">

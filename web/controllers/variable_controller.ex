@@ -13,6 +13,11 @@ defmodule AfterGlow.VariableController do
     render(conn, :index, data: variables)
   end
 
+  def index(conn, %{"question_id" => question_id}) do
+    variables = from(v in Variable, where: v.question_id == ^question_id) |> Repo.all()
+    render(conn, :index, data: variables)
+  end
+
   def index(conn, %{"filter" => json}) do
     index(conn, %{"filter" => Jason.decode!(json)})
   end

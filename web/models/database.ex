@@ -6,7 +6,7 @@ defmodule AfterGlow.Database do
   alias AfterGlow.CacheWrapper.Repo
   alias AfterGlow.Teams.TeamDatabase
 
-  @derive {Jason.Encoder, only: [:id, :name, :db_type, :config]}
+  @derive {Jason.Encoder, only: [:id, :name, :db_type, :unique_identifier]}
   schema "databases" do
     field(:name, :string)
     field(:db_type, :string)

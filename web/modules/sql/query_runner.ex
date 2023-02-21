@@ -8,11 +8,12 @@ defmodule AfterGlow.Sql.QueryRunner do
   alias AfterGlow.Table
   alias AfterGlow.Column
   alias AfterGlow.Settings.ApplicableSettings
+  alias AfterGlow.Questions.QueryFunctions, as: Questions
+  alias AfterGlow.Snippets.QueryFunctions, as: Snippets
 
   alias AfterGlow.ResultsCache.QueryFunctions, as: ResultsCache
 
   alias AfterGlow.AuditLogs.AuditLogs
-  alias AfterGlow.AuditLogs.AuditLog
   import Ecto.Query, only: [from: 2]
   import IEx.Info, only: [info: 1]
 
@@ -20,6 +21,74 @@ defmodule AfterGlow.Sql.QueryRunner do
 
   def run(params, current_user) do
     run(params, current_user, nil, %{})
+  end
+
+  def expand_query(query) do
+    expanded_query =
+      replace_snippets(query)
+      |> replace_question_variable_sql()
+
+    if query == expanded_query do
+      expanded_query
+    else
+      expand_query(expanded_query)
+    end
+  end
+
+  def replace_snippets(query) do
+    matches = Regex.scan(~r/{{ *sn:.+:(\d+) *}}/, query)
+
+    case matches do
+      [] ->
+        query
+
+      _ ->
+        matches
+        |> Enum.reduce(query, fn m, acc ->
+          snippet_id = m |> Enum.at(1)
+          {:ok, snippet} = Snippets.get(snippet_id)
+
+          acc =
+            case snippet do
+              nil ->
+                acc
+                |> String.replace(m |> Enum.at(0), "No snippet With ID #{m |> Enum.at(1)} ")
+
+              _ ->
+                acc |> String.replace(m |> Enum.at(0), "#{snippet.text}")
+            end
+
+          replace_snippets(acc)
+        end)
+    end
+  end
+
+  def replace_question_variable_sql(query) do
+    matches = Regex.scan(~r/{{ *ques:(\d+) *}}/, query)
+
+    case matches do
+      [] ->
+        query
+
+      _ ->
+        matches
+        |> Enum.reduce(query, fn m, acc ->
+          question_id = m |> Enum.at(1)
+          {:ok, ques} = Questions.get(question_id)
+
+          acc =
+            case ques do
+              nil ->
+                acc
+                |> String.replace(m |> Enum.at(0), "(No Question With ID #{m |> Enum.at(1)} )")
+
+              _ ->
+                acc |> String.replace(m |> Enum.at(0), "(#{ques.sql})")
+            end
+
+          replace_question_variable_sql(acc)
+        end)
+    end
   end
 
   def make_question_query(params) do
@@ -59,7 +128,9 @@ defmodule AfterGlow.Sql.QueryRunner do
   end
 
   def make_final_query(db_record, params, question_variables) do
-    query = Question.replace_variables(params[:raw_query], question_variables, params[:variables])
+    query =
+      expand_query(params[:raw_query])
+      |> Question.replace_variables(question_variables, params[:variables])
 
     variables_replaced_query = if params[:raw_query] != query, do: true, else: false
     params = %{params | raw_query: query}

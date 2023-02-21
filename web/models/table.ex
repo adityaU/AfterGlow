@@ -4,6 +4,17 @@ defmodule AfterGlow.Table do
   alias AfterGlow.Column
   alias AfterGlow.ForeignKey
 
+  @derive {Jason.Encoder,
+           only: [
+             :id,
+             :name,
+             :readable_table_name,
+             :description,
+             :open,
+             :expandable,
+             :database_id,
+             :columns
+           ]}
   schema "tables" do
     field(:name, :string)
     field(:readable_table_name, :string)

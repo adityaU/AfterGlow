@@ -30,11 +30,19 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
 
         if limit_add_needed,
           do: {limit_added, query},
-          else: {true, query <> " LIMIT #{rows_number}"}
+          else: {false, query}
       end
 
       defp set_limit({bool, query}, regex, rows_number) do
         if bool, do: {bool, query}, else: set_limit(query, regex, rows_number)
+      end
+
+      defp set_limit(query, regex, "false") do
+        {false, {false, query}}
+      end
+
+      defp set_limit(query, regex, false) do
+        {false, {false, query}}
       end
 
       defp set_limit(query, regex, rows_number) do

@@ -6,6 +6,12 @@ defmodule AfterGlow.ForeignKey do
   alias AfterGlow.Column
   defenum(FkTypeEnum, fk: 0, guess: 1, user_defined: 2)
 
+  @derive {Jason.Encoder,
+           only: [
+             :id,
+             :name,
+             :fk_type
+           ]}
   schema "foreign_keys" do
     field(:name, :string)
     field(:fk_type, FkTypeEnum)

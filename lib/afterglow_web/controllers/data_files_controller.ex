@@ -27,14 +27,25 @@ defmodule AfterGlow.DataFilesController do
     visualization = get_in(params, ["visualization"])
     query_terms = get_in(visualization, ["queryTerms"]) || get_in(visualization, ["query_terms"])
     query_terms = Conversions.convert(query_terms)
-    params = if !params["database"] && params["question_id"] do
-      {:ok, question} =  Question.get(params["question_id"])
-      params |> Map.merge(question.human_sql)
-      else 
+
+    params =
+      if !params["database"] && params["question_id"] do
+        {:ok, question} = Question.get(params["question_id"])
+        params |> Map.merge(question.human_sql)
+      else
+        params
+      end
+
+    params =
+      if params |> get_in(["version"]) == 1,
+        do: params |> Map.merge(Conversions.convert(%{"details" => params})),
+        else: params
+
+    params =
       params
-    end
-    params = params |> Map.merge(%{"additionalFilters" =>  query_terms})
-    fetch_and_upload(conn, params )
+      |> Map.merge(%{"additionalFilters" => query_terms})
+
+    fetch_and_upload(conn, params)
   end
 
   def fetch_and_upload(conn, params) do

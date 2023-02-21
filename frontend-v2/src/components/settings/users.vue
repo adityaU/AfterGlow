@@ -3,7 +3,7 @@
   <div class="tw-flex tw-flex-col tw-w-full"> 
     <div class="tw-cursor-pointer tw-font-semibold tw-text-primary tw-uppercase tw-text-right tw-py-2" @click="openUserNewModal = true" > + Add New Users </div> 
     <div class="tw-flex tw-flex-col tw-mx-3 tw-gap-1 tw-w-full">
-      <AGLoader text="Fetching users" v-if="loading" />
+      <AGLoader class="tw-my-6" text="Fetching users" v-if="loading" />
       <div class="tw-border tw-flex tw-items-center tw-py-2 tw-px-4 tw-gap-2 tw-border-l-4" :class="user.is_deactivated ? 'tw-bg-default/10 tw-border-l-default' : 'tw-bg-white tw-border-l-primary'" v-for="user in users" :key="user">
         <userIcon size="32" class="icon-primary" />
         <div class="tw-flex-1 tw-flex tw-flex-col tw-justify-between">

@@ -37,6 +37,7 @@ config :phoenix, :format_encoders,
   json: Jason
 
 config :ecto, json_library: Jason
+config :phoenix, json_library: Jason
 
 config :oauth2,
   serializers: %{

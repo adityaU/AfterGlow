@@ -1,4 +1,3 @@
-
 defmodule AfterGlow.UserController do
   use AfterGlow.Web, :controller
   alias AfterGlow.Repo
@@ -13,6 +12,7 @@ defmodule AfterGlow.UserController do
   plug(Authorization)
   plug(:authorize!, User)
   plug(:scrub_params, "data" when action in [:create, :update])
+
   plug(:verify_authorized)
 
   def index(conn, %{"filter" => %{"id" => ids}}) do
