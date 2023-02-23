@@ -127,6 +127,16 @@ export default {
     variablesUpdated() {
       this.refresh();
     },
+    question: {
+      deep: true,
+      handler() {
+        if (this.question?.human_sql?.database?.db_type === 'api_client') {
+          if (!isEqual(this.code, this.makeCodeFromApiAction())) {
+            this.code = this.makeCodeFromApiAction();
+          }
+        }
+      },
+    },
     questionDatabase: {
       deep: true,
       handler() {
@@ -175,6 +185,9 @@ export default {
   computed: {
     sql() {
       return this.question?.sql || this.question?.human_sql?.rawQuery;
+    },
+    questionApiAction() {
+      return this.question?.api_action;
     },
     questionDatabase() {
       return this.question?.human_sql?.database;
@@ -546,7 +559,6 @@ export default {
           variables: this.variables,
         })
       );
-      ables;
     },
     refresh(event, updateQP) {
       if (!this.variablesUpdated) {
@@ -559,6 +571,19 @@ export default {
       }
       const ref = document.getElementById('results-view');
       this.payload = this.question?.human_sql || {};
+      if (
+        this.question.api_action &&
+        this.question?.human_sql.database?.db_type === 'api_client'
+      ) {
+        this.question.api_action.headers = {};
+        this.question?.api_action?.dummyHeaders?.forEach((item) => {
+          this.question.api_action.headers[item.name] = item.value;
+        });
+        this.question.sql = 'empty';
+        this.payload.sql = 'empty';
+        this.payload.api_action = this.question.api_action;
+      }
+
       const keys = Object.keys(this.payload);
       if (keys.length == 1 && keys[0] === 'database') {
         return;
@@ -594,16 +619,7 @@ export default {
         };
       });
       if (updateQP) {
-        const qp = {};
-        this.payload.variables.forEach((v) => {
-          qp[varStore.hashed(v.name)] = v.value;
-        });
-        const hsqlQp = { data: this.encodeQuestionDetails() };
-        const query = { ...qp, ...hsqlQp };
-        if (!isEqual(this.$route.query, query)) {
-          console.log('pushing');
-          this.$router.push({ query: query });
-        }
+        this.updateQueryParams();
       }
       if (event) {
         this.query = Object.fromEntries(new URLSearchParams(event.data.query));
@@ -612,6 +628,19 @@ export default {
       }
       currentViz && this.updateVizResults(currentViz, true);
       ref && ref.scrollIntoView();
+    },
+
+    updateQueryParams() {
+      const qp = {};
+      this.variables.forEach((v) => {
+        qp[varStore.hashed(v.name)] = v.value;
+      });
+      const hsqlQp = { data: this.encodeQuestionDetails() };
+      const query = { ...qp, ...hsqlQp };
+      if (!isEqual(this.$route.query, query)) {
+        console.log('pushing');
+        this.$router.push({ query: query });
+      }
     },
     receiveMessage(event) {
       if (event.data.message == 'save_visualizations') {
@@ -663,7 +692,6 @@ export default {
           apiConfig(this.query.token)
         );
       }
-
       this.visualizations.details.details.splice(index, 1);
       this.visualizations.towardsBaseRenderer = true;
     },
@@ -681,6 +709,7 @@ export default {
           this.visualizations.details &&
           this.visualizations.details.details,
       };
+      this.updateQueryParams();
       if (payload.visualizations) {
         api
           .post(url, payload, apiConfig(this.query.token))
@@ -714,6 +743,16 @@ export default {
         this.toastType = 'critical';
         return;
       }
+    },
+
+    makeCodeFromApiAction() {
+      return `${this.question?.api_action?.url} ${
+        this.question?.api_action?.body
+      } ${this.question?.api_action?.dummyHeaders
+        ?.map((h) => {
+          return `${h.name} ${h.value}`;
+        })
+        ?.join(' ')}`;
     },
 
     saveQuestion() {

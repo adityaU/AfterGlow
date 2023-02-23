@@ -49,10 +49,11 @@
       <MonacoEditor
         theme="AGDraculaTheme"
         :value="query"
-        language="sql"
-        :options="{ readOnly: true }"
+        :language="query_type"
+        :options="{ languageWorkers: ['sql', 'json'] }"
         @editorWillMount="editorWillMount"
         @editorDidMount="editorDidMount"
+        @change="change"
       />
     </div>
   </div>
@@ -69,6 +70,8 @@ import {
 import { date } from 'quasar';
 import MonacoEditor from 'monaco-editor-vue3';
 import { AGDraculaTheme } from 'src/helpers/monacoTheme';
+import { setSQLFormatter } from 'src/helpers/formatters';
+import { shallowRef } from 'vue';
 export default {
   name: 'AGDebugInfo',
   components: {
@@ -78,7 +81,20 @@ export default {
     CheckIcon,
     XIcon,
   },
-  props: ['query', 'showQuery', 'fromCache', 'cacheUpdatedAt', 'cachedUntil'],
+  props: [
+    'query',
+    'showQuery',
+    'fromCache',
+    'cacheUpdatedAt',
+    'cachedUntil',
+    'query_type',
+  ],
+
+  data() {
+    return {
+      editorInstance: null,
+    };
+  },
 
   computed: {
     lastUpdatedAt() {
@@ -95,8 +111,22 @@ export default {
     },
   },
   methods: {
+    editorDidMount(editor) {
+      this.editorInstance = shallowRef(editor);
+      setTimeout(() => {
+        this.editorInstance.updateOptions({
+          readOnly: false,
+          minimap: { enabled: false },
+        });
+        this.editorInstance.getAction('editor.action.formatDocument').run();
+        setTimeout(() => {
+          this.editorInstance.updateOptions({ readOnly: true });
+        }, 500);
+      }, 500);
+    },
     editorWillMount(monaco) {
       monaco.editor.defineTheme('AGDraculaTheme', AGDraculaTheme);
+      setSQLFormatter(monaco);
     },
   },
 };

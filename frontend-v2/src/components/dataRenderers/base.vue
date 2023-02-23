@@ -12,7 +12,10 @@
     text="Initializing"
     v-if="loading && !results"
   />
-  <div class="tw-w-full tw-bg-secondary" v-if="results && currentViz">
+  <div
+    class="tw-w-full tw-bg-secondary"
+    v-if="(results || apiResponse) && currentViz"
+  >
     <VisualizationLayout
       class="tw-mb-2"
       v-model:visualizations="visualizationsLocal"
@@ -34,15 +37,16 @@
         :class="showSettings ? 'pane-left' : ''"
       >
         <QBHorizontalLayout
-          :columns="results.original_query_columns || results.columns"
-          :rows="results.rows"
-          :colDetails="results.column_details"
+          :columns="results?.original_query_columns || results?.columns"
+          :rows="results?.rows"
+          :colDetails="results?.column_details"
           :resultsKey="resultskey"
           class="tw-mb-[10px] tw-shadow-sm tw-border tw-rounded-sm"
           v-model:queryTerms="currentViz.queryTerms"
           :key="rerenderKey"
-          :vizConfig="currentViz.settings.general"
-          :quesConfig="question && question.config"
+          :vizConfig="currentViz?.settings?.general"
+          :quesConfig="question && question?.config"
+          :hideQueryTerms="apiResponse"
           v-if="currentViz"
         >
           <template #actions>
@@ -76,12 +80,22 @@
             </div>
             <div
               class="tw-inline tw-px-0.5 tw-h-[30px]"
-              v-if="
-                results &&
-                results.rows &&
-                results.rows.length > 0 &&
-                canSeeDebugInfo
-              "
+              v-if="apiResponse && canSeeDebugInfo"
+            >
+              <span
+                class="tw-cursor-pointer"
+                :class="[showApiResponse ? iconActiveClass : iconClass]"
+                @click="showApiResponse = !showApiResponse"
+              >
+                <q-tooltip transition-show="scale" transition-hide="scale">
+                  Show Api Response Pane
+                </q-tooltip>
+                <CodePlusIcon class="tw-h-3 tw-w-3 tw-inline" />
+              </span>
+            </div>
+            <div
+              class="tw-inline tw-px-0.5 tw-h-[30px]"
+              v-if="results && results.rows && canSeeDebugInfo"
             >
               <span
                 class="tw-cursor-pointer"
@@ -89,7 +103,7 @@
                 @click="showSettings = !showSettings"
               >
                 <q-tooltip transition-show="scale" transition-hide="scale">
-                  Settings
+                  Show Settings Pane
                 </q-tooltip>
                 <SettingsIcon class="tw-h-3 tw-w-3 tw-inline" />
               </span>
@@ -173,56 +187,87 @@
           v-if="!loading"
         >
           <DebugInfo
-            :query="results.final_query"
+            :query="results?.final_query"
+            :query_type="results?.query_type || 'sql'"
             v-model:showQuery="showQuery"
-            :fromCache="results.from_cache"
-            :cacheUpdatedAt="results.cache_updated_at"
-            :cachedUntil="results.cached_until"
+            :fromCache="results?.from_cache"
+            :cacheUpdatedAt="results?.cache_updated_at"
+            :cachedUntil="results?.cached_until"
             class="tw-border tw-mb-[10px] tw-bg-white"
             v-if="showDebugInfo && canSeeDebugInfo && currentViz"
+            :key="{ q: results?.finalQuery }"
           />
-          <div
-            id="settings-container"
-            v-if="
-              showSettings &&
-              results.rows &&
-              results.rows.length > 0 &&
-              !loading &&
-              canSeeDebugInfo
-            "
-          ></div>
-          <VizComponent
-            :results="results"
-            :resultsKey="resultskey"
-            :queryKey="queryKey"
-            v-model:visualization="currentViz"
-            :apiActionsQuesLevel="apiActionsQuesLevel"
-            :questionID="questionID"
-            :size="settingsPanesize"
-            class="tw-overflow-auto tw-shadow-sm tw-border tw-bg-white tw-rounded-sm tw-flex-[1_1_100%] tw-min-h-[400px]"
-            @addFilter="(filter) => addFilter(filter)"
-            @addSorting="(sorting) => addSorting(sorting)"
-            :showSettings="
-              showSettings &&
-              results.rows &&
-              results.rows.length > 0 &&
-              !loading &&
-              canSeeDebugInfo
-            "
-            @updatedSettings="(val) => (settingsFromViz = val)"
-            :key="rerenderKey"
-            v-if="currentViz"
-          />
+          <div id="settings-container"></div>
+          <div class="tw-flex">
+            <splitpanes
+              class="pane-wrapper default-theme tw-flex !tw-h-full tw-mb-[35px]"
+              id="results-view"
+              ref="chart-parent"
+              @resize="settingsPanesize = 100 - $event[0].size"
+            >
+              <pane
+                :size="30"
+                ref="chart"
+                class="pane pane-left tw-shadow-sm !tw-border tw-h-full"
+                v-if="apiResponse && showApiResponse && currentViz"
+              >
+                <ApiResponseViewer
+                  class="tw-h-full"
+                  :apiResponse="apiResponse"
+                  v-model:jsonPath="currentViz.settings.jsonPath"
+                  v-if="apiResponse"
+                  :results="results"
+                  @update:results="updateResults"
+                />
+              </pane>
+              <pane
+                :size="100"
+                ref="chart"
+                class="pane tw-shadow-sm !tw-border"
+                :class="apiResponse && showApiResponse ? 'pane-right' : ''"
+              >
+                <VizComponent
+                  :results="results"
+                  :resultsKey="resultskey"
+                  :queryKey="queryKey"
+                  v-model:visualization="currentViz"
+                  :apiActionsQuesLevel="apiActionsQuesLevel"
+                  :questionID="questionID"
+                  :size="settingsPanesize"
+                  class="tw-overflow-auto tw-shadow-sm tw-border tw-bg-white tw-rounded-sm tw-flex-[1_1_100%] tw-min-h-[400px] tw-h-full"
+                  @addFilter="(filter) => addFilter(filter)"
+                  @addSorting="(sorting) => addSorting(sorting)"
+                  :showSettings="
+                    showSettings &&
+                    results.rows &&
+                    results.rows.length > 0 &&
+                    !loading &&
+                    canSeeDebugInfo
+                  "
+                  @updatedSettings="(val) => (settingsFromViz = val)"
+                  :key="rerenderKey"
+                  v-if="
+                    currentViz &&
+                    // showSettings &&
+                    results?.rows &&
+                    results?.rows?.length > 0 &&
+                    !loading &&
+                    canSeeDebugInfo
+                  "
+                />
+              </pane>
+            </splitpanes>
+          </div>
         </div>
       </pane>
       <pane
-        :size="settingsPanesize"
+        :size="30"
         ref="chart"
         class="pane pane-right tw-shadow-sm !tw-border"
         v-if="
           showSettings &&
-          results.rows &&
-          results.rows.length > 0 &&
+          results?.rows &&
+          results?.rows?.length > 0 &&
           !loading &&
           canSeeDebugInfo
         "
@@ -282,6 +327,25 @@
             @updateApiActions="$emit('updateApiActions')"
             :key="rerenderKey"
           />
+          <template v-if="apiResponse && currentViz">
+            <div class="label tw-px-4">JSONPath</div>
+            <AGInput
+              class="tw-px-4"
+              v-model:value="currentViz.settings.jsonPath"
+            />
+            <div class="note tw-px-4">
+              JsonPath is a way of extracting data from json response. You can
+              read more about it.
+              <a
+                href=""
+                class="tw-cursor-pointer tw-text-primary"
+                target="_blank"
+              >
+                here </a
+              >. Use this field to customize the data extracted. Alternatively,
+              You can click on any key in API response pane.
+            </div>
+          </template>
         </div>
       </pane>
     </splitpanes>
@@ -298,6 +362,7 @@
 
 <script>
 import ChartToolbar from 'components/dataRenderers/chartToolbar.vue';
+import ApiResponseViewer from 'components/dataRenderers/charts/apiResponse.vue';
 
 import QBHorizontalLayout from 'components/queryTerms/layout.vue';
 import BoxSelect from 'components/base/boxSelect.vue';
@@ -305,6 +370,7 @@ import BoxSelect from 'components/base/boxSelect.vue';
 import VizComponent from 'components/visualizations/viz.vue';
 import AddToDashboard from 'components/dashboard/addToDashboard.vue';
 import VizConfig from 'components/visualizations/settings.vue';
+import AGInput from 'components/base/input.vue';
 
 import {
   SettingsIcon,
@@ -313,6 +379,7 @@ import {
   Menu2Icon,
   DownloadIcon,
   DashboardIcon,
+  CodePlusIcon,
 } from 'vue-tabler-icons';
 import AGLoader from 'components/utils/loader.vue';
 import VisualizationLayout from 'components/dataRenderers/visualizationsLayout.vue';
@@ -331,8 +398,8 @@ import isEqual from 'lodash/isEqual';
 import { newComponentDefs } from 'src/helpers/componentDefs';
 import { newQueryTerms } from 'src/helpers/qtHelpers';
 import { newSettings, newVisualization } from 'src/helpers/visualization';
-import { fetchQuestion, saveQuestion } from 'src/apis/questions';
 import { queryStore } from 'src/stores/query';
+import { extractResultsFromJsonPath } from 'src/helpers/jsonPath';
 
 const currentUser = currentUserStore();
 export default {
@@ -350,12 +417,15 @@ export default {
     SettingsIcon,
     CodeIcon,
     Menu2Icon,
+    CodePlusIcon,
     AddToDashboard,
     DashboardIcon,
     DownloadIcon,
     BoxSelect,
     VizConfig,
     AGQuestionsSettings,
+    ApiResponseViewer,
+    AGInput,
   },
   props: {
     resultsKey: {},
@@ -376,6 +446,23 @@ export default {
     resultsKey() {
       this.updateProps();
     },
+
+    jsonPath() {
+      const extracted = extractResultsFromJsonPath(
+        this.apiResponse,
+        this.jsonPath
+      );
+
+      extracted.success && (this.results = extracted.results);
+    },
+    apiResponse() {
+      const extracted = extractResultsFromJsonPath(
+        this.apiResponse,
+        this.jsonPath
+      );
+
+      extracted.success && (this.results = extracted.results);
+    },
     apiActionKeyQuesLevel() {
       const apiActions = apiActionStore();
       this.apiActionsQuesLevel = apiActions.get(this.apiActionKeyQuesLevel);
@@ -387,8 +474,16 @@ export default {
     dataLoaded() {
       this.updateProps();
     },
+    showApiResponse() {
+      if (this.showApiResponse) {
+        this.showSettings = false;
+      }
+    },
     showSettings() {
       this.settingsPanesize = this.showSettings ? 30 : 0;
+      if (this.showSettings) {
+        this.showApiResponse = false;
+      }
     },
     visualizations: {
       deep: true,
@@ -459,6 +554,9 @@ export default {
   },
 
   computed: {
+    jsonPath() {
+      return this.currentViz?.settings?.jsonPath || '';
+    },
     rendererType() {
       return this.currentViz?.rendererType;
     },
@@ -468,6 +566,7 @@ export default {
         index: this.currentViz?.index,
         resultsKey: this.resultsKey,
         apiActionKeyQuesLevel: this.apiActionKeyQuesLevel,
+        results: this.results,
       };
     },
     vizConfigRenderKey() {
@@ -530,6 +629,7 @@ export default {
       iconClass: iconClass,
       settingsPanesize: 0,
       results: null,
+      apiResponse: null,
       showSettings: false,
       componentDefs: _.cloneDeep(newComponentDefs),
       visualizationsLocal: vizs,
@@ -545,14 +645,22 @@ export default {
       settingsCategories: settingsCategories.map((s) => {
         return { name: s, value: s };
       }),
+      showApiResponse: true,
     };
   },
 
   methods: {
     updateProps() {
+      this.apiResponse = null;
+      this.results = null;
       const results = resultsStore();
       if (this.resultsKey && this.dataLoaded) {
-        this.results = results.getResults(this.resultsKey);
+        const response = results.getResults(this.resultsKey);
+        if (response?.rows) {
+          this.results = response;
+          return;
+        }
+        this.apiResponse = response;
       }
     },
     addFilter(filter) {
@@ -574,6 +682,11 @@ export default {
       }
       this.currentViz.queryTerms.details.sortings.details.push(sorting);
       this.currentViz.queryTerms.towardsQTLayout = true;
+    },
+
+    updateResults(results) {
+      this.results = results;
+      console.log(results);
     },
   },
 

@@ -57,7 +57,6 @@ import MonacoEditor from 'monaco-editor-vue3';
 import AGToast from 'components/utils/toast.vue';
 import { shallowRef } from 'vue';
 import isEqual from 'lodash/isEqual';
-import { formatDialect, postgresql } from 'sql-formatter';
 import debounce from 'lodash/debounce';
 import { KeyCode } from 'monaco-editor';
 import { AGDraculaTheme } from 'src/helpers/monacoTheme';
@@ -67,6 +66,7 @@ import AGCreateSnippetModal from 'components/question/createSnippetModal.vue';
 import { fetchTables, getColumns } from 'src/apis/database';
 import { sessionStore } from 'src/stores/session';
 import { fetchQuestion } from 'src/apis/questions';
+import { setSQLFormatter } from 'src/helpers/formatters';
 
 const session = sessionStore();
 
@@ -335,44 +335,6 @@ export default {
           text: `{{sn:${snippet.name}:${snippet.id}}}`,
         },
       ]);
-    },
-
-    setFormatter() {
-      this.monaco.languages.registerDocumentFormattingEditProvider('sql', {
-        provideDocumentFormattingEdits(model) {
-          let content = model.getValue();
-          const matches = content.match(/{{\W*.+?\W*}}/g);
-          console.log(matches);
-
-          matches?.forEach((m) => {
-            content = content.replaceAll(m, `/* ${m} */`);
-          });
-
-          const matchEEX = content.match(/<%={0,1}.+%>/gm);
-
-          matchEEX?.forEach((m) => {
-            content = content.replaceAll(m, `/* ${m} */`);
-          });
-
-          var formatted = formatDialect(content, {
-            dialect: postgresql,
-            keywordCase: 'upper',
-          });
-          matches?.forEach((m) => {
-            formatted = formatted.replaceAll(`/* ${m} */`, m);
-          });
-
-          matchEEX?.forEach((m) => {
-            formatted = formatted.replaceAll(`/* ${m} */`, m);
-          });
-          return [
-            {
-              range: model.getFullModelRange(),
-              text: formatted,
-            },
-          ];
-        },
-      });
     },
 
     editorWillMount(monaco) {
@@ -654,7 +616,7 @@ export default {
         monaco = this.setCompletion(monaco);
         this.setSnippetCompletion(monaco);
         this.setupHover(monaco);
-        this.setFormatter();
+        setSQLFormatter(monaco);
       }
     },
     setTableList(tables) {

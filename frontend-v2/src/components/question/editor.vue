@@ -10,7 +10,7 @@
         <AGDBSelector v-model:selectedDatabase="database" />
         <AGTableSelector
           v-model:selectedTable="table"
-          v-if="!rawQuery && database"
+          v-if="!rawQuery && database && showDatabaseEditor"
           :database="database"
         />
       </div>
@@ -20,10 +20,13 @@
         class="tw-flex-1"
         v-model:queryTerms="queryTerms"
         naked="true"
-        v-if="!rawQuery && table"
+        v-if="!rawQuery && table && showDatabaseEditor"
       >
       </QBHorizontalLayout>
-      <div class="tw-justify-self-end tw-flex tw-items-center tw-gap-2">
+      <div
+        class="tw-justify-self-end tw-flex tw-items-center tw-gap-2"
+        v-if="showDatabaseEditor"
+      >
         <span
           class="tw-cursor-pointer tw-border tw-flex tw-items-center tw-leading-4 tw-py-1 tw-px-1.5 tw-rounded-sm tw-mx-0.5 tw-border-default/20 tw-bg-secondary tw-text-default"
           v-if="!rawQuery"
@@ -45,6 +48,19 @@
       </div>
     </div>
 
+    <div class="tw-px-4 tw-py-2" v-if="showApiEditor">
+      <AGApiActionEditor
+        :link="link"
+        :row="row"
+        :columns="columns"
+        :queryKey="queryKey"
+        :questionID="question.id"
+        :visualizationID="visualizationID"
+        v-model:apiAction="apiAction"
+        questionLevel="true"
+      />
+    </div>
+
     <VueResizable
       class="!tw-w-full"
       h="700"
@@ -52,7 +68,7 @@
       :active="['b']"
       @resize:move="resizeKey += 1"
       @mount="resizeKey += 1"
-      v-if="rawQuery"
+      v-if="rawQuery && showDatabaseEditor"
     >
       <div class="tw-h-full tw-bg-white tw-rounded-sm tw-shadow-sm tw-border-t">
         <splitpanes
@@ -114,6 +130,7 @@ import AGDBSelector from 'components/question/dbSelector.vue';
 import AGTableSelector from 'components/question/tableSelector.vue';
 import QBHorizontalLayout from 'components/queryTerms/layout.vue';
 import AGButton from 'components/base/button.vue';
+import AGApiActionEditor from 'components/apiActions/newFlat.vue';
 
 import { Splitpanes, Pane } from 'splitpanes';
 import {
@@ -128,6 +145,10 @@ import { sessionStore } from 'src/stores/session';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import VueResizable from 'vue-resizable';
+
+const databaseEditorTypeMapping = {
+  api_client: 'ApiEditor',
+};
 
 const datatypeMapping = {
   bigint: 'number',
@@ -166,11 +187,18 @@ export default {
     VueResizable,
     Splitpanes,
     Pane,
+    AGApiActionEditor,
   },
 
   props: ['question'],
 
   watch: {
+    apiAction: {
+      deep: true,
+      handler() {
+        this.updateQuestionHumanSql();
+      },
+    },
     code() {
       this.$emit('update:code', this.code);
       this.updateQuestionHumanSql();
@@ -179,6 +207,7 @@ export default {
       deep: true,
       handler() {
         this.updateQuestionHumanSql();
+        this.setEditorType();
       },
     },
     rawQuery: {
@@ -224,11 +253,25 @@ export default {
         if (!isEqual(this.queryTerms, this.makeQueryTerms())) {
           this.queryTerms = this.makeQueryTerms();
         }
+        if (!isEqual(this.apiAction, this.question.api_action)) {
+          this.apiAction = this.question.api_action || {};
+        }
       },
     },
   },
 
+  computed: {
+    showDatabaseEditor() {
+      return this.editorType === 'Database';
+    },
+
+    showApiEditor() {
+      return this.editorType === 'ApiEditor';
+    },
+  },
+
   mounted() {
+    this.setEditorType();
     if (this.table?.id) {
       getColumns(this.table.id, session.token, this.setColumns);
     }
@@ -250,10 +293,20 @@ export default {
       database: this.question?.human_sql?.database,
       resizeKey: 0,
       editorSize: 100,
+      editorType: 'Database',
+      apiAction: this.question?.api_action || {},
     };
   },
 
   methods: {
+    setEditorType() {
+      const editor = databaseEditorTypeMapping[this.database?.db_type];
+      if (editor) {
+        this.editorType = editor;
+        return;
+      }
+      this.editorType = 'Database';
+    },
     makeQueryTerms() {
       return {
         details: {
@@ -291,6 +344,7 @@ export default {
       question.human_sql = humanSQL;
       question.query_type = this.rawQuery ? 'sql' : 'human_sql';
       question.human_sql.queryType = this.rawQuery ? 'raw' : 'query_builder';
+      question.api_action = this.apiAction;
       this.$emit('update:question', question);
     },
   },

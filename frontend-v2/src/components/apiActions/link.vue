@@ -4,15 +4,23 @@
 }
 
 .btn:hover {
-  opacity: 0.90;
+  opacity: 0.9;
 }
 </style>
 <template>
-  <div :style="buttonStyle"
-    class="tw-rounded-sm tw-cursor-pointer tw-flex tw-items-center tw-gap-1 btn tw-font-semibold" @click="clicked()">
-    <AGTableCellFormatter :parentStyle="parentStyle" @update:parentStyle="(val) => $emit('update:parentStyle', val)"
-      :formattingSettings="link.formattingSettings" dataType="text" :value="format(link.value)"
-      :displayName="link.displayName" />
+  <div
+    :style="buttonStyle"
+    class="tw-rounded-sm tw-cursor-pointer tw-flex tw-items-center tw-gap-1 btn tw-font-semibold"
+    @click="clicked()"
+  >
+    <AGTableCellFormatter
+      :parentStyle="parentStyle"
+      @update:parentStyle="(val) => $emit('update:parentStyle', val)"
+      :formattingSettings="link.formattingSettings"
+      dataType="text"
+      :value="format(link.value)"
+      :displayName="link.displayName"
+    />
     <!--   <div v-html="iconHtmlWithCorrectSize" v-if="showIconPrefix && link.details.display_settings.icon" > -->
     <!--   </div> -->
     <!--   <div v-if="showText" class="tw-uppercase"> -->
@@ -21,19 +29,27 @@
     <!--   <div v-html="iconHtmlWithCorrectSize" v-if="showIconSuffix && link.details.display_settings.icon" > -->
     <!--   </div> -->
   </div>
-  <AGModal v-model:show="open" :loading="loading" :size="loading ? 'small' : 'large'"
-    :loadingMessage="link.details.loading_message">
+  <AGModal
+    v-model:show="open"
+    :loading="loading"
+    :size="loading ? 'small' : 'large'"
+    :loadingMessage="link.details.loading_message"
+  >
     <template #header>
-      <div class="tw-p-2 tw-text-2xl">
-        Response
-      </div>
+      <div class="tw-p-2 tw-text-2xl">Response</div>
     </template>
     <template #body>
-      <v-ace-editor :value="response.response_body" @init="editorInit" :lang="contentType" theme="dracula" readonly
-        min-lines=2 max-lines=35 />
+      <v-ace-editor
+        :value="response.response_body"
+        @init="editorInit"
+        :lang="contentType"
+        theme="dracula"
+        readonly
+        min-lines="2"
+        max-lines="35"
+      />
     </template>
-    <template #footer>
-    </template>
+    <template #footer> </template>
   </AGModal>
 
   <!-- <div v-if="open" class="tw-flex tw-inset-0 tw-z-50 tw-absolute tw-bg-default/80"> -->
@@ -58,115 +74,118 @@
 </template>
 
 <script>
-import { queryStore } from 'stores/query'
+import { queryStore } from 'stores/query';
 import { api } from 'boot/axios';
-import apiConfig from 'src/helpers/apiConfig'
+import apiConfig from 'src/helpers/apiConfig';
 
-import { VAceEditor } from 'vue3-ace-editor';
-import AGModal from 'components/utils/modal.vue'
-import AGTableCellFormatter from 'components/widgets/tableWidgets/dataFormatting/widget.vue'
+import AGModal from 'components/utils/modal.vue';
+import AGTableCellFormatter from 'components/widgets/tableWidgets/dataFormatting/widget.vue';
 
 import cloneDeep from 'lodash/cloneDeep';
 
-import 'ace-builds/src-noconflict/mode-json';
-import 'ace-builds/src-noconflict/mode-html';
-import 'ace-builds/src-noconflict/mode-xml';
-import 'ace-builds/src-noconflict/theme-dracula';
 export default {
   name: 'ApiActionLink',
   props: ['link', 'queryKey', 'variables', 'showForm'],
-  components: { AGModal, VAceEditor, AGTableCellFormatter },
+  components: { AGModal, AGTableCellFormatter },
   data() {
-    return { open: false, loading: false, contentType: 'json' }
+    return { open: false, loading: false, contentType: 'json' };
   },
 
   computed: {
     showIconPrefix() {
       if (!(this.link.details && this.link.details.display_settings)) {
-        return false
+        return false;
       }
-      if ((['icon only', 'both'].indexOf(this.link.details.display_settings.display) >= 0) && (this.link.details.display_settings.icon_as != 'suffix')) {
-        return true
+      if (
+        ['icon only', 'both'].indexOf(
+          this.link.details.display_settings.display
+        ) >= 0 &&
+        this.link.details.display_settings.icon_as != 'suffix'
+      ) {
+        return true;
       }
-      return false
+      return false;
     },
 
     showIconSuffix() {
       if (!(this.link.details && this.link.details.display_settings)) {
-        return false
+        return false;
       }
-      if (['icon only', 'both'].indexOf(this.link.details.display_settings.display) >= 0 && (this.link.details.display_settings.icon_as === 'suffix')) {
-        return true
+      if (
+        ['icon only', 'both'].indexOf(
+          this.link.details.display_settings.display
+        ) >= 0 &&
+        this.link.details.display_settings.icon_as === 'suffix'
+      ) {
+        return true;
       }
-      return false
+      return false;
     },
 
     showText() {
       if (!(this.link.details && this.link.details.display_settings)) {
-        return true
+        return true;
       }
       if (this.link.details.display_settings.display === 'icon only') {
-        return false
+        return false;
       }
-      return true
-
+      return true;
     },
 
     buttonStyle() {
-
       if (!(this.link.details && this.link.details.display_settings)) {
         return {
           '--background-color': null,
           '--color': this.link.details.color,
-          '--padding': "0px 0px"
-        }
-
+          '--padding': '0px 0px',
+        };
       }
       if (this.link.details.display_settings.show_as_button) {
         return {
-          '--background-color': this.link.details.display_settings.backgroundColor,
+          '--background-color':
+            this.link.details.display_settings.backgroundColor,
           '--color': this.link.details.color,
-          '--border-color': this.link.details.display_settings.backgroundColor === 'white' ? "#e5e7eb" : this.link.details.display_settings.backgroundColor,
-          '--padding': "0.5rem 1rem"
-
-        }
+          '--border-color':
+            this.link.details.display_settings.backgroundColor === 'white'
+              ? '#e5e7eb'
+              : this.link.details.display_settings.backgroundColor,
+          '--padding': '0.5rem 1rem',
+        };
       }
       return {
         '--background-color': null,
-        '--color': this.link.details.color
-      }
-
-
+        '--color': this.link.details.color,
+      };
     },
 
     iconHtmlWithCorrectSize() {
       if (!(this.link.details && this.link.details.display_settings)) {
-        return null
+        return null;
       }
-      let html = this.link.details.display_settings.icon
+      let html = this.link.details.display_settings.icon;
       if (!html) {
-        return null
+        return null;
       }
-      html = html.replace(/width="\w*\d+\w*"/, 'width="16px"')
-      html = html.replace(/height="\w*\d+\w*"/, 'height="16px"')
-      return html
+      html = html.replace(/width="\w*\d+\w*"/, 'width="16px"');
+      html = html.replace(/height="\w*\d+\w*"/, 'height="16px"');
+      return html;
     },
   },
 
   methods: {
     format(name) {
       this.variables.forEach((v) => {
-        const r = new RegExp(`{{ *${v.name} *}}`, 'g')
-        name = name.replace(r, v.value)
-      })
-      return name
+        const r = new RegExp(`{{ *${v.name} *}}`, 'g');
+        name = name.replace(r, v.value);
+      });
+      return name;
     },
     clicked() {
       if (this?.link?.details?.display_settings?.renderForm) {
-        this.$emit('update:showForm', true)
-        return
+        this.$emit('update:showForm', true);
+        return;
       }
-      this.sendRequest()
+      this.sendRequest();
     },
 
     inIframe() {
@@ -178,59 +197,67 @@ export default {
     },
 
     sendRequest() {
-      this.open = false
+      this.open = false;
 
-      const query = queryStore().get(this.queryKey)
-      let variables = this.variables
+      const query = queryStore().get(this.queryKey);
+      let variables = this.variables;
 
-
-      const actionPayload = { variables: variables, api_action: this.link.details }
-      let url = 'api_actions/send_request'
+      const actionPayload = {
+        variables: variables,
+        api_action: this.link.details,
+      };
+      let url = 'api_actions/send_request';
       if (this.link.details.id) {
-        url = 'api_actions/' + this.link.details.id + '/send_request'
+        url = 'api_actions/' + this.link.details.id + '/send_request';
       }
-      this.loading = true
-      this.open = true
-      api.post(url, actionPayload, apiConfig(query.token)).then((response) => {
-        if (response.data.redirect_url) {
-          if (response.data.status === 301) {
-            window.parent.window.open(response.data.redirect_url, '_blank');
-          } else {
-            if (response.data.redirect_url.match(/^http/)) {
-              window.parent.window.open(response.data.redirect_url, '_self');
-
+      this.loading = true;
+      this.open = true;
+      api
+        .post(url, actionPayload, apiConfig(query.token))
+        .then((response) => {
+          if (response.data.redirect_url) {
+            if (response.data.status === 301) {
+              window.parent.window.open(response.data.redirect_url, '_blank');
             } else {
-              if (response.data.redirect_url.match(/^\//) && !this.inIframe()) {
-                this.$router.push(response.data.redirect_url)
-              } else {
+              if (response.data.redirect_url.match(/^http/)) {
                 window.parent.window.open(response.data.redirect_url, '_self');
+              } else {
+                if (
+                  response.data.redirect_url.match(/^\//) &&
+                  !this.inIframe()
+                ) {
+                  this.$router.push(response.data.redirect_url);
+                } else {
+                  window.parent.window.open(
+                    response.data.redirect_url,
+                    '_self'
+                  );
+                }
               }
             }
+            // this.loading = false
+            this.open = false;
+            return;
           }
-          // this.loading = false
-          this.open = false
-          return
-        }
-        if (response.data.response_headers) {
-          if (response.data.response_headers['Content-Type'].match('html')) {
-            this.contentType = 'html'
+          if (response.data.response_headers) {
+            if (response.data.response_headers['Content-Type'].match('html')) {
+              this.contentType = 'html';
+            }
+            if (response.data.response_headers['Content-Type'].match('json')) {
+              this.contentType = 'json';
+            }
+            if (response.data.response_headers['Content-Type'].match('xml')) {
+              this.contentType = 'xml';
+            }
           }
-          if (response.data.response_headers['Content-Type'].match('json')) {
-            this.contentType = 'json'
-          }
-          if (response.data.response_headers['Content-Type'].match('xml')) {
-            this.contentType = 'xml'
-          }
-
-        }
-        this.loading = false
-        this.response = response.data
-      }).catch(error => {
-        this.loading = false
-        this.response = error.data
-      })
-
-    }
-  }
-}
+          this.loading = false;
+          this.response = response.data;
+        })
+        .catch((error) => {
+          this.loading = false;
+          this.response = error.data;
+        });
+    },
+  },
+};
 </script>

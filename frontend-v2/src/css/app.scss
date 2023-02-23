@@ -54,6 +54,9 @@
   }
 
   .input-no-border:focus-visible { @apply tw-outline-0;}
+  .q-tooltip{
+   @apply tw-text-sm tw-font-semibold tw-bg-primary tw-text-white
+  }
 
   .splitpanes.pane-wrapper{
     @apply tw-bg-secondary ;
@@ -101,7 +104,7 @@
   }
 
   .note{
-    @apply tw-text-sm tw-text-default/80
+    @apply tw-text-sm tw-font-semibold tw-text-default/80
   }
 
   .item-3070-columns > *{

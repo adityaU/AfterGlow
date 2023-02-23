@@ -1,23 +1,23 @@
 <template>
-  <teleport to="body">
+  <!-- <teleport to="body"> -->
+  <div
+    class="tw-flex tw-basis-8 tw-fixed tw-top-2 tw-right-2 ag-card tw-p-3 tw-max-w-[400px]"
+    v-if="show"
+    :class="'tw-border-l-4 ' + borderClass"
+  >
     <div
-      class="tw-flex tw-basis-8 tw-fixed tw-top-2 tw-right-2 ag-card tw-p-3 tw-max-w-[400px]"
-      v-if="show"
-      :class="'tw-border-l-4 ' + borderClass"
-    >
-      <div
-        class="tw-border-l-red-600 tw-border-l-green-600 tw-border-l-yellow-600 tw-hidden"
-      ></div>
-      <div class="col">
-        <slot />
-      </div>
-      <div
-        class="tw-absolute tw-float-right tw-top-1 tw-right-1 tw-cursor-pointer"
-      >
-        <XIcon @click="$emit('update:show', false)" size="14" />
-      </div>
+      class="tw-border-l-red-600 tw-border-l-green-600 tw-border-l-yellow-600 tw-hidden"
+    ></div>
+    <div class="col">
+      <slot />
     </div>
-  </teleport>
+    <div
+      class="tw-absolute tw-float-right tw-top-1 tw-right-1 tw-cursor-pointer"
+    >
+      <XIcon @click="$emit('update:show', false)" size="14" />
+    </div>
+  </div>
+  <!-- </teleport> -->
 </template>
 
 <script>

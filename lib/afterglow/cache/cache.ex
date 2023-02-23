@@ -48,8 +48,8 @@ defmodule AfterGlow.CacheWrapper do
   end
 
   def put_struct(struct) do
-    Cachex.put!(:cache, key(struct.__struct__, struct.id), struct)
-    delete_associations(struct)
+    # Cachex.put!(:cache, key(struct.__struct__, struct.id), struct)
+    # delete_associations(struct)
   end
 
   def get_by_id(id, type) when is_integer(id), do: get_by_id(type, id)
@@ -112,9 +112,9 @@ defmodule AfterGlow.CacheWrapper do
   end
 
   defp save_in_cache(type, structs) do
-    structs
-    |> Enum.each(fn x ->
-      Cachex.put!(:cache, key(type, x.id), x)
-    end)
+    # structs
+    # |> Enum.each(fn x ->
+    #   Cachex.put!(:cache, key(type, x.id), x)
+    # end)
   end
 end

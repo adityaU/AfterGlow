@@ -3,6 +3,7 @@ defmodule AfterGlow.Visualizations.Visualizations do
   @default_preloads []
 
   use AfterGlow.Utils.Models.Crud
+  alias AfterGlow.ApiActions
   alias AfterGlow.CacheWrapper.Repo
   alias AfterGlow.Questions.QueryFunctions, as: Questions
   alias AfterGlow.QueryTerms.Conversions
@@ -66,11 +67,19 @@ defmodule AfterGlow.Visualizations.Visualizations do
     if payload["database"] do
       payload =
         if payload |> get_in(["version"]) == 1,
-          do: payload |> Map.merge(Conversions.convert(%{"details" =>  payload})),
-          else:
-          payload
+          do: payload |> Map.merge(Conversions.convert(%{"details" => payload})),
+          else: payload
 
-      fetch_results(:direct, payload, id, query_terms, viz_cache_time, current_user)
+      if get_in(payload, ["database", "db_type"]) == "api_client" do
+        {{:ok,
+          ApiActions.send_request(
+            payload |> get_in(["api_action"]),
+            payload |> get_in(["variables"]) || [],
+            current_user
+          )}, "", %{}}
+      else
+        fetch_results(:direct, payload, id, query_terms, viz_cache_time, current_user)
+      end
     else
       question_id = payload["question_id"] || (visualization && visualization.question_id)
       variables = payload["variables"]
@@ -130,42 +139,75 @@ defmodule AfterGlow.Visualizations.Visualizations do
   end
 
   def fetch_results(
-    :via_question,
-    question_id,
-    viz_id,
-    query_terms,
-    variables,
-    viz_cache_time,
-    current_user
-  ) do
+        :via_question,
+        question_id,
+        viz_id,
+        query_terms,
+        variables,
+        viz_cache_time,
+        current_user
+      ) do
     {:ok, question} = Questions.get(question_id)
 
-    expire_after =
-      viz_cache_time || get_in(question |> Map.from_struct(), [:config, "cache_time_in_seconds"])
+    dbtype =
+      question.human_sql
+      |> get_in(["database", "db_type"])
+      |> IO.inspect(label: "db_type=========================================")
 
-    cache_key = "question##{question_id}:#{viz_id}"
+    if dbtype == "api_client" do
+      question = question |> Repo.preload([:api_action, :variables])
 
-    additionalInfo =
-      Questions.get_results(question, variables, %{}, current_user, 5, %{
-        no_tracking: true,
-        cache_key: cache_key <> "#additionalInfo",
-        expire_after: expire_after
-      })
+      variables =
+        ((variables ||
+            []) ++
+           (question.variables
+            |> Enum.map(&(&1 |> Map.from_struct()))))
+        |> Enum.uniq_by(fn el -> el["name"] || el[:name] end)
+        |> Enum.map(fn v ->
+          %{
+            "name" => v |> get_in(["name"]) || v |> get_in([:name]),
+            "value" =>
+              v |> get_in(["value"]) || v |> get_in([:value]) || v |> get_in(["default"]) ||
+                v |> get_in([:default])
+          }
+        end)
+        |> IO.inspect(label: "variables=======================================")
 
-    case additionalInfo do
-      {:ok, additionalInfo} ->
-        results =
-          Questions.get_results(question, variables, query_terms, current_user, nil, %{
-            question_id: question_id,
-            visualization_id: viz_id,
-            cache_key: cache_key,
-            expire_after: expire_after
-          })
+      {{:ok,
+        ApiActions.send_request(
+          question.api_action.id,
+          variables,
+          current_user
+        )}, "", %{}}
+    else
+      expire_after =
+        viz_cache_time ||
+          get_in(question |> Map.from_struct(), [:config, "cache_time_in_seconds"])
 
-        {results, question.sql, additionalInfo}
+      cache_key = "question##{question_id}:#{viz_id}"
 
-      {:error, error} ->
-        {{:error, error}, question.sql, %{query_terms_applied: false}}
+      additionalInfo =
+        Questions.get_results(question, variables, %{}, current_user, 5, %{
+          no_tracking: true,
+          cache_key: cache_key <> "#additionalInfo",
+          expire_after: expire_after
+        })
+
+      case additionalInfo do
+        {:ok, additionalInfo} ->
+          results =
+            Questions.get_results(question, variables, query_terms, current_user, nil, %{
+              question_id: question_id,
+              visualization_id: viz_id,
+              cache_key: cache_key,
+              expire_after: expire_after
+            })
+
+          {results, question.sql, additionalInfo}
+
+        {:error, error} ->
+          {{:error, error}, question.sql, %{query_terms_applied: false}}
+      end
     end
   end
 end

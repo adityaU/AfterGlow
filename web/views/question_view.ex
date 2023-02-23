@@ -18,7 +18,7 @@ defmodule AfterGlow.QuestionView do
     :columns,
     :shared_to,
     :config,
-    # :api_action,
+    :api_action,
     :has_permission
   ])
 
@@ -50,11 +50,11 @@ defmodule AfterGlow.QuestionView do
     include: false
   )
 
-  has_one(
-    :api_action,
-    field: :api_action,
-    type: "api_actions"
-  )
+  # has_one(
+  #   :api_action,
+  #   field: :api_action,
+  #   type: "api_actions"
+  # )
 
   has_many(
     :snapshots,
@@ -78,6 +78,10 @@ defmodule AfterGlow.QuestionView do
 
   def shared_to(question, _conn) do
     question.shared_to || []
+  end
+
+  def api_action(question, _conn) do
+    question.api_action
   end
 
   def has_permission(question, conn) do

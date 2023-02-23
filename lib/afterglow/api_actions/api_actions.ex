@@ -15,7 +15,9 @@ defmodule AfterGlow.ApiActions do
   def list_api_actions_by_question_id(question_id) do
     from(
       aa in ApiAction,
-      where: aa.question_id == ^question_id and fragment("? is not ?", aa.hidden, true)
+      where:
+        aa.question_id == ^question_id and fragment("? is not ?", aa.hidden, true) and
+          aa.action_level == 1
     )
     |> Repo.all()
   end
@@ -186,9 +188,11 @@ defmodule AfterGlow.ApiActions do
     case response do
       {:ok, resp} ->
         resp_body =
-          case resp.body |> :unicode.characters_to_binary() do
-            {:ok, body} -> body |> :erlang.list_to_binary()
+          case resp.body
+               |> :unicode.characters_to_binary()
+               |> IO.inspect(label: "api response") do
             {:error, sal, _} -> sal
+            result -> result
           end
 
         %{
