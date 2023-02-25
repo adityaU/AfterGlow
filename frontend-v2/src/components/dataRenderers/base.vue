@@ -282,6 +282,26 @@
             @updateApiActions="$emit('updateApiActions')"
             :key="rerenderKey"
           />
+          <template v-if="apiResponse && currentViz">
+            <div class="label tw-px-4">JmesPath</div>
+            <AGInput
+              class="tw-px-4"
+              v-model:value="currentViz.settings.jsonPath"
+              debounce="300"
+            />
+            <div class="note tw-px-4">
+              JmesPath is a way of extracting data from json response. You can
+              read more about it.
+              <a
+                href="https://jmespath.org/"
+                class="tw-cursor-pointer tw-text-primary"
+                target="_blank"
+              >
+                here </a
+              >. Use this field to customize the data extracted. Alternatively,
+              You can click on any key in API response pane.
+            </div>
+          </template>
         </div>
       </pane>
     </splitpanes>
@@ -375,6 +395,23 @@ export default {
   watch: {
     resultsKey() {
       this.updateProps();
+    },
+
+    jsonPath() {
+      const extracted = extractResultsFromJsonPath(
+        this.apiResponse,
+        this.jsonPath
+      );
+
+      extracted?.success && (this.results = extracted.results);
+    },
+    apiResponse() {
+      const extracted = extractResultsFromJsonPath(
+        this.apiResponse,
+        this.jsonPath
+      );
+
+      extracted?.success && (this.results = extracted.results);
     },
     apiActionKeyQuesLevel() {
       const apiActions = apiActionStore();
