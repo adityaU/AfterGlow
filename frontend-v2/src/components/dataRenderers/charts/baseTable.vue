@@ -204,7 +204,7 @@ export default {
 
   setup() {
     const pageSize = 10;
-    const paginationButtonClass = 'tw-border-2 tw-leading-4 tw-m-auto tw-border-primary hover:tw-bg-primary hover:tw-text-tertiary tw-mx-1 tw-py-2 tw-rounded-sm'
+    const paginationButtonClass = 'tw-border-2 tw-leading-4 tw-m-auto tw-border-primary hover:tw-bg-primary hover:tw-text-tertiary tw-mx-1 tw-py-2 tw-rounded-full'
     const paginationButtonDisabledClass = 'tw-border-2 tw-leading-4 tw-m-auto tw-border-default/20 hover:tw-bg-default/20 tw-mx-1 tw-py-2 tw-text-default/50 tw-rounded-sm'
 
     let arrowButtonsClass = paginationButtonClass + ' tw-text-primary tw-px-3'

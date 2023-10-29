@@ -1,16 +1,14 @@
-
 import { defineStore } from 'pinia';
-import { sessionStore } from 'stores/session'
+import { sessionStore } from 'stores/session';
 
-const session = sessionStore()
+const session = sessionStore();
 
 export const queryStore = defineStore('query', {
   state: () => ({
-    queries: {}
+    queries: {},
   }),
 
-  getters: {
-  },
+  getters: {},
 
   actions: {
     push(query, key) {
@@ -18,7 +16,7 @@ export const queryStore = defineStore('query', {
     },
 
     get(key) {
-      return this.queries[key];
-    }
-  }
+      return this.queries[key] || sessionStore();
+    },
+  },
 });

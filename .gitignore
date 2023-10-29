@@ -5,3 +5,5 @@ frontend/tmp/
 erl_crash.dump
 .undodir/
 Session.vim
+backend/target/
+backend/crud_derive/target/

@@ -3,11 +3,10 @@
     <div class="label" v-if="!naked">
       {{label}}
     </div>
-    <div class="input-border">
-      <div class="tw-px-2 tw-py-0.5">
+    <div class="input-border tw-px-4 tw-py-2 border-radius-transition" :class="roundedClass ? 'tw-rounded-full' : 'tw-rounded-t-3xl tw-border-b-0 tw-shadow-sm'">
         <q-menu flat=true transition-show="jump-down" transition-hide="jump-up" max-height="400px"
-          class="tw-rounded-sm tw-shadow-sm tw-border"
-          @show="menuShow" @keydown="onKeydown" fit auto-close>
+          class="tw-rounded-b-xl tw-shadow-sm tw-border"
+          @before-show="menuShow" @before-hide="menuHide" @keydown="onKeydown" fit auto-close>
           <SelectOptions :options="options" :selected="selected" :menuShow="menuShow" :multiselect="multiselect" :hideSearch="hideSearch"
             @select="(val) => ($emit('select', val) || true) && $emit('update:selected', val)" :areOptionObjects="areOptionsObject" :displayKey="displayKey" />
         </q-menu>
@@ -26,7 +25,6 @@
         </div>
       </div>
 
-    </div> 
 
     </span>
 </template>
@@ -54,11 +52,18 @@ export default {
 
   data() {
     return {
-      menuShow: false,
+      roundedClass: true,
     }
   },
 
   methods: {
+    menuShow() {
+       this.roundedClass = false
+
+    },
+    menuHide(){
+      this.roundedClass = true
+    },
     clearSelected(){
       this.$emit('select', null)
       this.$emit('update:selected', null)

@@ -1,26 +1,48 @@
 defmodule AfterGlow.Sql.Adapters.Mysql do
-  alias AfterGlow.Sql.Adapters.QueryMakers.Mysql, as: QueryMaker
+  import AfterGlow.Sql.Adapters.QueryMakers.Mysql
+  import AfterGlow.Utils.Integer
   use Supervisor
-  require IEx
   alias DbConnection
 
   def create_pool(config) do
-    Mariaex.start_link(
-      hostname: config["host_url"],
-      username: config["username"],
-      password: config["password"],
-      database: config["db_name"],
-      port: config["host_port"],
-      timeout: 1_200_000,
-      connect_timeout: 1_200_000,
-      handshake_timeout: 1_200_000,
-      ownership_timeout: 1_200_000,
-      pool_timeout: 1_200_000,
-      queue_target: 15000,
-      queue_interval: 15000,
-      pool: DBConnection.ConnectionPool,
-      pool_size: 10
-    )
+    pool_size =
+      config["pool_size"]
+      |> parse_integer
+      |> Kernel.||(10)
+
+    checkout_timeout =
+      config["checkout_timeout"]
+      |> parse_integer
+      |> Kernel.||(45)
+      |> Kernel.*(1000)
+      |> Kernel./(3)
+      |> floor
+
+    query_timeout =
+      config["query_timeout"]
+      |> parse_integer
+      |> Kernel.||(2)
+      |> Kernel.*(120_000)
+
+    {:ok,
+     %{
+       query_options: [timeout: query_timeout],
+       conn:
+         MyXQL.start_link(
+           hostname: config["host_url"],
+           username: config["username"],
+           password: config["password"],
+           database: config["db_name"],
+           port: config["host_port"],
+           timeout: 15_0000,
+           queue_target: checkout_timeout,
+           queue_interval: checkout_timeout,
+           pool: DBConnection.ConnectionPool,
+           pool_size: pool_size,
+           types: AfterGlow.MyXQLTypes
+         )
+         |> elem(1)
+     }}
   end
 
   def opts do
@@ -35,42 +57,11 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
     [timeout: 12_000_000, pool: DBConnection.Poolboy, pool_timeout: 12_000_000]
   end
 
-  def execute_with_stream(pid, query, download_limit, mapper_fn, options \\ %{})
-
-  def execute_with_stream(pid, query, download_limit, mapper_fn, _options)
-      when is_binary(query) do
-    query =
-      if download_limit do
-        {_limited, query} =
-          query
-          |> QueryMaker.limit_rows_in_query(download_limit)
-
-        query
-      else
-        query
-      end
-
-    Mariaex.transaction(
-      pid,
-      fn conn ->
-        {:ok, query} = Mariaex.prepare(conn, "", query, opts())
-
-        rows_and_columns =
-          Mariaex.stream(conn, query, [], stream_opts())
-          |> Stream.map(fn %Mariaex.Result{rows: rows, columns: columns} ->
-            [rows, columns]
-          end)
-
-        rows = rows_and_columns |> Stream.map(fn x -> x |> Enum.at(0) end)
-        columns = rows_and_columns |> Stream.map(fn x -> x |> Enum.at(1) end) |> Enum.at(0)
-        mapper_fn.(rows, columns)
-      end,
-      txn_opts()
-    )
-  end
-
   def get_fkeys(conn) do
-    {:ok, result} = Mariaex.query(conn, ~s/SELECT
+    {:ok, result} =
+      MyXQL.query(
+        conn.conn,
+        ~s/SELECT
     TABLE_NAME as 'table_name',
     COLUMN_NAME as 'column_name',
     CONSTRAINT_NAME as 'name',
@@ -78,7 +69,10 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
   FROM
     INFORMATION_SCHEMA.KEY_COLUMN_USAGE
   WHERE
-  REFERENCED_TABLE_SCHEMA = DATABASE()/, [], opts())
+  REFERENCED_TABLE_SCHEMA = DATABASE()/,
+        [],
+        conn.query_options
+      )
 
     result.rows
     |> Enum.map(fn row ->
@@ -87,15 +81,15 @@ defmodule AfterGlow.Sql.Adapters.Mysql do
   end
 
   def get_primary_keys(conn) do
-    {:ok, result} = Mariaex.query(conn, ~s/SELECT
-   table_name,
-   column_name
+    {:ok, result} = MyXQL.query(conn.conn, ~s/SELECT
+   table_name as table_name,
+   column_name as column_name
 FROM
    information_schema.columns
 WHERE
    column_key = 'PRI'
 
-   and table_schema = DATABASE()/, [], opts())
+   and table_schema = DATABASE()/, [], conn.query_options)
 
     result.rows
     |> Enum.map(fn row ->
@@ -104,9 +98,10 @@ WHERE
   end
 
   def get_schema(conn) do
-    {:ok, data} = Mariaex.query(conn, "select table_name,
+    {:ok, data} =
+      MyXQL.query(conn.conn, "select table_name as table_name, table_name as readable_table_name,
     column_name as name, column_type as data_type from information_schema.columns where
-    table_schema = DATABASE() order by table_name,ordinal_position", [], opts)
+    table_schema = DATABASE() order by table_name,ordinal_position", [], conn.query_options)
 
     {:ok,
      data.rows
@@ -118,23 +113,20 @@ WHERE
   end
 
   def query_string(query_record) do
-    QueryMaker.sql(query_record, :mysql)
+    sql(query_record, :mysql)
   end
 
   def make_dependency_raw_query(column, foreign_column, table, value, value_column, primary_keys) do
-    query =
-      "SELECT `#{table.name}`.* FROM `#{table.name}`
-    INNER JOIN `#{value_column.table.name}`
-    ON `#{column.table.name}`.`#{column.name}` = `#{foreign_column.table.name}`.`#{
-        foreign_column.name
-      }`
-    WHERE `#{value_column.table.name}`.`#{value_column.name}` = '#{value}'"
+    query = "SELECT #{table.name}.* FROM #{table.name}
+    INNER JOIN #{value_column.table.name}
+    ON #{column.table.name}.\"#{column.name}\" = #{foreign_column.table.name}.\"#{foreign_column.name}\"
+    WHERE #{value_column.table.name}.\"#{value_column.name}\" = '#{value}'"
 
     if primary_keys |> length > 0 do
       query <>
         " GROUP BY " <>
         (primary_keys
-         |> Enum.map(fn pk -> "`#{table.name}`.`#{pk.name}`" end)
+         |> Enum.map(fn pk -> "#{table.name}.\"#{pk.name}\"" end)
          |> Enum.join(", "))
     else
       query
@@ -143,51 +135,79 @@ WHERE
 
   def execute(conn, query, frontend_limit, options \\ %{})
 
-  def execute(conn, query, frontend_limit, options) when is_map(query) do
+  def execute(conn, query, frontend_limit, _options) when is_map(query) do
     {limited, exec_query} =
-      QueryMaker.sql(query, :mysql)
-      |> QueryMaker.limit_rows_in_query(frontend_limit)
+      sql(query, :mysql)
+      |> limit_rows_in_query(frontend_limit)
 
-    query = Mariaex.prepare(conn, "", exec_query, opts)
-
-    case query do
-      {:ok, prepared_query} ->
-        {:ok, _query, results} = Mariaex.execute(conn, prepared_query, [], opts)
-
-        {:ok,
-         %{
-           columns: results.columns,
-           rows: results.rows,
-           limited: limited,
-           limit: frontend_limit,
-           limited_query: exec_query
-         }}
-
-      {:error, error} ->
-        {:error, error.mariadb}
-    end
+    run_query(conn, query, exec_query, limited, frontend_limit)
   end
 
-  def execute(conn, query, frontend_limit, options) when is_binary(query) do
-    {limited, exec_query} = query |> QueryMaker.limit_rows_in_query(frontend_limit)
-    query = Mariaex.prepare(conn, "", exec_query, opts)
+  def execute(conn, query, frontend_limit, _options) when is_binary(query) do
+    {limited, exec_query} =
+      query
+      |> limit_rows_in_query(frontend_limit)
 
-    case query do
-      {:ok, prepared_query} ->
-        {:ok, _query, results} = Mariaex.execute(conn, prepared_query, [], opts)
+    run_query(conn, query, exec_query, limited, frontend_limit)
+  end
 
-        {:ok,
-         %{
-           columns: results.columns,
-           rows: results.rows,
-           limited: limited,
-           limit: frontend_limit,
-           limited_query: exec_query
-         }}
+  def execute_with_stream(pid, query, download_limit, mapper_fn, options \\ %{})
 
-      {:error, error} ->
-        {:error, %{message: error.message}}
+  def execute_with_stream(pid, query, download_limit, mapper_fn, _options)
+      when is_binary(query) do
+    query =
+      if download_limit do
+        {_limited, query} =
+          query
+          |> limit_rows_in_query(download_limit)
+
+        query
+      else
+        query
+      end
+
+    MyXQL.transaction(
+      pid.conn,
+      fn conn ->
+        {:ok, query} = MyXQL.prepare(conn, "", query, pid.query_options)
+        columns = query.columns
+
+        rows =
+          MyXQL.stream(conn, query, [], stream_opts())
+          |> Stream.map(fn %MyXQL.Result{rows: rows} -> rows end)
+
+        mapper_fn.(rows, columns)
+      end,
+      txn_opts()
+    )
+  end
+
+  defp run_query(conn, _query, exec_query, limited, frontend_limit) do
+    try do
+      query = MyXQL.prepare(conn.conn, "", exec_query, conn.query_options)
+
+      case query do
+        {:ok, prepared_query} ->
+          {:ok, _, results} = MyXQL.execute(conn.conn, prepared_query, [], conn.query_options)
+
+          {:ok,
+           %{
+             columns: results.columns,
+             rows: results.rows,
+             limited: limited,
+             limit: frontend_limit,
+             limited_query: exec_query
+           }}
+
+        {:error, e = %DBConnection.ConnectionError{}} ->
+          {:error, %{message: e.message}}
+
+        {:error, error} ->
+          {:error, %{message: error.message}}
+      end
+    rescue
+      e ->
+        {:error, %{message: e.message}}
     end
   end
 end
-

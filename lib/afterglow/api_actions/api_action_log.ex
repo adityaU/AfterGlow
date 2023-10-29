@@ -4,6 +4,20 @@ defmodule AfterGlow.ApiActions.ApiActionLog do
   alias AfterGlow.ApiActions.ApiAction
   alias AfterGlow.User
 
+  @derive {Jason.Encoder,
+           only: [
+             :id,
+             :url,
+             :request_headers,
+             :response_headers,
+             :request_body,
+             :response_body,
+             :request_method,
+             :variables,
+             :api_action_id,
+             :user_id,
+             :status_code
+           ]}
   schema "api_action_logs" do
     belongs_to(:api_action, ApiAction)
     field(:url, :string)

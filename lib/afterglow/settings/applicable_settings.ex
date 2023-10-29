@@ -8,7 +8,7 @@ defmodule AfterGlow.Settings.ApplicableSettings do
   end
 
   def signed_s3_url_timeout() do
-    global_setting_by_name("S3_SIGNED_URL_TIMEOUT") |> String.to_integer
+    global_setting_by_name("S3_SIGNED_URL_TIMEOUT") |> String.to_integer()
   end
 
   def email_server() do
@@ -52,6 +52,26 @@ defmodule AfterGlow.Settings.ApplicableSettings do
     global_setting_by_name("S3_BUCKET")
   end
 
+  def openai_api_key(user) do
+    if global_setting_by_name("OPENAI_ENABLED") do
+      if organization_setting_by_name("USERS_CAN_OVERRIDE_OPENAI_KEY", user.organization_id) do
+        user_setting_by_name("OPENAI_API_KEY", user.id) ||
+          organization_setting_by_name("OPENAI_API_KEY", user.organization_id) ||
+          global_setting_by_name("OPENAI_API_KEY")
+      else
+        organization_setting_by_name("OPENAI_API_KEY", user.organization_id) ||
+          global_setting_by_name("OPENAI_API_KEY")
+      end
+    else
+      nil
+    end
+  end
+
+  def openai_model(user) do
+    organization_setting_by_name("OPENAI_MODEL_NAME", user.organization_id) ||
+      global_setting_by_name("OPENAI_MODEL_NAME")
+  end
+
   def max_frontend_limit(user) do
     limit = get_by_applicablity_order("MAX_FRONTEND_LIMIT", user)
 
@@ -60,10 +80,11 @@ defmodule AfterGlow.Settings.ApplicableSettings do
   end
 
   defp parse_integer(limit) when is_nil(limit), do: nil
+
   defp parse_integer(limit) when is_binary(limit) do
     case parsed = Integer.parse(limit) do
-    :error -> nil
-    _ -> parsed |> elem(0)
+      :error -> nil
+      _ -> parsed |> elem(0)
     end
   end
 

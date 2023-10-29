@@ -127,6 +127,15 @@
               Settings
             </div>
           </router-link>
+          <router-link to="/user/configuration">
+            <div
+              class="menu-item tw-border-t tw-py-2 tw-min-w-[150px]"
+              v-close-popup
+              v-if="permissions.canEditQuestion"
+            >
+              <UserIcon size="28" class="icon-primary" /> User Configurations
+            </div>
+          </router-link>
           <div
             class="menu-item tw-border-t tw-py-2 tw-min-w-[150px]"
             v-close-popup
@@ -150,6 +159,7 @@ import {
   ChevronDownIcon,
   DatabaseIcon,
   CodePlusIcon,
+  UserIcon,
 } from 'vue-tabler-icons';
 const session = sessionStore();
 export default {
@@ -160,6 +170,7 @@ export default {
     ChevronDownIcon,
     DatabaseIcon,
     CodePlusIcon,
+    UserIcon,
   },
 
   computed: {

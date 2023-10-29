@@ -56,6 +56,10 @@ const routes: RouteRecordRaw[] = [
         path: '/data_references/databases/:database_id/tables/:table_id/explore',
         component: () => import('pages/questionPage.vue'),
       },
+      {
+        path: '/user/configuration',
+        component: () => import('pages/userConfiguration.vue'),
+      },
     ],
   },
 

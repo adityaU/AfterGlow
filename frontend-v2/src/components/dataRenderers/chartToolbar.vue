@@ -3,11 +3,11 @@
 
   <div class="tw-text-sm tw-font-semibold tw-mb-1">Select a Visualisation</div>
     <div class="tw-flex tw-gap-1">
-      <div class="tw-cursor-pointer" :class="[rendererType === rt ? iconActiveClass : iconClass]"
+      <div class="tw-cursor-pointer tw-border-2" :class="[rendererType === rt ? iconActiveClass : iconClass]"
         v-for="[rt, obj] in Object.entries(rendererTypeIcons)" :key="rt" @click="emitSetRendererType(rt)">
         <q-tooltip transition-show="scale" transition-hide="scale"> {{ obj.tooltipText }}
         </q-tooltip>
-        <component :is="obj.icon" size=16 :class="obj.isIconRotated ? 'tw-rotate-90' : ''"
+        <component :is="obj.icon" size=24 :class="obj.isIconRotated ? 'tw-rotate-90' : ''"
           :key="rt" />
       </div>
       <div class="tw-flex-1 tw-flex tw-items-center tw-gap-1 tw-justify-end">
@@ -16,7 +16,7 @@
         v-for="[rt, obj] in Object.entries(customRendererIcons)" :key="rt" @click="emitSetRendererType(rt)">
         <q-tooltip transition-show="scale" transition-hide="scale"> {{ obj.tooltipText }}
         </q-tooltip>
-        <component :is="obj.icon" size=16 :class="obj.isIconRotated ? 'tw-rotate-90' : ''"
+        <component :is="obj.icon" size=24 :class="obj.isIconRotated ? 'tw-rotate-90' : ''"
           :key="rt" />
       </div>
       </div>
@@ -54,7 +54,7 @@ export default {
   },
 
   setup() {
-    let baseIconClass = "icon-default tw-p-1"
+    let baseIconClass = "icon-default tw-p-1 tw-rounded-full"
     let iconClass = baseIconClass
     let iconActiveClass = baseIconClass + " tw-border-primary tw-bg-primary tw-text-white"
 

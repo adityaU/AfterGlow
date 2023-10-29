@@ -17,13 +17,33 @@ defmodule AfterGlow.Widgets.DwQueryFunctions do
       if widgets do
         widgets
         |> Enum.map(fn w ->
-          [
-            widget_id: convert_to_int(w["widID"]),
-            widget_type: w["type"],
-            dashboard_id: dashboard.id,
-            inserted_at: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second),
-            updated_at: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
-          ]
+          if w["type"] === "tabs" do
+            tabs = w |> get_in(["widgetConfiguration", "tabsConfig", "tabs"]) || []
+
+            tabs
+            |> Enum.map(fn t ->
+              [
+                widget_id: convert_to_int(t["dashboardID"]) || 0,
+                widget_type: w["type"],
+                dashboard_id: dashboard.id,
+                inserted_at: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second),
+                updated_at: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
+              ]
+            end)
+          else
+            [
+              [
+                widget_id: convert_to_int(w["widID"]),
+                widget_type: w["type"],
+                dashboard_id: dashboard.id,
+                inserted_at: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second),
+                updated_at: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
+              ]
+            ]
+          end
+        end)
+        |> Enum.reduce([], fn el, acc ->
+          acc ++ el
         end)
       else
         []

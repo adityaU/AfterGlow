@@ -1,13 +1,12 @@
 <template>
   <div>
-    <AGLogin/> 
+    <AGLogin />
   </div>
 </template>
 <script>
-import AGLogin from 'components/login/login.vue'
+import AGLogin from 'components/login/login.vue';
 export default {
   name: 'AGLoginPage',
-  components: {AGLogin},
-
-}
+  components: { AGLogin },
+};
 </script>

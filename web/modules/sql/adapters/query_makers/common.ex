@@ -17,6 +17,9 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
         "quarters" => "current_date"
       }
 
+      def limit_rows_in_query(query, "false"), do: {false, query}
+      def limit_rows_in_query(query, nil), do: {false, query}
+
       def limit_rows_in_query(query, rows_number) do
         limit_offset_regex = ~r/(limit|LIMIT) +(\d+) +(offset|OFFSET) +(\d+)$/
         limit_regex = ~r/(limit|LIMIT) +(\d+)$/
@@ -27,6 +30,13 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
           |> String.trim(";")
           |> set_limit(limit_regex, rows_number)
           |> set_limit(limit_offset_regex, rows_number)
+
+        query =
+          if !Regex.run(limit_regex, query) do
+            query <> " limit #{rows_number}"
+          else
+            query
+          end
 
         if limit_add_needed,
           do: {limit_added, query},
@@ -120,6 +130,7 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
 
       def options(query_record, adapter) do
         group_bys = group_bys_maker(query_record[:group_bys])
+
         order_by_columns = order_by_columns(query_record[:order_bys])
         order_bys = order_bys_maker(query_record[:order_bys])
         order_bys_with_group_bys = sanitize_order_by(group_bys, order_bys)
@@ -535,7 +546,10 @@ defmodule AfterGlow.Sql.Adapters.QueryMakers.Common do
                      parse_filter_date_obj_value: 3,
                      cast_group_by: 2,
                      find_columns_required_for_select: 2,
-                     options: 2
+                     options: 2,
+                     parse_filter: 1,
+                     parse_select: 2,
+                     parse_order_bys: 1
     end
   end
 end

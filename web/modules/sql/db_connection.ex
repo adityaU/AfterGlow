@@ -7,7 +7,10 @@ defmodule AfterGlow.Sql.DbConnection do
     postgres: AfterGlow.Sql.Adapters.Postgres,
     mysql: AfterGlow.Sql.Adapters.Mysql,
     influxdb: AfterGlow.Sql.Adapters.InfluxDb,
-    redshift: AfterGlow.Sql.Adapters.Redshift
+    redshift: AfterGlow.Sql.Adapters.Redshift,
+    redis: AfterGlow.Sql.Adapters.Redis,
+    clickhouse: AfterGlow.Sql.Adapters.ClickHouse,
+    mongo: AfterGlow.Sql.Adapters.Mongo
   }
 
   # client methods
@@ -65,6 +68,9 @@ defmodule AfterGlow.Sql.DbConnection do
 
   def get_schema(db_record) do
     {:ok, conn} = connection(db_record)
+
+    @adapter_modules[db_record[:db_type] |> String.to_atom()]
+
     @adapter_modules[db_record[:db_type] |> String.to_atom()].get_schema(conn)
   end
 
@@ -88,37 +94,57 @@ defmodule AfterGlow.Sql.DbConnection do
   end
 
   def handle_call({:connection, db_record}, _from, _) do
-    db_record = %{
-      id: db_record |> Map.get(:id),
-      config: db_record.config,
-      name: db_record.name,
-      db_type: db_record.db_type
-    }
-
-    key =
-      :crypto.hash(:sha256, Jason.encode!(db_record |> Map.delete(:__meta__)))
-      |> Base.encode16()
-      |> String.downcase()
-
-    stored_value = Registry.lookup(AfterGlow.DbConnectionStore, key) |> Enum.at(0)
-
     pid =
-      case stored_value do
-        nil ->
-          case @adapter_modules[db_record[:db_type] |> String.to_atom()].create_pool(
-                 db_record[:config]
-               ) do
-            {:ok, pid} ->
-              Registry.register(AfterGlow.DbConnectionStore, key, pid)
-              {:ok, pid}
+      try do
+        db_record = %{
+          id: db_record |> Map.get(:id),
+          config: db_record.config,
+          name: db_record.name,
+          db_type: db_record.db_type,
+          unique_id: db_record.unique_identifier
+        }
 
-            {:error, error} ->
-              {:error, error}
-          end
+        db_record =
+          db_record
+          |> Map.merge(%{
+            config:
+              db_record[:config]
+              |> Map.merge(%{
+                "meta" => Jason.encode!(db_record |> Map.delete(:config))
+              })
+          })
 
-        _ ->
-          {_, value} = stored_value
-          {:ok, value}
+        key =
+          :crypto.hash(:sha256, Jason.encode!(db_record |> Map.delete(:__meta__)))
+          |> Base.encode16()
+          |> String.downcase()
+
+        stored_value =
+          Registry.lookup(AfterGlow.DbConnectionStore, key)
+          |> Enum.at(0)
+
+        case stored_value do
+          nil ->
+            case @adapter_modules[db_record[:db_type] |> String.to_atom()].create_pool(
+                   db_record[:config]
+                 ) do
+              {:ok, pid} ->
+                Registry.register(AfterGlow.DbConnectionStore, key, pid)
+
+                {:ok, pid}
+
+              {:error, error} ->
+                {:error, error}
+            end
+
+          _ ->
+            {_, value} = stored_value
+
+            {:ok, value}
+        end
+      rescue
+        e ->
+          nil
       end
 
     {:reply, pid, nil}

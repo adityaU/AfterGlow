@@ -4,6 +4,7 @@ defmodule AfterGlow.Scheduler.Jobs.DashboardMailers do
 
   def send(id, emails) do
     user = system_user()
+
     html(id, user, emails)
   end
 end

@@ -57,7 +57,6 @@ import MonacoEditor from 'monaco-editor-vue3';
 import AGToast from 'components/utils/toast.vue';
 import { shallowRef } from 'vue';
 import isEqual from 'lodash/isEqual';
-import { formatDialect, postgresql } from 'sql-formatter';
 import debounce from 'lodash/debounce';
 import { KeyCode } from 'monaco-editor';
 import { AGDraculaTheme } from 'src/helpers/monacoTheme';
@@ -67,6 +66,8 @@ import AGCreateSnippetModal from 'components/question/createSnippetModal.vue';
 import { fetchTables, getColumns } from 'src/apis/database';
 import { sessionStore } from 'src/stores/session';
 import { fetchQuestion } from 'src/apis/questions';
+import { setSQLFormatter } from 'src/helpers/formatters';
+import { fetchCompletionResponse } from 'src/apis/open_ai';
 
 const session = sessionStore();
 
@@ -337,44 +338,6 @@ export default {
       ]);
     },
 
-    setFormatter() {
-      this.monaco.languages.registerDocumentFormattingEditProvider('sql', {
-        provideDocumentFormattingEdits(model) {
-          let content = model.getValue();
-          const matches = content.match(/{{\W*.+?\W*}}/g);
-          console.log(matches);
-
-          matches?.forEach((m) => {
-            content = content.replaceAll(m, `/* ${m} */`);
-          });
-
-          const matchEEX = content.match(/<%={0,1}.+%>/gm);
-
-          matchEEX?.forEach((m) => {
-            content = content.replaceAll(m, `/* ${m} */`);
-          });
-
-          var formatted = formatDialect(content, {
-            dialect: postgresql,
-            keywordCase: 'upper',
-          });
-          matches?.forEach((m) => {
-            formatted = formatted.replaceAll(`/* ${m} */`, m);
-          });
-
-          matchEEX?.forEach((m) => {
-            formatted = formatted.replaceAll(`/* ${m} */`, m);
-          });
-          return [
-            {
-              range: model.getFullModelRange(),
-              text: formatted,
-            },
-          ];
-        },
-      });
-    },
-
     editorWillMount(monaco) {
       this.monaco = shallowRef(monaco);
       this.setupMonaco();
@@ -455,6 +418,27 @@ export default {
       });
 
       this.editorInstance.addAction({
+        id: 'Generate SQL from Selected Text',
+        label: 'Generate SQL from Selected Text',
+        keybindings: [this.monaco.KeyMod.Alt | this.monaco.KeyCode.KeyG],
+        contextMenuGroupId: 'additionalActions',
+        run: (editor) => {
+          const currentSelection = editor.getSelection();
+          const selectedText = editor
+            .getModel()
+            .getValueInRange(currentSelection);
+
+          if (!selectedText) return;
+
+          fetchCompletionResponse(
+            selectedText,
+            this.databaseID,
+            this.replaceText(selectedText, currentSelection)
+          );
+        },
+      });
+
+      this.editorInstance.addAction({
         id: 'Create snippet from selected text',
         label: 'Create snippet from selected text',
         keybindings: [this.monaco.KeyMod.CtrlCmd | this.monaco.KeyCode.KeyS],
@@ -475,6 +459,39 @@ export default {
         session.token,
         this.copyFormattedColumns
       );
+    },
+
+    replaceText(prompt, currentSelection) {
+      prompt = prompt
+        .split('\n')
+        .map((p) => `-- ${p}`)
+        .join('\n');
+      return (response, loading) => {
+        if (loading) {
+          this.showToast = true;
+          this.toastText = 'Generating SQL ...';
+        } else {
+          this.showToast = false;
+          this.toastText = '';
+        }
+        if (response) {
+          if (response.status === 401) {
+            this.showToast = true;
+            this.toastText =
+              'Invalid OpenAI Api Key. Please set openAI API key in user configurations';
+            return;
+          }
+          this.editorInstance.executeEdits('', [
+            {
+              range: currentSelection,
+              text:
+                prompt +
+                '\n' +
+                response.body.choices[0].text.replace(';', '').trim(),
+            },
+          ]);
+        }
+      };
     },
 
     copyFormattedColumns(table) {
@@ -654,7 +671,7 @@ export default {
         monaco = this.setCompletion(monaco);
         this.setSnippetCompletion(monaco);
         this.setupHover(monaco);
-        this.setFormatter();
+        setSQLFormatter(monaco);
       }
     },
     setTableList(tables) {

@@ -8,7 +8,7 @@ defmodule AfterGlow.CacheWrapper do
     from_cache =
       ids
       |> Enum.map(fn id ->
-        {id, Cachex.get!(:cache, key(type, id))}
+        {id, nil}
       end)
 
     not_found_in_cache =
@@ -48,8 +48,8 @@ defmodule AfterGlow.CacheWrapper do
   end
 
   def put_struct(struct) do
-    Cachex.put!(:cache, key(struct.__struct__, struct.id), struct)
-    delete_associations(struct)
+    # Cachex.put!(:cache, key(struct.__struct__, struct.id), struct)
+    # delete_associations(struct)
   end
 
   def get_by_id(id, type) when is_integer(id), do: get_by_id(type, id)
@@ -96,7 +96,7 @@ defmodule AfterGlow.CacheWrapper do
     if type do
       id = struct.id
 
-      Cachex.del(:cache, key(type, id))
+      # Cachex.del(:cache, key(type, id))
     end
   end
 
@@ -112,9 +112,9 @@ defmodule AfterGlow.CacheWrapper do
   end
 
   defp save_in_cache(type, structs) do
-    structs
-    |> Enum.each(fn x ->
-      Cachex.put!(:cache, key(type, x.id), x)
-    end)
+    # structs
+    # |> Enum.each(fn x ->
+    #   Cachex.put!(:cache, key(type, x.id), x)
+    # end)
   end
 end

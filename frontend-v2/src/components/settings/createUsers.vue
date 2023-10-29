@@ -100,7 +100,7 @@ export default {
     },
     save() {
       const emails = this.newUserEmails.split(',').map((e) => e.trim());
-      createBulkUsers(emails, this.permissionSet?.id, (_t, loading) => {
+      createBulkUsers(emails, +this.permissionSet?.id, (_t, loading) => {
         if (!loading) {
           this.$emit('refresh');
           this.$emit('update:open', false);

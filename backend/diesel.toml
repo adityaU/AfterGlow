@@ -1,0 +1,9 @@
+# src/diesel.toml
+
+# For documentation on how to configure this file,
+# see diesel.rs/guides/configuring-diesel-cli
+
+[print_schema]
+file = "src/repository/schema.rs"
+filter = { except_tables = [
+  "schema_migrations", "dashboard_questions" ]}

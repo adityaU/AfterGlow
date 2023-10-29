@@ -20,6 +20,9 @@ defmodule AfterGlow.Repo.Seed do
   alias AfterGlow.ApiActions.ApiAction
   alias AfterGlow.Settings.GlobalSettingsQueryFunctions, as: GlobalSettings
   alias AfterGlow.Settings.UserSettingsQueryFunctions, as: UserSettings
+  alias AfterGlow.Settings.OrganizationSettingsQueryFunctions, as: OrganizationSettings
+  alias AfterGlow.Organizations.Organization
+
   import Ecto.Query
 
   def find_or_create_permission_set(name) do
@@ -170,6 +173,12 @@ defmodule AfterGlow.Repo.Seed do
     |> Enum.each(fn user ->
       User.set_organization(user)
       UserSettings.verify_general_settings(user)
+    end)
+
+    Organization
+    |> Repo.all()
+    |> Enum.each(fn org ->
+      OrganizationSettings.verify_general_settings(org.id)
     end)
 
     api_client =

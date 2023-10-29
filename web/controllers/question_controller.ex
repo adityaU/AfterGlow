@@ -65,13 +65,14 @@ defmodule AfterGlow.QuestionController do
         limit: 10
       )
 
-    search_query = if tag_id && tag_id != "" do
-      search_query
-      |> join(:left, [q], tq in TagQuestion, on: q.id == tq.question_id)
-      |> where([q, tq], tq.tag_id == ^tag_id)
-    else
-      search_query
-    end
+    search_query =
+      if tag_id && tag_id != "" do
+        search_query
+        |> join(:left, [q], tq in TagQuestion, on: q.id == tq.question_id)
+        |> where([q, tq], tq.tag_id == ^tag_id)
+      else
+        search_query
+      end
 
     scope(conn, search_query, policy: AfterGlow.Question.Policy)
     |> query_and_send_index_reponse(conn)
@@ -124,9 +125,9 @@ defmodule AfterGlow.QuestionController do
       changeset =
         Question.changeset(question, %{
           shared_to:
-          (question.shared_to || [])
-          |> Kernel.++([conn.assigns.current_user.email])
-          |> Enum.uniq()
+            (question.shared_to || [])
+            |> Kernel.++([conn.assigns.current_user.email])
+            |> Enum.uniq()
         })
 
       {:ok, question} = Question.update(changeset, nil, nil)
@@ -162,6 +163,13 @@ defmodule AfterGlow.QuestionController do
     prms = Params.to_attributes(data)
 
     prms =
+      if prms |> get_in(["human_sql", "database", "db_type"]) == "api_client" do
+        prms |> Map.merge(%{"sql" => "empty"})
+      else
+        prms |> Map.drop(["api_action"])
+      end
+
+    prms =
       prms
       |> Map.merge(%{"owner_id" => conn.assigns.current_user.id})
 
@@ -169,6 +177,15 @@ defmodule AfterGlow.QuestionController do
 
     case Repo.insert_with_cache(changeset) do
       {:ok, question} ->
+        if prms |> get_in(["api_action"]) do
+          attrs =
+            prms
+            |> get_in(["api_action"])
+            |> Map.merge(%{"top_level_question_id" => question.id, "name" => "NA"})
+
+          ApiActions.create_api_action(attrs)
+        end
+
         question =
           question
           |> Repo.preload(Question.default_preloads())
@@ -195,9 +212,9 @@ defmodule AfterGlow.QuestionController do
         changeset =
           Question.changeset(question, %{
             shared_to:
-            (question.shared_to || [])
-            |> Kernel.++([conn.assigns.current_user.email])
-            |> Enum.uniq()
+              (question.shared_to || [])
+              |> Kernel.++([conn.assigns.current_user.email])
+              |> Enum.uniq()
           })
 
         {:ok, _} = Question.update(changeset, nil, nil)
@@ -213,9 +230,8 @@ defmodule AfterGlow.QuestionController do
       CacheWrapper.get_by_id(question.id, Question)
       |> Repo.preload(Question.default_preloads())
 
-
     question =
-      if version == "1" && question.human_sql  |> get_in(["version"]) != 1 do
+      if version == "1" && question.human_sql |> get_in(["version"]) != 1 do
         question
         |> Map.merge(%{human_sql: Conversions.reverse_convert(question.human_sql)})
       else
@@ -230,10 +246,17 @@ defmodule AfterGlow.QuestionController do
   end
 
   def update(conn, %{
-    "id" => id,
-    "data" => data = %{"type" => "questions", "attributes" => _question_params}
-  }) do
+        "id" => id,
+        "data" => data = %{"type" => "questions", "attributes" => _question_params}
+      }) do
     prms = Params.to_attributes(data)
+
+    prms =
+      if prms |> get_in(["human_sql", "database", "db_type"]) == "api_client" do
+        prms |> Map.merge(%{"sql" => "empty"})
+      else
+        prms |> Map.drop(["api_action"])
+      end
 
     question =
       scope(conn, Question)
@@ -256,6 +279,27 @@ defmodule AfterGlow.QuestionController do
 
     case Question.update(changeset, tags, widgets) do
       {:ok, question} ->
+        if prms |> get_in(["api_action"]) do
+          attrs =
+            prms
+            |> get_in(["api_action"])
+            |> Map.merge(%{
+              "top_level_question_id" => question.id,
+              "name" => "NA",
+              "action_level" => 2
+            })
+
+          action_id = attrs |> get_in(["id"])
+
+          if action_id do
+            api_action = ApiActions.get_api_action!(action_id)
+
+            ApiActions.update_api_action(api_action, attrs)
+          else
+            ApiActions.create_api_action(attrs)
+          end
+        end
+
         question =
           question
           |> Repo.preload(Question.default_preloads())
@@ -281,10 +325,10 @@ defmodule AfterGlow.QuestionController do
   end
 
   def results(conn, %{
-    "id" => id,
-    "variables" => variables,
-    "additionalFilters" => additional_filters
-  }) do
+        "id" => id,
+        "variables" => variables,
+        "additionalFilters" => additional_filters
+      }) do
     question =
       scope(conn, from(q in Question, where: q.id == ^id), policy: AfterGlow.Question.Policy)
       |> Repo.one()

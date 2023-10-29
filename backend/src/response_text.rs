@@ -1,0 +1,3 @@
+pub const DOWNLOAD_SUCCESS: &str = "Check your inbox! The data you asked for is making its way to your email, and should be arriving shortly - ready for you to dive in!";
+pub const REPORTS_NOT_SET_FAILURE: &str = "Oops! It seems like our report configurations took a little vacation. 🏖️ Could you please ping the Afterglow Admin and ask them to get things set up? Thanks a bunch!";
+pub const DOWNLOAD_NOT_ALLOWED: &str = "Looks like our download button is being a bit of a tease! 😜 Permission to access the information hasn't been granted yet. Reach out to the Afterglow Admin to unlock the goodies!";

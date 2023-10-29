@@ -2,87 +2,50 @@
   <div class="tw-flex-1 tw-flex tw-items-center">
     <div class="tw-flex tw-items-center tw-flex-1">
       <template v-for="variable in variablesLocal" :key="variable">
-        <div class="tw-flex tw-items-center tw-m-1">
+        <div class="tw-flex tw-items-center tw-m-1 tw-shadow-inner">
           <div class="tw-flex tw-items-center tw-cursor-pointer tw-leading-4">
             <div class="tw-flex">
-              <div
-                class="tw-bg-primary/90 tw-text-white tw-px-2 tw-py-1 tw-rounded-l-sm"
-              >
+              <div class="tw-bg-primary/90 tw-text-white tw-px-4 tw-py-2 tw-rounded-l-sm">
                 {{ variable.name }}
               </div>
-              <div
-                class="tw-bg-primary tw-text-white tw-px-2 tw-py-1 tw-rounded-r-sm"
-                :class="currentUser.canEditQuestion ? '' : 'tw-rounded-sm'"
-                v-if="
-                  variable.var_type === 'String' ||
+              <div class="tw-bg-primary tw-text-white tw-px-4 tw-py-2"
+                :class="currentUser.canEditQuestion ? '' : 'tw-rounded-sm'" v-if="variable.var_type === 'String' ||
                   variable.var_type === 'Integer'
-                "
-              >
+                  ">
                 {{ variable.value != null ? variable.value : variable.default }}
               </div>
-              <AGDatetimePicker
-                class="tw-bg-primary tw-text-white tw-px-2 tw-py-1 tw-rounded-r-sm tw-border-0"
-                v-model:value="variable.value"
-                type="datetime"
-                :clearCount="variable.clearCount"
-                v-if="variable.var_type === 'Date'"
-              />
-              <q-menu
-                flat="true"
-                transition-show="jump-down"
-                transition-hide="jump-up"
-                max-height="400px"
-                class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
-                @show="menuShow"
-                @keydown="onKeydown"
-                fit
-                v-if="
-                  variable.var_type === 'String' ||
+              <AGDatetimePicker class="tw-bg-primary tw-text-white tw-px-4 tw-py-2  tw-border-0"
+                v-model:value="variable.value" type="datetime" :clearCount="variable.clearCount"
+                v-if="variable.var_type === 'Date'" />
+              <q-menu flat="true" transition-show="jump-down" transition-hide="jump-up" max-height="400px"
+                class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown" fit
+                v-if="variable.var_type === 'String' ||
                   variable.var_type === 'Integer'
-                "
-              >
-                <AGInput
-                  :placeholder="'Enter ' + variable.name"
-                  v-model:value="variable.value"
-                />
+                  ">
+                <AGInput :placeholder="'Enter ' + variable.name" v-model:value="variable.value" />
               </q-menu>
             </div>
           </div>
-          <div
-            class="tw-rounded-r-sm tw-bg-primary/60 tw-py-1 tw-px-2 tw-cursor-pointer"
-            v-if="currentUser.canEditQuestion"
-            @click="
+          <div class="tw-rounded-r-sm tw-bg-primary/60 tw-py-2 tw-px-4 tw-cursor-pointer"
+            v-if="currentUser.canEditQuestion" @click="
               (openVariableEditingModal = true) && (editingVariable = variable)
-            "
-          >
+              ">
             <EditIcon size="16" class="tw-stroke-white" />
           </div>
         </div>
       </template>
     </div>
 
-    <div
-      class="tw-text-right tw-flex tw-gap-2"
-      v-if="variablesLocal?.length > 0"
-    >
-      <div
-        class="tw-uppercase tw-cursor-pointer tw-font-semibold tw-text-primary"
-        @click="clearVars"
-      >
+    <div class="tw-text-right tw-flex tw-gap-2" v-if="variablesLocal?.length > 0">
+      <div class="tw-uppercase tw-cursor-pointer tw-font-semibold tw-text-primary" @click="clearVars">
         clear
       </div>
-      <div
-        class="tw-uppercase tw-cursor-pointer tw-font-semibold tw-text-primary"
-        @click="resetVars"
-      >
+      <div class="tw-uppercase tw-cursor-pointer tw-font-semibold tw-text-primary" @click="resetVars">
         reset
       </div>
     </div>
-    <AGVariableEditingModal
-      v-model:open="openVariableEditingModal"
-      v-model:variable="editingVariable"
-      @done="variableEditDone"
-    />
+    <AGVariableEditingModal v-model:open="openVariableEditingModal" v-model:variable="editingVariable"
+      @done="variableEditDone" />
   </div>
 </template>
 <script>
@@ -160,6 +123,7 @@ export default {
         (v) => v.id != this.editingVariable.id
       );
       this.variablesLocal.push(this.editingVariable);
+      this.$emit('done');
     },
 
     findAndSetupQuestionVariables(id, index) {

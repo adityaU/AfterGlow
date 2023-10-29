@@ -1,12 +1,12 @@
 <template>
   <WithLoginHeader />
   <AllQuestionsHeader />
-  <div class="tw-mx-6 tw-my-3">
+  <div class="tw-mx-6 tw-my-3 tw-mb-12">
     <div class="tw-flex tw-flex-col tw-p-2 tw-gap-2 tw-flex-wrap tw-justify-center tw-w-full">
       <div class="tags tw-flex tw-gap-2 ">
-        <div class="tw-py-1 tw-px-2 tw-rounded tw-flex tw-items-center tw-gap-1 tw-cursor-pointer"
+        <div class="tw-py-1 tw-px-2 tw-rounded !tw-py-2 !tw-px-4 tw-flex tw-items-center tw-gap-1 tw-cursor-pointer"
           :class="tag === t.id ? 'tw-border-4 tw-border-primary tw-box-border' : ''" v-for="t in tags" :key="t"
-          :style="{'background-color': t.color, 'color': autoTextColor(t.color)}" @click="filterByTags(t)">
+          :style="{ 'background-color': t.color, 'color': autoTextColor(t.color) }" @click="filterByTags(t)">
           {{ t.name }}
           <TagIcon size=16 />
         </div>
@@ -14,11 +14,11 @@
           class="tw-py-1 tw-px-2 tw-rounded tw-flex tw-items-center tw-gap-1 tw-cursor-pointer tw-uppercase tw-text-primary tw-font-semibold"
           v-if="tag" @click="clearTag"> Clear Tag </div>
       </div>
-      <AGInput class="tw-bg-white" v-model:value="q" placeholder="Search Questions" debounce=300 />
+      <AGInput v-model:value="q" placeholder="Search Questions" debounce=300 />
 
       <AGLoader v-if="loading" />
-      <div class="tw-flex tw-bg-white tw-p-2 tw-border tw-items-center tw-flex-1" v-for="question in questions"
-        :key="question">
+      <div class="tw-flex tw-bg-white tw-p-2 tw-border tw-items-center tw-flex-1 tw-rounded-sm"
+        v-for="question in questions" :key="question">
 
         <div class="icon-primary tw-py-2 tw-px-4 tw-text-2xl tw-mx-2">Q</div>
         <div class="tw-flex tw-flex-1">
@@ -27,14 +27,14 @@
               question.title
             }}</router-link>
             <div class="note"> {{ question.description }}</div>
-            <div class="note"> from {{ question.human_sql.database.name }}</div>
+            <div class="note"> from {{ question.database_name }}</div>
           </div>
           <div class="tw-flex tw-flex-col tw-mx-2">
             <div class="note">
               Updated {{ moment(question.updated_at) }}
             </div>
             <div class=" tw-flex tw-gap-1">By <div class="tw-font-semibold">
-                {{ owners[question?.owner?.data?.id]?.full_name || owners[question?.owner?.data?.id]?.email }}</div>
+                {{ question?.owner?.full_name || question?.owner?.email }}</div>
             </div>
           </div>
         </div>
@@ -62,7 +62,6 @@ import moment from 'moment'
 import { autoTextColor } from 'src/helpers/colorGenerator'
 
 import { TagIcon } from 'vue-tabler-icons'
-import { fetchUsersByIDs } from 'src/apis/user'
 
 const session = sessionStore()
 export default {
@@ -98,7 +97,6 @@ export default {
       tags: [],
       loading: false,
       q: "",
-      owners: {},
       tag: "",
     }
   },
@@ -109,14 +107,6 @@ export default {
     },
     updateQuestions(questions, loading) {
       this.questions = questions
-      const ownerIDs = questions?.map(q => q?.owner?.data?.id) || []
-      fetchUsersByIDs(ownerIDs, (owners, loading) => {
-        if (owners) {
-          owners.forEach(o => {
-            this.owners[o.id] = o
-          })
-        }
-      })
       this.loading = loading
     },
     moment(t) {

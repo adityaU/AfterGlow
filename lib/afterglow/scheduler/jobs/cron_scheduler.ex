@@ -13,6 +13,8 @@ defmodule AfterGlow.Scheduler.Jobs.CronScheduler do
       |> Enum.map(&(&1 |> elem(1)))
       |> Enum.filter(&String.match?(&1.name |> to_string(), reg))
 
+    # |> IO.inspect(label: "current jobs==============================")
+
     schedules =
       Schedule.get_all()
       |> Enum.map(fn schedule ->

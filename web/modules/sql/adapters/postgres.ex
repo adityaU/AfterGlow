@@ -46,11 +46,16 @@ defmodule AfterGlow.Sql.Adapters.Postgres do
   end
 
   def stream_opts do
-    [timeout: 12_000_000, pool: DBConnection.Poolboy, pool_timeout: 12_000_000, max_rows: 2000]
+    [
+      timeout: 12_000_000,
+      pool: DBConnection.ConnectionPool,
+      pool_timeout: 12_000_000,
+      max_rows: 2000
+    ]
   end
 
   def txn_opts do
-    [timeout: 12_000_000, pool: DBConnection.Poolboy, pool_timeout: 12_000_000]
+    [timeout: 12_000_000, pool: DBConnection.ConnectionPool, pool_timeout: 12_000_000]
   end
 
   def get_fkeys(conn) do
@@ -168,9 +173,14 @@ ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC/,
         query
       end
 
+    query |> IO.inspect(label: "query")
+
+    pid.conn |> IO.inspect(label: "pid")
+
     Postgrex.transaction(
       pid.conn,
       fn conn ->
+        conn |> IO.inspect(label: "conn 2")
         {:ok, query} = Postgrex.prepare(conn, "", query, pid.query_options)
         columns = query.columns
 

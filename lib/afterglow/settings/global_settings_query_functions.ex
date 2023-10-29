@@ -17,8 +17,13 @@ defmodule AfterGlow.Settings.GlobalSettingsQueryFunctions do
     ["MAX_DOWNLOAD_LIMIT", nil],
     ["DOWNLOAD_ALLOWED", "true"],
     ["USE_SIGNED_S3_URLS_IN_MAILS", "false"],
-    ["S3_SIGNED_URL_TIMEOUT", "600"], # in seconds
-    ["MAX_FRONTEND_LIMIT", "2000"]
+    # in seconds
+    ["S3_SIGNED_URL_TIMEOUT", "600"],
+    ["MAX_FRONTEND_LIMIT", "2000"],
+    ["OPENAI_API_KEY", ""],
+    ["OPENAI_ENABLED", "true"],
+    ["USERS_CAN_OVERRIDE_OPENAI_KEY", "true"],
+    ["OPENAI_MODEL_NAME", "text-davinci-003"]
   ]
 
   def create_or_update_settings() do

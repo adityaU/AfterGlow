@@ -1,304 +1,174 @@
 <template>
-  <div
-    class="tw-w-full tw-bg-white tw-rounded-sm tw-border tw-shadow-sm tw-flex tw-min-h-[600px]"
-    v-if="startingPage || !currentViz"
-  >
+  <div class="tw-w-full tw-bg-white tw-rounded-sm tw-border tw-shadow-sm tw-flex tw-min-h-[600px]"
+    v-if="startingPage || !currentViz">
     <div class="tw-text-2xl tw-m-auto">
-      Wanna See Something Cool? Run a Query!
+      {{ runQueryMessage }}
     </div>
   </div>
-  <AGLoader
-    class="tw-min-h-[450px] tw-bg-white tw-shadow-sm tw-rounded-sm"
-    text="Initializing"
-    v-if="loading && !results"
-  />
-  <div class="tw-w-full tw-bg-secondary" v-if="results && currentViz">
-    <VisualizationLayout
-      class="tw-mb-2"
-      v-model:visualizations="visualizationsLocal"
-      @deleteViz="(index) => $emit('deleteViz', index)"
-      @fetchVizResults="(viz) => $emit('fetchVizResults', viz)"
-      :quesConfig="question && question.config"
-      v-if="currentViz"
-    >
+  <AGLoader class="tw-min-h-[450px] tw-bg-white tw-shadow-sm tw-rounded-sm" :text="initializingMessage"
+    v-if="loading && !results" />
+  <div class="tw-w-full tw-bg-secondary" v-if="(results || apiResponse) && currentViz">
+    <VisualizationLayout class="tw-mb-2" v-model:visualizations="visualizationsLocal"
+      @deleteViz="(index) => $emit('deleteViz', index)" @fetchVizResults="(viz) => $emit('fetchVizResults', viz)"
+      :quesConfig="question && question.config" v-if="currentViz">
     </VisualizationLayout>
-    <splitpanes
-      class="pane-wrapper default-theme tw-flex !tw-h-full tw-mb-[35px]"
-      id="results-view"
-      ref="chart-parent"
-      @resize="settingsPanesize = 100 - $event[0].size"
-    >
-      <pane
-        :size="100"
-        class="pane tw-flex tw-flex-col"
-        :class="showSettings ? 'pane-left' : ''"
-      >
-        <QBHorizontalLayout
-          :columns="results.original_query_columns || results.columns"
-          :rows="results.rows"
-          :colDetails="results.column_details"
-          :resultsKey="resultskey"
-          class="tw-mb-[10px] tw-shadow-sm tw-border tw-rounded-sm"
-          v-model:queryTerms="currentViz.queryTerms"
-          :key="rerenderKey"
-          :vizConfig="currentViz.settings.general"
-          :quesConfig="question && question.config"
-          v-if="currentViz"
-        >
-          <template #actions>
-            <div class="tw-inline tw-px-0.5 tw-h-[30px]">
-              <span
-                class="tw-cursor-pointer"
-                :class="iconActiveClass"
-                @click="$emit('updateViz', currentViz)"
-              >
+    <splitpanes class="pane-wrapper default-theme tw-flex !tw-h-full tw-mb-[35px]" id="results-view" ref="chart-parent"
+      @resize="settingsPanesize = 100 - $event[0].size">
+      <pane :size="100" class="pane tw-flex tw-flex-col" :class="showSettings ? 'pane-left' : ''">
+        <div class="tw-flex tw-items-center tw-bg-white tw-rounded-sm tw-mb-1 tw-py-2 tw-px-1 tw-shadow-sm tw-border">
+          <QBHorizontalLayout :columns="results?.original_query_columns || results?.columns" :rows="results?.rows"
+            :colDetails="results?.column_details" :resultsKey="resultskey"
+            class="tw-mb-[10px] tw-shadow-sm tw-border tw-rounded-sm" v-model:queryTerms="currentViz.queryTerms"
+            :key="rerenderKey" :vizConfig="currentViz?.settings?.general" :quesConfig="question && question?.config"
+            :hideQueryTerms="apiResponse || !databaseSupportsFilters" v-if="currentViz">
+            <template #actions>
+              <div class="tw-cursor-pointer" :class="iconActiveClass"
+                @click=" resetFetchingDataMessage() && $emit('updateViz', currentViz)">
                 <q-tooltip transition-show="scale" transition-hide="scale">
                   Run Query
                 </q-tooltip>
-                <PlayerPlayIcon class="tw-h-3 tw-w-3 tw-inline" />
-              </span>
-            </div>
-            <div class="tw-inline tw-px-0.5 tw-h-[30px]">
-              <span
-                class="tw-cursor-pointer"
-                :class="showDebugInfo ? iconActiveClass : iconClass"
-                @click="
-                  ((showDebugInfo = !showDebugInfo) || true) &&
-                    (showQuery = true)
-                "
-                v-if="canSeeDebugInfo"
-              >
+                <PlayerPlayIcon class="tw-inline" size="20" />
+              </div>
+              <div class="tw-cursor-pointer" :class="showDebugInfo ? iconActiveClass : iconClass" @click="
+                ((showDebugInfo = !showDebugInfo) || true) &&
+                (showQuery = true)
+                " v-if="canSeeDebugInfo">
                 <q-tooltip transition-show="scale" transition-hide="scale">
                   Show Debug Info
                 </q-tooltip>
-                <CodeIcon class="tw-h-3 tw-w-3 tw-inline" />
-              </span>
-            </div>
-            <div
-              class="tw-inline tw-px-0.5 tw-h-[30px]"
-              v-if="
-                results &&
-                results.rows &&
-                results.rows.length > 0 &&
-                canSeeDebugInfo
-              "
-            >
-              <span
-                class="tw-cursor-pointer"
-                :class="[showSettings ? iconActiveClass : iconClass]"
-                @click="showSettings = !showSettings"
-              >
+                <CodeIcon class="tw-inline" size="20" />
+              </div>
+              <div class="tw-cursor-pointer" v-if="apiResponse && canSeeDebugInfo"
+                :class="[showApiResponse ? iconActiveClass : iconClass]" @click="showApiResponse = !showApiResponse">
                 <q-tooltip transition-show="scale" transition-hide="scale">
-                  Settings
+                  Show Api Response Pane
                 </q-tooltip>
-                <SettingsIcon class="tw-h-3 tw-w-3 tw-inline" />
-              </span>
-            </div>
-            <div
-              class="tw-inline tw-px-0.5 tw-h-[30px]"
-              v-if="
-                results &&
+                <CodePlusIcon class="tw-inline" size="20" />
+              </div>
+              <div class="tw-cursor-pointer" v-if="results && results.rows && canSeeDebugInfo"
+                :class="[showSettings ? iconActiveClass : iconClass]" @click="showSettings = !showSettings">
+                <q-tooltip transition-show="scale" transition-hide="scale">
+                  Show Settings Pane
+                </q-tooltip>
+                <SettingsIcon class="tw-inline" size="20" />
+              </div>
+              <div class="tw-cursor-pointer" v-if="results &&
                 results.rows &&
                 results.rows.length > 0 &&
                 currentUser.canDownload &&
                 !currentUser.canCreateDashboard
-              "
-            >
-              <span
-                class="tw-cursor-pointer"
-                :class="[showSettings ? iconActiveClass : iconClass]"
-                @click="$emit('download')"
-              >
+                " :class="[showSettings ? iconActiveClass : iconClass]" @click="$emit('download')">
                 <q-tooltip transition-show="scale" transition-hide="scale">
                   Download
                 </q-tooltip>
-                <DownloadIcon class="tw-h-3 tw-w-3 tw-inline" />
-              </span>
-            </div>
-            <div
-              class="tw-inline tw-px-0.5 tw-h-[30px]"
-              v-if="
-                results &&
+                <DownloadIcon class="tw-inline" size="20" />
+              </div>
+              <div class="tw-cursor-pointer" v-if="results &&
                 results.rows &&
                 currentUser.canDownload &&
                 currentUser.canCreateDashboard
-              "
-            >
-              <span class="tw-cursor-pointer" :class="iconClass">
+                " :class="iconClass">
                 <q-tooltip transition-show="scale" transition-hide="scale">
                   More Actions
                 </q-tooltip>
-                <q-menu
-                  flat="true"
-                  transition-show="scale"
-                  transition-hide="scale"
-                  max-height="900px"
-                  :offset="[0, 5]"
-                  class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
-                  @show="menuShow"
-                  @keydown="onKeydown"
-                  auto-close
-                >
+                <q-menu flat="true" transition-show="scale" transition-hide="scale" max-height="900px" :offset="[0, 5]"
+                  class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown"
+                  auto-close>
                   <div class="card tw-grid tw-grid-cols-1 tw-divider-y">
-                    <div
-                      @click="$emit('download')"
-                      v-if="currentUser.canDownload"
-                      class="tw-py-1 tw-cursor-pointer tw-whitespace-nowrap tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
-                    >
-                      <DownloadIcon size="16" class="icon-primary tw-mr-2" />
+                    <div @click="$emit('download')" v-if="currentUser.canDownload"
+                      class="tw-py-1 tw-cursor-pointer tw-whitespace-nowrap tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0">
+                      <DownloadIcon size="24" class="icon-primary tw-mr-2" />
                       <span class="">Download</span>
                     </div>
-                    <div
-                      @click="openAddToDashboard = true"
-                      v-if="currentUser.canCreateDashboard"
-                      class="tw-cursor-pointer tw-whitespace-nowrap tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
-                    >
-                      <DashboardIcon size="16" class="icon-primary tw-mr-2" />
+                    <div @click="openAddToDashboard = true" v-if="currentUser.canCreateDashboard"
+                      class="tw-cursor-pointer tw-whitespace-nowrap tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0">
+                      <DashboardIcon size="24" class="icon-primary tw-mr-2" />
                       <span class="">Add To Dashboard</span>
                     </div>
                   </div>
                 </q-menu>
-                <Menu2Icon class="tw-h-3 tw-w-3 tw-inline" />
-              </span>
-            </div>
-          </template>
-        </QBHorizontalLayout>
-        <AGLoader
-          text="Updating"
-          v-if="loading"
-          class="tw-bg-white tw-border tw-shadow-sm tw-rounded-sm tw-flex-[1_1_100%] tw-min-h-[400px]"
-        />
-        <div
-          class="tw-flex-[1_1_100%] tw-flex tw-flex-col tw-shadow-sm"
-          v-if="!loading"
-        >
-          <DebugInfo
-            :query="results.final_query"
-            v-model:showQuery="showQuery"
-            :fromCache="results.from_cache"
-            :cacheUpdatedAt="results.cache_updated_at"
-            :cachedUntil="results.cached_until"
-            class="tw-border tw-mb-[10px] tw-bg-white"
-            v-if="showDebugInfo && canSeeDebugInfo && currentViz"
-          />
-          <div
-            id="settings-container"
-            v-if="
-              showSettings &&
-              results.rows &&
-              results.rows.length > 0 &&
-              !loading &&
-              canSeeDebugInfo
-            "
-          ></div>
-          <VizComponent
-            :results="results"
-            :resultsKey="resultskey"
-            :queryKey="queryKey"
-            v-model:visualization="currentViz"
-            :apiActionsQuesLevel="apiActionsQuesLevel"
-            :questionID="questionID"
-            :size="settingsPanesize"
-            class="tw-overflow-auto tw-shadow-sm tw-border tw-bg-white tw-rounded-sm tw-flex-[1_1_100%] tw-min-h-[400px]"
-            @addFilter="(filter) => addFilter(filter)"
-            @addSorting="(sorting) => addSorting(sorting)"
-            :showSettings="
-              showSettings &&
-              results.rows &&
-              results.rows.length > 0 &&
-              !loading &&
-              canSeeDebugInfo
-            "
-            @updatedSettings="(val) => (settingsFromViz = val)"
-            :key="rerenderKey"
-            v-if="currentViz"
-          />
+                <Menu2Icon class="tw-inline" size="20" />
+              </div>
+            </template>
+          </QBHorizontalLayout>
+        </div>
+        <AGLoader text="Updating" v-if="loading"
+          class="tw-bg-white tw-border tw-shadow-sm tw-rounded-sm tw-flex-[1_1_100%] tw-min-h-[400px]" />
+        <div class="tw-flex-[1_1_100%] tw-flex tw-flex-col tw-shadow-sm" v-if="!loading">
+          <DebugInfo :query="results?.final_query" :query_type="results?.query_type || 'sql'"
+            v-model:showQuery="showQuery" :fromCache="results?.from_cache" :cacheUpdatedAt="results?.cache_updated_at"
+            :cachedUntil="results?.cached_until" class="tw-border tw-mb-[10px] tw-bg-white"
+            v-if="showDebugInfo && canSeeDebugInfo && currentViz" :key="{ q: results?.finalQuery }" />
+          <div id="settings-container"></div>
+          <div class="tw-flex">
+            <splitpanes class="pane-wrapper default-theme tw-flex !tw-h-full tw-mb-[35px]" id="results-view"
+              ref="chart-parent" @resize="settingsPanesize = 100 - $event[0].size">
+              <pane :size="30" ref="chart" class="pane pane-left tw-shadow-sm tw-h-full" v-if="apiResponse &&
+                showApiResponse &&
+                currentViz &&
+                canSeeDebugInfo
+                ">
+                <ApiResponseViewer class="tw-h-full" :apiResponse="apiResponse"
+                  v-model:jsonPath="currentViz.settings.jsonPath" v-if="apiResponse" :results="results"
+                  @update:results="updateResults" />
+              </pane>
+              <pane :size="100" ref="chart" class="pane tw-shadow-sm"
+                :class="apiResponse && showApiResponse ? 'pane-right' : ''">
+                <VizComponent :results="results" :resultsKey="resultskey" :queryKey="queryKey"
+                  v-model:visualization="currentViz" :apiActionsQuesLevel="apiActionsQuesLevel" :hideFilters="apiResponse"
+                  :questionID="questionID" :size="settingsPanesize"
+                  class="tw-overflow-auto tw-shadow-sm tw-border tw-bg-white tw-rounded-sm tw-flex-[1_1_100%] tw-min-h-[400px] tw-h-full"
+                  @addFilter="(filter) => addFilter(filter)" @addSorting="(sorting) => addSorting(sorting)"
+                  :variables="variables" :showSettings="showSettings &&
+                    results.rows &&
+                    results.rows.length > 0 &&
+                    !loading &&
+                    canSeeDebugInfo
+                    " @updatedSettings="(val) => (settingsFromViz = val)" :key="rerenderKey" v-if="currentViz &&
+    // showSettings &&
+    (results?.rows || results?.message) &&
+    // results?.rows?.length > 0 &&
+    !loading
+    " />
+              </pane>
+            </splitpanes>
+          </div>
         </div>
       </pane>
-      <pane
-        :size="settingsPanesize"
-        ref="chart"
-        class="pane pane-right tw-shadow-sm !tw-border"
-        v-if="
-          showSettings &&
-          results.rows &&
-          results.rows.length > 0 &&
-          !loading &&
-          canSeeDebugInfo
-        "
-      >
-        <div
-          class="tw-bg-white tw-border-b-2 tw-border-primary"
-          v-if="currentUser.canEditQuestion && questionID"
-        >
-          <BoxSelect
-            :options="settingsCategories"
-            :selected="settingsCategory"
-            @selected="(val) => (settingsCategory = val)"
-            class="tw-pt-2 tw-text-center"
-          />
+      <pane :size="30" ref="chart" class="pane pane-right tw-shadow-sm !tw-border tw-rounded-sm" v-if="showSettings &&
+        results?.rows &&
+        // results?.rows?.length > 0 &&
+        !loading &&
+        canSeeDebugInfo
+        ">
+        <div class="tw-bg-white tw-border-b-2 tw-border-primary" v-if="currentUser.canEditQuestion && questionID">
+          <BoxSelect :options="settingsCategories" :selected="settingsCategory"
+            @selected="(val) => (settingsCategory = val)" class="tw-pt-2 tw-text-center" isTab=true />
         </div>
-        <div
-          class="tw-h-full tw-bg-white"
-          v-if="settingsCategory === 'general'"
-        >
-          <VizConfig
-            v-model:vizConfig="currentViz.settings.general"
-            :quesConfig="question && question.config"
-            v-if="currentUser.canEditQuestion && questionID"
-            :key="vizConfigRenderKey"
-          />
+        <div class="tw-h-full tw-bg-white" v-if="settingsCategory === 'general'">
+          <VizConfig v-model:vizConfig="currentViz.settings.general" :quesConfig="question && question.config"
+            v-if="currentUser.canEditQuestion && questionID" :key="vizConfigRenderKey" />
         </div>
 
-        <div
-          class="tw-bg-white tw-h-full"
-          v-if="settingsCategory === 'visualization'"
-        >
-          <ChartToolbar
-            :showSettings="showSettings"
-            :rendererType="currentViz.rendererType"
-            @setRendererType="(val) => (currentViz.rendererType = val)"
-          />
-          <component
-            :is="componentDefs[currentViz.rendererType]['settingsComponent']"
-            class="tw-bg-white tw-overflow-auto tw-rounded-sm"
-            @settings="
-              (val) => (currentViz.settings[currentViz.rendererType] = val)
-            "
-            :columns="results.columns"
-            :rows="results.rows"
-            :colDetails="results.column_details"
-            :queryKey="queryKey"
-            :apiActionsVizLevel="apiActionsVizLevel"
-            :apiActionsQuesLevel="apiActionsQuesLevel"
-            :additionalProps="
-              componentDefs[currentViz.rendererType]['additionalProps']
-            "
-            :questionID="questionID"
-            :visualizationID="currentViz.id"
-            :settings="currentViz.settings[currentViz.rendererType]"
-            :settingsFromViz="settingsFromViz"
-            :size="settingsPanesize"
-            @updateApiActions="$emit('updateApiActions')"
-            :key="rerenderKey"
-          />
+        <div class="tw-bg-white tw-h-full" v-if="settingsCategory === 'visualization'">
+          <ChartToolbar :showSettings="showSettings" :rendererType="currentViz.rendererType"
+            @setRendererType="(val) => (currentViz.rendererType = val)" />
+          <component :is="componentDefs[currentViz.rendererType]['settingsComponent']"
+            class="tw-bg-white tw-overflow-auto tw-rounded-sm" @settings="(val) => (currentViz.settings[currentViz.rendererType] = val)
+              " :columns="results.columns" :rows="results.rows" :colDetails="results.column_details"
+            :queryKey="queryKey" :apiActionsVizLevel="apiActionsVizLevel" :apiActionsQuesLevel="apiActionsQuesLevel"
+            :additionalProps="componentDefs[currentViz.rendererType]['additionalProps']
+              " :questionID="questionID" :visualizationID="currentViz.id"
+            :settings="currentViz.settings[currentViz.rendererType]" :settingsFromViz="settingsFromViz"
+            :size="settingsPanesize" @updateApiActions="$emit('updateApiActions')" :key="rerenderKey" />
           <template v-if="apiResponse && currentViz">
-            <div class="label tw-px-4">JmesPath</div>
-            <AGInput
-              class="tw-px-4"
-              v-model:value="currentViz.settings.jsonPath"
-              debounce="300"
-            />
+            <div class="label tw-px-4">JMesPath</div>
+            <AGInput class="tw-px-4" v-model:value="currentViz.settings.jsonPath" />
             <div class="note tw-px-4">
               JmesPath is a way of extracting data from json response. You can
               read more about it.
-              <a
-                href="https://jmespath.org/"
-                class="tw-cursor-pointer tw-text-primary"
-                target="_blank"
-              >
-                here </a
-              >. Use this field to customize the data extracted. Alternatively,
+              <a href="https://jmespath.org/tutorial.html" class="tw-cursor-pointer tw-text-primary" target="_blank">
+                here </a>. Use this field to customize the data extracted. Alternatively,
               You can click on any key in API response pane.
             </div>
           </template>
@@ -306,18 +176,15 @@
       </pane>
     </splitpanes>
   </div>
-  <AddToDashboard
-    v-model:open="openAddToDashboard"
-    :visualizationID="currentViz.id"
-    :queryKey="queryKey"
-    v-if="currentViz"
-  />
+  <AddToDashboard v-model:open="openAddToDashboard" :visualizationID="currentViz.id" :queryKey="queryKey"
+    v-if="currentViz" />
   <!-- <AGQuestionsSettings v-model:open="showQuestionSettingsModal" v-model:question="question" @saveQuestion="saveQuestion" -->
   <!--   v-if="questionID" :key="showQuestionSettingsModal" /> -->
 </template>
 
 <script>
 import ChartToolbar from 'components/dataRenderers/chartToolbar.vue';
+import ApiResponseViewer from 'components/dataRenderers/charts/apiResponse.vue';
 
 import QBHorizontalLayout from 'components/queryTerms/layout.vue';
 import BoxSelect from 'components/base/boxSelect.vue';
@@ -325,6 +192,7 @@ import BoxSelect from 'components/base/boxSelect.vue';
 import VizComponent from 'components/visualizations/viz.vue';
 import AddToDashboard from 'components/dashboard/addToDashboard.vue';
 import VizConfig from 'components/visualizations/settings.vue';
+import AGInput from 'components/base/input.vue';
 
 import {
   SettingsIcon,
@@ -333,6 +201,7 @@ import {
   Menu2Icon,
   DownloadIcon,
   DashboardIcon,
+  CodePlusIcon,
 } from 'vue-tabler-icons';
 import AGLoader from 'components/utils/loader.vue';
 import VisualizationLayout from 'components/dataRenderers/visualizationsLayout.vue';
@@ -351,8 +220,9 @@ import isEqual from 'lodash/isEqual';
 import { newComponentDefs } from 'src/helpers/componentDefs';
 import { newQueryTerms } from 'src/helpers/qtHelpers';
 import { newSettings, newVisualization } from 'src/helpers/visualization';
-import { fetchQuestion, saveQuestion } from 'src/apis/questions';
 import { queryStore } from 'src/stores/query';
+import { extractResultsFromJsonPath } from 'src/helpers/jsonPath';
+import { RunAQueryMessages, FetchingDataMessages } from 'src/helpers/messages';
 
 const currentUser = currentUserStore();
 export default {
@@ -370,12 +240,15 @@ export default {
     SettingsIcon,
     CodeIcon,
     Menu2Icon,
+    CodePlusIcon,
     AddToDashboard,
     DashboardIcon,
     DownloadIcon,
     BoxSelect,
     VizConfig,
     AGQuestionsSettings,
+    ApiResponseViewer,
+    AGInput,
   },
   props: {
     resultsKey: {},
@@ -390,11 +263,13 @@ export default {
     questionID: {},
     startingPage: {},
     question: {},
+    variables: {},
   },
 
   watch: {
     resultsKey() {
       this.updateProps();
+      this.initializingMessage = FetchingDataMessages[Math.floor(Math.random() * FetchingDataMessages.length)]
     },
 
     jsonPath() {
@@ -403,7 +278,7 @@ export default {
         this.jsonPath
       );
 
-      extracted?.success && (this.results = extracted.results);
+      extracted && (this.results = extracted.results);
     },
     apiResponse() {
       const extracted = extractResultsFromJsonPath(
@@ -411,7 +286,7 @@ export default {
         this.jsonPath
       );
 
-      extracted?.success && (this.results = extracted.results);
+      extracted && (this.results = extracted.results);
     },
     apiActionKeyQuesLevel() {
       const apiActions = apiActionStore();
@@ -424,8 +299,16 @@ export default {
     dataLoaded() {
       this.updateProps();
     },
+    showApiResponse() {
+      if (this.showApiResponse) {
+        this.showSettings = false;
+      }
+    },
     showSettings() {
       this.settingsPanesize = this.showSettings ? 30 : 0;
+      if (this.showSettings) {
+        this.showApiResponse = false;
+      }
     },
     visualizations: {
       deep: true,
@@ -496,8 +379,14 @@ export default {
   },
 
   computed: {
+    jsonPath() {
+      return this.currentViz?.settings?.jsonPath || '';
+    },
     rendererType() {
       return this.currentViz?.rendererType;
+    },
+    databaseSupportsFilters() {
+      return this.question?.human_sql?.database?.db_type != 'redis';
     },
     rerenderKey() {
       return {
@@ -505,6 +394,7 @@ export default {
         index: this.currentViz?.index,
         resultsKey: this.resultsKey,
         apiActionKeyQuesLevel: this.apiActionKeyQuesLevel,
+        results: this.results,
       };
     },
     vizConfigRenderKey() {
@@ -556,7 +446,7 @@ export default {
       details: vizs,
     });
 
-    let baseIconClass = 'tw-border  tw-pb-1 tw-px-2 tw-rounded-sm tw-mx-0.5';
+    let baseIconClass = 'tw-inline tw-border-2 tw-rounded-full tw-mx-0.5 tw-font-bold tw-text-lg icon tw-px-1 tw-py-1';
     let iconClass =
       baseIconClass + ' tw-border-default/20 tw-bg-secondary tw-text-default';
     let iconActiveClass =
@@ -567,6 +457,7 @@ export default {
       iconClass: iconClass,
       settingsPanesize: 0,
       results: null,
+      apiResponse: null,
       showSettings: false,
       componentDefs: _.cloneDeep(newComponentDefs),
       visualizationsLocal: vizs,
@@ -582,14 +473,28 @@ export default {
       settingsCategories: settingsCategories.map((s) => {
         return { name: s, value: s };
       }),
+      showApiResponse: true,
+      runQueryMessage: RunAQueryMessages[Math.floor(Math.random() * RunAQueryMessages.length)],
+      initializingMessage: FetchingDataMessages[Math.floor(Math.random() * FetchingDataMessages.length)],
     };
   },
 
   methods: {
+    resetFetchingDataMessage() {
+      this.initializingMessage = FetchingDataMessages[Math.floor(Math.random() * FetchingDataMessages.length)]
+      return true;
+    },
     updateProps() {
+      this.apiResponse = null;
+      this.results = null;
       const results = resultsStore();
       if (this.resultsKey && this.dataLoaded) {
-        this.results = results.getResults(this.resultsKey);
+        const response = results.getResults(this.resultsKey);
+        if (response?.rows || response?.message) {
+          this.results = response;
+          return;
+        }
+        this.apiResponse = response;
       }
     },
     addFilter(filter) {
@@ -611,6 +516,11 @@ export default {
       }
       this.currentViz.queryTerms.details.sortings.details.push(sorting);
       this.currentViz.queryTerms.towardsQTLayout = true;
+    },
+
+    updateResults(results) {
+      this.results = results;
+      console.log(results);
     },
   },
 

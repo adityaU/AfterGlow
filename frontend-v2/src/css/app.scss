@@ -16,17 +16,22 @@
   .tw-inset-shadow{
     @apply tw-shadow-[inset_0_0px_2px_0px];
   }
+
   .btn-full {
-    @apply tw-rounded-sm tw-px-2 tw-bg-white tw-border-primary tw-border tw-text-primary tw-font-semibold tw-px-2 tw-text-ellipsis tw-overflow-hidden tw-whitespace-nowrap hover:tw-bg-secondary;
+    @apply tw-rounded-full tw-px-4 tw-py-1 tw-bg-white tw-border-primary tw-border tw-text-primary tw-font-semibold tw-text-ellipsis tw-overflow-hidden tw-whitespace-nowrap hover:tw-bg-secondary tw-shadow-inner tw-border-2;
+
   }
   .btn-left {
-    @apply tw-rounded-l-sm tw-px-2 tw-bg-white tw-border-primary tw-border tw-text-primary tw-font-semibold tw-px-2 tw-text-ellipsis tw-overflow-hidden tw-whitespace-nowrap hover:tw-bg-secondary;
+    @apply tw-rounded-l-full tw-pl-4 tw-pr-2 tw-py-1 tw-bg-primary tw-border-primary tw-border tw-text-primary tw-font-semibold  tw-text-ellipsis tw-overflow-hidden tw-whitespace-nowrap hover:tw-bg-secondary tw-shadow-inner tw-border-2;
+
   }
   .btn-right {
-    @apply tw-rounded-r-sm tw-text-white tw-px-2 tw-bg-primary tw-border tw-border-primary tw-rounded-r-sm tw-px-2 tw-overflow-hidden tw-whitespace-nowrap hover:tw-bg-primary/80;
+    @apply tw-text-white tw-pr-4 tw-pl-2 tw-py-1 tw-bg-primary tw-border tw-border-primary tw-rounded-r-full tw-overflow-hidden tw-whitespace-nowrap hover:tw-bg-primary/80 tw-shadow-inner tw-border-2;
+
   }
   .btn-center {
-    @apply tw-bg-primary tw-text-white tw-border tw-border-primary tw-px-2 tw-text-ellipsis tw-overflow-hidden tw-whitespace-nowrap hover:tw-bg-primary/80;
+    @apply even:tw-bg-primary/80 odd:tw-bg-primary tw-text-white tw-border tw-border-primary tw-px-2 tw-py-1 tw-text-ellipsis tw-overflow-hidden tw-whitespace-nowrap hover:tw-bg-primary/80 tw-shadow-inner tw-border-2;
+
   }
   .bg-primary{
     @apply tw-bg-primary #{!important};
@@ -54,6 +59,9 @@
   }
 
   .input-no-border:focus-visible { @apply tw-outline-0;}
+  .q-tooltip{
+   @apply tw-text-sm tw-font-semibold tw-bg-primary tw-text-white tw-rounded-lg
+  }
 
   .splitpanes.pane-wrapper{
     @apply tw-bg-secondary ;
@@ -76,17 +84,17 @@
     @apply tw-bg-secondary #{!important};
   }
   .text-icon-primary{
-    @apply tw-text-white tw-bg-primary tw-py-0.5 tw-px-2 tw-text-sm tw-font-semibold tw-rounded-sm tw-mr-1 hover:tw-text-default hover:tw-bg-white
+    @apply tw-text-white tw-bg-primary tw-py-0.5 tw-px-2 tw-text-sm tw-font-semibold tw-rounded-sm tw-mr-1 hover:tw-text-default hover:tw-bg-white tw-rounded-full
   }
 
   .icon-primary{
-    @apply tw-text-white tw-bg-primary tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-rounded-sm tw-mr-1 hover:tw-text-default hover:tw-bg-white;
+    @apply tw-text-white tw-bg-primary tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-rounded-full tw-mr-1 hover:tw-text-default hover:tw-bg-white tw-rounded-full;
   }
   .icon-default{
-    @apply tw-text-default tw-bg-white tw-border tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-rounded-sm tw-mr-1 hover:tw-bg-primary hover:tw-text-white;
+    @apply tw-text-default tw-bg-white tw-border tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-rounded-full tw-mr-1 hover:tw-bg-primary hover:tw-text-white tw-rounded-full;
   }
   .grid-stack {
-    @apply tw-bg-secondary tw-h-full tw-bg-repeat tw-bg-[length:80px_80px] ;
+    @apply tw-bg-transparent tw-h-full tw-bg-repeat tw-bg-[length:80px_80px] ;
     background-image: radial-gradient(--tw-primary 1%, transparent 5%);
   }
   .grid-stack .grid-stack-placeholder > .placeholder-content {
@@ -97,11 +105,11 @@
     inset: 2px !important;
   }
   .ag-card{
-    @apply tw-bg-white tw-border tw-rounded-sm tw-shadow-sm
+    @apply tw-bg-white tw-border tw-rounded-lg tw-shadow-sm
   }
 
   .note{
-    @apply tw-text-sm tw-text-default/80
+    @apply tw-text-sm tw-font-semibold tw-text-default/80
   }
 
   .item-3070-columns > *{
@@ -137,7 +145,7 @@
       @apply tw-font-semibold;
     }
     blockquote{
-      @apply  tw-ml-2 tw-pl-2 tw-italic tw-font-semibold tw-border-l-2 tw-border-default/50 
+      @apply  tw-ml-2 tw-pl-2 tw-italic tw-font-semibold tw-border-l-2 tw-border-default/50
     }
     code {
       @apply tw-bg-secondary tw-rounded
@@ -153,6 +161,28 @@
     }
 
   }
+
+  .tw-rounded-sm {
+    border-radius: 1rem !important;
+  }
+  .tw-rounded-l-sm {
+    border-top-left-radius: 1rem !important;
+    border-bottom-left-radius: 1rem !important;
+  }
+  .tw-rounded-r-sm {
+    border-top-right-radius: 1rem !important;
+    border-bottom-right-radius: 1rem !important;
+  }
+
+  .tw-shadow-sm{
+    @apply tw-shadow-inner;
+  }
+
+.tw-rounded{
+    border-radius: 2rem !important;
+    padding: 0.5rem 2rem !important;
+}
+
 
   ::-moz-selection {/* Code for Firefox */
     @apply tw-text-white tw-bg-primary;
@@ -184,7 +214,7 @@
 //     &[gs-min-w='#{$i}'] { min-width: (100% / $gridstack-columns) * $i !important; }
 //     &[gs-max-w='#{$i}'] { max-width: (100% / $gridstack-columns) * $i !important; }
 //   }
-// } 
+// }
 
 .v-enter-active,
 .v-leave-active {
@@ -282,3 +312,42 @@ body *::-webkit-scrollbar-thumb {
   width: 100%;
 }
 
+
+.btn {
+	font-family: inherit;
+	font-size: inherit;
+	cursor: pointer;
+	display: inline-block;
+
+	// text-transform: uppercase;
+	letter-spacing: 1px;
+
+	font-weight: 700;
+	outline: none;
+	position: relative;
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
+	transition: all 0.3s;
+}
+
+.btn:after {
+	content: '';
+	position: absolute;
+	z-index: -1;
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
+
+	transition: all 0.3s;
+}
+
+
+
+.btn:active {
+	box-shadow: 0 0;
+	top: 6px;
+}
+
+.border-radius-transition{
+  -webkit-transition: border-radius 0.3s;
+    transition: border-radius 0.3s;
+  }

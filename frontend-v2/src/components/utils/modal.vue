@@ -16,18 +16,18 @@
 </style>
 <template>
   <Teleport to="body">
-  
+
     <div v-if="show" class="modal-mask tw-fixed tw-inset-0 tw-bg-primary/20 tw-flex tw-z-[99999]"
       @click="$emit('update:show', false)">
 
       <div class="tw-max-w-[95%] tw-max-w-[75%] tw-max-w-[35%] tw-hidden"></div>
-      <div class="modal-container tw-bg-white tw-max-h-[95vh] tw-min-h-[300px] tw-min-w-[300px] tw-m-auto tw-border tw-shadow-sm tw-rounded-sm tw-flex"
+      <div class="modal-container tw-bg-white tw-max-h-[95vh] tw-min-h-[300px] tw-min-w-[300px] tw-m-auto tw-border tw-shadow-sm tw-flex"
         :class="sizeClass" v-if="loading" @click.stop="">
         <AGLoader :text="loadingMessage" class="tw-m-auto" />
       </div>
       <div class="tw-flex tw-flex-col modal-container tw-bg-white  tw-min-w-[300px] tw-max-h-[95vh]  tw-max-w-[95%] tw-m-auto tw-shadow-sm tw-rounded-sm"
         :class="sizeClass" v-if="!loading" @click.stop="">
-        <div class="modal-header tw-border-b-2 tw-rounded-sm">
+        <div class="modal-header tw-border-b-2">
           <slot name="header" v-if="!noHeader">default header</slot>
         </div>
 

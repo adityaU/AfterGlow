@@ -15,14 +15,19 @@ defmodule AfterGlow.Settings.UserSettingsQueryFunctions do
         "DOWNLOAD_ALLOWED",
         ApplicableSettings.organization_setting_by_name("DOWNLOAD_ALLOWED", org_id) ||
           ApplicableSettings.global_setting_by_name("DOWNLOAD_ALLOWED")
+      ],
+      [
+        "OPENAI_API_KEY",
+        ApplicableSettings.organization_setting_by_name("OPENAI_API_KEY", org_id) ||
+          ApplicableSettings.global_setting_by_name("OPENAI_API_KEY")
       ]
     ]
   end
 
   def list(%{"user_id" => user_id}) do
     {:ok,
-      from(us in @model, where: us.user_id == ^user_id)
-      |> Repo.all()}
+     from(us in @model, where: us.user_id == ^user_id)
+     |> Repo.all()}
   end
 
   def verify_general_settings(user) do
@@ -33,8 +38,9 @@ defmodule AfterGlow.Settings.UserSettingsQueryFunctions do
   end
 
   def create_default_settings(user_id) do
-    create_setting("MAX_DOWNLOAD_LIMIT", nil , user_id, true)
+    create_setting("MAX_DOWNLOAD_LIMIT", nil, user_id, true)
     create_setting("DOWNLOAD_ALLOWED", "true", user_id, true)
+    create_setting("OPENAI_API_KEY", "", user_id, true)
   end
 
   defp verify_setting(setting_name, value, user_id) do
@@ -44,15 +50,14 @@ defmodule AfterGlow.Settings.UserSettingsQueryFunctions do
       user_id,
       from(us in @model,
         where:
-        us.name == ^setting_name and us.setting_type == "general" and us.user_id == ^user_id
+          us.name == ^setting_name and us.setting_type == "general" and us.user_id == ^user_id
       )
-        |> Repo.all()
-        |> length == 0
+      |> Repo.all()
+      |> length == 0
     )
   end
 
   defp create_setting(_setting_name, _value, _user_id, false), do: true
-
 
   defp create_setting(setting_name, value, user_id, true) do
     _create(%{name: setting_name, value: value, setting_type: "general", user_id: user_id})

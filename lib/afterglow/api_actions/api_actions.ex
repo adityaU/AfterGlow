@@ -15,7 +15,9 @@ defmodule AfterGlow.ApiActions do
   def list_api_actions_by_question_id(question_id) do
     from(
       aa in ApiAction,
-      where: aa.question_id == ^question_id and fragment("? is not ?", aa.hidden, true)
+      where:
+        aa.question_id == ^question_id and fragment("? is not ?", aa.hidden, true) and
+          aa.action_level == 1
     )
     |> Repo.all()
   end
@@ -81,7 +83,7 @@ defmodule AfterGlow.ApiActions do
       |> replace_variables(variables)
 
     %{status_code: 307, response_body: "redirect", response_headers: nil}
-    |> log_args(url, "GET", nil, nil, user.id, variables, api_action.id)
+    |> log_args(url, "GET", nil, %{}, user.id, variables, api_action.id)
     |> save_log
 
     %{redirect_url: url, status: 307}
@@ -93,7 +95,7 @@ defmodule AfterGlow.ApiActions do
       |> replace_variables(variables)
 
     %{status_code: 301, response_body: "redirect", response_headers: nil}
-    |> log_args(url, "GET", nil, nil, user.id, variables, api_action.id)
+    |> log_args(url, "GET", nil, %{}, user.id, variables, api_action.id)
     |> save_log
 
     %{redirect_url: url, status: 301}
@@ -117,10 +119,13 @@ defmodule AfterGlow.ApiActions do
 
     method = api_action.method
 
-    make_request(url, method, body || "", headers)
-    |> parse_response
-    |> log_args(url, method, body, headers, user.id, variables, api_action.id)
-    |> save_log
+    {:ok, response} =
+      make_request(url, method, body || "", headers)
+      |> parse_response
+      |> log_args(url, method, body, headers, user.id, variables, api_action.id)
+      |> save_log
+
+    response |> Jason.encode!() |> Jason.decode!()
   end
 
   def replace_variables(nil, _variables), do: nil
@@ -173,22 +178,22 @@ defmodule AfterGlow.ApiActions do
       request_headers: (headers || []) |> Enum.into(%{}),
       user_id: user_id,
       variables: variables,
-      api_action_id: api_action_id
+      api_action_id: api_action_id || 0
     })
   end
 
   def save_log(log_args) do
     ApiActionLogs.save(log_args)
-    log_args
   end
 
   def parse_response(response) do
     case response do
       {:ok, resp} ->
         resp_body =
-          case resp.body |> :unicode.characters_to_binary() do
-            {:ok, body} -> body |> :erlang.list_to_binary()
+          case resp.body
+               |> :unicode.characters_to_binary() do
             {:error, sal, _} -> sal
+            result -> result
           end
 
         %{

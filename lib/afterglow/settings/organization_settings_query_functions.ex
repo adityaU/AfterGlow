@@ -8,7 +8,13 @@ defmodule AfterGlow.Settings.OrganizationSettingsQueryFunctions do
     [
       ["MAX_DOWNLOAD_LIMIT", ApplicableSettings.global_setting_by_name("MAX_DOWNLOAD_LIMIT")],
       ["MAX_FRONTEND_LIMIT", ApplicableSettings.global_setting_by_name("MAX_FRONTEND_LIMIT")],
-      ["DOWNLOAD_ALLOWED", ApplicableSettings.global_setting_by_name("DOWNLOAD_ALLOWED")]
+      ["DOWNLOAD_ALLOWED", ApplicableSettings.global_setting_by_name("DOWNLOAD_ALLOWED")],
+      ["OPENAI_API_KEY", ApplicableSettings.global_setting_by_name("OPENAI_API_KEY")],
+      ["OPENAI_MODEL_NAME", ApplicableSettings.global_setting_by_name("OPENAI_MODEL_NAME")],
+      [
+        "USERS_CAN_OVERRIDE_OPENAI_KEY",
+        ApplicableSettings.global_setting_by_name("USERS_CAN_OVERRIDE_OPENAI_KEY")
+      ]
     ]
   end
 

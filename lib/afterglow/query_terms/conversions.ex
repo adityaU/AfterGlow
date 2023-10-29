@@ -56,7 +56,6 @@ defmodule AfterGlow.QueryTerms.Conversions do
       "rawQuery" => old_terms["rawQuery"]
     }
 
-
     qt = qt |> reverse_convert_table(old_terms)
     qt = qt |> reverse_convert_filters(old_terms)
     qt = qt |> reverse_convert_views(old_terms)
@@ -160,12 +159,11 @@ defmodule AfterGlow.QueryTerms.Conversions do
     filters = old_terms |> get_in(["filters"])
 
     if filters do
-      filters |> IO.inspect(label: "filters====================")
-
       details =
         filters
         |> Enum.map(fn f ->
           currentStage = if f |> get_in(["raw"]), do: 3, else: 0
+
           %{
             "column" => f |> get_in(["column", "name"]),
             "operator" => f |> get_in(["operator", "value"]),

@@ -3,6 +3,8 @@ require IEx
 defmodule AfterGlow.Variable do
   use AfterGlow.Web, :model
 
+  @derive {Jason.Encoder,
+           only: [:id, :name, :default, :var_type, :default_operator, :default_options]}
   schema "variables" do
     field(:name, :string)
     field(:default, :string)
@@ -39,11 +41,9 @@ defmodule AfterGlow.Variable do
     |> validate_required([:name, :var_type])
   end
 
-
   def cache_deletable_associations do
     [:column, :question, :dashboard, :question_filter]
   end
-
 
   defp parse_value(value) when is_integer(value), do: value |> to_string
   defp parse_value(value) when is_float(value), do: value |> to_string
@@ -64,7 +64,6 @@ defmodule AfterGlow.Variable do
         "'#{value}'"
     end
   end
-
 
   def format_value(_variable, "") do
     ""

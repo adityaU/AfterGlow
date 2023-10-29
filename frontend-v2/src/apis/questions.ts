@@ -1,11 +1,11 @@
 import { resultsStore } from 'src/stores/results';
-import { api } from 'boot/axios';
+import { api, apiV2 } from 'boot/axios';
 import hash from '../helpers/hash';
 import apiConfig from '../helpers/apiConfig';
 import { sessionStore } from 'stores/session';
 
 const results = resultsStore();
-const fetchQuestionResults = async function (payload, token, callback) {
+const fetchQuestionResults = async function(payload, token, callback) {
   callback(null, null, true);
   const key = await hash(JSON.stringify(payload));
   api
@@ -26,16 +26,12 @@ const fetchQuestionResults = async function (payload, token, callback) {
     });
 };
 
-const searchQuestions = async function (query, tag, token, callback) {
+const searchQuestions = async function(query, tag, token, callback) {
   callback(null, true);
-  api
+  apiV2
     .get('questions?q=' + query + '&tag=' + tag, apiConfig(token))
     .then((response) => {
-      const questions = response.data.data.map((d) => {
-        d.attributes.id = d.id;
-        return { ...d.attributes, ...d.relationships };
-      });
-      callback(questions, false);
+      callback(response.data.data, false);
     })
     .catch((error) => {
       console.error(error);
@@ -43,16 +39,12 @@ const searchQuestions = async function (query, tag, token, callback) {
     });
 };
 
-const fetchQuestions = async function (token, callback) {
+const fetchQuestions = async function(token, callback) {
   callback(null, true);
-  api
+  apiV2
     .get('questions/', apiConfig(token))
     .then((response) => {
-      const questions = response.data.data.map((d) => {
-        d.attributes.id = d.id;
-        return { ...d.attributes, ...d.relationships };
-      });
-      callback(questions, false);
+      callback(response.data.data, false);
     })
     .catch((error) => {
       console.error(error);
@@ -60,39 +52,24 @@ const fetchQuestions = async function (token, callback) {
     });
 };
 
-const fetchQuestion = async function (id, token, callback) {
+const fetchQuestion = async function(id, token, callback) {
   callback(null, true);
-  api
+  apiV2
     .get('questions/' + id + '?version=1&share_id=', apiConfig(token))
     .then((response) => {
-      response.data.data.attributes.id = response.data.data.id;
       callback(
-        {
-          ...response.data.data.attributes,
-          ...(response.data.data.relationships || {}),
-        },
+        response.data.data,
         false
       );
     });
 };
 
-const fetchQuestionWithShareID = async function (id, shareID, token, callback) {
-  callback(null, true);
-  api
-    .get('questions/' + id + '?version=1&share_id=' + shareID, apiConfig(token))
-    .then((response) => {
-      response.data.data.attributes.id = response.data.data.id;
-      callback(
-        {
-          ...response.data.data.attributes,
-          ...(response.data.data.relationships || {}),
-        },
-        false
-      );
-    });
+const fetchQuestionWithShareID = async function(id, shareID, token, callback) {
+  await fetchQuestion(id, token, callback);
+  return
 };
 
-const saveQuestion = async function (id, payload, token, callback) {
+const saveQuestion = async function(id, payload, token, callback) {
   callback(null, true);
   payload = { data: { type: 'questions', attributes: payload } };
   if (id) {
@@ -132,7 +109,7 @@ const saveQuestion = async function (id, payload, token, callback) {
     });
 };
 
-const addVariable = async function (payload, questionID, callback) {
+const addVariable = async function(payload, questionID, callback) {
   const session = sessionStore();
   payload.question_id = questionID;
   callback(null, true);
@@ -155,7 +132,7 @@ const addVariable = async function (payload, questionID, callback) {
     });
 };
 
-const fetchQuestionVariables = async function (id, callback) {
+const fetchQuestionVariables = async function(id, callback) {
   const session = sessionStore();
   callback(null, true);
   api

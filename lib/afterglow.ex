@@ -28,7 +28,6 @@ defmodule AfterGlow do
       # {Oban, Application.get_env(:afterglow, Oban)},
 
       # Start your own worker by calling: AfterGlow.Worker.start_link(arg1, arg2, arg3)
-      worker(Cachex, [:cache, []]),
       worker(
         Task,
         [&AfterGlow.SnapshotsTasks.cancel_all_in_process_snapshots/0],

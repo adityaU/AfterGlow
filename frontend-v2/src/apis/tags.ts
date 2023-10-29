@@ -1,18 +1,16 @@
-import { api } from 'boot/axios';
+import { api, apiV2 } from 'boot/axios';
 import apiConfig from '../helpers/apiConfig';
 
 import { sessionStore } from 'stores/session';
 import { getRandomColor } from 'src/helpers/colorGenerator';
 
-const fetchTags = async function (callback) {
+const fetchTags = async function(callback) {
   const session = sessionStore();
-  api
+  apiV2
     .get('tags', apiConfig(session.token))
     .then((response) => {
       callback(
-        response.data.data.map((v) => {
-          return { ...v.attributes, ...{ id: v.id } };
-        }),
+        response.data.data,
         false
       );
     })
@@ -22,7 +20,7 @@ const fetchTags = async function (callback) {
     });
 };
 
-const fetchTagsByIDs = async function (ids, callback) {
+const fetchTagsByIDs = async function(ids, callback) {
   const session = sessionStore();
   api
     .get(
@@ -43,7 +41,7 @@ const fetchTagsByIDs = async function (ids, callback) {
     });
 };
 
-const createTag = async function (tag, callback) {
+const createTag = async function(tag, callback) {
   callback(null, true);
   const session = sessionStore();
   tag.color = getRandomColor(tag.name);

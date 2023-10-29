@@ -14,6 +14,7 @@ defmodule AfterGlow.SchemaTasks do
   def sync(db_record) do
     og_db_record = db_record
     db_record = db_record |> Map.from_struct()
+
     {:ok, schema} = DbConnection.get_schema(db_record)
 
     schema
@@ -163,7 +164,10 @@ defmodule AfterGlow.SchemaTasks do
     Repo.transaction(fn ->
       if String.printable?(record["table_name"]) do
         {:ok, table} = insert_or_update_table(record, db_id)
-        new_columns = record["columns"] |> Enum.filter(fn x -> String.printable?(x["name"]) end)
+
+        new_columns =
+          record["columns"]
+          |> Enum.filter(fn x -> String.printable?(x["name"]) end)
 
         Repo.all(from(t in Column, where: t.table_id == ^table.id))
         |> remove_extra_columns(new_columns)

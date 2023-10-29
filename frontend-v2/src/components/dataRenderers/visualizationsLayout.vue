@@ -1,24 +1,24 @@
 <style scoped>
 
 .group .edit {
-  visibility: hidden 
+  visibility: hidden
 }
 .group:hover .edit {
-  visibility: visible 
+  visibility: visible
 }
 .group .delete {
-  visibility: hidden 
+  visibility: hidden
 }
 .group:hover .delete {
-  visibility: visible 
+  visibility: visible
 }
 
 </style>
 <template>
-  <div class="tw-bg-white tw-shadow-sm tw-border tw-rounded-sm tw-border-b-2 tw-border-b-primary tw-flex tw-items-center">
+  <div class="tw-bg-secondary tw-shadow-sm tw-border-b-2 tw-border-b-primary tw-flex tw-items-center">
 
-      <div class="group tw-p-2 tw-font-semibold tw-cursor-pointer tw-flex-[0_1_10%] tw-flex tw-items-center tw-min-w-[50px] tw-max-w-[10%]" v-for="viz, index in visualizationsLocal" :key="viz"
-        :class="viz.current ? 'tw-bg-primary tw-text-white hover:tw-bg-primary/80 tw-outline-primary tw-outline hover:tw-outline-primary/80 tw-min-w-[10%]' : 'tw-border-r'"
+      <div class="group tw-p-2 tw-font-semibold tw-cursor-pointer tw-flex-[0_1_10%] tw-flex tw-items-center tw-min-w-[50px] tw-max-w-[10%] tw-rounded-t-xl" v-for="viz, index in visualizationsLocal" :key="viz"
+        :class="viz.current ? 'tw-bg-primary tw-text-white hover:tw-bg-primary/80 tw-outline-primary tw-outline hover:tw-outline-primary/80 tw-min-w-[10%]' : 'tw-border-r tw-border-2 tw-bg-white'"
         @click="setCurrentViz(viz)">
         <component :is="icon(viz.rendererType).icon" class=""
           :class="icon(viz.rendererType).isIconRotated ? 'tw-rotate-90' : ''" size=14 />

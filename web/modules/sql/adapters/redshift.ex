@@ -46,11 +46,16 @@ defmodule AfterGlow.Sql.Adapters.Redshift do
   end
 
   def stream_opts do
-    [timeout: 12_000_000, pool: DBConnection.Poolboy, pool_timeout: 12_000_000, max_rows: 2000]
+    [
+      timeout: 12_000_000,
+      pool: DBConnection.ConnectionPool,
+      pool_timeout: 12_000_000,
+      max_rows: 2000
+    ]
   end
 
   def txn_opts do
-    [timeout: 12_000_000, pool: DBConnection.Poolboy, pool_timeout: 12_000_000]
+    [timeout: 12_000_000, pool: DBConnection.ConnectionPool, pool_timeout: 12_000_000]
   end
 
   def get_fkeys(conn) do

@@ -1,23 +1,36 @@
-import { api } from 'boot/axios';
+import { api, apiV2 } from 'boot/axios';
 import apiConfig from '../helpers/apiConfig';
 import { sessionStore } from 'stores/session';
 import cloneDeep from 'lodash/cloneDeep';
 
-const fetchDatabases = async function (
+const fetchDatabasesForTeam = async function(
+  team_id: number,
   token: any,
   callback: (arg0: null, arg1: boolean) => void
 ) {
   callback(null, true);
-  api.get('/databases?type=json', apiConfig(token)).then((response) => {
+  apiV2.get('/databases?team_id=' + team_id, apiConfig(token)).then((response) => {
     callback(response.data.data, false);
   });
 };
 
-const saveDatabase = async function (payload, callback) {
+const fetchDatabases = async function(
+  token: any,
+  callback: (arg0: null, arg1: boolean) => void
+) {
+  callback(null, true);
+  apiV2.get('/databases?type=json', apiConfig(token)).then((response) => {
+    callback(response.data.data, false);
+  });
+};
+
+const saveDatabase = async function(payload, callback) {
   const session = sessionStore();
   const id = cloneDeep(payload.id);
-  payload = { data: { attributes: payload, id: id, type: 'databases' } };
-  api
+
+  payload.id = +payload.id;
+  // payload = { data: { attributes: payload, id: id, type: 'databases' } };
+  apiV2
     .patch('databases/' + id, payload, apiConfig(session.token))
     .then((response) => {
       response.data.data.attributes.id = response.data.data.id;
@@ -35,11 +48,11 @@ const saveDatabase = async function (payload, callback) {
     });
 };
 
-const createDatabase = async function (payload, callback) {
+const createDatabase = async function(payload, callback) {
   const session = sessionStore();
-  payload = { data: { attributes: payload, type: 'databases' } };
-  api
-    .post('databases/', payload, apiConfig(session.token))
+  // payload = { data: { attributes: payload, type: 'databases' } };
+  apiV2
+    .post('databases', payload, apiConfig(session.token))
     .then((response) => {
       response.data.data.attributes.id = response.data.data.id;
       callback(
@@ -56,7 +69,7 @@ const createDatabase = async function (payload, callback) {
     });
 };
 
-const fetchDatabase = async function (id, token, callback) {
+const fetchDatabase = async function(id, token, callback) {
   callback(null, true);
   api.get('/databases/' + id, apiConfig(token)).then((response) => {
     response.data.data.attributes.id = response.data.data.id;
@@ -64,7 +77,7 @@ const fetchDatabase = async function (id, token, callback) {
   });
 };
 
-const fetchDatabaseWithConfig = async function (id, token, callback) {
+const fetchDatabaseWithConfig = async function(id, token, callback) {
   callback(null, true);
   api
     .get('/databases?id=' + id + '&include_config=true', apiConfig(token))
@@ -74,7 +87,7 @@ const fetchDatabaseWithConfig = async function (id, token, callback) {
     });
 };
 
-const fetchTables = async function (database_id, token, callback) {
+const fetchTables = async function(database_id, token, callback) {
   callback(null, true);
   api
     .get('/tables?filter[database_id]=' + database_id, apiConfig(token))
@@ -88,7 +101,7 @@ const fetchTables = async function (database_id, token, callback) {
     });
 };
 
-const fetchTable = async function (id, token, callback) {
+const fetchTable = async function(id, token, callback) {
   callback(null, true);
   api
     .get('/tables/' + id, apiConfig(token))
@@ -102,17 +115,17 @@ const fetchTable = async function (id, token, callback) {
     });
 };
 
-const searchTables = async function (id, query, onlyTables, token, callback) {
+const searchTables = async function(id, query, onlyTables, token, callback) {
   callback(null, true);
-  api
+  apiV2
     .get(
       '/search_tables?database_id=' +
-        id +
-        '&q=' +
-        query +
-        '&only_tables=' +
-        onlyTables +
-        '&type=json',
+      id +
+      '&q=' +
+      query +
+      '&only_tables=' +
+      onlyTables +
+      '&type=json',
       apiConfig(token)
     )
     .then((response) => {
@@ -124,28 +137,22 @@ const searchTables = async function (id, query, onlyTables, token, callback) {
     });
 };
 
-const getColumns = async function (tableID, token, callback) {
+const getColumns = async function(tableID, token, callback) {
   callback(null, true);
-  api
-    .get('/search_tables/' + tableID + '?type=json', apiConfig(token))
+  apiV2
+    .get('/tables/' + tableID + '?type=json', apiConfig(token))
     .then((response) => {
       callback(response.data.data, false);
     });
 };
 
-const saveColumn = async function (payload, callback) {
+const saveColumn = async function(payload, callback) {
   const session = sessionStore();
   const id = cloneDeep(payload.id);
-  payload = { data: { attributes: payload, id: id, type: 'columns' } };
-  api
+  apiV2
     .patch('columns/' + id, payload, apiConfig(session.token))
     .then((response) => {
-      response.data.data.attributes.id = response.data.data.id;
-      callback(
-        {
-          ...response.data.data.attributes,
-          ...(response.data.data.relationships || {}),
-        },
+      callback(response.data.data,
         false
       );
     })
@@ -155,21 +162,13 @@ const saveColumn = async function (payload, callback) {
     });
 };
 
-const saveTable = async function (payload, callback) {
+const saveTable = async function(payload, callback) {
   const session = sessionStore();
   const id = cloneDeep(payload.id);
-  payload = { data: { attributes: payload, id: id, type: 'tables' } };
-  api
+  apiV2
     .patch('tables/' + id, payload, apiConfig(session.token))
     .then((response) => {
-      response.data.data.attributes.id = response.data.data.id;
-      callback(
-        {
-          ...response.data.data.attributes,
-          ...(response.data.data.relationships || {}),
-        },
-        false
-      );
+      callback(response.data.data, false);
     })
     .catch((error) => {
       console.error(error);
@@ -177,7 +176,7 @@ const saveTable = async function (payload, callback) {
     });
 };
 
-const syncDatabase = async function (id, callback) {
+const syncDatabase = async function(id, callback) {
   const session = sessionStore();
   api
     .put('databases/' + id + '/sync', {}, apiConfig(session.token))
@@ -210,4 +209,5 @@ export {
   saveTable,
   syncDatabase,
   fetchTables,
+  fetchDatabasesForTeam,
 };
