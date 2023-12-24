@@ -1,13 +1,14 @@
-
+use super::models::{TagChangeset, TagQuestion, TagQuestionChangeset};
 use super::schema::{questions, tag_dashboards, tag_questions};
 use super::{models::Tag, schema::tags};
 
+use chrono::Utc;
 use crud_derive::View;
 
 use diesel::dsl::sql;
 use diesel::pg::Pg;
-use diesel::prelude::*;
 use diesel::result::Error;
+use diesel::{debug_query, prelude::*};
 
 use diesel::sql_types::{Nullable, Text};
 use serde::{Deserialize, Serialize};
@@ -62,6 +63,11 @@ impl tags::table {
 }
 
 impl Tag {
+    pub fn search(conn: &mut PgConnection, q: String) -> Result<Vec<Self>, Error> {
+        tags::table
+            .filter(tags::name.ilike(format!("%{}%", q)))
+            .load::<Self>(conn)
+    }
     pub fn scoped_index(
         conn: &mut PgConnection,
         user_email: String,
@@ -70,12 +76,29 @@ impl Tag {
         let query = tags::table::shared_with_user(conn, user_email, permissions)?;
         query.select(tags::all_columns).load::<Self>(conn)
     }
+
+    pub fn find_by_question_id(
+        conn: &mut PgConnection,
+        qid: i32,
+    ) -> Result<Vec<QuestionTag>, Error> {
+        let query = tags::table
+            .inner_join(tag_questions::table.on(tags::id.nullable().eq(tag_questions::tag_id)))
+            .filter(tag_questions::question_id.eq(qid))
+            .select((
+                tags::id,
+                tags::name,
+                tags::description,
+                tags::color,
+                tag_questions::question_id,
+            ));
+        query.load::<QuestionTag>(conn)
+    }
     pub fn find_by_question_ids(
         conn: &mut PgConnection,
         qids: Vec<i32>,
     ) -> Result<Vec<QuestionTag>, Error> {
-        tags::table
-            .inner_join(tag_questions::table.on(tags::id.nullable().eq(tag_questions::question_id)))
+        let query = tags::table
+            .inner_join(tag_questions::table.on(tags::id.nullable().eq(tag_questions::tag_id)))
             .filter(tag_questions::question_id.eq_any(qids))
             .select((
                 tags::id,
@@ -83,8 +106,9 @@ impl Tag {
                 tags::description,
                 tags::color,
                 tag_questions::question_id,
-            ))
-            .load::<QuestionTag>(conn)
+            ));
+        println!("{}", debug_query::<Pg, _>(&query));
+        query.load::<QuestionTag>(conn)
     }
     pub fn find_by_dashboard_id(conn: &mut PgConnection, did: i32) -> Result<Vec<Self>, Error> {
         tags::table
@@ -94,5 +118,55 @@ impl Tag {
             .filter(tag_dashboards::dashboard_id.eq(did))
             .select(tags::all_columns)
             .load::<Self>(conn)
+    }
+    pub fn create_question_tag(
+        conn: &mut PgConnection,
+        tag_changeset: TagChangeset,
+        question_id: i32,
+    ) -> Result<(), Error> {
+        Ok(conn.transaction::<_, Error, _>(|conn| {
+            let tag = Self::create(conn, tag_changeset)?;
+            TagQuestion::create_or_update(
+                conn,
+                &TagQuestionChangeset {
+                    question_id: Some(question_id),
+                    tag_id: Some(tag.id),
+                    inserted_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
+                },
+            )?;
+            Ok(())
+        })?)
+    }
+}
+
+impl TagQuestion {
+    pub fn create_or_update(
+        conn: &mut PgConnection,
+        tq: &TagQuestionChangeset,
+    ) -> Result<(), Error> {
+        Ok(conn.transaction::<_, Error, _>(|conn| {
+            if let Ok(_tag_question) = tag_questions::table
+                .filter(tag_questions::tag_id.eq(&tq.tag_id))
+                .filter(tag_questions::question_id.eq(&tq.question_id))
+                .first::<TagQuestion>(conn)
+            {
+                return Ok(());
+            }
+            TagQuestion::create(conn, tq.clone());
+            Ok(())
+        })?)
+    }
+
+    pub fn delete_by_tag_ids_and_question_id(
+        conn: &mut PgConnection,
+        tag_ids: Vec<i32>,
+        question_id: i32,
+    ) -> Result<(), Error> {
+        diesel::delete(tag_questions::table)
+            .filter(tag_questions::tag_id.eq_any(tag_ids))
+            .filter(tag_questions::question_id.eq(question_id))
+            .execute(conn)?;
+        Ok(())
     }
 }

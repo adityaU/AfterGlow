@@ -1,21 +1,18 @@
 import { dashboardsStore } from 'src/stores/dashboard';
-import { api, apiV2 } from 'boot/axios';
+import { apiV2 } from 'boot/axios';
 import hash from '../helpers/hash';
 import apiConfig from '../helpers/apiConfig';
 
 import { sessionStore } from 'stores/session';
 
 const dashboards = dashboardsStore();
-const fetchDashboard = async function(id, payload, token, callback) {
+const fetchDashboard = async function (id, payload, token, callback) {
   callback(null, true);
   const key = await hash('id=' + id + '&payload=' + JSON.stringify(payload));
   apiV2
     .get('dashboards/' + id + '?share_id=' + payload.shareID, apiConfig(token))
     .then((response) => {
-      dashboards.push(
-        response.data.data,
-        key
-      );
+      dashboards.push(response.data.data, key);
       callback(key, false);
     })
     .catch((error) => {
@@ -25,9 +22,9 @@ const fetchDashboard = async function(id, payload, token, callback) {
     });
 };
 
-const fetchDashboardHTML = async function(id, token, callback) {
+const fetchDashboardHTML = async function (id, token, callback) {
   callback(null, true);
-  api
+  apiV2
     .get('dashboards/' + id + '/html', apiConfig(token))
     .then((response) => {
       callback(response.data.html, false);
@@ -38,7 +35,7 @@ const fetchDashboardHTML = async function(id, token, callback) {
     });
 };
 
-const fetchDashboards = async function(token, callback) {
+const fetchDashboards = async function (token, callback) {
   callback(null, true);
   apiV2
     .get('dashboards', apiConfig(token))
@@ -51,10 +48,9 @@ const fetchDashboards = async function(token, callback) {
     });
 };
 
-const saveDashboard = async function(id, payload, token, callback) {
+const saveDashboard = async function (id, payload, token, callback) {
   callback(true);
-  payload = { data: { type: 'dashboards', attributes: payload } };
-  api
+  apiV2
     .put('dashboards/' + id, payload, apiConfig(token))
     .then((response) => {
       callback(false);
@@ -65,20 +61,12 @@ const saveDashboard = async function(id, payload, token, callback) {
     });
 };
 
-const createDashboard = async function(payload, token, callback) {
+const createDashboard = async function (payload, token, callback) {
   callback(null, true);
-  payload = { data: { type: 'dashboards', attributes: payload } };
-  api
-    .post('dashboards/', payload, apiConfig(token))
+  apiV2
+    .post('dashboards', payload, apiConfig(token))
     .then((response) => {
-      response.data.data.attributes.id = response.data.data.id;
-      callback(
-        {
-          ...response.data.data.attributes,
-          ...(response.data.data.relationships || {}),
-        },
-        false
-      );
+      callback(response.data.data, false);
     })
     .catch((_) => {
       console.log(error);
@@ -86,38 +74,17 @@ const createDashboard = async function(payload, token, callback) {
     });
 };
 
-const fetchPossibleVariables = async function(dashboardID, callback) {
-  const session = sessionStore();
-
-  api
-    .get(
-      'dashboards/' + dashboardID + '/possible_variables',
-      apiConfig(session.token)
-    )
-    .then((response) => {
-      callback(response.data.variables, false);
-    })
-    .catch((error) => {
-      console.log(error);
-      callback(null, false);
-    });
-};
-const fetchVariables = async function(variableIds, callback) {
+const fetchVariables = async function (variableIds, callback) {
   if (variableIds.length > 0) {
     const session = sessionStore();
 
-    api
+    apiV2
       .get(
         'variables?filter=' + JSON.stringify({ id: variableIds.join(',') }),
         apiConfig(session.token)
       )
       .then((response) => {
-        callback(
-          response.data.data.map((v) => {
-            return { ...v.attributes, ...{ id: v.id } };
-          }),
-          false
-        );
+        callback(response.data.data, false);
       })
       .catch((error) => {
         console.log(error);
@@ -126,13 +93,13 @@ const fetchVariables = async function(variableIds, callback) {
   }
 };
 
-const addVariable = async function(payload, dashboardID, callback) {
+const addVariable = async function (payload, dashboardID, callback) {
   const session = sessionStore();
   payload.dashboard_id = dashboardID;
   payload.question_id = null;
   callback(null, true);
   payload = { data: { type: 'variables', attributes: payload } };
-  api
+  apiV2
     .post('variables/', payload, apiConfig(session.token))
     .then((response) => {
       response.data.data.attributes.id = response.data.data.id;
@@ -150,7 +117,7 @@ const addVariable = async function(payload, dashboardID, callback) {
     });
 };
 
-const saveVariable = async function(payload, callback) {
+const saveVariable = async function (payload, callback) {
   const session = sessionStore();
   callback(null, true);
   payload = { data: { type: 'variables', attributes: payload } };
@@ -176,7 +143,7 @@ const saveVariable = async function(payload, callback) {
     });
 };
 
-const deleteVariable = async function(varID, callback) {
+const deleteVariable = async function (varID, callback) {
   const session = sessionStore();
   callback(false, true);
   api
@@ -190,15 +157,30 @@ const deleteVariable = async function(varID, callback) {
     });
 };
 
+const searchDashboards = async function (query, callback) {
+  const session = sessionStore();
+  callback([], true);
+  apiV2
+    .get('dashboards/search?query=' + query, apiConfig(session.token))
+    .then((response) => {
+      callback(response.data.data, false);
+    })
+    .catch((error) => {
+      console.log(error);
+      callback([], false);
+    });
+};
+
 export {
   fetchDashboard,
   fetchDashboards,
   saveDashboard,
   createDashboard,
   fetchDashboardHTML,
-  fetchPossibleVariables,
+  // fetchPossibleVariables,
   fetchVariables,
   addVariable,
-  deleteVariable,
   saveVariable,
+  deleteVariable,
+  searchDashboards,
 };

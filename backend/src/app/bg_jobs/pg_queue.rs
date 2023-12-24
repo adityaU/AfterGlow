@@ -29,7 +29,19 @@ impl PostgresQueue {
 
 #[async_trait::async_trait]
 impl super::Queue for PostgresQueue {
-    async fn push(&self, job: Message, date: Option<NaiveDateTime>) -> Result<(), Error> {
+    async fn next_named_jobs(&self) -> Result<Vec<BgJob>, Error> {
+        let conn = self.pool.get();
+        let jobs = BgJob::next_named_jobs(&mut conn.unwrap())
+            .map_err(|e| Error::CouldNotPullJobs(e.to_string()))?;
+        Ok(jobs)
+    }
+
+    async fn push_job(
+        &self,
+        job: Message,
+        name: Option<String>,
+        date: Option<NaiveDateTime>,
+    ) -> Result<(), Error> {
         let scheduled_for = date.unwrap_or(chrono::Utc::now().naive_utc());
         let failed_attempts: i32 = 0;
         let message = json!(job);
@@ -44,6 +56,7 @@ impl super::Queue for PostgresQueue {
             failed_attempts,
             status,
             message,
+            name,
         };
 
         let conn = self.pool.get();
@@ -52,9 +65,12 @@ impl super::Queue for PostgresQueue {
 
         Ok(())
     }
+    async fn push(&self, job: Message, date: Option<NaiveDateTime>) -> Result<(), Error> {
+        self.push_job(job, None, date).await
+    }
 
     async fn pull(&self, number_of_jobs: u32) -> Result<Vec<super::Job>, Error> {
-        let now = chrono::Utc::now();
+        let _now = chrono::Utc::now();
         let conn = self.pool.get();
 
         let jobs = BgJob::pull(&mut conn.unwrap(), number_of_jobs.try_into().unwrap_or(0))

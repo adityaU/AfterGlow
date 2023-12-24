@@ -10,7 +10,7 @@
 <template>
   <div
     :style="buttonStyle"
-    class="tw-rounded-sm tw-cursor-pointer tw-flex tw-items-center tw-gap-1 btn tw-font-semibold"
+    class="tw-cursor-pointer tw-flex tw-items-center tw-gap-1 btn tw-font-semibold"
     :class="fullWidth ? 'tw-w-full tw-items-center tw-justify-center' : ''"
     @click="clicked()"
   >
@@ -41,7 +41,7 @@
       <div class="tw-flex tw-w-full tw-items-center tw-pr-4">
         <div class="tw-p-2 tw-text-2xl tw-flex-1">Response</div>
         <div class="">
-          <div :class="statusClass" class="tw-px-4 tw-py-0.5 tw-rounded">
+          <div :class="statusClass" class="tw-px-4 tw-py-0.5 tw-rounded-full">
             {{ response.status_code }}
           </div>
         </div>
@@ -65,7 +65,7 @@
 
   <!-- <div v-if="open" class="tw-flex tw-inset-0 tw-z-50 tw-absolute tw-bg-default/80"> -->
   <!--   <div  -->
-  <!--     class="tw-flex tw-inset-[5%] tw-z-50 tw-absolute tw-border tw-rounded-sm tw-shadow-sm tw-bg-white"> -->
+  <!--     class="tw-flex tw-inset-[5%] tw-z-50 tw-absolute tw-border tw-rounded-2xl  tw-bg-white"> -->
   <!--     <div class="" v-if="!loading"> -->
   <!--       <div class="header tw-p-2 tw-border-b tw-text-2xl tw-"> -->
   <!--         Action Response -->
@@ -96,6 +96,8 @@ import MonacoEditor from 'monaco-editor-vue3';
 import { AGDraculaTheme } from 'src/helpers/monacoTheme';
 import { setSQLFormatter } from 'src/helpers/formatters';
 import { shallowRef } from 'vue';
+
+import { sendRequest } from 'src/apis/apiActions';
 
 import cloneDeep from 'lodash/cloneDeep';
 
@@ -186,8 +188,9 @@ export default {
             this.link.details.display_settings.backgroundColor,
           '--color': this.link.details.color,
           '--border-color':
-            this.link.details.display_settings.backgroundColor === 'white'
-              ? '#e5e7eb'
+            this.link.details.display_settings.backgroundColor ===
+            'rgb(var(--color-white))'
+              ? 'var(--color-tertiary)'
               : this.link.details.display_settings.backgroundColor,
           '--padding': '0.5rem 1rem',
         };
@@ -254,6 +257,54 @@ export default {
       // setSQLFormatter(monaco);
     },
 
+    sendRequestCallback(isSuccess, data, loading) {
+      this.loading = false;
+      if (!isSuccess) {
+        this.response = data;
+        return;
+      }
+      if (data.redirect_url) {
+        if (data.status === 301) {
+          window.parent.window.open(data.redirect_url, '_blank');
+        } else {
+          if (data.redirect_url.match(/^http/)) {
+            window.parent.window.open(data.redirect_url, '_self');
+          } else {
+            if (data.redirect_url.match(/^\//) && !this.inIframe()) {
+              this.$router.push(data.redirect_url);
+            } else {
+              window.parent.window.open(data.redirect_url, '_self');
+            }
+          }
+        }
+        // this.loading = false
+        this.open = false;
+        return;
+      }
+      if (data.response_headers) {
+        if (
+          data.response_headers['Content-Type']?.match('html') ||
+          data.response_headers['content-type']?.match('html')
+        ) {
+          this.contentType = 'html';
+        }
+        if (
+          data.response_headers['Content-Type']?.match('json') ||
+          data.response_headers['content-type']?.match('json')
+        ) {
+          this.contentType = 'json';
+        }
+        if (
+          data.response_headers['Content-Type']?.match('xml') ||
+          data.response_headers['content-type']?.match('xml')
+        ) {
+          this.contentType = 'xml';
+        }
+      }
+      this.loading = false;
+      this.response = data;
+    },
+
     sendRequest() {
       this.open = false;
 
@@ -264,57 +315,14 @@ export default {
         variables: variables,
         api_action: this.link.details,
       };
-      let url = 'api_actions/send_request';
-      if (this.link.details.id) {
-        url = 'api_actions/' + this.link.details.id + '/send_request';
-      }
       this.loading = true;
       this.open = true;
-      api
-        .post(url, actionPayload, apiConfig(query.token))
-        .then((response) => {
-          if (response.data.redirect_url) {
-            if (response.data.status === 301) {
-              window.parent.window.open(response.data.redirect_url, '_blank');
-            } else {
-              if (response.data.redirect_url.match(/^http/)) {
-                window.parent.window.open(response.data.redirect_url, '_self');
-              } else {
-                if (
-                  response.data.redirect_url.match(/^\//) &&
-                  !this.inIframe()
-                ) {
-                  this.$router.push(response.data.redirect_url);
-                } else {
-                  window.parent.window.open(
-                    response.data.redirect_url,
-                    '_self'
-                  );
-                }
-              }
-            }
-            // this.loading = false
-            this.open = false;
-            return;
-          }
-          if (response.data.response_headers) {
-            if (response.data.response_headers['Content-Type'].match('html')) {
-              this.contentType = 'html';
-            }
-            if (response.data.response_headers['Content-Type'].match('json')) {
-              this.contentType = 'json';
-            }
-            if (response.data.response_headers['Content-Type'].match('xml')) {
-              this.contentType = 'xml';
-            }
-          }
-          this.loading = false;
-          this.response = response.data;
-        })
-        .catch((error) => {
-          this.loading = false;
-          this.response = error.data;
-        });
+      sendRequest(
+        this.link?.details?.id,
+        actionPayload,
+        query.token,
+        this.sendRequestCallback
+      );
     },
   },
 };

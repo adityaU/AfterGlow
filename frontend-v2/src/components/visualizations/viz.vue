@@ -36,7 +36,7 @@
     />
 
     <div
-      class="tw-h-full tw-w-full tw-bg-white tw-rounded-sm tw-shadow-sm tw-flex"
+      class="tw-h-full tw-w-full tw-bg-white custom-shadow tw-flex"
       v-if="results && results.message"
     >
       <div

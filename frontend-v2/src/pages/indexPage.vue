@@ -2,12 +2,11 @@
   <div>Index Page</div>
 </template>
 
-<script >
-
+<script>
 export default {
   name: 'IndexPage',
-  mounted(){
+  mounted() {
     // this.$router.push({path: '/questions/new'})
-  }
+  },
 };
 </script>

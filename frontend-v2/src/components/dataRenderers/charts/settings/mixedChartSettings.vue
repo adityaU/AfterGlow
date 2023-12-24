@@ -249,7 +249,7 @@ export default {
 
 
         getColor(settings, usedColors) {
-            let colors = generateColors(50)
+            let colors = generateColors(50, true)
             usedColors = [...usedColors]
             settings.series.forEach((settings) => {
 

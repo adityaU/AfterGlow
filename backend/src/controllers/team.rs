@@ -1,10 +1,12 @@
-use actix_web::{error, web, HttpResponse, Responder};
+use actix_web::{web, HttpResponse, Responder};
 
 use super::base;
 use super::common::OP_SUCCESS;
+use crate::errors::AGError;
 use crate::repository::models::{Team, TeamChangeset, TeamView};
 use crate::views::team::PreloadedTeamView;
 use crate::{controllers::common::ResponseData, repository::DBPool};
+
 use std::sync::Arc;
 
 use serde::Deserialize;
@@ -39,16 +41,16 @@ pub(crate) async fn index(
                     .collect::<Vec<TeamView>>();
                 HttpResponse::Ok().json(ResponseData { data: resp })
             })
-            .map_err(|err| error::ErrorBadRequest(err));
+            .map_err(|err| AGError::<String>::new(err));
         return resp;
     }
 
-    let teams = Team::index(&mut conn.unwrap()).map_err(|err| error::ErrorBadRequest(err))?;
+    let teams = Team::index(&mut conn.unwrap()).map_err(|err| AGError::<String>::new(err))?;
 
     let conn = pool.get();
     PreloadedTeamView::from_model_list(&mut conn.unwrap(), teams)
         .map(|teams| HttpResponse::Ok().json(ResponseData { data: teams }))
-        .map_err(|err| error::ErrorBadRequest(err))
+        .map_err(|err| AGError::<String>::new(err))
 }
 
 pub(crate) async fn remove_user(
@@ -61,7 +63,7 @@ pub(crate) async fn remove_user(
     let tid = team_id.into_inner();
     Team::remove_user(&mut conn.unwrap(), user_id, tid)
         .map(|_| HttpResponse::Ok().json(ResponseData { data: OP_SUCCESS }))
-        .map_err(|err| error::ErrorBadRequest(err))
+        .map_err(|err| AGError::<String>::new(err))
 }
 
 pub(crate) async fn add_user(
@@ -74,7 +76,7 @@ pub(crate) async fn add_user(
     let tid = team_id.into_inner();
     Team::add_user(&mut conn.unwrap(), user_id, tid)
         .map(|_| HttpResponse::Ok().json(ResponseData { data: OP_SUCCESS }))
-        .map_err(|err| error::ErrorBadRequest(err))
+        .map_err(|err| AGError::<String>::new(err))
 }
 
 pub(crate) async fn remove_database(
@@ -87,7 +89,7 @@ pub(crate) async fn remove_database(
     let tid = team_id.into_inner();
     Team::remove_database(&mut conn.unwrap(), database_id, tid)
         .map(|_| HttpResponse::Ok().json(ResponseData { data: OP_SUCCESS }))
-        .map_err(|err| error::ErrorBadRequest(err))
+        .map_err(|err| AGError::<String>::new(err))
 }
 
 pub(crate) async fn add_database(
@@ -100,5 +102,5 @@ pub(crate) async fn add_database(
     let tid = team_id.into_inner();
     Team::add_database(&mut conn.unwrap(), database_id, tid)
         .map(|_| HttpResponse::Ok().json(ResponseData { data: OP_SUCCESS }))
-        .map_err(|err| error::ErrorBadRequest(err))
+        .map_err(|err| AGError::<String>::new(err))
 }

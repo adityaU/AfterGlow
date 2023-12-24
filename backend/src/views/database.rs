@@ -2,12 +2,12 @@ use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::repository::models::Database;
+use crate::repository::models::{Database, SupportedDatabases};
 #[derive(Debug, Deserialize, Serialize)]
 pub struct DatabaseView {
     pub id: i32,
     pub name: Option<String>,
-    pub db_type: Option<String>,
+    pub db_type: Option<SupportedDatabases>,
     #[serde(skip_deserializing)]
     pub inserted_at: NaiveDateTime,
     #[serde(skip_deserializing)]

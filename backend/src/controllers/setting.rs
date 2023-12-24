@@ -1,3 +1,4 @@
+
 use actix_web::{error, web, HttpResponse, Responder};
 
 use super::base;
@@ -14,6 +15,8 @@ use actix_web_grants::proc_macro::has_permissions;
 pub struct QueryParams {
     organization_id: Option<i64>,
 }
+
+use crate::errors::AGError;
 
 base::generate_index!(index, Setting, SettingView, "Settings.all");
 

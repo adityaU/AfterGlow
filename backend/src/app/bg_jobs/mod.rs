@@ -1,5 +1,6 @@
 pub mod jobs;
 pub mod pg_queue;
+pub mod scheduled_worker;
 pub mod worker;
 
 use std::{
@@ -7,14 +8,18 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use base64::write;
 use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::repository::{models::BgJob, DBPool};
 
-use self::jobs::send_csv::SendCSVJob;
+use self::jobs::{
+    dashboard_mailer::{DashboardMailerError, DashboardMailerJob},
+    send_csv::{SendCSVError, SendCSVJob},
+    sync_db::{SyncDBError, SyncDBJob},
+    visualization_mailer::{VisualizationMailerError, VisualizationMailerJob},
+};
 
 use super::results;
 
@@ -25,23 +30,34 @@ pub trait Queue: Send + Sync {
     async fn pull(&self, number_of_jobs: u32) -> Result<Vec<Job>, Error>;
     async fn delete_job(&self, job_id: Uuid) -> Result<(), Error>;
     async fn fail_job(&self, job_id: Uuid) -> Result<(), Error>;
+    async fn next_named_jobs(&self) -> Result<Vec<BgJob>, Error>;
 
     async fn clear(&self) -> Result<(), Error>;
+
+    async fn push_job(
+        &self,
+        job: Message,
+        name: Option<String>,
+        date: Option<NaiveDateTime>,
+    ) -> Result<(), Error>;
 }
 
 #[async_trait::async_trait]
 pub trait JobEssentials: Send + Sync {
-    async fn execute(&self, data: Arc<LLData>) -> Result<(), Error>;
+    async fn execute(&self, data: Arc<LongLivedData>) -> Result<(), Error>;
 }
 
-pub struct LLData {
+pub struct LongLivedData {
     conn_pools: Arc<Mutex<results::ConnectionPools>>,
     pool: Arc<DBPool>,
 }
 
-impl LLData {
-    pub fn new(pool: Arc<DBPool>, conn_pools: Arc<Mutex<results::ConnectionPools>>) -> LLData {
-        LLData { pool, conn_pools }
+impl LongLivedData {
+    pub fn new(
+        pool: Arc<DBPool>,
+        conn_pools: Arc<Mutex<results::ConnectionPools>>,
+    ) -> LongLivedData {
+        LongLivedData { pool, conn_pools }
     }
 }
 
@@ -50,6 +66,9 @@ pub enum Message {
     #[default]
     NoOP,
     SendCSV(SendCSVJob),
+    SyncDB(SyncDBJob),
+    DashboardMailer(DashboardMailerJob),
+    VisualizationMailer(VisualizationMailerJob),
 }
 
 #[derive(Debug)]
@@ -62,6 +81,10 @@ pub enum Error {
     CouldNotClearQueue(String),
     CouldNotFailJob(String),
     ErrorExecutingJob(String),
+    SendCSVError(SendCSVError),
+    SyncDBError(SyncDBError),
+    ScheduledVisualizationMailerError(VisualizationMailerError),
+    ScheduledDashboardMailerError(DashboardMailerError),
 }
 
 impl fmt::Display for Error {
@@ -75,6 +98,10 @@ impl fmt::Display for Error {
             Error::CouldNotFailJob(msg) => write!(f, "Could not fail job: {}", msg),
             Error::ErrorExecutingJob(msg) => write!(f, "Could not Execute Job: {}", msg),
             Error::NoOpShouldNotBeCalled => write!(f, "No Op Job Should not be called"),
+            Error::SendCSVError(err) => write!(f, "{}", err),
+            Error::SyncDBError(err) => write!(f, "{}", err),
+            Error::ScheduledVisualizationMailerError(err) => write!(f, "{}", err),
+            Error::ScheduledDashboardMailerError(err) => write!(f, "{}", err),
         }
     }
 }
@@ -99,10 +126,13 @@ impl From<BgJob> for Job {
 }
 
 impl Job {
-    async fn execute(&self, data: Arc<LLData>) -> Result<(), Error> {
+    async fn execute(&self, data: Arc<LongLivedData>) -> Result<(), Error> {
         match &self.message {
             Message::NoOP => Err(Error::NoOpShouldNotBeCalled),
             Message::SendCSV(m) => m.execute(data).await,
+            Message::SyncDB(m) => m.execute(data).await,
+            Message::DashboardMailer(m) => m.execute(data).await,
+            Message::VisualizationMailer(m) => m.execute(data).await,
         }
     }
 }

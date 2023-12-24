@@ -1,9 +1,9 @@
-import { api, apiV2 } from 'boot/axios';
+import { apiV2 } from 'boot/axios';
 import apiConfig from '../helpers/apiConfig';
 import { sessionStore } from 'stores/session';
 import cloneDeep from 'lodash/cloneDeep';
 
-const fetchTeams = async function(callback) {
+const fetchTeams = async function (callback) {
   const session = sessionStore();
   apiV2
     .get('teams', apiConfig(session.token))
@@ -16,7 +16,7 @@ const fetchTeams = async function(callback) {
     });
 };
 
-const fetchTeamsByUser = async function(user_id, callback) {
+const fetchTeamsByUser = async function (user_id, callback) {
   const session = sessionStore();
   apiV2
     .get('teams?user_id=' + user_id, apiConfig(session.token))
@@ -29,7 +29,7 @@ const fetchTeamsByUser = async function(user_id, callback) {
     });
 };
 
-const saveTeam = async function(payload, callback) {
+const saveTeam = async function (payload, callback) {
   const session = sessionStore();
   apiV2
     .put('teams/' + payload.id, payload, apiConfig(session.token))
@@ -42,7 +42,7 @@ const saveTeam = async function(payload, callback) {
     });
 };
 
-const createTeam = async function(payload, callback) {
+const createTeam = async function (payload, callback) {
   const session = sessionStore();
   apiV2
     .post('teams', payload, apiConfig(session.token))
@@ -55,7 +55,7 @@ const createTeam = async function(payload, callback) {
     });
 };
 
-const removeDatabase = async function(teamID, dbID, callback) {
+const removeDatabase = async function (teamID, dbID, callback) {
   const session = sessionStore();
   const payload = { database_id: dbID };
   apiV2
@@ -65,10 +65,7 @@ const removeDatabase = async function(teamID, dbID, callback) {
       apiConfig(session.token)
     )
     .then((response) => {
-      callback(
-        response.data.data,
-        false
-      );
+      callback(response.data.data, false);
     })
     .catch((error) => {
       console.error(error);
@@ -76,7 +73,7 @@ const removeDatabase = async function(teamID, dbID, callback) {
     });
 };
 
-const addDatabase = async function(teamID, dbID, callback) {
+const addDatabase = async function (teamID, dbID, callback) {
   const session = sessionStore();
   const payload = { database_id: dbID };
   apiV2
@@ -86,10 +83,7 @@ const addDatabase = async function(teamID, dbID, callback) {
       apiConfig(session.token)
     )
     .then((response) => {
-      callback(
-        response.data.data,
-        false
-      );
+      callback(response.data.data, false);
     })
     .catch((error) => {
       console.error(error);
@@ -97,7 +91,7 @@ const addDatabase = async function(teamID, dbID, callback) {
     });
 };
 
-const removeUser = async function(teamID, userID, callback) {
+const removeUser = async function (teamID, userID, callback) {
   const session = sessionStore();
   const payload = { user_id: userID };
   apiV2
@@ -111,7 +105,7 @@ const removeUser = async function(teamID, userID, callback) {
     });
 };
 
-const addUser = async function(teamID, userID, callback) {
+const addUser = async function (teamID, userID, callback) {
   const session = sessionStore();
   const payload = { user_id: userID };
   apiV2

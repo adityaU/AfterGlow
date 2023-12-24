@@ -12,7 +12,7 @@ macro_rules! generate_index {
                         .collect::<Vec<$view>>();
                     HttpResponse::Ok().json(ResponseData { data: resp })
                 })
-                .map_err(|err| error::ErrorBadRequest(err))
+                .map_err(|err| AGError::<String>::new(err))
         }
     };
 }
@@ -31,7 +31,7 @@ macro_rules! generate_create {
                         data: $view::from_model(&item),
                     })
                 })
-                .map_err(|err| error::ErrorBadRequest(err))
+                .map_err(|err| AGError::<String>::new(err))
         }
     };
 }
@@ -51,7 +51,7 @@ macro_rules! generate_update {
                         data: $view::from_model(&item),
                     })
                 })
-                .map_err(|err| error::ErrorBadRequest(err))
+                .map_err(|err| AGError::<String>::new(err))
         }
     };
     ($fn_name:ident, $model:ident, $changeset:ident, $view:ident, $update_permission:expr) => {
@@ -68,7 +68,7 @@ macro_rules! generate_update {
                         data: $view::from_model(&item),
                     })
                 })
-                .map_err(|err| error::ErrorBadRequest(err))
+                .map_err(|err| AGError::<String>::new(err))
         }
     };
 }
@@ -87,7 +87,9 @@ macro_rules! generate_show {
                         data: $view::from_model(&item),
                     })
                 })
-                .map_err(|err| error::ErrorBadRequest(err))
+                .map_err(|err| {
+                    AGError::<String>::new_with_details(err, None, StatusCode::NOT_FOUND)
+                })
         }
     };
     ($fn_name:ident, $model:ident, $view:ident, $show_permission:expr) => {
@@ -103,7 +105,7 @@ macro_rules! generate_show {
                         data: $view::from_model(&item),
                     })
                 })
-                .map_err(|err| error::ErrorBadRequest(err))
+                .map_err(|err| error::ErrorNotFound(err))
         }
     };
 }

@@ -1,15 +1,30 @@
 use super::models::User;
 
 use super::models::Question;
+
+
+
+
+
 use super::schema::{questions, tag_questions};
 
 use diesel::dsl::sql;
-use diesel::pg::Pg;
-use diesel::prelude::*;
+
+
+
+use diesel::JoinOnDsl;
+use diesel::NullableExpressionMethods;
+use diesel::PgTextExpressionMethods;
+
+
 
 use diesel::result::Error;
 
-use diesel::sql_types::{Nullable, Text};
+
+
+use diesel::sql_types::Bool;
+
+
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
 use serde_json::{Map, Value};
 
@@ -21,30 +36,37 @@ pub struct QuestionWithUser {
 }
 
 impl questions::table {
-    pub fn shared_with_user<'a>(
-        user_email: String,
-        permissions: Vec<String>,
-    ) -> questions::BoxedQuery<'a, Pg> {
+    pub fn shared_with_user(user_email: String, permissions: Vec<String>) -> String {
         if permissions.contains(&"Settings.all".to_string()) {
-            return questions::table.into_boxed();
+            return "questions.id = ANY(select questions.id from questions)".into();
         }
-        questions::table
-            .filter(
-                sql::<diesel::sql_types::Bool>("")
-                    .bind::<Nullable<Text>, _>(user_email)
-                    .sql(" = ANY(shared_to)"),
-            )
-            .into_boxed()
+
+        let q = format!("questions.id = ANY(SELECT s.id
+            FROM questions s
+            LEFT JOIN dashboard_widgets dwq ON dwq.widget_id = s.id AND dwq.widget_type = 'question'
+            LEFT JOIN dashboards ddwq ON dwq.dashboard_id = ddwq.id
+            LEFT JOIN visualizations v ON s.id = v.question_id
+            LEFT JOIN dashboard_widgets dwv ON dwv.widget_id = v.id AND dwv.widget_type = 'visualization'
+            LEFT JOIN dashboards ddwv ON dwv.dashboard_id = ddwv.id
+            LEFT JOIN dashboard_widgets dwvd ON (dwvd.widget_id = ddwv.id OR dwvd.widget_id = ddwq.id) AND dwvd.widget_type = 'tabs'
+            LEFT JOIN dashboards ddd ON dwvd.dashboard_id = ddd.id
+            LEFT JOIN users on users.id = s.owner_id
+            WHERE users.email = '{}'
+            OR '{}' = ANY (s.shared_to) 
+            OR 'all' = ANY (s.shared_to) 
+            OR '{}' = ANY (ddwq.shared_to) 
+            OR 'all' = ANY (ddwq.shared_to) 
+            OR '{}' = ANY (ddwv.shared_to) 
+            OR 'all' = ANY (ddwv.shared_to) 
+            OR '{}' = ANY (ddd.shared_to) 
+            OR 'all' = ANY (ddd.shared_to)
+            GROUP BY s.id)", user_email, user_email, user_email, user_email, user_email);
+        println!("{}", q);
+        q
     }
 }
 
 impl Question {
-    fn index_scope(conn: &mut PgConnection, _uid: i32) -> Result<Vec<Self>, Error> {
-        questions::table
-            .order(questions::updated_at.desc())
-            .limit(INDEX_LIMIT)
-            .load::<Self>(conn)
-    }
     pub fn extract_from_db_config(&self, prop: &str) -> String {
         let empty_map = Map::new();
         let empty_string_value = Value::String("".to_string());
@@ -82,8 +104,13 @@ impl Question {
         user_email: String,
         permissions: Vec<String>,
     ) -> Result<Vec<Self>, Error> {
-        questions::table::shared_with_user(user_email, permissions)
-            .inner_join(tag_questions::table)
+        questions::table
+            .inner_join(
+                tag_questions::table.on(questions::id.nullable().eq(tag_questions::question_id)),
+            )
+            .filter(sql::<Bool>(
+                questions::table::shared_with_user(user_email, permissions).as_str(),
+            ))
             .filter(tag_questions::tag_id.eq(tag))
             .order(questions::updated_at.desc())
             .select(questions::all_columns)
@@ -97,7 +124,10 @@ impl Question {
         user_email: String,
         permissions: Vec<String>,
     ) -> Result<Vec<Self>, Error> {
-        questions::table::shared_with_user(user_email, permissions)
+        questions::table
+            .filter(sql::<Bool>(
+                questions::table::shared_with_user(user_email, permissions).as_str(),
+            ))
             .filter(questions::title.ilike(format!("%{}%", q)))
             .order(questions::updated_at.desc())
             .limit(INDEX_LIMIT)
@@ -111,7 +141,10 @@ impl Question {
         user_email: String,
         permissions: Vec<String>,
     ) -> Result<Vec<Self>, Error> {
-        questions::table::shared_with_user(user_email, permissions)
+        questions::table
+            .filter(sql::<Bool>(
+                questions::table::shared_with_user(user_email, permissions).as_str(),
+            ))
             .filter(questions::title.ilike(format!("%{}%", q)))
             .inner_join(
                 tag_questions::table.on(questions::id.nullable().eq(tag_questions::question_id)),
@@ -145,9 +178,14 @@ impl Question {
         user_email: String,
         permissions: Vec<String>,
     ) -> Result<Vec<Self>, Error> {
-        questions::table::shared_with_user(user_email, permissions)
+        let query = questions::table
+            .filter(sql::<Bool>(
+                questions::table::shared_with_user(user_email, permissions).as_str(),
+            ))
             .order(questions::updated_at.desc())
             .limit(INDEX_LIMIT)
-            .load::<Self>(conn)
+            .load::<Self>(conn);
+        println!("{:?}", query);
+        query
     }
 }

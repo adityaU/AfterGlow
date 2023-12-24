@@ -17,7 +17,7 @@
       <div
         @click="select(el)"
         :tabindex="index + 1"
-        class="tw-cursor-pointer group tw-flex tw-py-2 tw-px-4 tw-w-full hover:tw-bg-primary hover:!tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
+        class="tw-cursor-pointer group tw-flex tw-gap-2 tw-items-center tw-py-2 tw-px-4 tw-w-full hover:tw-bg-primary hover:!tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
         v-for="(el, index) in optionsLocal"
         :key="el"
         :ref="'option_' + (index + 1)"
@@ -25,6 +25,9 @@
       >
         <span class="text-icon-primary" v-if="iconLetter">
           {{ iconLetter }}
+        </span>
+        <span class="text-icon-primary tw-py-1 tw-px-1" v-if="iconComponent">
+          <slot />
         </span>
         <span class="tw-grid tw-grid-cols-12" v-if="areOptionObjects">
           <span class="tw-col-span-6">{{ el[this.displayKey || 'name'] }}</span>
@@ -72,6 +75,7 @@ export default {
     'disableLocalSearch',
     'displayKey',
     'hideOnClick',
+    'iconComponent',
   ],
 
   components: { CheckIcon, BaseInput },

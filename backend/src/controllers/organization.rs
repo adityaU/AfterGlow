@@ -1,8 +1,10 @@
-use actix_web::{error, web, HttpResponse, Responder};
+use actix_web::{web, HttpResponse, Responder};
 
 use super::base;
+use actix_web::http::StatusCode;
 use std::sync::Arc;
 
+use crate::errors::AGError;
 use crate::repository::models::{Organization, OrganizationChangeset, OrganizationView};
 use crate::{controllers::common::ResponseData, repository::DBPool};
 
@@ -19,7 +21,7 @@ pub(crate) async fn index(pool: web::Data<Arc<DBPool>>) -> impl Responder {
                 .collect::<Vec<OrganizationView>>();
             HttpResponse::Ok().json(ResponseData { data: resp })
         })
-        .map_err(|err| error::ErrorBadRequest(err))
+        .map_err(|err| AGError::<String>::new(err))
 }
 base::generate_create!(
     create,

@@ -20,6 +20,12 @@
         :widget="widget"
         @update:widget="(v) => updateWidget(v, index)"
       >
+        <TrashIcon
+          size="16"
+          class="tw-cursor-pointer"
+          v-if="editMode"
+          @click="showDeleteModal(widget)"
+        />
         <SettingsIcon
           class="tw-cursor-pointer"
           size="16"
@@ -33,6 +39,13 @@
         />
       </GridWidget>
     </template>
+
+    <RemoveFromDashboard
+      v-model:open="showRemoveFromDashboardModal"
+      :type="deletingType"
+      :widgetID="deletingKey"
+      @removeWidget="(widgetID) => deleteWidget(widgetID)"
+    />
   </div>
 </template>
 <script>
@@ -48,11 +61,14 @@ import { saveDashboard } from 'src/apis/dashboards';
 import { _ } from 'lodash';
 import { isEqual } from 'lodash';
 
+import RemoveFromDashboard from 'components/dashboard/removeFromDashboard.vue';
 import 'splitpanes/dist/splitpanes.css';
 
-import { SettingsIcon, ArrowsMoveIcon } from 'vue-tabler-icons';
+import { TrashIcon, SettingsIcon, ArrowsMoveIcon } from 'vue-tabler-icons';
 import { randomID } from 'src/helpers/random';
 import { sessionStore } from 'src/stores/session';
+import { saveNote } from 'src/apis/notes';
+import visualizationVue from '../widgets/visualization.vue';
 const dashboard = dashboardsStore();
 
 const query = queryStore();
@@ -76,11 +92,14 @@ export default {
     'variablePanes',
     'isNested',
     'gridClass',
+    'addWidgetData',
   ],
   components: {
     GridWidget,
     SettingsIcon,
     ArrowsMoveIcon,
+    TrashIcon,
+    RemoveFromDashboard,
   },
 
   watch: {
@@ -89,6 +108,21 @@ export default {
       handler() {
         this.addVariablePane(this.variablePanes);
       },
+    },
+
+    addWidgetData() {
+      if (!this.addWidgetData) {
+        return;
+      }
+      if (this.addWidgetData.type == 'note') {
+        this.addNote(this.addWidgetData.noteContent);
+      } else if (this.addWidgetData.type == 'tabs') {
+        this.addTabs(this.addWidgetData.tabsConfig);
+      } else if (this.addWidgetData.type == 'variable') {
+        this.addVariablePane(this.addWidgetData.variablePanes);
+      } else if (this.addWidgetData.type == 'visualization') {
+        this.addViz(this.addWidgetData.visualizationID);
+      }
     },
     addNoteCount() {
       this.addNote();
@@ -166,6 +200,9 @@ export default {
       showScheduleDashboard: false,
       showVariablePane: false,
       fullScreen: false,
+      deletingKey: null,
+      deletingType: null,
+      showRemoveFromDashboardModal: false,
     };
   },
 
@@ -228,8 +265,12 @@ export default {
   },
 
   methods: {
+    showDeleteModal(widget) {
+      this.deletingKey = `${widget.type}_${widget.widID}`;
+      this.deletingType = widget.type;
+      this.showRemoveFromDashboardModal = true;
+    },
     addVariablePane(panes) {
-      this.widgets = this.widgets.filter((w) => w.type != 'variablePane');
       panes &&
         panes.forEach((pane) => {
           if (!pane.w) {
@@ -247,7 +288,7 @@ export default {
     },
     deleteWidget(widgetID) {
       this.widgets = this.widgets.filter(
-        (w, i) => this.widgetKey(w, i) != widgetID
+        (w) => `${w.type}_${w.widID}` != widgetID
       );
       this.$nextTick(this.saveDashboard());
     },
@@ -385,7 +426,12 @@ export default {
       this.widgets[index] = wid;
     },
 
-    addNote() {
+    addNote(data) {
+      let session = sessionStore();
+      saveNote(null, { content: data }, session.token, this.pushNote);
+    },
+
+    maxY() {
       let maxY = 0;
       this.grid &&
         this.grid.engine.nodes.forEach((node) => {
@@ -399,18 +445,36 @@ export default {
             maxY = node.y + node.h;
           }
         });
+      return maxY;
+    },
+
+    pushNote(note, _loading) {
+      if (!note) {
+        return;
+      }
       const widget = {
         w: 6 * 40,
         h: 55,
         x: 0,
-        y: maxY,
-        widID: null,
+        y: this.maxY(),
+        widID: note.id,
         type: 'note',
       };
       this.widgets.push(widget);
     },
+    addViz(vizID) {
+      const widget = {
+        w: 6 * 40,
+        h: 55,
+        x: 0,
+        y: this.maxY(),
+        widID: vizID,
+        type: 'visualization',
+      };
+      this.widgets.push(widget);
+    },
 
-    addTabs() {
+    addTabs(data) {
       let maxY = 0;
       this.grid &&
         this.grid.engine.nodes.forEach((node) => {
@@ -431,6 +495,7 @@ export default {
         y: maxY,
         widID: randomID(),
         type: 'tabs',
+        widgetConfiguration: { tabsConfig: data },
       };
       this.widgets.push(widget);
     },

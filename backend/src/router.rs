@@ -1,10 +1,14 @@
+use std::sync::Arc;
+
 use crate::app::auth::verify_token;
-use crate::controllers::result::results;
+
 use crate::controllers::{
-    api_action, auth, column, dashboard, database, organization, organization_setting,
-    permission_set, question, result, setting, table, tag, team, user, user_setting, visualization,
+    api_action, auth, autocomplete, column, dashboard, database, note, organization,
+    organization_setting, permission_set, question, result, setting, snippet, table, tag, team,
+    user, user_setting, visualization,
 };
 
+use crate::errors::AGError;
 use crate::repository::models::{Organization, User};
 use crate::repository::DBPool;
 use actix_web::body::MessageBody;
@@ -15,8 +19,9 @@ use actix_web_grants::permissions::AttachPermissions;
 use actix_web_lab::middleware::from_fn;
 
 use actix_web_lab::middleware::Next;
-use diesel::connection;
+
 use reqwest::header::{HeaderName, HeaderValue};
+use reqwest::StatusCode;
 
 async fn authenticate(
     mut req: ServiceRequest,
@@ -26,32 +31,54 @@ async fn authenticate(
         let header = auth_header.to_str().unwrap_or("invalid");
         let token = header.replace("Bearer ", "");
 
-        let pool = req.app_data::<web::Data<DBPool>>().unwrap();
+        let pool = req.app_data::<web::Data<Arc<DBPool>>>().unwrap();
         let mut connection = pool.get().unwrap();
-        let token_response = verify_token(&mut connection, token)
-            .map_err(|_| actix_web::error::ErrorUnauthorized("Unauthorized"))?;
+        let token_response = verify_token(&mut connection, token).map_err(|_| {
+            actix_web::error::ErrorUnauthorized("Unauthorized: Reason: unable to verify token")
+        })?;
 
         let mut permissions = token_response.permissions;
         permissions.push("Any".to_string());
         req.attach(permissions);
 
         if None == token_response.user.email {
-            return Err(actix_web::error::ErrorUnauthorized("Unauthorized"));
+            return Err(AGError::<String>::new_with_details(
+                "Unauthorized: User email not found in token".to_string(),
+                None,
+                StatusCode::UNAUTHORIZED,
+            )
+            .into());
         }
 
         let email_from_token = token_response.user.email.clone().unwrap();
 
-        let user = User::find_by_email(&mut connection, email_from_token)
-            .map_err(|_| actix_web::error::ErrorUnauthorized("Unauthorized"))?;
+        let user = User::find_by_email(&mut connection, email_from_token).map_err(|_| {
+            AGError::<String>::new_with_details(
+                "Unauthorized: Reason: User not found".to_string(),
+                None,
+                StatusCode::UNAUTHORIZED,
+            )
+        })?;
 
         let organization = Organization::find_by_domain(
             &mut connection,
             User::find_domain(user.email.unwrap().as_str()).as_str(),
         )
-        .map_err(|_| actix_web::error::ErrorUnauthorized("Unauthorized"))?;
+        .map_err(|_| {
+            AGError::<String>::new_with_details(
+                "Unauthorized: Reason: Domain not found".to_string(),
+                None,
+                StatusCode::UNAUTHORIZED,
+            )
+        })?;
 
         if organization.is_deactivated {
-            return Err(actix_web::error::ErrorUnauthorized("Unauthorized"));
+            return Err(AGError::<String>::new_with_details(
+                "Unauthorized: Domain is not allowed.".to_string(),
+                None,
+                StatusCode::UNAUTHORIZED,
+            )
+            .into());
         }
 
         req.headers_mut().append(
@@ -90,10 +117,20 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
                 .route(web::post().to(database::create)),
         )
         .service(
+            web::resource("/databases/search")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(database::search)),
+        )
+        .service(
             web::resource("/databases/{database_id}")
                 .wrap(from_fn(authenticate))
                 .route(web::patch().to(database::update))
                 .route(web::get().to(database::show)),
+        )
+        .service(
+            web::resource("/databases/{database_id}/sync")
+                .wrap(from_fn(authenticate))
+                .route(web::put().to(database::sync)),
         )
         .service(
             web::resource("/organizations")
@@ -136,6 +173,11 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
                 .wrap(from_fn(authenticate))
                 .route(web::get().to(user::index))
                 .route(web::post().to(user::create)),
+        )
+        .service(
+            web::resource("/users/search")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(user::search)),
         )
         .service(
             web::resource("/create_bulk_users")
@@ -204,22 +246,46 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
         .service(
             web::resource("/questions")
                 .wrap(from_fn(authenticate))
-                .route(web::get().to(question::index)),
-        )
-        .service(
-            web::resource("/tags")
-                .wrap(from_fn(authenticate))
-                .route(web::get().to(tag::index)),
+                .route(web::get().to(question::index))
+                .route(web::post().to(question::create)),
         )
         .service(
             web::resource("/questions/{question_id}")
                 .wrap(from_fn(authenticate))
-                .route(web::get().to(question::show)), // .route(web::post().to(api_action::create)),
+                .route(web::get().to(question::show))
+                .route(web::put().to(question::create)),
+        )
+        .service(
+            web::resource("/tags")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(tag::index))
+                .route(web::post().to(tag::create)),
+        )
+        .service(
+            web::resource("/tags/search")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(tag::search)),
         )
         .service(
             web::resource("/api_actions")
                 .wrap(from_fn(authenticate))
-                .route(web::get().to(api_action::index)), // .route(web::post().to(api_action::create)),
+                .route(web::get().to(api_action::index))
+                .route(web::post().to(api_action::create)),
+        )
+        .service(
+            web::resource("/api_actions/send_request")
+                .wrap(from_fn(authenticate))
+                .route(web::post().to(api_action::send_request)), // .route(web::post().to(api_action::create)),
+        )
+        .service(
+            web::resource("/api_actions/{api_action_id}")
+                .wrap(from_fn(authenticate))
+                .route(web::put().to(api_action::update)), // .route(web::post().to(api_action::create)),
+        )
+        .service(
+            web::resource("/api_actions/{api_action_id}/send_request")
+                .wrap(from_fn(authenticate))
+                .route(web::post().to(api_action::send_request)), // .route(web::post().to(api_action::create)),
         )
         .service(
             web::resource("/visualizations/results")
@@ -227,9 +293,20 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
                 .route(web::post().to(result::results)),
         )
         .service(
+            web::resource("/visualizations/search")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(visualization::search)),
+        )
+        .service(
             web::resource("/visualizations/create_csv")
                 .wrap(from_fn(authenticate))
                 .route(web::post().to(visualization::create_csv)),
+        )
+        .service(
+            web::resource("/visualizations/{visualization_id}/schedule")
+                .wrap(from_fn(authenticate))
+                .route(web::post().to(visualization::save_schedule))
+                .route(web::get().to(visualization::fetch_schedule)),
         )
         .service(
             web::resource("/visualizations")
@@ -277,12 +354,58 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
         .service(
             web::resource("/dashboards")
                 .wrap(from_fn(authenticate))
-                .route(web::get().to(dashboard::index)),
+                .route(web::get().to(dashboard::index))
+                .route(web::post().to(dashboard::create)),
+        )
+        .service(
+            web::resource("/dashboards/search")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(dashboard::search)),
         )
         .service(
             web::resource("/dashboards/{dashboard_id}")
                 .wrap(from_fn(authenticate))
-                .route(web::get().to(dashboard::show)),
+                .route(web::get().to(dashboard::show))
+                .route(web::put().to(dashboard::update)),
+        )
+        .service(
+            web::resource("/dashboards/{dashboard_id}/schedule")
+                .wrap(from_fn(authenticate))
+                .route(web::post().to(dashboard::save_schedule))
+                .route(web::get().to(dashboard::fetch_schedule)),
+        )
+        .service(
+            web::resource("/notes")
+                .wrap(from_fn(authenticate))
+                .route(web::post().to(note::create)),
+        )
+        .service(
+            web::resource("/notes/{note_id}")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(note::show))
+                .route(web::put().to(note::update)),
+        )
+        .service(
+            web::resource("/snippets")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(snippet::index))
+                .route(web::post().to(snippet::create)),
+        )
+        .service(
+            web::resource("/snippets/{snippets_id}")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(snippet::show))
+                .route(web::put().to(snippet::update)),
+        )
+        .service(
+            web::resource("recipients")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(autocomplete::recipients)),
+        )
+        .service(
+            web::resource("/sql_autocomplete")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(autocomplete::complete)),
         );
 }
 

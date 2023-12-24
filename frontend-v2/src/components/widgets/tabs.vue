@@ -24,7 +24,7 @@
             transition-hide="scale"
             max-height="400px"
             :offset="[0, 5]"
-            class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
+            class="tw-rounded-2xl tw-border tw-overflow-hidden"
             @show="menuShow"
             @keydown="onKeydown"
           >
@@ -43,14 +43,6 @@
               >
                 <RefreshIcon size="16" class="icon-primary tw-mr-2" />
                 <span class="">Refresh</span>
-              </div>
-              <div
-                @click="$emit('update:showRemoveFromDashboardModal', true)"
-                v-if="currentUser.canEditDashboard"
-                class="tw-cursor-pointer tw-whitespace-nowrap tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
-              >
-                <XIcon size="16" class="icon-primary tw-mr-2" />
-                <span class="">Remove from Dashboard</span>
               </div>
             </div>
           </q-menu>
@@ -128,7 +120,6 @@ export default {
     AGEditTabsModal,
     TableOptionsIcon,
     RefreshIcon,
-    XIcon,
     Menu2Icon,
   },
 
@@ -148,7 +139,7 @@ export default {
           color: autoTextColor(bgColor),
         };
       }
-      return { 'background-color': 'white' };
+      return { 'background-color': 'rgb(var(--color-white))' };
     },
   },
 

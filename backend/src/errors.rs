@@ -23,14 +23,14 @@ where
 }
 
 impl<T: Display> AGError<T> {
-    pub fn new(error: &str) -> Self {
+    pub fn new<W: Display>(error: W) -> Self {
         AGError {
             error: error.to_string(),
             details: None,
             status: StatusCode::BAD_REQUEST,
         }
     }
-    pub fn new_with_details(error: &str, details: Option<T>, status: StatusCode) -> Self {
+    pub fn new_with_details<W: Display>(error: W, details: Option<T>, status: StatusCode) -> Self {
         AGError {
             error: error.to_string(),
             details,

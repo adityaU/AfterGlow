@@ -1,0 +1,24 @@
+<table width="100%" cellspacing="0" cellpadding="0" style="border-collapse: collapse; margin: 20px 0;">
+  <thead>
+    <tr>
+      {% for column in columns %}
+      <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f5f7fb; font-weight: bold;">
+        {{column}}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+    {% if loop.index0 % 2 == 0 -%}
+    <tr style="background: white;">
+      {% else -%}
+    <tr style="background: #f5f7fb;">
+      {% endif -%}
+      {% for r in row %}
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: left; ">{{r}}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+
+  </tbody>
+</table>

@@ -1,4 +1,4 @@
-import { api, apiV2 } from 'boot/axios';
+import { apiV2 } from 'boot/axios';
 import apiConfig from '../helpers/apiConfig';
 import { sessionStore } from 'stores/session';
 import cloneDeep from 'lodash/cloneDeep';
@@ -9,9 +9,11 @@ const fetchDatabasesForTeam = async function(
   callback: (arg0: null, arg1: boolean) => void
 ) {
   callback(null, true);
-  apiV2.get('/databases?team_id=' + team_id, apiConfig(token)).then((response) => {
-    callback(response.data.data, false);
-  });
+  apiV2
+    .get('/databases?team_id=' + team_id, apiConfig(token))
+    .then((response) => {
+      callback(response.data.data, false);
+    });
 };
 
 const fetchDatabases = async function(
@@ -55,13 +57,7 @@ const createDatabase = async function(payload, callback) {
     .post('databases', payload, apiConfig(session.token))
     .then((response) => {
       response.data.data.attributes.id = response.data.data.id;
-      callback(
-        {
-          ...response.data.data.attributes,
-          ...(response.data.data.relationships || {}),
-        },
-        false
-      );
+      callback(response.data.data, false);
     })
     .catch((error) => {
       console.error(error);
@@ -71,43 +67,35 @@ const createDatabase = async function(payload, callback) {
 
 const fetchDatabase = async function(id, token, callback) {
   callback(null, true);
-  api.get('/databases/' + id, apiConfig(token)).then((response) => {
-    response.data.data.attributes.id = response.data.data.id;
-    callback(response.data.data.attributes, false);
+  apiV2.get('/databases/' + id, apiConfig(token)).then((response) => {
+    callback(response.data.data, false);
   });
 };
 
 const fetchDatabaseWithConfig = async function(id, token, callback) {
   callback(null, true);
-  api
+  apiV2
     .get('/databases?id=' + id + '&include_config=true', apiConfig(token))
     .then((response) => {
-      response.data.data.attributes.id = response.data.data.id;
-      callback(response.data.data.attributes, false);
+      callback(response.data.data, false);
     });
 };
 
 const fetchTables = async function(database_id, token, callback) {
   callback(null, true);
-  api
-    .get('/tables?filter[database_id]=' + database_id, apiConfig(token))
+  apiV2
+    .get('/search_tables?database_id=' + database_id, apiConfig(token))
     .then((response) => {
-      callback(
-        response.data.data.map((v) => {
-          return { ...v.attributes, ...{ id: v.id } };
-        }),
-        false
-      );
+      callback(response.data.data, false);
     });
 };
 
 const fetchTable = async function(id, token, callback) {
   callback(null, true);
-  api
+  apiV2
     .get('/tables/' + id, apiConfig(token))
     .then((response) => {
-      response.data.data.attributes.id = response.data.data.id;
-      callback(response.data.data.attributes, false);
+      callback(response.data.data, false);
     })
     .catch((error) => {
       console.error(error);
@@ -152,9 +140,7 @@ const saveColumn = async function(payload, callback) {
   apiV2
     .patch('columns/' + id, payload, apiConfig(session.token))
     .then((response) => {
-      callback(response.data.data,
-        false
-      );
+      callback(response.data.data, false);
     })
     .catch((error) => {
       console.error(error);
@@ -178,7 +164,7 @@ const saveTable = async function(payload, callback) {
 
 const syncDatabase = async function(id, callback) {
   const session = sessionStore();
-  api
+  apiV2
     .put('databases/' + id + '/sync', {}, apiConfig(session.token))
     .then((response) => {
       response.data.data.attributes.id = response.data.data.id;
@@ -196,6 +182,20 @@ const syncDatabase = async function(id, callback) {
     });
 };
 
+const searchDatabases = async function(query, callback) {
+  const session = sessionStore();
+  callback([], true);
+  apiV2
+    .get('databases/search?query=' + query, apiConfig(session.token))
+    .then((response) => {
+      callback(response.data.data, false);
+    })
+    .catch((error) => {
+      console.log(error);
+      callback([], false);
+    });
+};
+
 export {
   searchTables,
   getColumns,
@@ -210,4 +210,5 @@ export {
   syncDatabase,
   fetchTables,
   fetchDatabasesForTeam,
+  searchDatabases,
 };

@@ -498,7 +498,8 @@ export default {
       if (table) {
         const text = table.columns.map((c) => c.name).join(',\n');
         navigator.clipboard.writeText(text);
-        this.toastText = 'Copied Columns to clipboard!';
+        this.toastText =
+          'Columns copied to clipboard! To paste them into the Editor, use Cmd+V (Mac) or CTRL+V (Windows).';
         this.showToast = true;
       }
     },

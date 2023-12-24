@@ -1,11 +1,11 @@
-import { api } from 'boot/axios';
+import { apiV2 } from 'boot/axios';
 import apiConfig from '../helpers/apiConfig';
 import { sessionStore } from 'stores/session';
 import cloneDeep from 'lodash/cloneDeep';
 
 const fetchSnippets = async function (database_id, callback) {
   const session = sessionStore();
-  api
+  apiV2
     .get('snippets?database_id=' + database_id, apiConfig(session.token))
     .then((response) => {
       callback(response.data.data, false);
@@ -18,7 +18,7 @@ const fetchSnippets = async function (database_id, callback) {
 
 const fetchSnippetRefrencedBy = async function (snippet_id, callback) {
   const session = sessionStore();
-  api
+  apiV2
     .get('snippets/' + snippet_id + '/referenced_by', apiConfig(session.token))
     .then((response) => {
       callback(response.data.data, false);
@@ -31,7 +31,7 @@ const fetchSnippetRefrencedBy = async function (snippet_id, callback) {
 
 const fetchSnippet = async function (id, callback) {
   const session = sessionStore();
-  api
+  apiV2
     .get('snippets/' + id, apiConfig(session.token))
     .then((response) => {
       callback(response.data.data, false);
@@ -45,7 +45,7 @@ const fetchSnippet = async function (id, callback) {
 const saveSnippet = async function (payload, callback) {
   const session = sessionStore();
   const id = cloneDeep(payload.id);
-  api
+  apiV2
     .patch('snippets/' + id, payload, apiConfig(session.token))
     .then((response) => {
       callback(response.data.data, false);
@@ -58,8 +58,8 @@ const saveSnippet = async function (payload, callback) {
 
 const createSnippet = async function (payload, callback) {
   const session = sessionStore();
-  api
-    .post('snippets/', payload, apiConfig(session.token))
+  apiV2
+    .post('snippets', payload, apiConfig(session.token))
     .then((response) => {
       callback(response.data.data, false);
     })

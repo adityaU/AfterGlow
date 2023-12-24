@@ -8,6 +8,17 @@ use diesel::prelude::*;
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
 
 impl Database {
+    pub fn search(
+        conn: &mut PgConnection,
+        query: String,
+        _current_user_email: String,
+        _permissions: Vec<String>,
+    ) -> Result<Vec<Self>, Error> {
+        databases::table
+            .filter(databases::name.ilike(format!("%{}%", query)))
+            .order(databases::name.asc())
+            .load::<Self>(conn)
+    }
     pub fn sorted_index(conn: &mut PgConnection) -> Result<Vec<Self>, Error> {
         databases::table
             .order(databases::name.asc())

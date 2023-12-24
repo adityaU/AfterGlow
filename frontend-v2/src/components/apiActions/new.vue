@@ -25,16 +25,18 @@
         </div>
       </template>
       <template #body>
-        <AGApiActionForm
-          :link="link"
-          :row="row"
-          :columns="columns"
-          :queryKey="queryKey"
-          :questionID="questionID"
-          :visualizationID="visualizationID"
-          @editForm="$emit('editForm')"
-          v-model:apiAction="apiActionLocal"
-        />
+        <div class="tw-p-4">
+          <AGApiActionForm
+            :link="link"
+            :row="row"
+            :columns="columns"
+            :queryKey="queryKey"
+            :questionID="questionID"
+            :visualizationID="visualizationID"
+            @editForm="$emit('editForm')"
+            v-model:apiAction="apiActionLocal"
+          />
+        </div>
       </template>
       <template #footer>
         <div class="tw-grid tw-grid-cols-12">
@@ -67,7 +69,7 @@
 
     <!-- <div v-if="open" class="tw-flex tw-inset-0 tw-z-50 tw-absolute tw-bg-default/80"> -->
     <!--   <div  -->
-    <!--     class="tw-flex tw-inset-[5%] tw-z-50 tw-absolute tw-border tw-rounded-sm tw-shadow-sm tw-bg-white"> -->
+    <!--     class="tw-flex tw-inset-[5%] tw-z-50 tw-absolute tw-border tw-rounded-2xl  tw-bg-white"> -->
     <!--     <div class="" v-if="!loading"> -->
     <!--       <div class="header tw-p-2 tw-border-b tw-text-2xl tw-"> -->
     <!--         Action Response -->
@@ -102,6 +104,7 @@ import AGApiActionForm from 'components/apiActions/newFlat.vue';
 // import 'ace-builds/src-noconflict/theme-dracula';
 
 import { cloneDeep } from 'lodash';
+import { createApiAction, updateApiAction } from 'src/apis/apiActions';
 import Editor from '../question/editor.vue';
 
 export default {
@@ -156,6 +159,15 @@ export default {
     wrapInCurly(name) {
       return `{{form:${name}}}`;
     },
+    saveCallback(isSuccess, loading, data) {
+      this.loading = loading;
+      if (isSuccess) {
+        this.$emit('update:apiAction');
+        this.$emit('update:open', false);
+      } else {
+        this.error = data;
+      }
+    },
     save() {
       const query = queryStore().get(this.queryKey);
       this.apiActionLocal.headers = {};
@@ -163,39 +175,12 @@ export default {
         this.apiActionLocal.dummyHeaders.forEach((item) => {
           this.apiActionLocal.headers[item.name] = item.value;
         });
-      const actionPayload = {
-        data: { type: 'api-actions', attributes: this.apiActionLocal },
-      };
-      let url = 'api_actions';
       this.loading = true;
       if (this.apiActionLocal.id) {
-        url = 'api_actions/' + this.apiActionLocal.id;
-
-        api
-          .put(url, actionPayload, apiConfig(query.token))
-          .then((response) => {
-            this.loading = false;
-            this.$emit('update:apiAction');
-            this.$emit('update:open', false);
-          })
-          .catch((error) => {
-            this.loading = false;
-            this.error = error.response.data;
-          });
+        updateApiAction(this.apiActionLocal, query.token, this.saveCallback);
         return;
       }
-
-      api
-        .post(url, actionPayload, apiConfig(query.token))
-        .then((response) => {
-          this.loading = false;
-          this.$emit('update:apiAction');
-          this.$emit('update:open', false);
-        })
-        .catch((error) => {
-          this.loading = false;
-          this.error = error.response.data;
-        });
+      createApiAction(this.apiActionLocal, query.token, this.saveCallback);
     },
   },
 };

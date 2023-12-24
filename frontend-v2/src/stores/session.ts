@@ -31,6 +31,7 @@ export const sessionStore = defineStore('session', {
       localStorage.setItem('ag_access_token', token);
     },
     logout() {
+      this.accessToken = '';
       localStorage.setItem('ag_access_token', '');
     },
   },

@@ -1,9 +1,11 @@
 use super::base;
+
 use actix_web::{error, web, HttpResponse, Responder};
 use serde::Deserialize;
 
 use crate::{
     controllers::common::ResponseData,
+    errors::AGError,
     repository::{models::User, models::UserChangeset, models::UserView, DBPool},
     views::user::RestrictedUserView,
 };
@@ -13,6 +15,7 @@ use std::sync::Arc;
 #[derive(Deserialize)]
 pub struct QueryParams {
     team_id: Option<i32>,
+    query: Option<String>,
 }
 
 base::generate_index!(_index, User, UserView, "Any");
@@ -46,7 +49,7 @@ pub(crate) async fn index(
                 .collect::<Vec<RestrictedUserView>>();
             HttpResponse::Ok().json(ResponseData { data: resp })
         })
-        .map_err(|err| error::ErrorBadRequest(err))
+        .map_err(|err| AGError::<String>::new(err))
 }
 
 pub(crate) async fn create_bulk_user(
@@ -63,7 +66,7 @@ pub(crate) async fn create_bulk_user(
                 .collect::<Vec<UserView>>();
             HttpResponse::Ok().json(ResponseData { data: resp })
         })
-        .map_err(|err| error::ErrorBadRequest(err))
+        .map_err(|err| AGError::<String>::new(err))
 }
 
 pub(crate) async fn deactivate(
@@ -77,7 +80,7 @@ pub(crate) async fn deactivate(
                 data: RestrictedUserView::from_model(&user),
             })
         })
-        .map_err(|err| error::ErrorBadRequest(err))
+        .map_err(|err| AGError::<String>::new(err))
 }
 pub(crate) async fn activate(
     pool: web::Data<Arc<DBPool>>,
@@ -90,5 +93,21 @@ pub(crate) async fn activate(
                 data: RestrictedUserView::from_model(&user),
             })
         })
-        .map_err(|err| error::ErrorBadRequest(err))
+        .map_err(|err| AGError::<String>::new(err))
+}
+
+pub(crate) async fn search(
+    pool: web::Data<Arc<DBPool>>,
+    qp: web::Query<QueryParams>,
+) -> impl Responder {
+    let conn = pool.get();
+    User::search(&mut conn.unwrap(), qp.query.clone().unwrap_or_default())
+        .map(|items| {
+            let resp = items
+                .iter()
+                .map(|db| UserView::from_model(db))
+                .collect::<Vec<UserView>>();
+            HttpResponse::Ok().json(ResponseData { data: resp })
+        })
+        .map_err(|err| AGError::<String>::new(err))
 }

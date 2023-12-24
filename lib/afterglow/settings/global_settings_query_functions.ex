@@ -23,7 +23,12 @@ defmodule AfterGlow.Settings.GlobalSettingsQueryFunctions do
     ["OPENAI_API_KEY", ""],
     ["OPENAI_ENABLED", "true"],
     ["USERS_CAN_OVERRIDE_OPENAI_KEY", "true"],
-    ["OPENAI_MODEL_NAME", "text-davinci-003"]
+    ["OPENAI_MODEL_NAME", "text-davinci-003"],
+    ["THEME_PRIMARY_COLOR", "rgb(85 64 198)"],
+    ["THEME_SECONDARY_COLOR", "rgb(245 247 251)"],
+    ["THEME_TERTIARY_COLOR", "rgb(255 255 255)"],
+    ["THEME_DEFAULT_COLOR", "rgb(32 33 36)"],
+    ["THEME_WHITE_COLOR", "rgb(255 255 255)"]
   ]
 
   def create_or_update_settings() do

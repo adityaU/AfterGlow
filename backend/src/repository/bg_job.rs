@@ -1,25 +1,34 @@
-use crud_derive::{Changeset, DatabaseEnum, View};
-use diesel::deserialize::{self, FromSql};
-use diesel::serialize::{self, Output, ToSql};
-use diesel::{debug_query, sql_query, PgConnection, RunQueryDsl};
-use diesel::{deserialize::FromSqlRow, expression::AsExpression};
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
+
+
+use diesel::{sql_query, PgConnection, RunQueryDsl};
+
 use uuid::Uuid;
 
-use chrono::{NaiveDateTime, Utc};
-use diesel::pg::PgValue;
+use chrono::Utc;
 
+use diesel::prelude::*;
 use diesel::result::Error;
 
-use diesel::pg::Pg;
-
+use crate::diesel::BoolExpressionMethods;
+use crate::diesel::ExpressionMethods;
 use diesel::sql_types::{Int2, Int4, Timestamp, Uuid as PgUuid};
 
 use super::models::{BgJob, JobStatus};
+use super::schema::bg_queue;
 const MAX_FAILED_ATTEMPTS: i16 = 5;
 
 impl BgJob {
+    pub fn next_named_jobs(conn: &mut PgConnection) -> Result<Vec<Self>, Error> {
+        let now = Utc::now().naive_utc();
+        bg_queue::table
+            .filter(
+                bg_queue::scheduled_for
+                    .gt(now)
+                    .and(bg_queue::name.is_not_null()),
+            )
+            .order(bg_queue::scheduled_for.asc())
+            .load::<Self>(conn)
+    }
     pub fn delete_all(conn: &mut PgConnection) -> Result<(), Error> {
         sql_query("Delete from bg_queue").execute(conn)?;
         Ok(())
@@ -31,7 +40,7 @@ impl BgJob {
             SET status = ?, updated_at = ?, failed_attempts = failed_attempts + 1
             WHERE id = ?",
         );
-        let query = query
+        let _query = query
             .bind::<Int4, _>(JobStatus::Queued)
             .bind::<Timestamp, _>(Utc::now().naive_utc())
             .bind::<PgUuid, _>(job_id)

@@ -13,20 +13,22 @@ const operatorOptions = {
   ],
 };
 const dataTypesMapping = {
-  NaiveDateTime: 'datetime',
-  'Inferred.DateTime': 'datetime',
-  Integer: 'number',
-  Float: 'number',
-  Decimal: 'number',
+  String: 'text',
+  Number: 'number',
+  DateTime: 'datetime',
   Boolean: 'boolean',
+  Json: 'text',
+  text: 'text',
   number: 'number',
-  boolean: 'boolean',
   datetime: 'datetime',
-  Date: 'datetime',
+  boolean: 'boolean',
 };
 
 const findDataType = function (colDetails, col) {
   if (!colDetails || !colDetails[col]) {
+    return 'text';
+  }
+  if (colDetails[col].is_array) {
     return 'text';
   }
   const dt = dataTypesMapping[colDetails[col].data_type];

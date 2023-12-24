@@ -3,11 +3,7 @@ use diesel::PgConnection;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::repository::models::{
-    Dashboard,
-};
-
-
+use crate::repository::models::{Dashboard, VariableView};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DetailedDashboardView {
@@ -23,14 +19,14 @@ pub struct DetailedDashboardView {
     pub settings: Option<serde_json::Value>,
     pub shared_to: Option<Vec<Option<String>>>,
     pub owner_id: Option<i32>,
-    // pub notes: Vec<NoteView>,
-    // pub owner: Option<RestrictedUserView>,
-    // pub tags: Vec<TagView>,
-    // pub variables: Vec<VariableView>,
+    pub possible_variables: Vec<VariableView>, // pub notes: Vec<NoteView>,
+                                               // pub owner: Option<RestrictedUserView>,
+                                               // pub tags: Vec<TagView>,
+                                               // pub variables: Vec<VariableView>,
 }
 
 impl DetailedDashboardView {
-    pub fn from_model(_conn: &mut PgConnection, dashboard: &Dashboard) -> Self {
+    pub fn from_model(conn: &mut PgConnection, dashboard: &Dashboard) -> Self {
         // let notes = Note::find_by_dashboard_id(conn, dashboard.id)
         //     .unwrap_or(vec![])
         //     .iter()
@@ -53,6 +49,13 @@ impl DetailedDashboardView {
         //     },
         //     None => None,
         // };
+        //
+        let possible_variables = Dashboard::fetch_possible_variables(conn, dashboard.id)
+            .ok()
+            .unwrap_or(vec![])
+            .iter()
+            .map(|var| VariableView::from_model(var))
+            .collect::<Vec<VariableView>>();
 
         Self {
             id: dashboard.id,
@@ -67,6 +70,7 @@ impl DetailedDashboardView {
             settings: dashboard.settings.clone(),
             shared_to: dashboard.shared_to.clone(),
             owner_id: dashboard.owner_id,
+            possible_variables,
             // notes: notes,
             // owner: owner,
             // tags: tags,

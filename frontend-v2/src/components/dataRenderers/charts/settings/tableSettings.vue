@@ -75,11 +75,11 @@
                     >
                       A
                     </div>
-                    <div class="tw-flex tw-items-center tw-gap-1">
+                    <div class="tw-flex tw-items-center tw-gap-1 tw-flex-wrap">
                       {{ element.name }}
                       <div>as</div>
                       <div
-                        class="tw-border tw-cursor-pointer tw-rounded-sm tw-px-2"
+                        class="tw-border tw-cursor-pointer tw-rounded-2xl tw-px-4 tw-py-1"
                       >
                         {{ element.displayName || element.name }}
                         <q-menu
@@ -88,7 +88,7 @@
                           transition-hide="scale"
                           max-height="400px"
                           :offset="[0, 5]"
-                          class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
+                          class="tw-rounded-full tw-border tw-overflow-hidden"
                           @show="menuShow"
                           @keydown="onKeydown"
                         >
@@ -147,7 +147,7 @@
                       transition-hide="scale"
                       max-height="400px"
                       :offset="[0, 5]"
-                      class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
+                      class="tw-rounded-2xl tw-border tw-overflow-hidden"
                       @show="menuShow"
                       @keydown="onKeydown"
                     >
@@ -244,6 +244,15 @@
                     </q-tooltip>
                     <EyeIcon
                       size="16"
+                      v-if="element.show"
+                      :class="
+                        element.show ? 'tw-stroke-primary' : 'tw-stroke-default'
+                      "
+                    />
+
+                    <EyeOffIcon
+                      size="16"
+                      v-if="!element.show"
                       :class="
                         element.show ? 'tw-stroke-primary' : 'tw-stroke-default'
                       "
@@ -333,6 +342,7 @@ import {
   MenuIcon,
   Menu2Icon,
   EyeIcon,
+  EyeOffIcon,
   PlusIcon,
   EditIcon,
   XIcon,
@@ -364,6 +374,7 @@ export default {
     MenuIcon,
     Menu2Icon,
     EyeIcon,
+    EyeOffIcon,
     PlusIcon,
     ArrowLeftIcon,
     BaselineIcon,
@@ -391,6 +402,7 @@ export default {
     'questionID',
     'colDetails',
     'allHidden',
+    'guessed_formats',
   ],
 
   computed: {
@@ -541,6 +553,274 @@ export default {
         });
       return isValid;
     },
+    setUpUrl(colSettings, item) {
+      let taggables =
+        this.guessed_formats
+          ?.filter((item) => item.format == 'url')
+          .map((item) => item.column) || [];
+      if (taggables.indexOf(item) >= 0) {
+        colSettings.formattingSettings = [
+          {
+            default: true,
+            operation: '=',
+            value: null,
+            apply: {
+              type: 'Url',
+              textColor: 'var(--color-primary)',
+              backgroundColor: 'transparent',
+              displayText: '{{columnValue}}',
+              url: '{{columnValue}}',
+              imageShape: 'round',
+              ratingColor: 'rgb(var(--color-default))',
+              maximum: 5,
+              progressMaximum: 100,
+              progressColor: 'rgb(var(--color-default))',
+              borderColor: '#fff',
+              containerBorderColor: 'transparent',
+              containerBorderRadius: '0',
+              containerBorderPosition: [],
+              containerBackgroundColor: 'transparent',
+              containerBorderThickness: 0,
+              parentBackgroundColor: 'transparent',
+              fontSize: 1,
+              fontWeight: 'normal',
+              imageHeight: 3,
+              imageWidth: 3,
+              imageBorderRadius: 0.125,
+              horizontalAlignment: 'left',
+              verticalAlignment: 'center',
+              showLabel: false,
+              labelFontSize: '1rem',
+              labelFontWeight: 'semibold',
+              labelPosition: 'left-center',
+              labelColor: 'rgb(var(--color-default))',
+              paddingX: 1,
+              paddingY: 0.5,
+              iconGap: 0.5,
+              openInNewTab: true,
+              underline: false,
+            },
+            show: true,
+          },
+        ];
+      }
+    },
+    setUpRating(colSettings, item) {
+      let taggables =
+        this.guessed_formats
+          ?.filter((item) => item.format == 'rating')
+          .map((item) => item.column) || [];
+      if (taggables.indexOf(item) >= 0) {
+        colSettings.formattingSettings = [
+          {
+            default: true,
+            operation: '=',
+            value: null,
+            apply: {
+              type: 'Rating',
+              textColor: 'inherit',
+              backgroundColor: 'transparent',
+              displayText: '{{columnValue}}',
+              url: '{{columnValue}}',
+              imageShape: 'round',
+              ratingColor: 'var(--color-primary)',
+              maximum: 5,
+              progressMaximum: 100,
+              progressColor: 'rgb(var(--color-default))',
+              borderColor: '#fff',
+              containerBorderColor: 'transparent',
+              containerBorderRadius: '0',
+              containerBorderPosition: [],
+              containerBackgroundColor: 'transparent',
+              containerBorderThickness: 0,
+              parentBackgroundColor: 'transparent',
+              fontSize: 1,
+              fontWeight: 'normal',
+              imageHeight: 3,
+              imageWidth: 3,
+              imageBorderRadius: 0.125,
+              horizontalAlignment: 'left',
+              verticalAlignment: 'center',
+              showLabel: false,
+              labelFontSize: '1rem',
+              labelFontWeight: 'semibold',
+              labelPosition: 'left-center',
+              labelColor: 'var(--color-default)',
+              paddingX: 1,
+              paddingY: 0.5,
+              iconGap: 0.5,
+              openInNewTab: true,
+              underline: false,
+            },
+            show: true,
+          },
+        ];
+      }
+    },
+    setUpPhone(colSettings, item) {
+      let taggables =
+        this.guessed_formats
+          ?.filter((item) => item.format == 'phone')
+          .map((item) => item.column) || [];
+      if (taggables.indexOf(item) >= 0) {
+        colSettings.formattingSettings = [
+          {
+            default: true,
+            operation: '=',
+            value: null,
+            apply: {
+              type: 'Text',
+              textColor: 'inherit',
+              backgroundColor: 'transparent',
+              displayText: '{{columnValue}}',
+              url: '{{columnValue}}',
+              imageShape: 'round',
+              ratingColor: 'var(--color-default)',
+              maximum: 5,
+              progressMaximum: 100,
+              progressColor: 'var(--color-default)',
+              borderColor: '#fff',
+              containerBorderColor: 'transparent',
+              containerBorderRadius: '0',
+              containerBorderPosition: [],
+              containerBackgroundColor: 'transparent',
+              containerBorderThickness: 0,
+              parentBackgroundColor: 'transparent',
+              fontSize: 1,
+              fontWeight: 'normal',
+              imageHeight: 3,
+              imageWidth: 3,
+              imageBorderRadius: 0.125,
+              horizontalAlignment: 'left',
+              verticalAlignment: 'center',
+              showLabel: false,
+              labelFontSize: '1rem',
+              labelFontWeight: 'semibold',
+              labelPosition: 'left-center',
+              labelColor: 'var(--color-default)',
+              paddingX: 1,
+              paddingY: 0.5,
+              iconGap: 0.5,
+              openInNewTab: true,
+              underline: false,
+              prefix: {
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" class="icon-tabler icon-tabler-phone" width="16px" height="16px" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>   <path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2"></path> </svg>',
+                color: 'var(--color-default)',
+              },
+            },
+            show: true,
+          },
+        ];
+      }
+    },
+    setupEmail(colSettings, item) {
+      let taggables =
+        this.guessed_formats
+          ?.filter((item) => item.format == 'email')
+          .map((item) => item.column) || [];
+      if (taggables.indexOf(item) >= 0) {
+        colSettings.formattingSettings = [
+          {
+            default: true,
+            operation: '=',
+            value: null,
+            apply: {
+              type: 'Text',
+              textColor: 'inherit',
+              backgroundColor: 'transparent',
+              displayText: '{{columnValue}}',
+              url: '{{columnValue}}',
+              imageShape: 'round',
+              ratingColor: 'var(--color-default)',
+              maximum: 5,
+              progressMaximum: 100,
+              progressColor: 'var(--color-default)',
+              borderColor: '#fff',
+              containerBorderColor: 'transparent',
+              containerBorderRadius: '0',
+              containerBorderPosition: [],
+              containerBackgroundColor: 'transparent',
+              containerBorderThickness: 0,
+              parentBackgroundColor: 'transparent',
+              fontSize: 1,
+              fontWeight: 'normal',
+              imageHeight: 3,
+              imageWidth: 3,
+              imageBorderRadius: 0.125,
+              horizontalAlignment: 'left',
+              verticalAlignment: 'center',
+              showLabel: false,
+              labelFontSize: '1rem',
+              labelFontWeight: 'semibold',
+              labelPosition: 'left-center',
+              labelColor: 'var(--color-default)',
+              paddingX: 1,
+              paddingY: 0.5,
+              iconGap: 0.25,
+              openInNewTab: true,
+              underline: false,
+              prefix: {
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" class="icon-tabler icon-tabler-mail-forward" width="16px" height="16px" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>   <path d="M12 18h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v7.5"></path>   <path d="M3 6l9 6l9 -6"></path>   <path d="M15 18h6"></path>   <path d="M18 15l3 3l-3 3"></path> </svg>',
+                color: 'var(--color-default)',
+              },
+            },
+            show: true,
+          },
+        ];
+      }
+    },
+    setupTaggables(colSettings, item) {
+      let taggables =
+        this.guessed_formats
+          ?.filter((item) => item.format == 'tag')
+          .map((item) => item.column) || [];
+      if (taggables.indexOf(item) >= 0) {
+        colSettings.formattingSettings = [
+          {
+            default: true,
+            operation: '=',
+            value: null,
+            apply: {
+              type: 'Tag',
+              textColor: 'auto',
+              backgroundColor: 'random',
+              displayText: '{{columnValue}}',
+              url: '{{columnValue}}',
+              imageShape: 'round',
+              ratingColor: 'var(--color-default)',
+              maximum: 5,
+              progressMaximum: 100,
+              progressColor: 'var(--color-default)',
+              borderColor: '#fff',
+              containerBorderColor: 'transparent',
+              containerBorderRadius: '0',
+              containerBorderPosition: [],
+              containerBackgroundColor: 'transparent',
+              containerBorderThickness: 0,
+              parentBackgroundColor: 'transparent',
+              fontSize: 1,
+              fontWeight: 'normal',
+              imageHeight: 3,
+              imageWidth: 3,
+              imageBorderRadius: 0.125,
+              horizontalAlignment: 'left',
+              verticalAlignment: 'center',
+              showLabel: false,
+              labelFontSize: '1rem',
+              labelFontWeight: 'semibold',
+              labelPosition: 'left-center',
+              labelColor: 'var(--color-default)',
+              paddingX: 1,
+              paddingY: 0.5,
+              iconGap: 0.5,
+              openInNewTab: true,
+              underline: false,
+            },
+            show: false,
+          },
+        ];
+      }
+    },
     setupColumns(settings) {
       settings = cloneDeep(settings);
       const defaultShow = settings ? !this.allHidden : true;
@@ -555,11 +835,18 @@ export default {
         let order = existingColumns.length;
         this.columns.forEach((col) => {
           if (existingColumns.indexOf(col) < 0) {
-            settings.columns.push({
+            let colSettings = {
               name: col,
               show: defaultShow,
               order: order + 1,
-            });
+            };
+
+            this.setupTaggables(colSettings, col);
+            this.setUpUrl(colSettings, col);
+            this.setUpRating(colSettings, col);
+            this.setUpPhone(colSettings, col);
+            this.setupEmail(colSettings, col);
+            settings.columns.push();
             order += 1;
           }
         });
@@ -567,7 +854,13 @@ export default {
         settings = {
           columns: this.columns
             ? this.columns.map((item, i) => {
-                return { name: item, show: defaultShow, order: i };
+                let colSettings = { name: item, show: defaultShow, order: i };
+                this.setupTaggables(colSettings, item);
+                this.setUpUrl(colSettings, item);
+                this.setUpRating(colSettings, item);
+                this.setUpPhone(colSettings, item);
+                this.setupEmail(colSettings, item);
+                return colSettings;
               })
             : [],
         };

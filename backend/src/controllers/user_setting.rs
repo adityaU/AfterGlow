@@ -1,8 +1,11 @@
 use super::base;
-use actix_web::{error, web, HttpResponse, Responder};
+use actix_web::{web, HttpResponse, Responder};
+
+use actix_web::http::StatusCode;
 
 use crate::{
     controllers::common::ResponseData,
+    errors::AGError,
     repository::{
         models::UserSetting, models::UserSettingChangeset, models::UserSettingView, DBPool,
     },
@@ -53,5 +56,5 @@ pub(crate) async fn index(
                 .collect::<Vec<UserSettingView>>();
             HttpResponse::Ok().json(ResponseData { data: resp })
         })
-        .map_err(|err| error::ErrorBadRequest(err))
+        .map_err(|err| AGError::<String>::new(err))
 }

@@ -1,8 +1,8 @@
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::{app::questions::config, controllers::result};
+use crate::{app::questions::config};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum GroupDuration {
     AsItIs,
     BySeconds,

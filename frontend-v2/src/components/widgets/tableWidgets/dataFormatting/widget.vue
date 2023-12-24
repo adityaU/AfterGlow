@@ -62,7 +62,7 @@
       :style="{ ...tagStyle, ...paddingStyle }"
     >
       <div
-        class="tw-flex tw-my-auto tw-shadow-sm tw-border-2 tw-border-secondary/20 tw-items-center"
+        class="tw-flex tw-my-auto tw-border-2 tw-border-secondary/20 tw-items-center"
         :style="{ ...style(formattedValue), ...iconGapStyle }"
       >
         <div v-html="prefix" :style="prefixStyle(formattedValue)"></div>
@@ -77,7 +77,7 @@
       :style="{ ...buttonStyle, ...paddingStyle }"
     >
       <div
-        class="tw-flex tw-gap-1 tw-my-auto tw-shadow-sm tw-border-2 tw-border-secondary/20 tw-items-center"
+        class="tw-flex tw-gap-1 tw-my-auto tw-border-2 tw-border-secondary/20 tw-items-center"
         :style="{ ...style(formattedValue), ...iconGapStyle }"
       >
         <div v-html="prefix" :style="prefixStyle(formattedValue)"></div>
@@ -92,7 +92,7 @@
       :style="{ ...flexStyle, ...paddingStyle }"
     >
       <img
-        class="tw-shadow-sm"
+        class=""
         loading="lazy"
         :src="imageUrl"
         :style="imageStyle"
@@ -100,7 +100,7 @@
         ref="image"
       />
       <div
-        class="tw-shadow-sm tw-flex-wrap tw-leading-4 tw-hidden tw-items-center tw-justify-center tw-whitespace-normal tw-font-semibold tw-text-xs"
+        class="tw-flex-wrap tw-leading-4 tw-hidden tw-items-center tw-justify-center tw-whitespace-normal tw-font-semibold tw-text-xs"
         :src="imageUrl"
         :style="imageStyle"
         ref="altImage"
@@ -504,7 +504,7 @@ export default {
     tagStyle() {
       let style = {};
       if (!this.formattingSettings) {
-        return {};
+        return { border: '2px solid rgb(var(--color-secondary), 0.8)' };
       }
       return style;
     },

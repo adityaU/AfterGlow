@@ -6,7 +6,7 @@
     :style="widgetStyle"
   >
     <div
-      class="grid-stack-item-content tw-w-full tw-rounded-sm tw-shadow-sm"
+      class="grid-stack-item-content tw-w-full tw-rounded-sm"
       :style="widgetContainerStyle"
     >
       <component
@@ -29,12 +29,6 @@
       >
         <slot />
       </component>
-      <RemoveFromDashboard
-        v-model:open="showRemoveFromDashboardModal"
-        :type="type"
-        :widgetID="id"
-        @removeWidget="(widgetID) => $emit('widgetDeleted', widgetID)"
-      />
     </div>
   </div>
 </template>
@@ -46,8 +40,6 @@ import AGViz from 'components/widgets/visualization.vue';
 import AGVariablePane from 'components/widgets/variablePane.vue';
 import AGTabs from 'components/widgets/tabs.vue';
 import { ArrowsMoveIcon } from 'vue-tabler-icons';
-
-import RemoveFromDashboard from 'components/dashboard/removeFromDashboard.vue';
 
 import { _, cloneDeep } from 'lodash';
 
@@ -90,7 +82,7 @@ export default {
     'widget',
   ],
 
-  components: { ArrowsMoveIcon, RemoveFromDashboard },
+  components: { ArrowsMoveIcon },
 
   data() {
     return {
@@ -125,8 +117,10 @@ export default {
       let style = {};
       style['background-color'] = fs.headerBackgroundColor
         ? fs.headerBackgroundColor
-        : 'white';
-      style['color'] = fs.headerTextColor ? fs.headerTextColor : '#6e7687';
+        : 'rgb(var(--color-white))';
+      style['color'] = fs.headerTextColor
+        ? fs.headerTextColor
+        : 'rgb(var(--color-default))';
       return style;
     },
     widgetStyle() {
@@ -140,7 +134,10 @@ export default {
 
     widgetContainerStyle() {
       if (!this.formattingSettings) {
-        return {};
+        return {
+          'border-radius': '1rem',
+          'border-color': 'rgb(var(--color-tertiary))',
+        };
       }
       const fs = this.formattingSettings;
       let style = {};
@@ -168,12 +165,18 @@ export default {
           fs.borderColor || 'transparent'
         }`;
       }
-      style['border-radius'] = fs.borderRadius
-        ? fs.borderRadius + 'rem'
-        : '0.125rem';
+
+      if (!fs.borderPosition || fs?.borderPosition?.length == 0) {
+        style['border'] = `0px solid ${fs.borderColor || 'transparent'}`;
+      }
+      style['border-radius'] =
+        fs.borderRadius || fs.borderRadius == 0
+          ? fs.borderRadius + 'rem'
+          : '1rem';
       style['inset'] =
-        (fs.hasOwnProperty('gapAround') ? fs.gapAround + 'rem' : '0.125rem') +
-        ' !important';
+        (fs.hasOwnProperty('gapAround') || fs.gapAround == 0
+          ? fs.gapAround + 'rem'
+          : '0.5rem') + ' !important';
       style['box-shadow'] = containerShadows[fs.boxShadow || 'none'];
       return style;
     },
@@ -192,7 +195,7 @@ export default {
 
 @layer base {
   .grid-stack-item-content {
-    @apply tw-flex tw-shadow-sm tw-bg-white tw-border;
+    @apply tw-flex  tw-bg-white tw-border;
     @apply tw-overflow-hidden !important;
   }
 }

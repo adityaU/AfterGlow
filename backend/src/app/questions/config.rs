@@ -1,14 +1,14 @@
 use serde::{Deserialize, Serialize};
 
-use crate::repository::models::ApiAction;
+use crate::repository::models::{ApiActionChangeset, RendererTypes, VariableType};
 
 use super::super::results::query_terms::{filters, groups, sorts, views};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct QuestionConfig {
+pub struct QuestionHumanSql {
     #[serde(rename = "api_action")]
-    pub api_action: Option<ApiAction>,
+    pub api_action: Option<ApiActionChangeset>,
     pub database: Option<Database>,
     pub filters: Option<Filters>,
     pub groupings: Option<Groupings>,
@@ -23,16 +23,18 @@ pub struct QuestionConfig {
     pub visualization: Option<Visualization>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Visualization {
     pub id: Option<i64>,
     pub name: String,
     pub question_id: Option<i32>,
     pub query_terms: QueryTermDetails,
+    pub settings: Option<serde_json::value::Value>,
+    pub renderer_type: Option<RendererTypes>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum QueryTermDetails {
     QueryTermsUnderDetails { details: QueryTerms },
@@ -79,7 +81,7 @@ impl Default for QueryTermDetails {
 //     }
 // }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct QueryTerms {
     pub filters: Filters,
     pub groupings: Groupings,
@@ -89,21 +91,15 @@ pub struct QueryTerms {
     pub offset: Option<i64>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Variable {
     pub name: String,
-    pub value: serde_json::value::Value,
-    pub var_type: VariableType,
+    pub value: Option<serde_json::value::Value>,
+    pub var_type: Option<VariableType>,
+    pub default: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub enum VariableType {
-    String,
-    Integer,
-    Date,
-}
-
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum QueryType {
     #[default]
@@ -111,7 +107,7 @@ pub enum QueryType {
     Raw,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum StringOrInt32 {
     String(String),
@@ -124,7 +120,7 @@ impl Default for StringOrInt32 {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Database {
     pub id: StringOrInt32,
     pub name: String,
@@ -132,22 +128,22 @@ pub struct Database {
     pub unique_identifier: Option<uuid::Uuid>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Filters {
     pub details: Vec<Filter>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Groupings {
     pub details: Vec<Grouping>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Sorts {
     pub details: Vec<Sort>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Table {
     pub database: Option<StringOrInt32>,
     pub id: Option<StringOrInt32>,
@@ -155,12 +151,12 @@ pub struct Table {
     pub readable_table_name: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Views {
     pub details: Vec<View>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Filter {
     pub column: Option<String>,
@@ -170,7 +166,7 @@ pub struct Filter {
     pub value: Option<serde_json::value::Value>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Grouping {
     pub column: Option<String>,
     pub duration: Option<groups::GroupDuration>,
@@ -178,7 +174,7 @@ pub struct Grouping {
     pub value: Option<serde_json::value::Value>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct View {
     pub agg: Option<views::ViewAggregations>,
@@ -189,10 +185,16 @@ pub struct View {
     pub value: Option<serde_json::value::Value>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Sort {
     pub column: Option<String>,
     pub direction: Option<sorts::SortDirection>,
     pub raw: bool,
     pub value: Option<serde_json::value::Value>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct QuestionConfig {
+    pub can_viewers_change_query_terms: bool,
+    pub can_viewers_see_in_new_visualization: bool,
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class="tw-bg-white tw-rounded-sm tw-shadow-sm">
+  <div class="tw-bg-white">
     <div
       class="tw-flex tw-p-2 tw-items-center tw-gap-2 tw-flex-nowrap tw-w-full"
     >
@@ -30,7 +30,7 @@
             v-if="!rawQuery"
             @click="((rawQuery = !rawQuery) || true) && (resizeKey += 1)"
           >
-            <CodeIcon size="24" />
+            <CodeIcon size="20" />
           </span>
         </div>
         <div
@@ -38,11 +38,11 @@
           v-if="showDatabaseEditor && databaseSupportsQueryBuilderQueries"
         >
           <span
-            class="tw-cursor-pointer tw-border tw-flex tw-items-center tw-leading-4 tw-py-1 tw-px-1.5 tw-rounded-sm tw-mx-0.5 tw-border-default/20 tw-bg-secondary tw-text-default tw-border-2"
+            class="tw-cursor-pointer tw-border tw-flex tw-items-center tw-leading-4 tw-py-1 tw-px-1.5 tw-rounded-2xl tw-mx-0.5 tw-border-default/20 tw-bg-secondary tw-text-default tw-border-2"
             v-if="rawQuery"
             @click="rawQuery = !rawQuery"
           >
-            <BoxModel2Icon size="24" />
+            <BoxModel2Icon size="20" />
           </span>
           <div v-if="showDatabaseEditor && databaseSupportsQueryBuilderQueries">
             <span
@@ -52,7 +52,7 @@
                 (updateQuestionHumanSql() || true) && this.$emit('runQuery')
               "
             >
-              <PlayerPlayIcon class="tw-stroke-white" size="24" />
+              <PlayerPlayIcon class="tw-stroke-white" size="20" />
             </span>
           </div>
         </div>
@@ -81,7 +81,7 @@
       @mount="resizeKey += 1"
       v-if="rawQuery && showDatabaseEditor"
     >
-      <div class="tw-h-full tw-bg-white tw-rounded-sm tw-shadow-sm tw-border-t">
+      <div class="tw-h-full tw-bg-white tw-rounded-2xl tw-border-t">
         <splitpanes
           class="pane-wrapper default-theme tw-flex !tw-h-full tw-transition-none"
           ref="chart-parent"
@@ -105,7 +105,7 @@
           <pane
             :size="editorSize"
             ref="chart"
-            class="pane pane-right tw-shadow-sm !tw-border"
+            class="pane pane-right !tw-border"
           >
             <AGSQLEditor
               :databaseID="database?.id"
@@ -129,7 +129,7 @@
       v-if="rawQuery || showApiEditor"
     >
       <AGButton
-        class="tw-bg-primary tw-text-white tw-py-2 tw-flex tw-gap-1 tw-items-center tw-rounded tw-shadow-inner"
+        class="tw-bg-primary tw-text-white tw-py-2 tw-flex tw-gap-1 tw-items-center tw-rounded-full"
         @click="(updateQuestionHumanSql() || true) && this.$emit('runQuery')"
       >
         Get Results

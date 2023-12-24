@@ -1,15 +1,10 @@
-
 <template>
-  <div class="tw-h-full" v-html="html">
-
-  </div>
-
+  <div class="tw-h-full" v-html="html"></div>
 </template>
 
 <script>
-
 import { useRoute } from 'vue-router';
-import { fetchDashboardHTML } from 'src/apis/dashboards'
+import { fetchDashboardHTML } from 'src/apis/dashboards';
 import { authMixin } from 'src/mixins/auth';
 export default {
   name: 'dashboardPage',
@@ -18,21 +13,21 @@ export default {
   data() {
     return {
       html: null,
-    }
+    };
   },
   async created() {
     const route = useRoute();
     const query = route.query;
-    let dashboardID = route.params.id || null
+    let dashboardID = route.params.id || null;
     if (dashboardID) {
-      fetchDashboardHTML(dashboardID, query.token, this.setHTML)
+      fetchDashboardHTML(dashboardID, query.token, this.setHTML);
     }
   },
 
   methods: {
     setHTML(html) {
-        this.html = html
-    }
-  }
-}
+      this.html = html;
+    },
+  },
+};
 </script>

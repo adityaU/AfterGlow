@@ -20,7 +20,7 @@
               transition-show="scale"
               transition-hide="scale"
               max-height="800px"
-              class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
+              class="tw-rounded-2xl tw-border tw-overflow-hidden"
               @show="menuShow"
               @keydown="onKeydown"
               fit
@@ -43,10 +43,18 @@
             placeholder="Enter comma separated emails"
           />
 
-          <div class="note">Users for all these email ids will be created only if - </div>
-           <div class="note">   1. User does not exist already with same email ID. Access level will not change for existing users</div>
-           <div class="note">   2. Email domain is included in organization list or allowed via environment variables.</div>
-          <div class="note">  All other email ids are ignored.</div>
+          <div class="note">
+            Users for all these email ids will be created only if -
+          </div>
+          <div class="note">
+            1. User does not exist already with same email ID. Access level will
+            not change for existing users
+          </div>
+          <div class="note">
+            2. Email domain is included in organization list or allowed via
+            environment variables.
+          </div>
+          <div class="note">All other email ids are ignored.</div>
         </div>
       </template>
       <template #footer>

@@ -7,7 +7,6 @@ SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
@@ -59,11 +58,6 @@ SET default_table_access_method = heap;
 
 --
 --
-
-CREATE TABLE IF NOT EXISTS public.__diesel_schema_migrations (
-    version character varying(50) NOT NULL,
-    run_on timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
 
 
 --
@@ -2155,10 +2149,6 @@ ALTER TABLE IF EXISTS ONLY public.widgets ALTER COLUMN id SET DEFAULT nextval('p
 --
 --
 
-ALTER TABLE IF EXISTS ONLY public.__diesel_schema_migrations
-    ADD CONSTRAINT __diesel_schema_migrations_pkey PRIMARY KEY (version);
-
-
 --
 --
 
@@ -3234,6 +3224,35 @@ ALTER TABLE IF EXISTS ONLY public.visualizations
 ALTER TABLE IF EXISTS ONLY public.widget_items
     ADD CONSTRAINT widget_items_widget_id_fkey FOREIGN KEY (widget_id) REFERENCES public.widgets(id) ON DELETE CASCADE;
 
+
+INSERT INTO public.permission_sets (id, name, inserted_at, updated_at) VALUES (1, 'Admin', now(), now());
+INSERT INTO public.permission_sets (id, name, inserted_at, updated_at) VALUES (2, 'Viewer', now(), now());
+INSERT INTO public.permission_sets (id, name, inserted_at, updated_at) VALUES (3, 'Creator', now(), now());
+
+
+--
+-- Data for Name: permissions; Type: TABLE DATA; Schema: public; Owner: adityau
+--
+
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (1, 1, 'Dashboard.show', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (2, 1, 'Question.show', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (3, 2, 'Dashboard.show', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (4, 2, 'Question.show', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (5, 3, 'Dashboard.show', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (6, 3, 'Dashboard.edit', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (7, 3, 'Dashboard.create', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (8, 3, 'Dashboard.delete', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (9, 3, 'Question.show', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (10, 3, 'Question.edit', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (11, 3, 'Question.create', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (12, 3, 'Question.delete', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (13, 1, 'Dashboard.edit', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (14, 1, 'Dashboard.create', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (15, 1, 'Dashboard.delete', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (16, 1, 'Question.edit', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (17, 1, 'Question.create', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (18, 1, 'Question.delete', now(), now());
+INSERT INTO public.permissions (id, permission_set_id, name, inserted_at, updated_at) VALUES (19, 1, 'Settings.all', now(), now());
 
 --
 -- PostgreSQL database dump complete

@@ -1,11 +1,11 @@
 <template>
-  <div>
-    <WithLoginHeader />
+  <div v-if="!currentUser.loading">
     <div class="tw-flex tw-mx-6 tw-my-3">
       <AGSettingsTabs v-model:currentTab="currentTab" class="tw-w-[20%]" />
       <component :is="settingsComponents[currentTab]" :key="currentTab" />
     </div>
   </div>
+  <AGLoader v-else />
 </template>
 <script>
 import AGDatabases from 'components/settings/databases.vue';
@@ -16,9 +16,9 @@ import AGPermissions from 'components/settings/permissions.vue';
 import AGUsers from 'components/settings/users.vue';
 import AGSettingsTabs from 'components/settings/tabs.vue';
 import AGOrganizations from 'components/settings/organizations.vue';
-import WithLoginHeader from 'components/header/withLogin.vue';
 
 import AGOpenAIConfiguration from 'components/settings/openai.vue';
+import AGLoader from 'components/utils/loader.vue';
 
 import { authMixin } from 'src/mixins/auth';
 
@@ -38,7 +38,7 @@ const settingsComponents = {
 
 export default {
   name: 'AGSettingsPage',
-  components: { AGSettingsTabs, WithLoginHeader },
+  components: { AGSettingsTabs, AGLoader },
   mixins: [authMixin],
 
   watch: {
@@ -51,7 +51,7 @@ export default {
     currentUser: {
       deep: true,
       handler() {
-        if (!this.currentUser.isAdmin) {
+        if (!this.currentUser.loading && !this.currentUser.isAdmin) {
           this.$router.replace({ path: '/questions' });
         }
       },

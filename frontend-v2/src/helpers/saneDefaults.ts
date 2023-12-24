@@ -1,10 +1,8 @@
 const defaultColors = {
-        "primary": "#6574cd",
-        "secondary": "#f5f7fb",
-        "tertiary" : "white",
-        "default": "#6e7687"
-}
+  primary: 'var(--color-primary)',
+  secondary: 'var(--color-secondary)',
+  tertiary: 'rgb(var(--color-tertiary))',
+  default: 'rgb(var(--color-default))',
+};
 
-export {defaultColors}
-
-
+export { defaultColors };

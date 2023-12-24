@@ -1,12 +1,20 @@
-use actix_web::{error, web, HttpResponse, Responder};
+use actix_web::{error, web, HttpRequest, HttpResponse, Responder};
+use actix_web_grants::permissions::AuthDetails;
 use serde::Deserialize;
 
 use super::base;
+use super::helpers::get_current_user_email;
+use crate::app::bg_jobs::jobs::sync_db::SyncDBJob;
+use crate::app::bg_jobs::pg_queue::PostgresQueue;
+use crate::app::bg_jobs::Queue;
+use crate::errors::AGError;
+use crate::response_text::SYNC_DB_JOB_TRIGGER_SUCCESS;
 use crate::views::database::DatabaseView;
 use crate::{
     controllers::common::ResponseData,
     repository::{models::Database, models::DatabaseChangeset, DBPool},
 };
+
 use std::sync::Arc;
 
 use actix_web_grants::proc_macro::has_permissions;
@@ -15,23 +23,43 @@ use actix_web_grants::proc_macro::has_permissions;
 #[derive(Deserialize)]
 pub struct QueryParams {
     team_id: Option<i32>,
+    query: Option<String>,
 }
 
-// base::generate_index!(index, Database, DatabaseView, "Any");
-base::generate_create!(
-    create,
-    Database,
-    DatabaseChangeset,
-    DatabaseView,
-    "Settings.all"
-);
-base::generate_update!(
-    update,
-    Database,
-    DatabaseChangeset,
-    DatabaseView,
-    "Settings.all"
-);
+pub(crate) async fn create(
+    pool: web::Data<Arc<DBPool>>,
+    data: web::Json<DatabaseChangeset>,
+    pg_queue: web::Data<Arc<PostgresQueue>>,
+) -> impl Responder {
+    let conn = pool.get();
+    let resp = Database::create(&mut conn.unwrap(), data.into_inner());
+    if let Err(err) = resp {
+        return Err(AGError::<String>::new(err));
+    }
+    let resp = resp.unwrap();
+    sync(resp.id.into(), pg_queue).await;
+    Ok(HttpResponse::Created().json(ResponseData {
+        data: DatabaseView::from_model(&resp),
+    }))
+}
+#[has_permissions("Settings.all")]
+pub(crate) async fn update(
+    pool: web::Data<Arc<DBPool>>,
+    data: web::Json<DatabaseChangeset>,
+    item_id: web::Path<i32>,
+    pg_queue: web::Data<Arc<PostgresQueue>>,
+) -> impl Responder {
+    let conn = pool.get();
+    let resp = Database::update(&mut conn.unwrap(), item_id.into_inner(), data.into_inner());
+    if let Err(err) = resp {
+        return Err(AGError::<String>::new(err));
+    }
+    let resp = resp.unwrap();
+    sync(resp.id.into(), pg_queue).await;
+    Ok(HttpResponse::Ok().json(ResponseData {
+        data: DatabaseView::from_model(&resp),
+    }))
+}
 base::generate_show!(show, Database, DatabaseView, "Settings.all");
 
 pub(crate) async fn index(
@@ -54,7 +82,50 @@ pub(crate) async fn index(
                 .collect::<Vec<DatabaseView>>();
             HttpResponse::Ok().json(ResponseData { data: resp })
         })
-        .map_err(|err| error::ErrorBadRequest(err))
+        .map_err(|err| AGError::<String>::new(err))
+}
+
+pub(crate) async fn sync(
+    database_id: web::Path<i32>,
+    pg_queue: web::Data<Arc<PostgresQueue>>,
+) -> impl Responder {
+    let pg_queue = Arc::clone(&*pg_queue.into_inner());
+    let job = SyncDBJob {
+        database_id: database_id.into_inner(),
+    };
+    pg_queue
+        .push(crate::app::bg_jobs::Message::SyncDB(job), None)
+        .await
+        .map(|_| {
+            HttpResponse::Ok().json(ResponseData {
+                data: SYNC_DB_JOB_TRIGGER_SUCCESS,
+            })
+        })
+        .map_err(|err| AGError::<String>::new(err))
+}
+pub(crate) async fn search(
+    pool: web::Data<Arc<DBPool>>,
+    qp: web::Query<QueryParams>,
+    req: HttpRequest,
+    auth_details: AuthDetails,
+) -> impl Responder {
+    let conn = pool.get();
+    let current_user_email = get_current_user_email(&req);
+    let permissions = auth_details.permissions;
+    Database::search(
+        &mut conn.unwrap(),
+        qp.query.clone().unwrap_or_default(),
+        current_user_email,
+        permissions,
+    )
+    .map(|items| {
+        let resp = items
+            .iter()
+            .map(|db| DatabaseView::from_model(db))
+            .collect::<Vec<DatabaseView>>();
+        HttpResponse::Ok().json(ResponseData { data: resp })
+    })
+    .map_err(|err| AGError::<String>::new(err))
 }
 
 // pub(crate) async fn index(pool: web::Data<DBPool>) -> impl Responder {
@@ -67,7 +138,7 @@ pub(crate) async fn index(
 //                 .collect::<Vec<DatabaseView>>();
 //             HttpResponse::Ok().json(ResponseData { data: resp })
 //         })
-//         .map_err(|err| error::ErrorBadRequest(err))
+//         .map_err(|err| AGError::<String>::new(err))
 // }
 
 // #[has_permissions("Settings.all")]
@@ -83,7 +154,7 @@ pub(crate) async fn index(
 //                 "Could not connect to database with given parameters",
 //             )),
 //         })
-//         .map_err(|err| error::ErrorBadRequest(err))
+//         .map_err(|err| AGError::<String>::new(err))
 // }
 
 // #[has_permissions("Settings.all")]
@@ -91,7 +162,6 @@ pub(crate) async fn index(
 //     pool: web::Data<DBPool>,
 //     data: web::Json<DatabaseChangeset>,
 //     database_id: web::Path<i32>,
-// ) -> impl Responder {
 //     let conn = pool.get();
 //     Database::update(
 //         &mut conn.unwrap(),
@@ -104,7 +174,7 @@ pub(crate) async fn index(
 //             "Could not connect to database with given parameters",
 //         )),
 //     })
-//     .map_err(|err| error::ErrorBadRequest(err))
+//     .map_err(|err| AGError::<String>::new(err))
 // }
 
 // #[has_permissions("Settings.all")]
@@ -112,5 +182,5 @@ pub(crate) async fn index(
 //     let conn = pool.get();
 //     Database::find(&mut conn.unwrap(), database_id.into_inner())
 //         .map(|databases| HttpResponse::Ok().json(ResponseData { data: databases }))
-//         .map_err(|err| error::ErrorBadRequest(err))
+//         .map_err(|err| AGError::<String>::new(err))
 // }

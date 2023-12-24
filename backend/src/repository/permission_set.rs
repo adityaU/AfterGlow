@@ -1,6 +1,5 @@
-use super::models::{PermissionSet};
+use super::models::PermissionSet;
 use super::schema::{permission_sets, user_permission_sets};
-
 
 use diesel::prelude::*;
 
@@ -18,5 +17,21 @@ impl PermissionSet {
             .filter(user_permission_sets::user_id.eq(uid))
             .select(permission_sets::all_columns)
             .load::<Self>(conn)
+    }
+
+    pub fn admin(conn: &mut PgConnection) -> Result<Self, Error> {
+        permission_sets::table
+            .filter(permission_sets::name.eq("Admin"))
+            .first::<Self>(conn)
+    }
+    pub fn viewer(conn: &mut PgConnection) -> Result<Self, Error> {
+        permission_sets::table
+            .filter(permission_sets::name.eq("Viewer"))
+            .first::<Self>(conn)
+    }
+    pub fn editor(conn: &mut PgConnection) -> Result<Self, Error> {
+        permission_sets::table
+            .filter(permission_sets::name.eq("Editor"))
+            .first::<Self>(conn)
     }
 }

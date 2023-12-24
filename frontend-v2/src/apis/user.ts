@@ -1,4 +1,4 @@
-import { api, apiV2 } from 'boot/axios';
+import { apiV2 } from 'boot/axios';
 import apiConfig from '../helpers/apiConfig';
 import { sessionStore } from 'stores/session';
 const fetchUsersByIDs = async function(ids, callback) {
@@ -7,7 +7,7 @@ const fetchUsersByIDs = async function(ids, callback) {
   }
   const session = sessionStore();
   ids = ids.filter((v, i, a) => a.indexOf(v) === i);
-  api
+  apiV2
     .get('users?filter[id]=' + ids.join(','), apiConfig(session.token))
     .then((response) => {
       callback(
@@ -80,17 +80,11 @@ const saveUser = async function(payload, callback) {
   const session = sessionStore();
   const id = payload.id;
   payload = { data: { attributes: payload, type: 'users' } };
-  api
+  apiV2
     .put('users/' + id, payload, apiConfig(session.token))
     .then((response) => {
       response.data.data.attributes.id = response.data.data.id;
-      callback(
-        {
-          ...response.data.data.attributes,
-          ...(response.data.data.relationships || {}),
-        },
-        false
-      );
+      callback(response.data.data, false);
     })
     .catch((error) => {
       console.error(error);
@@ -131,17 +125,11 @@ const saveUserWithPS = async function(payload, ps, callback) {
       type: 'users',
     },
   };
-  api
+  apiV2
     .put('users/' + id, payload, apiConfig(session.token))
     .then((response) => {
       response.data.data.attributes.id = response.data.data.id;
-      callback(
-        {
-          ...response.data.data.attributes,
-          ...(response.data.data.relationships || {}),
-        },
-        false
-      );
+      callback(response.data.data, false);
     })
     .catch((error) => {
       console.error(error);
@@ -154,10 +142,7 @@ const fetchUserSettings = async function(userID, callback) {
   apiV2
     .get('user_settings?user_id=' + userID, apiConfig(session.token))
     .then((response) => {
-      callback(
-        response.data.data,
-        false
-      );
+      callback(response.data.data, false);
     })
     .catch((error) => {
       console.error(error);
@@ -198,15 +183,10 @@ const fetchUserPermissionSet = async function(user_id, callback) {
 
 const fetchPermissionSets = async function(callback) {
   const session = sessionStore();
-  api
+  apiV2
     .get('permission_sets', apiConfig(session.token))
     .then((response) => {
-      callback(
-        response.data.data.map((v) => {
-          return { ...v.attributes, ...{ id: v.id }, ...v.relationships };
-        }),
-        false
-      );
+      callback(response.data.data, false);
     })
     .catch((error) => {
       console.error(error);
@@ -228,6 +208,20 @@ const createBulkUsers = async function(emails, psID, callback) {
     });
 };
 
+const searchUsers = async function(query, callback) {
+  const session = sessionStore();
+  callback([], true);
+  apiV2
+    .get('users/search?query=' + query, apiConfig(session.token))
+    .then((response) => {
+      callback(response.data.data, false);
+    })
+    .catch((error) => {
+      console.log(error);
+      callback([], false);
+    });
+};
+
 export {
   fetchUsersByIDs,
   fetchUsers,
@@ -242,4 +236,5 @@ export {
   updateUserPermissionSetForUser,
   fetchUsersForTeam,
   createBulkUsers,
+  searchUsers,
 };

@@ -1,5 +1,13 @@
 <template>
   <div class="tw-flex tw-flex-col tw-w-full">
+    <div class="tw-flex tw-items-center tw-justify-center tw-p-4" >
+      <AGInput
+        v-model:value="query"
+        placeholder="Search Databases"
+        class="tw-w-[500px]"
+        debounce="500"
+      />
+    </div>
     <div
       class="tw-cursor-pointer tw-font-semibold tw-text-primary tw-uppercase tw-text-right tw-py-2"
       v-if="databases?.length > 0"
@@ -8,9 +16,10 @@
       + Add New Database
     </div>
     <div class="tw-flex tw-flex-col tw-mx-3 tw-gap-1 tw-w-full">
+
       <AGLoader class="tw-my-6" text="Fetching Databases" v-if="loading" />
       <div
-        class="tw-bg-white tw-border tw-flex tw-items-center tw-py-2 tw-px-4 tw-gap-2"
+        class="tw-bg-white tw-border tw-flex tw-items-center tw-py-2 tw-px-4 tw-gap-2 tw-rounded-2xl"
         v-for="db in databases"
         :key="db"
       >
@@ -40,7 +49,7 @@
         </div>
 
         <div
-          class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-bg-white tw-p-4 tw-rounded-sm tw-shadow-sm tw-border"
+          class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-bg-white tw-p-4 tw-rounded-2xl tw-border"
           v-if="databases?.length === 0"
         >
           <div class="">You do not have any Databases yet.</div>
@@ -76,19 +85,28 @@
 </template>
 <script>
 import { sessionStore } from 'stores/session';
+import AGInput from 'components/base/input.vue';
 
 import { DatabaseIcon } from 'vue-tabler-icons';
 import AGLoader from 'components/utils/loader.vue';
 import AGDeleteEntityModal from 'components/utils/deleteEntityModal.vue';
 import AGDatabaseModal from 'components/settings/databaseModal.vue';
 const session = sessionStore();
-import { fetchDatabases } from 'src/apis/database';
+import { fetchDatabases, searchDatabases } from 'src/apis/database';
 export default {
   name: 'AGSettingsDatabases',
-  components: { AGLoader, DatabaseIcon, AGDeleteEntityModal, AGDatabaseModal },
+  components: { AGLoader, DatabaseIcon, AGDeleteEntityModal, AGDatabaseModal , AGInput},
   mounted() {
     this.fetchDatabases();
   },
+
+  watch: {
+    query() {
+      searchDatabases(this.query, this.setDatabases);
+    },
+  },
+
+
 
   data() {
     return {
@@ -99,6 +117,8 @@ export default {
       deletingDatabase: null,
       openDatabaseEditModal: false,
       openDatabaseNewModal: false,
+      query: "",
+
     };
   },
   methods: {

@@ -1,9 +1,9 @@
 <template>
-  <div class="tw-flex tw-h-full tw-min-h-[400px]" ref="dashboard">
+  <div class="tw-flex tw-h-full" ref="dashboard">
     <AGLoader :text="loaderText" v-if="loading" />
     <div class="tw-w-full" v-if="!loading">
       <splitpanes
-        class="pane-wrapper default-theme tw-flex tw-absolute tw-left-0 tw-right-0 tw-bottom-[45px] !tw-h-auto"
+        class="pane-wrapper default-theme tw-flex"
         ref="chart-parent"
         @resize="settingsPanesize = 100 - $event[0].size"
         :style="panesStyle"
@@ -22,6 +22,7 @@
             :variablePanes="variablePanes"
             :saveCount="saveCount"
             :editModeModel="editModeModel"
+            :addWidgetData="addWidgetData"
             v-model:editingWidget="editingWidget"
             :queryKey="queryKey"
             @update:dashboardModel="(v) => $emit('update:dashboardModel', v)"
@@ -30,23 +31,15 @@
         <pane
           :size="settingsPanesize"
           ref="chart"
-          class="pane pane-right tw-shadow-sm !tw-border"
+          class="pane pane-right !tw-border"
           v-if="settingsPanesize"
         >
-          <div
-            id="dashboard-settings"
-            class="card tw-bg-white"
-            style="settingsPaneStyle"
-          >
-            <AGScheduler
-              v-if="showScheduleDashboard"
-              :query="query"
-              :dashboardID="dashboardID"
-            />
+          <div id="dashboard-settings" class="card" style="settingsPaneStyle">
             <AGContainerSettings
               v-model:formattingSettings="editingWidget.formattingSettings"
               @hide="hideContainerSettings"
               :key="editingWidget"
+              class="tw-rounded-2xl tw-border tw-bg-white"
               v-if="editingWidget"
             />
             <AGVariablePane
@@ -59,13 +52,21 @@
         </pane>
       </splitpanes>
     </div>
+
+    <AGScheduler
+      v-model:open="showScheduleDashboard"
+      :query="query"
+      :entityID="dashboardID"
+      entityName="dashboards"
+      :entityTitle="dashboardModel?.title"
+    />
   </div>
 </template>
 
 <script>
 import AGLoader from 'components/utils/loader.vue';
 import AGDgrid from 'components/dashboard/dGrid.vue';
-import AGScheduler from 'components/schedulers/dashboardMailer.vue';
+import AGScheduler from 'components/schedulers/scheduleModal.vue';
 import AGVariablePane from 'components/dashboard/variableSettings.vue';
 import AGContainerSettings from 'components/dashboard/containerSettings.vue';
 import 'gridstack/dist/gridstack.min.css';
@@ -104,6 +105,7 @@ export default {
     'toggleVariablePaneCount',
     'addNoteCount',
     'addTabsCount',
+    'addWidgetData',
   ],
   components: {
     AGLoader,
@@ -121,6 +123,11 @@ export default {
     },
     toggleVariablePaneCount() {
       this.showVariablePane = !this.showVariablePane;
+    },
+    showScheduleDashboard() {
+      if (this.showScheduleDashboard != this.showScheduleReport) {
+        this.$emit('update:showScheduleReport', this.showScheduleDashboard);
+      }
     },
     showScheduleReport() {
       this.showScheduleDashboard = this.showScheduleReport;
@@ -188,11 +195,7 @@ export default {
       };
     },
     settingsPanesize() {
-      if (
-        this.showScheduleDashboard ||
-        this.editingWidget ||
-        this.showVariablePane
-      ) {
+      if (this.editingWidget) {
         return 25;
       }
       return 0;
@@ -201,8 +204,6 @@ export default {
 
   methods: {
     showContainerSettings(widget) {
-      this.showScheduleDashboard = false;
-      // this.settingsPanesize = 25
       this.editingWidget = widget;
     },
     hideContainerSettings() {

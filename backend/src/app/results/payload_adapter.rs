@@ -1,6 +1,11 @@
+
+
 use serde::{Deserialize, Serialize};
 
-use crate::{app::questions::config, controllers::result, repository::models::ApiAction};
+use crate::{
+    app::questions::config,
+    repository::models::{ApiActionChangeset, VariableType},
+};
 
 use super::query_terms::{
     filters::{make_filters, Filter},
@@ -10,16 +15,23 @@ use super::query_terms::{
 };
 
 #[derive(Deserialize, Serialize, Debug)]
+pub struct Variable {
+    pub name: String,
+    pub value: serde_json::value::Value,
+    pub var_type: VariableType,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
 pub enum AdaptedPayload {
     ApiAction {
         database: config::Database,
-        api_action: ApiAction,
-        variables: Vec<config::Variable>,
+        api_action: ApiActionChangeset,
+        variables: Vec<Variable>,
     },
     Raw {
         database: config::Database,
         raw_query: String,
-        variables: Vec<config::Variable>,
+        variables: Vec<Variable>,
         visualization_query_terms: QueryTerms,
     },
 
@@ -27,13 +39,13 @@ pub enum AdaptedPayload {
         database: config::Database,
         question_query_terms: QueryTerms,
         table: Option<config::Table>,
-        variables: Vec<config::Variable>,
+        variables: Vec<Variable>,
         visualization_query_terms: QueryTerms,
     },
 }
 
 impl AdaptedPayload {
-    pub fn new(payload: config::QuestionConfig) -> AdaptedPayload {
+    pub fn new(payload: config::QuestionHumanSql) -> AdaptedPayload {
         if payload
             .database
             .as_ref()
@@ -44,14 +56,18 @@ impl AdaptedPayload {
             return AdaptedPayload::ApiAction {
                 database: payload.database.unwrap_or_default(),
                 api_action: payload.api_action.unwrap_or_default(),
-                variables: payload.variables.unwrap_or_default(),
+                variables: make_variable(&payload.variables.unwrap_or_default()),
             };
         }
         match payload.query_type.unwrap_or_default() {
             config::QueryType::Raw => AdaptedPayload::Raw {
                 database: payload.database.unwrap_or_default(),
-                raw_query: payload.raw_query.unwrap_or("".to_string()),
-                variables: payload.variables.unwrap_or_default(),
+                raw_query: payload
+                    .raw_query
+                    .unwrap_or("".to_string())
+                    .trim_end_matches(";")
+                    .to_string(),
+                variables: make_variable(&payload.variables.unwrap_or_default()),
                 visualization_query_terms: QueryTerms::new(
                     match payload
                         .visualization
@@ -80,7 +96,7 @@ impl AdaptedPayload {
                     offset: payload.offset,
                 }),
                 table: payload.table,
-                variables: payload.variables.unwrap_or_default(),
+                variables: make_variable(&payload.variables.unwrap_or_default()),
                 visualization_query_terms: QueryTerms::new(
                     match payload
                         .visualization
@@ -94,6 +110,18 @@ impl AdaptedPayload {
             },
         }
     }
+}
+
+pub fn make_variable(vars: &Vec<config::Variable>) -> Vec<Variable> {
+    vars.iter()
+        .map(|var| Variable {
+            name: var.name.clone(),
+            value: var.value.clone().unwrap_or(serde_json::Value::String(
+                var.default.clone().unwrap_or_default(),
+            )),
+            var_type: var.var_type.clone().unwrap_or_default(),
+        })
+        .collect::<Vec<Variable>>()
 }
 
 #[derive(Deserialize, Serialize, Debug)]

@@ -12,7 +12,7 @@
           transition-hide="scale"
           max-height="400px"
           :offset="[0, 5]"
-          class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
+          class="tw-rounded-2xl tw-border tw-overflow-hidden"
           @show="menuShow"
           @keydown="onKeydown"
         >

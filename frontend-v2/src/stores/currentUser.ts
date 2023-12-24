@@ -6,6 +6,7 @@ export const currentUserStore = defineStore('currentUser', {
     permissions: reactive([]),
     details: reactive({}),
     viewerMode: false,
+    loading: false,
   }),
 
   getters: {
@@ -88,8 +89,12 @@ export const currentUserStore = defineStore('currentUser', {
       this.viewerMode = viewerMode;
     },
     set(det) {
+      this.loading = false;
       this.permissions = det.permissions;
       this.details = det.user;
+    },
+    reset() {
+      this.loading = true;
     },
   },
 });

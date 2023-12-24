@@ -1,12 +1,14 @@
-use actix_web::{error, web, HttpResponse, Responder};
+use actix_web::{web, HttpResponse, Responder};
 
 use super::base;
 use std::sync::Arc;
 
+use crate::errors::AGError;
 use crate::repository::models::{
     OrganizationSetting, OrganizationSettingChangeset, OrganizationSettingView,
 };
 use crate::{controllers::common::ResponseData, repository::DBPool};
+use actix_web::http::StatusCode;
 
 use serde::Deserialize;
 
@@ -34,7 +36,7 @@ pub(crate) async fn index(
                 .collect::<Vec<OrganizationSettingView>>();
             HttpResponse::Ok().json(ResponseData { data: resp })
         })
-        .map_err(|err| error::ErrorBadRequest(err))
+        .map_err(|err| AGError::<String>::new(err))
 }
 
 base::generate_create!(

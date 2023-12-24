@@ -1,9 +1,10 @@
 <template>
   <div
     class="tw-border-b tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-4 tw-text-default/80 tw-bg-white"
+    :class="editMode ? 'tw-h-[100px]' : 'tw-h-[45px]'"
     v-if="dashboardModel"
   >
-    <div class="tw-flex-[1_1_20%]" v-if="!editMode">
+    <div class="tw-flex-[1_1_20%] tw-font-bold tw-text-xl" v-if="!editMode">
       {{ dashboardModel.title }}
     </div>
     <div class="tw-flex tw-flex-col tw-gap-2 tw-flex-[1_1_20%]" v-if="editMode">
@@ -96,7 +97,7 @@
           transition-show="jump-down"
           transition-hide="jump-up"
           max-height="400px"
-          class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
+          class="tw-rounded-2xl tw-border tw-overflow-hidden"
           @show="menuShow"
           @keydown="onKeydown"
         >
@@ -114,32 +115,12 @@
       </div>
       <div>
         <q-tooltip transition-show="scale" transition-hide="scale">
-          Add Note
+          Add Widget
         </q-tooltip>
-        <NotesIcon
+        <AppsIcon
           size="20"
           class="tw-stroke-default/80 tw-stroke-[1.5] tw-cursor-pointer"
-          @click="$emit('addNote')"
-        />
-      </div>
-      <div>
-        <q-tooltip transition-show="scale" transition-hide="scale">
-          Add Tabs
-        </q-tooltip>
-        <TableOptionsIcon
-          size="20"
-          class="tw-stroke-default/80 tw-stroke-[1.5] tw-cursor-pointer"
-          @click="$emit('addTabs')"
-        />
-      </div>
-      <div>
-        <q-tooltip transition-show="scale" transition-hide="scale">
-          Variables
-        </q-tooltip>
-        <CodeIcon
-          size="20"
-          class="tw-stroke-default/80 tw-stroke-[1.5] tw-cursor-pointer"
-          @click="$emit('toggleVariablePane')"
+          @click="openAddWidgetModal = true"
         />
       </div>
       <div>
@@ -190,6 +171,13 @@
       v-if="dashboard.id"
       @deleted="deleted"
     />
+    <AddWidgetModal
+      v-model:open="openAddWidgetModal"
+      :dashboard="dashboard"
+      @addWidget="
+        (data) => ($emit('addWidget', data) || true) && (this.editMode = true)
+      "
+    />
   </div>
 </template>
 <script>
@@ -198,11 +186,9 @@ import {
   RefreshIcon,
   MailIcon,
   UploadIcon,
-  CodeIcon,
   MaximizeIcon,
   HourglassIcon,
-  NotesIcon,
-  TableOptionsIcon,
+  AppsIcon,
 } from 'vue-tabler-icons';
 import AGInput from 'components/base/input.vue';
 import AGShareDashboard from 'components/utils/shareEntity.vue';
@@ -210,6 +196,7 @@ import AGDeleteDashboardModal from 'components/utils/deleteEntityModal.vue';
 import cloneDeep from 'lodash/cloneDeep';
 
 import isEqual from 'lodash/isEqual';
+import AddWidgetModal from 'components/dashboard/addWidget.vue';
 
 import { variableQuery } from 'stores/variableQuery';
 import { currentUserStore } from 'stores/currentUser';
@@ -222,14 +209,13 @@ export default {
     RefreshIcon,
     MailIcon,
     UploadIcon,
-    CodeIcon,
     MaximizeIcon,
     HourglassIcon,
     AGInput,
     AGShareDashboard,
-    NotesIcon,
-    TableOptionsIcon,
     AGDeleteDashboardModal,
+    AddWidgetModal,
+    AppsIcon,
   },
 
   watch: {
@@ -284,6 +270,7 @@ export default {
       openDeleteModal: false,
       refreshTimeTimer: null,
       varStore: variableQuery(),
+      openAddWidgetModal: false,
       refreshTimes: [
         { name: 'Never', value: 0 },
         { name: '5 Seconds', value: 5 },

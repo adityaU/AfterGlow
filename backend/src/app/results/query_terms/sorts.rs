@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{app::questions::config, controllers::result};
+use crate::{app::questions::config};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum SortDirection {
     Ascending,

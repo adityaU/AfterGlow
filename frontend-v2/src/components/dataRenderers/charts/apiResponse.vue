@@ -8,7 +8,7 @@
           directly use Jmespath.
         </div>
       </div>
-      <div :class="statusClass" class="tw-px-4 tw-py-0.5 tw-rounded">
+      <div :class="statusClass" class="tw-px-4 tw-py-0.5 tw-rounded-full">
         {{ apiResponse.status_code }}
       </div>
     </div>
@@ -21,19 +21,23 @@
         placeholder="Enter JmesPath"
       />
       <div class="note tw-px-4">
-        JmesPath is a way of extracting data from json response. You can read
-        more about it.
+        JmesPath is a method used to extract data from JSON responses. To learn
+        more about it, click
         <a
           href="https://jmespath.org/tutorial.html"
           class="tw-cursor-pointer tw-text-primary"
           target="_blank"
         >
           here </a
-        >. Use this field to customize the data extracted. Alternatively, You
-        can click on any key in API response pane.
+        >.This field allows you to tailor the data you extract to your needs.
+        Additionally, you have the option to click on any key in the API
+        response pane for further customization.
       </div>
     </div>
-    <div class="tw-flex ag-card tw-px-4 tw-py-2 tw-h-full tw-overflow-auto">
+    <div
+      class="tw-flex tw-flex-col ag-card tw-px-4 tw-py-2 tw-h-full tw-overflow-auto"
+    >
+      <div class="label">Response</div>
       <div
         class="tw-cursor-pointer tw-text-primary tw-font-semibold tw-flex-shrink-0"
         @click="jsonPathLocal = ''"

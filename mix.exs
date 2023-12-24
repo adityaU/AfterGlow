@@ -22,7 +22,7 @@ defmodule AfterGlow.Mixfile do
   def application do
     [
       mod: {AfterGlow, []},
-      extra_applications: [:odbc],
+      extra_applications: [],
       applications: [
         :phoenix,
         :phoenix_pubsub,
@@ -45,13 +45,9 @@ defmodule AfterGlow.Mixfile do
         :httpoison,
         :ja_serializer,
         :joken,
-        :keccakf1600,
-        :libdecaf,
-        :libsodium,
         :secure_random,
         :sweet_xml,
         :jason,
-        :unsafe,
         :myxql,
         :quantum,
         :ecto_sql,
@@ -91,9 +87,6 @@ defmodule AfterGlow.Mixfile do
       {:cowboy, "~> 2.0"},
       {:oauth2, "~> 2.0"},
       {:joken, "~> 1.1"},
-      {:libsodium, "~> 0.0.3"},
-      {:keccakf1600, "~> 0.0.1"},
-      {:libdecaf, "~> 0.0.1"},
       {:flasked, "~> 0.4"},
       {:bodyguard, "~> 1.0.0"},
       {:httpoison, "~> 2.1.0"},

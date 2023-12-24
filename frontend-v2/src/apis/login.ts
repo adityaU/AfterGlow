@@ -1,9 +1,9 @@
-import { api, apiV2 } from 'boot/axios';
+import { apiV2 } from 'boot/axios';
 
 const login = async function (email, password, callback) {
   callback(null, true);
   const payload = { email: email, password: password };
-  api
+  apiV2
     .post('login/', payload, {})
     .then((response) => {
       callback(response.data, false);

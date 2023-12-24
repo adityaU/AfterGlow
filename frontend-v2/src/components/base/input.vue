@@ -1,12 +1,12 @@
 <template>
-  <span class="">
+  <div class="">
     <input
       :type="type"
       :min="min"
       :max="max"
       :placeholder="placeholder"
       :class="invisible ? 'input-no-border' : 'input-border'"
-      class="!tw-px-4 !tw-py-2 tw-w-full tw-bg-white tw-rounded"
+      class="!tw-px-4 !tw-py-2 tw-w-full tw-bg-white tw-rounded-full"
       v-model="valueLocal"
       @keypress.down="$emit('keypress:down')"
       :disabled="disabled"
@@ -25,7 +25,7 @@
       v-if="textArea"
       :disabled="disabled"
     />
-  </span>
+  </div>
 </template>
 
 <script>

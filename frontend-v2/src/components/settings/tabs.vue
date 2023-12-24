@@ -1,10 +1,13 @@
 <template>
   <div class="">
-    <div class="tw-flex tw-flex-col tw-border tw-rounded-sm tw-shadow-sm tw-border">
+    <div class="tw-flex tw-flex-col tw-rounded-2xl tw-border">
       <div
         class="tw-font-semibold tw-border-b tw-p-2 tw-cursor-pointer tw-bg-white last:tw-border-b-0 first:tw-rounded-t-xl last:tw-rounded-b-xl"
-        :class="currentTab === tab.val ? 'tw-text-primary' : 'tw-text-default'" v-for="tab in tabs" :key="tab"
-        @click="$emit('update:currentTab', tab.val)">
+        :class="currentTab === tab.val ? 'tw-text-primary' : 'tw-text-default'"
+        v-for="tab in tabs"
+        :key="tab"
+        @click="$emit('update:currentTab', tab.val)"
+      >
         {{ tab.name }}
       </div>
     </div>

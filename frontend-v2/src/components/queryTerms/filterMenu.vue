@@ -1,30 +1,43 @@
 <template>
-  <staged-menu :stages="stages" :currentStage="filterLocal.currentStage" :show="filterLocal.showMenu">
+  <staged-menu
+    :stages="stages"
+    :currentStage="filterLocal.currentStage"
+    :show="filterLocal.showMenu"
+  >
     <template #header>
       <div class="tw-grid tw-grid-cols-6 tw-border-b">
         <div class="tw-p-2 tw-col-span-5 tw-flex">
-          <div class="btn tw-cursor-pointer tw-text-white hover:tw-bg-primary/80" v-for="(dv, i) in displayValues"
-            :key="dv" :class="displayValues.length == 1
-              ? 'btn-full tw-bg-primary'
-              : i === 0
+          <div
+            class="btn tw-cursor-pointer tw-text-white hover:tw-bg-primary/80"
+            v-for="(dv, i) in displayValues"
+            :key="dv"
+            :class="
+              displayValues.length == 1
+                ? 'btn-full tw-bg-primary'
+                : i === 0
                 ? 'btn-left'
                 : displayValues.length === i + 1
-                  ? 'btn-right'
-                  : 'btn-center'
-              " @click="filterLocal.currentStage = dv[1]">
+                ? 'btn-right'
+                : 'btn-center'
+            "
+            @click="filterLocal.currentStage = dv[1]"
+          >
             {{ dv[0] }}
           </div>
         </div>
         <div class="tw-p-2 tw-col-span-1 tw-text-right tw-text-default">
-          <div class="tw-cursor-pointer tw-inline-flex tw-border tw-rounded-sm tw-p-1 tw-bg-secondary" @click="
-            ((filterLocal.raw = !filterLocal.raw) || true) &&
-            (filterLocal.currentStage = filterLocal.raw ? 3 : 0)
-            ">
+          <div
+            class="tw-cursor-pointer tw-inline-flex tw-border tw-rounded-2xl tw-p-1 tw-bg-secondary"
+            @click="
+              ((filterLocal.raw = !filterLocal.raw) || true) &&
+                (filterLocal.currentStage = filterLocal.raw ? 3 : 0)
+            "
+          >
             <q-tooltip transition-show="scale" transition-hide="scale">
               {{
                 !filterLocal.raw
-                ? 'Switch to Raw Snippet'
-                : 'Switch to query builder'
+                  ? 'Switch to Raw Snippet'
+                  : 'Switch to query builder'
               }}
             </q-tooltip>
             <CodeIcon v-if="!filterLocal.raw" class="tw-h-3 tw-w-3" />
@@ -34,71 +47,142 @@
       </div>
     </template>
     <template #S1>
-      <SelectOptions :options="columns" :selected="filterLocal.column" :menuShow="menuShow" iconLetter="c" @select="(val) =>
-        ((filterLocal.column = val) || true) &&
-        (filterLocal.currentStage = 1) &&
-        setDefaultDateValue()
-        " />
+      <SelectOptions
+        :options="columns"
+        :selected="filterLocal.column"
+        :menuShow="menuShow"
+        iconComponent="true"
+        @select="
+          (val) =>
+            ((filterLocal.column = val) || true) &&
+            (filterLocal.currentStage = 1) &&
+            setDefaultDateValue()
+        "
+      >
+        <Columns3Icon size="16" />
+      </SelectOptions>
     </template>
     <template #S2>
-      <BoxSelect :options="operatorOptions" :selected="filterLocal.operator" @selected="(val) => updateOperator(val)" />
+      <BoxSelect
+        :options="operatorOptions"
+        :selected="filterLocal.operator"
+        @selected="(val) => updateOperator(val)"
+        class="tw-p-4"
+      />
     </template>
     <template #S3>
       <div class="" v-if="columnDataType == 'number'">
         <div class="tw-py-2 tw-px-2">
-          <BaseInput :value="filterLocal.value" @inputed="(val) => (filterLocal.value = val)" type="number"
-            ref="option_0" />
+          <BaseInput
+            :value="filterLocal.value"
+            @inputed="(val) => (filterLocal.value = val)"
+            type="number"
+            ref="option_0"
+          />
         </div>
       </div>
       <div class="" v-if="columnDataType == 'text'">
         <div class="tw-py-2 tw-px-4">
-          <SelectOptions :options="valueOptions" :selected="filterLocal.value" :menuShow="menuShow" includeQuery="true"
-            @select="(val) => (filterLocal.value = val) || true" />
+          <SelectOptions
+            :options="valueOptions"
+            :selected="filterLocal.value"
+            :menuShow="menuShow"
+            includeQuery="true"
+            @select="(val) => (filterLocal.value = val) || true"
+          />
         </div>
       </div>
       <div class="" v-if="columnDataType == 'datetime' && filterLocal.value">
         <div class="tw-py-2 tw-px-4">
-          <BoxSelect :options="datetimeValueTypes" :selected="filterLocal.value.type" class="tw-text-center" isTab="true"
-            @selected="(val) =>
-              (filterLocal.value.type = val || true) &&
-              setDateTimeValueValue()
-              " />
+          <BoxSelect
+            :options="datetimeValueTypes"
+            :selected="filterLocal.value.type"
+            class="tw-text-center"
+            isTab="true"
+            @selected="
+              (val) =>
+                (filterLocal.value.type = val || true) &&
+                setDateTimeValueValue()
+            "
+          />
           <div class="" v-if="filterLocal.value.type === 'duration'">
             <div class="tw-py-2">
-              <BaseInput :value="filterLocal.value.value.durationValue" @inputed="(val) => (filterLocal.value.value.durationValue = val)
-                " type="number" ref="option_0" placeholder="30" />
+              <BaseInput
+                :value="filterLocal.value.value.durationValue"
+                @inputed="
+                  (val) => (filterLocal.value.value.durationValue = val)
+                "
+                type="number"
+                ref="option_0"
+                placeholder="30"
+              />
 
-              <BoxSelect :options="durationTypeOptions" class="tw-max-w-[400px]"
-                :selected="filterLocal.value.value.durationType" @selected="(val) => (filterLocal.value.value.durationType = val)
-                  " />
+              <BoxSelect
+                :options="durationTypeOptions"
+                class="tw-max-w-[400px]"
+                :selected="filterLocal.value.value.durationType"
+                @selected="
+                  (val) => (filterLocal.value.value.durationType = val)
+                "
+              />
 
-              <BoxSelect :options="durationTenseOptions" :selected="filterLocal.value.value.durationTense" @selected="(val) => (filterLocal.value.value.durationTense = val)
-                " />
+              <BoxSelect
+                :options="durationTenseOptions"
+                :selected="filterLocal.value.value.durationTense"
+                @selected="
+                  (val) => (filterLocal.value.value.durationTense = val)
+                "
+              />
             </div>
           </div>
-          <div class="tw-inline-flex tw-mt-2" v-if="filterLocal.value.type === 'datepicker'">
-            <q-date class="!tw-mr-1" flat="true" v-model="filterLocal.value.value" :mask="datetimeFormat"
-              color="primary" />
-            <q-time class="!tw-ml-1" flat="true" v-model="filterLocal.value.value" :mask="datetimeFormat"
-              color="primary" />
+          <div
+            class="tw-inline-flex tw-mt-2"
+            v-if="filterLocal.value.type === 'datepicker'"
+          >
+            <q-date
+              class="!tw-mr-1"
+              flat="true"
+              v-model="filterLocal.value.value"
+              :mask="datetimeFormat"
+              color="primary"
+            />
+            <q-time
+              class="!tw-ml-1"
+              flat="true"
+              v-model="filterLocal.value.value"
+              :mask="datetimeFormat"
+              color="primary"
+            />
           </div>
         </div>
       </div>
     </template>
     <template #S4>
       <div class="tw-py-2 tw-px-4">
-        <BaseInput :value="filterLocal.value" @inputed="(val) => (filterLocal.value = val)" type="text" ref="option_0"
-          placeholder="lower(column) = 'value" class="" />
+        <BaseInput
+          :value="filterLocal.value"
+          @inputed="(val) => (filterLocal.value = val)"
+          type="text"
+          ref="option_0"
+          placeholder="lower(column) = 'value"
+          class=""
+        />
       </div>
     </template>
     <template #footer>
-      <div class="tw-py-2 tw-px-4 tw-border-t tw-text-right" v-if="shouldShowAddFilter">
-        <AGButton v-close-popup="10"
-          class="tw-bg-primary tw-border-primary tw-text-white hover:tw-bg-primary/80 hover:tw-text-white" @clicked="
+      <div
+        class="tw-py-2 tw-px-4 tw-border-t tw-text-right"
+        v-if="shouldShowAddFilter"
+      >
+        <AGButton
+          v-close-popup="10"
+          class="tw-bg-primary tw-border-primary tw-text-white hover:tw-bg-primary/80 hover:tw-text-white"
+          @clicked="
             ((filterLocal.showMenu = false) || true) &&
-            $emit('addFilter', filterLocal) &&
-            prevent
-            ">
+              $emit('addFilter', filterLocal) &&
+              prevent
+          "
+        >
           {{ addLabel }}
         </AGButton>
       </div>
@@ -116,7 +200,7 @@ import AGButton from 'components/base/button.vue';
 
 import { FilterMixin, datetimeFormat } from 'src/mixins/filterMixins';
 
-import { CodeIcon, CodePlusIcon } from 'vue-tabler-icons';
+import { CodeIcon, CodePlusIcon, Columns3Icon } from 'vue-tabler-icons';
 import { date } from 'quasar';
 
 import { _ } from 'lodash';
@@ -169,6 +253,7 @@ export default {
     BoxSelect,
     BaseInput,
     AGButton,
+    Columns3Icon,
   },
   data() {
     return {

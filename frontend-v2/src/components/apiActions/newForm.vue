@@ -231,7 +231,7 @@
           <pane
             :size="30"
             ref="chart"
-            class="pane pane-right tw-shadow-sm !tw-border !tw-overflow-auto"
+            class="pane pane-right !tw-border !tw-overflow-auto"
           >
             <div class="tw-bg-white tw-h-full">
               <template v-if="currentStage != 0">
@@ -323,7 +323,7 @@
                         N
                       </div>
                       <div
-                        class="tw-border tw-rounded-sm tw-py-0.5 tw-leading-4 tw-px-1 tw-cursor-pointer"
+                        class="tw-border tw-rounded-2xl tw-py-0.5 tw-leading-4 tw-px-1 tw-cursor-pointer"
                       >
                         {{ field.label }}
                         <q-menu
@@ -332,7 +332,7 @@
                           transition-hide="scale"
                           max-height="400px"
                           :offset="[0, 5]"
-                          class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
+                          class="tw-rounded-2xl tw-border tw-overflow-hidden"
                           @show="menuShow"
                           @keydown="onKeydown"
                         >
@@ -342,7 +342,7 @@
                       <template v-if="field.type == 'Field'">
                         as
                         <div
-                          class="tw-border tw-rounded-sm tw-py-0.5 tw-leading-4 tw-px-1 tw-cursor-pointer"
+                          class="tw-border tw-rounded-2xl tw-py-0.5 tw-leading-4 tw-px-1 tw-cursor-pointer"
                         >
                           {{ field.inputType }}
                           <q-menu
@@ -351,7 +351,7 @@
                             transition-hide="scale"
                             max-height="400px"
                             :offset="[0, 5]"
-                            class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
+                            class="tw-rounded-2xl tw-border tw-overflow-hidden"
                             @show="menuShow"
                             @keydown="onKeydown"
                             auto-close
@@ -503,7 +503,7 @@
                         transition-hide="scale"
                         max-height="400px"
                         :offset="[0, 5]"
-                        class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
+                        class="tw-rounded-2xl tw-border tw-overflow-hidden"
                         @show="menuShow"
                         @keydown="onKeydown"
                       >
@@ -535,7 +535,6 @@
                       <AGColorSelector
                         naked="true"
                         v-model:selectedColor="titleStyles.color"
-                        :additionalColors="additionalColors"
                       />
                     </div>
                     <div class="tw-flex item-3070-columns tw-items-center">
@@ -633,7 +632,6 @@
                         v-model:selectedColor="
                           editingField.rendererConfiguration.backgroundColor
                         "
-                        :additionalColors="additionalBackgroundColors"
                       />
                     </div>
                     <div
@@ -646,7 +644,6 @@
                         v-model:selectedColor="
                           editingField.rendererConfiguration.textColor
                         "
-                        :additionalColors="additionalColors"
                       />
                     </div>
                     <div
@@ -673,7 +670,6 @@
                         v-model:selectedColor="
                           editingField.rendererConfiguration.color
                         "
-                        :additionalColors="additionalColors"
                       />
                     </div>
                     <div
@@ -818,11 +814,11 @@ import isEqual from 'lodash/isEqual';
 
 const buttonConfiguration = {
   backgroundColor: 'transparent',
-  textColor: '#6e7687',
+  textColor: 'rgb(var(--color-default))',
 };
 
 const titleStyles = {
-  color: '#6574cd',
+  color: 'var(--color-primary)',
   fontSize: 2,
   position: 'left',
   paddingX: 1,
@@ -830,7 +826,7 @@ const titleStyles = {
 };
 const dividerConfiguration = {
   orientation: 'horizontal',
-  color: '#e5e7eb',
+  color: 'var(--color-tertiary)',
 };
 
 const typeBasedPossibleInputMapping = {
@@ -967,14 +963,6 @@ export default {
       fields: this.form ? this.mergeFields(fields, this.form.fields) : fields,
       inputTypesRendererMapping: inputTypesRendererMapping,
       typeBasedPossibleInputMapping: typeBasedPossibleInputMapping,
-      additionalBackgroundColors: [
-        'transparent',
-        'white',
-        '#6e7687',
-        '#f5f7fb',
-        '#e5e7eb',
-      ],
-      additionalColors: ['white', '#6e7687', '#f5f7fb', '#e5e7eb'],
       orientationOptions: ['horizontal', 'vertical'].map((v) => {
         return { name: v, value: v };
       }),
@@ -1211,8 +1199,8 @@ export default {
         type: 'Button',
         originalName: 'submit',
         rendererConfiguration: {
-          backgroundColor: '#6574cd',
-          textColor: 'white',
+          backgroundColor: 'var(--color-primary)',
+          textColor: 'rgb(var(--color-white))',
         },
         x: 0,
         y: 10,

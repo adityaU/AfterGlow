@@ -1,14 +1,29 @@
-use actix_web::{error, web, HttpRequest, HttpResponse, Responder};
+use std::sync::Arc;
+
+use actix_web::{web, HttpRequest, HttpResponse, Responder};
+use serde::Deserialize;
 
 use crate::{
     controllers::common::ResponseData,
-    repository::{models::Tag, models::TagView, DBPool},
+    errors::AGError,
+    repository::{
+        models::TagView,
+        models::{Tag, TagChangeset},
+        DBPool,
+    },
 };
 use actix_web_grants::{permissions::AuthDetails, proc_macro::has_permissions};
 
+use super::base;
+
+#[derive(Deserialize)]
+pub struct QueryParams {
+    q: Option<String>,
+}
+
 #[has_permissions("Any")]
 pub(crate) async fn index(
-    pool: web::Data<DBPool>,
+    pool: web::Data<Arc<DBPool>>,
     req: HttpRequest,
     auth_details: AuthDetails,
 ) -> impl Responder {
@@ -29,5 +44,20 @@ pub(crate) async fn index(
                 .collect::<Vec<TagView>>();
             HttpResponse::Ok().json(ResponseData { data: resp })
         })
-        .map_err(|err| error::ErrorBadRequest(err))
+        .map_err(|err| AGError::<String>::new(err))
 }
+
+pub async fn search(pool: web::Data<Arc<DBPool>>, qp: web::Query<QueryParams>) -> impl Responder {
+    let conn = pool.get();
+    Tag::search(&mut conn.unwrap(), qp.q.clone().unwrap_or_default())
+        .map(|items| {
+            let resp = items
+                .iter()
+                .map(|item| TagView::from_model(item))
+                .collect::<Vec<TagView>>();
+            HttpResponse::Ok().json(ResponseData { data: resp })
+        })
+        .map_err(|err| AGError::<String>::new(err))
+}
+
+base::generate_create!(create, Tag, TagChangeset, TagView, "Question.create");

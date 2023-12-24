@@ -8,10 +8,7 @@
     >
       <template #header>
         <div class="tw-flex tw-items-center tw-px-4 tw-gap-1 tw-py-2">
-          <UserIcon
-            size="48"
-            class="icon-primary tw-rounded !tw-py-2 !tw-px-1"
-          />
+          <UserIcon size="48" class="icon-primary !tw-py-2 !tw-px-1" />
           <div class="tw-text-2xl tw-font-semibold tw-flex-1">
             {{ userLocal.full_name || userLocal.email }}
             <div class="note" v-if="userLocal.full_name">
@@ -20,7 +17,7 @@
           </div>
 
           <div
-            class="tw-cursor-pointer tw-bg-primary tw-text-white tw-text-sm tw-px-2 tw-py-0.5 tw-rounded"
+            class="tw-cursor-pointer tw-bg-primary tw-text-white tw-text-sm tw-px-2 tw-py-0.5 tw-rounded-full"
             v-if="permissionSet"
           >
             {{ permissionSet.name }}
@@ -30,7 +27,7 @@
               transition-show="scale"
               transition-hide="scale"
               max-height="800px"
-              class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
+              class="tw-rounded-2xl tw-border tw-overflow-hidden"
               @show="menuShow"
               @keydown="onKeydown"
             >
@@ -49,44 +46,46 @@
         </div>
       </template>
       <template #body>
-        <div class="tw-p-2 divide-y">
-          <div class="label tw-mt-2">Teams</div>
-          <AGSearchSelect
-            :selected="teamNames"
-            :queryFunction="searchTeams"
-            :options="teamNameOptions"
-            @update:selected="selectTeam"
-            disableLocalSearch="true"
-            description="search for teams"
-            class="tw-p-2 tw-pl-0"
-          />
-        </div>
-        <div class="tw-p-2 divide-y tw-mt-2">
-          <div class="tw-font-semibold tw-text-lg">Settings</div>
-
-          <div class="label">Maximum Number of Rows in Exports/Reports</div>
-          <AGInput
-            v-model:value="downloadLimitSettings.value"
-            v-if="downloadLimitSettings"
-            :placeholder="
-              'How many rows can ' + userLocal.full_name + ' download?'
-            "
-            type="number"
-            debounce="300"
-          />
-          <div class="note">
-            This overrides the Global and Organization Level Value
+        <div class="tw-p-4">
+          <div class="tw-p-2 divide-y">
+            <div class="label tw-mt-2">Teams</div>
+            <AGSearchSelect
+              :selected="teamNames"
+              :queryFunction="searchTeams"
+              :options="teamNameOptions"
+              @update:selected="selectTeam"
+              disableLocalSearch="true"
+              description="search for teams"
+              class="tw-p-2 tw-pl-0"
+            />
           </div>
+          <div class="tw-p-2 divide-y tw-mt-2">
+            <div class="tw-font-semibold tw-text-lg">Settings</div>
 
-          <AGBool
-            v-model:value="canDownloadSetting.value"
-            v-if="canDownloadSetting"
-            label="Can Download Reports"
-            class="label tw-mt-2"
-          />
-          <div class="note">
-            Use this option to disable downloads for this user. This overrides
-            the Global and Organization Level Value
+            <div class="label">Maximum Number of Rows in Exports/Reports</div>
+            <AGInput
+              v-model:value="downloadLimitSettings.value"
+              v-if="downloadLimitSettings"
+              :placeholder="
+                'How many rows can ' + userLocal.full_name + ' download?'
+              "
+              type="number"
+              debounce="300"
+            />
+            <div class="note">
+              This overrides the Global and Organization Level Value
+            </div>
+
+            <AGBool
+              v-model:value="canDownloadSetting.value"
+              v-if="canDownloadSetting"
+              label="Can Download Reports"
+              class="label tw-mt-2"
+            />
+            <div class="note">
+              Use this option to disable downloads for this user. This overrides
+              the Global and Organization Level Value
+            </div>
           </div>
         </div>
       </template>

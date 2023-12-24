@@ -7,9 +7,9 @@ use reqwest::{
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
-use crate::repository::models::ApiAction;
+use crate::repository::models::{ApiActionChangeset};
 
-use super::questions::config::{self, Variable};
+use super::results::payload_adapter::Variable;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RedirectResponse {
@@ -32,8 +32,8 @@ pub enum ApiActionResponse {
 }
 
 pub async fn fetch_response(
-    api_action: ApiAction,
-    variables: Vec<Variable>,
+    api_action: ApiActionChangeset,
+    _variables: Vec<Variable>,
 ) -> Result<ApiActionResponse, String> {
     let default_headers: Map<String, Value> = Map::new();
     let req_headers =
@@ -107,12 +107,15 @@ pub async fn fetch_response(
 }
 
 fn make_reqwest_headers(api_action_headers: Value) -> Result<HeaderMap, String> {
-    let headers: HashMap<String, String> = serde_json::from_value(api_action_headers)
-        .map_err(|err| format!("Error Decoding Headers: {}", err))?;
+    println!("api_action_headers: {:?}", api_action_headers);
+    let headers: HashMap<Option<String>, Option<String>> =
+        serde_json::from_value(api_action_headers)
+            .map_err(|err| format!("Error Decoding Headers: {}", err))?;
     let mut req_headers = reqwest::header::HeaderMap::new();
     headers.iter().for_each(|(k, v)| {
-        let header_name = HeaderName::from_bytes(k.as_bytes()).unwrap();
-        let header_value = HeaderValue::from_str(v).unwrap();
+        let header_name = HeaderName::from_bytes(k.clone().unwrap_or_default().as_bytes())
+            .unwrap_or(HeaderName::from_static("invalid_header"));
+        let header_value = HeaderValue::from_str(v.clone().unwrap_or_default().as_str()).unwrap();
         req_headers.insert(header_name, header_value);
     });
     Ok(req_headers)

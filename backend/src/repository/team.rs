@@ -22,6 +22,13 @@ pub struct UserCount {
 }
 
 impl Team {
+    pub fn search(conn: &mut PgConnection, q: String) -> Result<Vec<Self>, Error> {
+        teams::table
+            .filter(teams::name.ilike(format!("%{}%", q)))
+            .order(teams::name.asc())
+            .select(teams::all_columns)
+            .load::<Self>(conn)
+    }
     pub fn find_by_user_id(conn: &mut PgConnection, uid: i32) -> Result<Vec<Self>, Error> {
         teams::table
             .inner_join(user_teams::table.on(teams::id.nullable().eq(user_teams::team_id)))

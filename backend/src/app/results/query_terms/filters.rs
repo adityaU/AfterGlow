@@ -1,6 +1,6 @@
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::{app::questions::config, controllers::result};
+use crate::{app::questions::config};
 
 #[derive(Deserialize, Serialize, Debug)]
 pub enum Filter {
@@ -48,7 +48,7 @@ pub enum DurationTenseType {
     Later,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum FilterOperator {
     Equal,
     NotEqual,

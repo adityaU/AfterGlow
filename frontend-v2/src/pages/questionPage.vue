@@ -1,38 +1,79 @@
 <template>
-  <AGWithLoginHeader />
-  <AGQuestionHeader v-model:question="question" v-model:tags="tags" @save="saveQuestion" />
+  <template v-if="!currentUser.loading">
+    <AGQuestionHeader
+      class="slide-transition ag-header"
+      :class="
+        sidebarExpanded ? 'tw-w-[calc(100%-254px)]' : 'tw-w-[calc(100%-50px)]'
+      "
+      v-model:question="question"
+      v-model:tags="tags"
+      @save="saveQuestion"
+      :showEditor="showEditor"
+      @setShowEditor="setShowEditor"
+    />
 
-  <VariablePane class="tw-mt-3 tw-mx-6" v-model:variables="variables" :code="code"
-    v-model:variablesUpdated="variablesUpdated" />
-  <div class="tw-my-1 tw-mx-6">
-    <AGQuestionEditor class="tw-mb-3 tw-border" v-model:question="question" @runQuery="refresh(null, true)"
-      v-model:code="code" v-if="currentUser.canEditQuestion" />
-    <AGLoader :text="initializingMessage" v-if="!dataLoaded"
-      class="tw-bg-white tw-shadow-sm tw-rounded-sm tw-min-h-[400px]" />
-    <div class="tw-h-full tw-w-full tw-flex" v-if="dataLoaded">
-      <BaseDataRenderer :resultsKey="resultsKey" :dataLoaded="dataLoaded" v-model:visualizations="visualizations"
-        @deleteViz="deleteViz" :apiActionKeyQuesLevel="apiActionKeyQuesLevel" :apiActionKeyVizLevel="apiActionKeyVizLevel"
-        :queryKey="queryKey" :questionID="questionID" :variables="variables" @fetchVizResults="refreshVizResults"
-        v-model:loading="loading" @updateApiActions="fetchQuestionApiActions" @updateViz="(viz) => refresh(null, true)"
-        :finalQuery="finalQuery" @download="download" :startingPage="startingPage" :question="question"
-        ref="results-view"></BaseDataRenderer>
+    <div class="ag-main-container">
+      <Transition>
+        <AGQuestionEditor
+          class="tw-border tw-border-l-0 tw-overflow-hidden"
+          v-model:question="question"
+          @runQuery="(refresh(null, true) || true)"
+          v-model:code="code"
+          v-if="currentUser.canEditQuestion && showEditor"
+        />
+      </Transition>
+
+      <VariablePane
+        class="tw-mx-6"
+        :class="!showEditor ? 'tw-mt-[65px]' : 'tw-mt-3'"
+        v-model:variables="variables"
+        :code="code"
+        v-model:variablesUpdated="variablesUpdated"
+      />
+      <AGLoader
+        :text="initializingMessage"
+        v-if="!dataLoaded"
+        class="tw-bg-white custom-shadow tw-rounded-2xl tw-min-h-[400px]"
+      />
+      <div class="tw-my-3 tw-mx-6">
+        <div class="tw-h-full tw-w-full tw-flex" v-if="dataLoaded">
+          <BaseDataRenderer
+            :resultsKey="resultsKey"
+            :dataLoaded="dataLoaded"
+            v-model:visualizations="visualizations"
+            @deleteViz="deleteViz"
+            :apiActionKeyQuesLevel="apiActionKeyQuesLevel"
+            :apiActionKeyVizLevel="apiActionKeyVizLevel"
+            :queryKey="queryKey"
+            :questionID="questionID"
+            :variables="variables"
+            @fetchVizResults="refreshVizResults"
+            v-model:loading="loading"
+            @updateApiActions="fetchQuestionApiActions"
+            @updateViz="(viz) => refresh(null, true)"
+            :finalQuery="finalQuery"
+            @download="download"
+            :startingPage="startingPage"
+            :question="question"
+            ref="results-view"
+          ></BaseDataRenderer>
+        </div>
+      </div>
+      <AGToast v-model:show="toastShow" :type="toastType">{{
+        toastMessage
+      }}</AGToast>
     </div>
-    <AGToast v-model:show="toastShow" :type="toastType">{{
-      toastMessage
-    }}</AGToast>
-    <AGFooter />
-  </div>
+  </template>
+  <AGLoader v-else />
 </template>
 
 <script>
 import AGQuestionEditor from 'components/question/editor.vue';
 import AGQuestionHeader from 'components/question/header.vue';
-import AGWithLoginHeader from 'components/header/withLogin.vue';
 import BaseDataRenderer from 'components/dataRenderers/base.vue';
 import AGLoader from 'components/utils/loader.vue';
 import AGToast from 'components/utils/toast.vue';
 import VariablePane from 'components/question/variables.vue';
-import AGFooter from 'components/footer/static.vue';
 import { useRoute } from 'vue-router';
 import { api } from 'boot/axios';
 import { resultsStore } from 'stores/results';
@@ -42,6 +83,7 @@ import hash from '../helpers/hash';
 import apiConfig from '../helpers/apiConfig';
 import cloneDeep from 'lodash/cloneDeep';
 import { saveQuestion } from 'src/apis/questions';
+import { sidebarState } from 'src/stores/sidebarStore';
 
 import {
   fetchQuestionResults,
@@ -53,13 +95,6 @@ import {
   makeVisualizationFromResponse,
   downloadVizData,
 } from 'src/apis/visualization';
-import {
-  fetchVariables,
-  saveVariable,
-  deleteVariable,
-} from 'src/apis/dashboards';
-import { addVariable } from 'src/apis/questions';
-import { fetchTagsByIDs } from 'src/apis/tags';
 import { fetchDatabase, fetchTable } from 'src/apis/database';
 
 import { sessionStore } from 'src/stores/session';
@@ -77,21 +112,23 @@ import LZString from 'lz-string';
 import { InitializingMessages } from 'src/helpers/messages';
 
 const currentUser = currentUserStore();
+const sidebar = sidebarState();
 export default {
   name: 'QuestionPage',
   components: {
     BaseDataRenderer,
     AGLoader,
     AGToast,
-    AGWithLoginHeader,
     AGQuestionEditor,
     AGQuestionHeader,
     VariablePane,
-    AGFooter,
   },
   mixins: [authMixin],
 
   watch: {
+    sidebarStateVar() {
+      this.sidebarExpanded = sidebarState.expanded;
+    },
     sql() {
       this.code = this.sql;
     },
@@ -138,7 +175,10 @@ export default {
     currentUser: {
       deep: true,
       handler() {
-        if (!this.currentUser.canEditQuestion & !this.questionID) {
+        if (
+          !this.currentUser.loading &&
+          !this.currentUser.canEditQuestion & !this.questionID
+        ) {
           this.$router.replace({ path: '/questions' });
         }
       },
@@ -154,6 +194,9 @@ export default {
   },
 
   computed: {
+    sidebarExpanded() {
+      return this.sidebar.expanded;
+    },
     sql() {
       return this.question?.sql || this.question?.human_sql?.rawQuery;
     },
@@ -196,7 +239,12 @@ export default {
       tableLoading: true,
       code: '',
       variablesUpdated: false,
-      initializingMessage: InitializingMessages[Math.floor(Math.random() * InitializingMessages.length)],
+      initializingMessage:
+        InitializingMessages[
+          Math.floor(Math.random() * InitializingMessages.length)
+        ],
+      sidebar: sidebar,
+      showEditor: true,
     };
   },
   async created() {
@@ -241,6 +289,9 @@ export default {
   },
 
   methods: {
+    setShowEditor() {
+      this.showEditor = true;
+    },
     lzEncode(json) {
       return LZString.compressToBase64(json);
     },
@@ -324,18 +375,18 @@ export default {
         this.refresh();
       }
     },
-    fetchVisualizations(questionID) {
-      api
-        .get(
-          'visualizations' + '?question_id=' + questionID,
-          apiConfig(this.query.token)
-        )
-        .then((response) => {
-          // this.fetchVizResults(response)
-          this.updateVisulaization(response);
-          this.syncVars(this.$route.query);
-        });
-    },
+    // fetchVisualizations(questionID) {
+    //   api
+    //     .get(
+    //       'visualizations' + '?question_id=' + questionID,
+    //       apiConfig(this.query.token)
+    //     )
+    //     .then((response) => {
+    //       // this.fetchVizResults(response)
+    //       this.updateVisulaization(response);
+    //       this.syncVars(this.$route.query);
+    //     });
+    // },
     setVariables(variables, _loading) {
       this.variables = variables || [];
       this.fetchVisualizations(this.question.id);
@@ -343,80 +394,34 @@ export default {
     setTags(tags, _loading) {
       this.tags = tags || [];
     },
-    setQuestionAndVariables(newVariables, oldVariablesIDs) {
-      return (question, loading) => {
-        this.setQuestion(question, loading);
-        if (question) {
-          const newVariablesIDs = newVariables.map((v) => v.id);
 
-          const syncVarOv = oldVariablesIDs.map(() => false);
-          const syncVarNv = newVariables.map(() => false);
-          const syncNoVar = [];
-          oldVariablesIDs.forEach((ov, i) => {
-            const index = newVariablesIDs.indexOf(ov);
-            if (index < 0) {
-              deleteVariable(ov, (_, loading) => {
-                if (!loading) {
-                  syncVarOv[i] = true;
-                  this.reloadQuestion(syncVarOv, syncVarNv, syncNoVar);
-                }
-              });
-            } else {
-              saveVariable(newVariables[index], (_, loading) => {
-                if (!loading) {
-                  syncVarOv[i] = true;
-                  this.reloadQuestion(syncVarOv, syncVarNv, syncNoVar);
-                }
-              });
-            }
-          });
-
-          newVariablesIDs.forEach((nv, i) => {
-            const index = oldVariablesIDs.indexOf(nv);
-            if (index < 0) {
-              addVariable(newVariables[i], question.id, (_, loading) => {
-                if (!loading) {
-                  syncVarNv[i] = true;
-                  this.reloadQuestion(syncVarOv, syncVarNv, syncNoVar);
-                }
-              });
-            } else {
-              syncVarNv[i] = true;
-              this.reloadQuestion(syncVarOv, syncVarNv, syncNoVar);
-            }
-          });
-
-          this.reloadQuestion(syncVarOv, syncVarNv, syncNoVar);
-        }
-      };
-    },
-
-    reloadQuestion(syncVarOv, syncVarNv) {
-      if (syncVarNv.indexOf(false) < 0 && syncVarOv.indexOf(false) < 0) {
-        this.save(this.question.id, () => {
-          if (this.$route?.params?.id === this.question.id) {
-            this.$router.go();
-          }
-
-          this.$router.push({ path: '/questions/' + this.question.id });
-        });
+    reloadQuestion(question) {
+      if (question) {
+        this.$router.push({ path: '/questions/' + question.id });
       }
+      // if (this.$route?.params?.id === this.question.id) {
+      //   this.$router.go();
+      //   return;
+      // }
     },
     setQuestion(question, loading) {
       if (question) {
-        const existingQuestionID = cloneDeep(this.question?.id);
         this.question = question;
-        const varIDs = question?.variables?.data?.map((v) => v.id) || [];
-        if (varIDs.length > 0) {
-          fetchVariables(varIDs, this.setVariables);
-        } else {
-          this.fetchVisualizations(this.question.id);
-        }
-
-        const tagIDs = question?.tags?.data?.map((v) => v.id) || [];
-        if (tagIDs.length > 0) {
-          fetchTagsByIDs(tagIDs, this.setTags);
-        }
+        this.variables = question.variables;
+        question.visualizations = question.visualizations.map((viz) => {
+          if (viz.query_terms.details) {
+            viz.queryTerms = viz.query_terms;
+          } else {
+            viz.queryTerms = {
+              details: viz.query_terms,
+            };
+          }
+          viz.rendererType = viz.renderer_type;
+          return viz;
+        });
+        this.visualizations = { details: { details: question.visualizations } };
+        this.tags = question.tags;
+        this.refresh();
       }
       if (!loading) {
         this.showQuestionSettingsModal = false;
@@ -471,11 +476,11 @@ export default {
       this.loading = true;
       hash(
         'payload=' +
-        JSON.stringify(payload) +
-        '&questionID=' +
-        (this.query.question_id || this.params.id) +
-        '&vizTerms=' +
-        JSON.stringify(vizTerms)
+          JSON.stringify(payload) +
+          '&questionID=' +
+          (this.query.question_id || this.params.id) +
+          '&vizTerms=' +
+          JSON.stringify(vizTerms)
       ).then((key) => {
         if (this.resultsStore.getResults(key)) {
           this.loading = false;
@@ -545,7 +550,6 @@ export default {
           'empty';
         return;
       }
-      const ref = document.getElementById('results-view');
       this.payload = this.question?.human_sql || {};
       if (
         this.question.api_action &&
@@ -580,9 +584,9 @@ export default {
         ) || [];
       const firstViz =
         this.visualizations?.details?.details?.length > 0 &&
-          currentViz.length == 0
+        currentViz.length == 0
           ? (this.visualizations.details.details[0].current = true) &&
-          this.visualizations.details.details[0]
+            this.visualizations.details.details[0]
           : null;
       currentViz =
         currentViz && currentViz.length === 1 ? currentViz[0] : firstViz;
@@ -603,8 +607,10 @@ export default {
         this.payload = JSON.parse(this.query.payload);
         this.payload.question_id = this.questionID;
       }
+
       currentViz && this.updateVizResults(currentViz, true);
-      ref && ref.scrollIntoView();
+      // const ref = document.getElementById('results-view');
+      // ref && ref.scrollIntoView();
     },
 
     updateQueryParams() {
@@ -619,19 +625,19 @@ export default {
         this.$router.push({ query: query });
       }
     },
-    receiveMessage(event) {
-      if (event.data.message == 'save_visualizations') {
-        this.save(event.data.question_id);
-        return;
-      }
+    // receiveMessage(event) {
+    //   if (event.data.message == 'save_visualizations') {
+    //     this.save(event.data.question_id);
+    //     return;
+    //   }
 
-      if (event.data.message == 'refresh') {
-        if (!this.loading) {
-          this.refresh(event);
-          return;
-        }
-      }
-    },
+    //   if (event.data.message == 'refresh') {
+    //     if (!this.loading) {
+    //       this.refresh(event);
+    //       return;
+    //     }
+    //   }
+    // },
 
     updateVisulaization(response) {
       if (
@@ -673,35 +679,6 @@ export default {
       this.visualizations.towardsBaseRenderer = true;
     },
 
-    save(question_id, f) {
-      if (!question_id) {
-        return;
-      }
-      this.dataLoaded = false;
-      const url = 'visualizations';
-      const payload = {
-        question_id: question_id,
-        visualizations:
-          this.visualizations &&
-          this.visualizations.details &&
-          this.visualizations.details.details,
-      };
-      this.updateQueryParams();
-      if (payload.visualizations) {
-        api
-          .post(url, payload, apiConfig(this.query.token))
-          .then((response) => {
-            this.updateVisulaization(response);
-            this.dataLoaded = true;
-            f && f();
-          })
-          .catch(() => {
-            this.visualizations = { details: null };
-            this.dataLoaded = true;
-          });
-      }
-    },
-
     showDownloadToast(success, message, _) {
       if (success === null) {
         return;
@@ -709,41 +686,52 @@ export default {
 
       this.toastShow = true;
       if (success) {
-        this.toastMessage = message
+        this.toastMessage = message;
         this.toastType = 'ok';
         return;
       }
       if (!success) {
-        this.toastMessage = message
+        this.toastMessage = message;
         this.toastType = 'critical';
         return;
       }
     },
 
     makeCodeFromApiAction() {
-      return `${this.question?.api_action?.url} ${this.question?.api_action?.body
-        } ${this.question?.api_action?.dummyHeaders
-          ?.map((h) => {
-            return `${h.name} ${h.value}`;
-          })
-          ?.join(' ')}`;
+      return `${this.question?.api_action?.url} ${
+        this.question?.api_action?.body
+      } ${this.question?.api_action?.dummyHeaders
+        ?.map((h) => {
+          return `${h.name} ${h.value}`;
+        })
+        ?.join(' ')}`;
     },
 
     saveQuestion() {
       const tags = this.tags;
-      const variables = this.variables;
-      const originalVariables =
-        this.question?.variables?.data?.map((v) => v.id) || [];
-      this.question.tags_ids = tags.map((t) => t.id);
+      // const variables = this.variables;
+      // // const originalVariables =
+      //   this.question?.variables?.data?.map((v) => v.id) || [];
+      this.question.tags = this.tags;
       this.question.sql = this.question.human_sql.rawQuery;
       this.question.human_sql.version = 1;
-      delete this.question.variables;
+      // delete this.question.variables;
       const query = queryStore().get(this.queryKey);
+      if (this.visualizations) {
+        if (this.visualizations?.details?.details) {
+          this.question.visualizations = this.visualizations.details.details;
+        } else if (this.visualizations?.details) {
+          this.question.visualizations = this.visualizations.details;
+        } else if (this.visualizations) {
+          this.question.visualizations = this.visualizations;
+        }
+      }
+      this.question.variables = this.variables;
       saveQuestion(
         this.questionID,
         this.question,
         query.token,
-        this.setQuestionAndVariables(this.variables, originalVariables)
+        this.question.id ? this.setQuestion : this.reloadQuestion
       );
     },
     download() {

@@ -1,24 +1,25 @@
 use std::collections::HashMap;
-use std::fmt::Display;
+use std::fmt;
 
 extern crate regex;
 
-use regex::{Captures, Regex};
+use regex::Regex;
 
-use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
-use diesel::IntoSql;
-use diesel::{query_source::AliasedField, PgConnection};
-use r2d2::Pool;
-use r2d2_postgres::{postgres::Config, PostgresConnectionManager};
-use serde::{Deserialize, Serialize, Serializer};
+use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
+
+use diesel::PgConnection;
+use rust_decimal::Decimal;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use tokio_postgres::{NoTls, Row};
+
 use uuid::Uuid;
 
 const LIMIT_OFFSET_REGEX: &str = "(limit|LIMIT) +(\\d+) +(offset|OFFSET) +(\\d+)$";
 const LIMIT_REGEX: &str = "(limit|LIMIT) +(\\d+)$";
 
 use crate::app::questions::config;
+
+use crate::app::results::payload_adapter::Variable;
 use crate::app::{
     results::{
         helpers::make_alias,
@@ -29,10 +30,10 @@ use crate::app::{
             sorts::Sort,
             views::{Column, View},
         },
-        DBConfig,
     },
     settings::limit,
 };
+use crate::repository::models::VariableType;
 
 use super::super::AdaptedPayload;
 
@@ -42,19 +43,13 @@ use super::super::query_terms::{
     sorts::SortDirection::{Ascending, Descending},
     views::ViewAggregations,
 };
-
-pub trait QueryBuilder {
-    fn build(&self, conn: &mut PgConnection, user_id: i32, org_id: i64) -> Result<Queries, String>;
-    fn get_pool(db_config: DBConfig) -> Result<Pool<PostgresConnectionManager<NoTls>>, String>;
-    fn row_to_json(row: &Row) -> Vec<DBValue>;
-    // fn get_connection(Database) -> Pool<>
-}
+use super::{Queries, QueryBuilder};
 
 pub struct Postgres {
     pub inner: AdaptedPayload, // ...
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum DBValue {
     Bool(Option<bool>),
@@ -65,7 +60,7 @@ pub enum DBValue {
     Int128(Option<i128>),
     Float32(Option<f32>),
     Float64(Option<f64>),
-    JSON(Option<Value>),
+    Json(Option<Value>),
     Strings(Option<String>),
     VecString(Option<Vec<String>>),
     VecInt32(Option<Vec<i32>>),
@@ -80,11 +75,77 @@ pub enum DBValue {
     VecDate(Option<Vec<NaiveDate>>),
     VecTime(Option<Vec<NaiveTime>>),
     VecDateTime(Option<Vec<NaiveDateTime>>),
+    VecUtcDateTime(Option<Vec<DateTime<Utc>>>),
     VecUUID(Option<Vec<Uuid>>),
     Date(Option<NaiveDate>),
     Time(Option<NaiveTime>),
     DateTime(Option<NaiveDateTime>),
-    UUID(Option<Uuid>),
+    UtcDateTime(Option<DateTime<Utc>>),
+    Uuid(Option<Uuid>),
+    Decimal(Option<Decimal>),
+    VecDecimal(Option<Vec<Decimal>>),
+}
+
+impl fmt::Display for DBValue {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            // For single values
+            DBValue::Bool(v) => write!(f, "{}", opt_to_string(v)),
+            DBValue::Int32(v) => write!(f, "{}", opt_to_string(v)),
+            DBValue::Int64(v) => write!(f, "{}", opt_to_string(v)),
+            DBValue::Int16(v) => write!(f, "{}", opt_to_string(v)),
+            DBValue::Int8(v) => write!(f, "{}", opt_to_string(v)),
+            DBValue::Int128(v) => write!(f, "{}", opt_to_string(v)),
+            DBValue::Float32(v) => write!(f, "{}", opt_to_string(v)),
+            DBValue::Float64(v) => write!(f, "{}", opt_to_string(v)),
+            DBValue::Json(v) => write!(f, "{}", opt_to_string(v)),
+            DBValue::Strings(v) => write!(f, "{}", opt_to_string(v)),
+            DBValue::Date(v) => write!(f, "{}", opt_to_string(v)),
+            DBValue::Time(v) => write!(f, "{}", opt_to_string(v)),
+            DBValue::DateTime(v) => write!(f, "{}", opt_to_string(v)),
+            DBValue::UtcDateTime(v) => write!(f, "{}", opt_to_string(v)),
+            DBValue::Uuid(v) => write!(f, "{}", opt_to_string(v)),
+            DBValue::Decimal(v) => write!(f, "{}", opt_to_string(v)),
+
+            // For vector values
+            DBValue::VecString(v) => write!(f, "{}", vec_opt_to_string(v)),
+            DBValue::VecInt32(v) => write!(f, "{}", vec_opt_to_string(v)),
+            DBValue::VecInt64(v) => write!(f, "{}", vec_opt_to_string(v)),
+            DBValue::VecInt16(v) => write!(f, "{}", vec_opt_to_string(v)),
+            DBValue::VecInt8(v) => write!(f, "{}", vec_opt_to_string(v)),
+            DBValue::VecInt128(v) => write!(f, "{}", vec_opt_to_string(v)),
+            DBValue::VecFloat32(v) => write!(f, "{}", vec_opt_to_string(v)),
+            DBValue::VecFloat64(v) => write!(f, "{}", vec_opt_to_string(v)),
+            DBValue::VecJSON(v) => write!(f, "{}", vec_opt_to_string(v)),
+            DBValue::VecBool(v) => write!(f, "{}", vec_opt_to_string(v)),
+            DBValue::VecDate(v) => write!(f, "{}", vec_opt_to_string(v)),
+            DBValue::VecTime(v) => write!(f, "{}", vec_opt_to_string(v)),
+            DBValue::VecDateTime(v) => write!(f, "{}", vec_opt_to_string(v)),
+            DBValue::VecUtcDateTime(v) => write!(f, "{}", vec_opt_to_string(v)),
+            DBValue::VecUUID(v) => write!(f, "{}", vec_opt_to_string(v)),
+            DBValue::VecDecimal(v) => write!(f, "{}", vec_opt_to_string(v)),
+        }
+    }
+}
+
+// Helper function for single value variants
+fn opt_to_string<T: ToString>(opt: &Option<T>) -> String {
+    match opt {
+        Some(val) => val.to_string(),
+        None => "null".to_string(),
+    }
+}
+
+// Helper function for vector value variants
+fn vec_opt_to_string<T: ToString>(opt: &Option<Vec<T>>) -> String {
+    match opt {
+        Some(vec) => vec
+            .iter()
+            .map(|i| i.to_string())
+            .collect::<Vec<String>>()
+            .join(", "),
+        None => "null".to_string(),
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -98,11 +159,6 @@ pub struct SQLQueryOptions {
     offset: Option<i64>,
 }
 
-pub struct Queries {
-    pub question_level_query: String,
-    pub final_query: String,
-}
-
 impl QueryBuilder for Postgres {
     fn build(&self, conn: &mut PgConnection, user_id: i32, org_id: i64) -> Result<Queries, String> {
         let (mut queries, variables) = match &self.inner {
@@ -112,7 +168,7 @@ impl QueryBuilder for Postgres {
                 variables: _variables,
             } => return Err("Api Action Queries can not be routed to postgres".to_string()),
             AdaptedPayload::Raw {
-                database,
+                database: _,
                 raw_query,
                 variables,
                 visualization_query_terms,
@@ -121,7 +177,7 @@ impl QueryBuilder for Postgres {
                 variables,
             ),
             AdaptedPayload::QB {
-                database,
+                database: _,
                 question_query_terms,
                 table,
                 variables,
@@ -139,136 +195,21 @@ impl QueryBuilder for Postgres {
         );
         Ok(queries)
     }
-
-    fn get_pool(db_config: DBConfig) -> Result<Pool<PostgresConnectionManager<NoTls>>, String> {
-        let mut pg_config = Config::new();
-        pg_config.user(db_config.username.as_str());
-
-        if let Some(password) = db_config.password {
-            pg_config.password(password.as_str());
-        }
-        pg_config.host(db_config.host_url.as_str());
-        pg_config.port(db_config.host_port);
-        pg_config.dbname(db_config.db_name.as_str());
-        pg_config.connect_timeout(std::time::Duration::from_secs(
-            db_config.checkout_timeout.unwrap_or(45),
-        ));
-        let manager = PostgresConnectionManager::new(pg_config, NoTls);
-
-        Pool::builder()
-            .max_size(db_config.pool_size.unwrap_or(10))
-            .build(manager)
-            .map_err(|err| err.to_string())
-    }
-
-    fn row_to_json(row: &Row) -> Vec<DBValue> {
-        let mut r: Vec<DBValue> = vec![];
-
-        for (i, column) in row.columns().iter().enumerate() {
-            match column.type_().name() {
-                "bool" => {
-                    let value: Option<bool> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::Bool(value));
-                }
-                "_bool" => {
-                    let value: Option<Vec<bool>> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::VecBool(value));
-                }
-                "int2" => {
-                    let value: Option<i16> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::Int16(value));
-                }
-                "_int2" => {
-                    let value: Option<Vec<i16>> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::VecInt16(value));
-                }
-                "int4" => {
-                    let value: Option<i32> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::Int32(value));
-                }
-                "_int4" => {
-                    let value: Option<Vec<i32>> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::VecInt32(value));
-                }
-                "int8" => {
-                    let value: Option<i64> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::Int64(value));
-                }
-                "_int8" => {
-                    let value: Option<Vec<i64>> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::VecInt64(value));
-                }
-                "float4" => {
-                    let value: Option<f32> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::Float32(value));
-                }
-                "_float4" => {
-                    let value: Option<Vec<f32>> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::VecFloat32(value));
-                }
-                "float8" => {
-                    let value: Option<f64> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::Float64(value));
-                }
-                "_float8" => {
-                    let value: Option<Vec<f64>> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::VecFloat64(value));
-                }
-                "text" | "varchar" | "name" | "char" => {
-                    let value: Option<String> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::Strings(value));
-                }
-                "_text" | "_varchar" | "_name" | "_char" => {
-                    let value: Option<Vec<String>> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::VecString(value));
-                }
-                "date" => {
-                    let value: Option<NaiveDate> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::Date(value));
-                }
-                "time" => {
-                    let value: Option<NaiveTime> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::Time(value));
-                }
-                "timestamp" => {
-                    let value: Option<NaiveDateTime> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::DateTime(value));
-                }
-                "uuid" => {
-                    let value: Option<Uuid> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::UUID(value));
-                }
-                "_uuid" => {
-                    let value: Option<Vec<Uuid>> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::VecUUID(value));
-                }
-                "json" | "jsonb" => {
-                    let value: Option<Value> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::JSON(value));
-                }
-                "_json" | "_jsonb" => {
-                    let value: Option<Vec<Value>> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::VecJSON(value));
-                }
-                _ => {
-                    let value = Some(String::from("unsupported type"));
-                    r.push(DBValue::Strings(value));
-                }
-            }
-        }
-
-        r
-    }
 }
 
 impl Postgres {
+    pub fn new(adapted_payload: AdaptedPayload) -> Self {
+        Self {
+            inner: adapted_payload,
+        }
+    }
     fn apply_limit(query: String, limit: i64) -> String {
         let limit_offset_regex_obj: Regex = Regex::new(LIMIT_OFFSET_REGEX).unwrap();
         let limit_regex_obj: Regex = Regex::new(LIMIT_REGEX).unwrap();
         if limit_offset_regex_obj.is_match(query.as_str()) {
             return limit_offset_regex_obj
                 .replace_all(query.as_str(), |captures: &regex::Captures| {
-                    if (limit < captures[2].parse::<i64>().unwrap_or(limit + 1)) {
+                    if limit < captures[2].parse::<i64>().unwrap_or(limit + 1) {
                         format!("LIMIT {} OFFSET {}", limit, &captures[4])
                     } else {
                         format!("LIMIT {} OFFSET {}", &captures[2], &captures[4])
@@ -279,7 +220,7 @@ impl Postgres {
         if limit_regex_obj.is_match(query.as_str()) {
             return limit_regex_obj
                 .replace_all(query.as_str(), |captures: &regex::Captures| {
-                    if (limit < captures[2].parse::<i64>().unwrap_or(limit + 1)) {
+                    if limit < captures[2].parse::<i64>().unwrap_or(limit + 1) {
                         format!("LIMIT {}", limit)
                     } else {
                         format!("LIMIT {}", &captures[2])
@@ -289,7 +230,7 @@ impl Postgres {
         }
         format!("{} limit {}", query, limit)
     }
-    fn replace_variables(mut query: String, variables: &Vec<config::Variable>) -> String {
+    fn replace_variables(query: String, variables: &Vec<Variable>) -> String {
         let mut replacements: HashMap<String, String> = HashMap::new();
         for variable in variables {
             let mut value = match &variable.value {
@@ -300,9 +241,9 @@ impl Postgres {
             };
 
             value = match &variable.var_type {
-                config::VariableType::String => format!(r#"'{}'"#, value),
-                config::VariableType::Integer => value,
-                config::VariableType::Date => format!(r#"'{}'"#, value),
+                VariableType::String => format!(r#"'{}'"#, value),
+                VariableType::Integer => value,
+                VariableType::Date => format!(r#"'{}'"#, value),
             };
 
             replacements.insert(variable.name.trim().to_string(), value);
@@ -372,12 +313,12 @@ impl Postgres {
 
         if visualization_query_terms.is_empty() {
             return Ok(Queries {
-                question_level_query: query.clone(),
+                adapted_query: query.clone(),
                 final_query: query.clone(),
             });
         }
         Ok(Queries {
-            question_level_query: query.clone(),
+            adapted_query: query.clone(),
             final_query: Self::build_query(
                 &format!(" ( {} )  as {}", &query, "rq".to_string()),
                 "rq".to_string(),
@@ -392,12 +333,12 @@ impl Postgres {
     ) -> Result<Queries, String> {
         if visualization_query_terms.is_empty() {
             return Ok(Queries {
-                question_level_query: raw_query.clone(),
+                adapted_query: raw_query.clone(),
                 final_query: raw_query.clone(),
             });
         }
         Ok(Queries {
-            question_level_query: raw_query.clone(),
+            adapted_query: raw_query.clone(),
             final_query: Self::build_query(
                 &format!(" ( {} )  as {}", &raw_query, "rq".to_string()),
                 "rq".to_string(),

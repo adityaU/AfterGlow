@@ -1,6 +1,6 @@
 <template>
   <div
-    class="tw-flex tw-flex-col tw-mx-3 tw-bg-white tw-rounded-sm tw-shadow-sm tw-w-full tw-py-2 tw-border"
+    class="tw-flex tw-flex-col tw-mx-3 tw-bg-white tw-rounded-2xl tw-w-full tw-py-2 tw-border"
   >
     <div class="tw-p-2 divide-y tw-px-4">
       <div class="label tw-mt-4">Enable Open AI SQL Generation</div>

@@ -1,11 +1,11 @@
 use std::{sync::Arc, time::Duration};
 
-use super::{LLData, Queue};
+use super::{LongLivedData, Queue};
 use futures::{stream, StreamExt};
 
 const CONCURRENCY: u32 = 50;
 
-pub async fn run(queue: Arc<dyn Queue>, data: Arc<LLData>) {
+pub async fn run(queue: Arc<dyn Queue>, data: Arc<LongLivedData>) {
     loop {
         let queue = queue.clone();
         let jobs = match queue.pull(CONCURRENCY).await {
@@ -26,7 +26,9 @@ pub async fn run(queue: Arc<dyn Queue>, data: Arc<LLData>) {
                 async move {
                     let job_id = job.id;
 
-                    let res = match job.execute(data).await {
+                    let job_data = job.execute(data);
+
+                    let res = match job_data.await {
                         Ok(_) => queue.delete_job(job_id).await,
                         Err(err) => {
                             println!("Worker Error for ID: {}, Error: {}", job_id, &err);

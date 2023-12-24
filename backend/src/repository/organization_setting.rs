@@ -1,11 +1,11 @@
 use super::models::OrganizationSetting;
 use super::schema::organization_settings;
-use super::schema::users::organization_id;
 
-use diesel::dsl::sql;
+
+
 
 use diesel::result::Error;
-use diesel::sql_types::{Nullable, Text};
+
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
 
 impl OrganizationSetting {

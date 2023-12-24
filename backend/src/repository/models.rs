@@ -6,7 +6,6 @@
 use std::io::Write;
 
 use super::schema::*;
-use bigdecimal::BigDecimal;
 use chrono::{DateTime, NaiveDate, NaiveDateTime};
 use diesel::deserialize::{self, FromSql, FromSqlRow};
 use diesel::expression::AsExpression;
@@ -16,7 +15,7 @@ use diesel::serialize::{self, IsNull, Output, ToSql};
 use diesel::sql_types::SqlType;
 use diesel::{
     pg::Pg,
-    sql_types::{Array, Float8, Int4},
+    sql_types::{Array, Float8, Int4, VarChar},
     PgConnection,
 };
 use serde_json;
@@ -30,8 +29,9 @@ use chrono::Utc;
 
 use diesel::debug_query;
 
-use diesel::sql_types::HasSqlType;
+use std::fmt;
 
+use diesel::sql_types::HasSqlType;
 // pub trait Crud<T> {
 //     fn create(conn: &mut PgConnection, model: &T) -> Result<T, Error>;
 //     fn read(conn: &mut PgConnection, id: i32) -> Result<T, Error>;
@@ -176,7 +176,7 @@ pub enum HTTPMethod {
     PATCH = 5,
 }
 
-#[derive(Queryable, Debug, Changeset, View, Serialize, Deserialize, Default)]
+#[derive(Queryable, Debug, Changeset, View, Serialize, Deserialize, Default, Clone)]
 #[view_skip_fields = "on_success, on_failure, failure_message, failure_key, success_message, success_key, action_level"]
 pub struct ApiAction {
     #[skip_in_changeset]
@@ -253,10 +253,57 @@ pub struct Column {
     pub primary_key: Option<bool>,
 }
 
-#[derive(Queryable, Debug)]
+#[derive(
+    Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Deserialize, Clone, Default,
+)]
+#[diesel(sql_type = VarChar)]
+#[serde(rename_all = "snake_case")]
+pub enum WidgetTypes {
+    #[default]
+    NoWidget,
+    Visualization,
+    #[serde(rename = "variablePane")]
+    VariablePane,
+    Note,
+    Tabs,
+}
+
+impl ToSql<VarChar, Pg> for WidgetTypes {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> serialize::Result {
+        let value: String = match *self {
+            WidgetTypes::Visualization => "visualization".to_string(),
+            WidgetTypes::VariablePane => "variablePane".to_string(),
+            WidgetTypes::Note => "note".to_string(),
+            WidgetTypes::Tabs => "tabs".to_string(),
+            WidgetTypes::NoWidget => "no_widget".to_string(),
+        };
+        let mut new_out = out.reborrow();
+        ToSql::<VarChar, Pg>::to_sql(&value, &mut new_out)
+    }
+}
+
+impl FromSql<VarChar, Pg> for WidgetTypes {
+    fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
+        match String::from_sql(bytes)?.as_str() {
+            "visualization" => Ok(WidgetTypes::Visualization),
+            "variablePane" => Ok(WidgetTypes::VariablePane),
+            "note" => Ok(WidgetTypes::Note),
+            "tabs" => Ok(WidgetTypes::Tabs),
+            _ => Err(format!(
+                "Unrecognized enum value: {}",
+                String::from_sql(bytes)?.as_str()
+            )
+            .into()),
+        }
+    }
+}
+
+#[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
+#[id_data_type = "i64"]
 pub struct DashboardWidget {
+    #[skip_in_changeset]
     pub id: i64,
-    pub widget_type: Option<String>,
+    pub widget_type: Option<WidgetTypes>,
     pub widget_id: Option<i64>,
     pub dashboard_id: Option<i64>,
     pub inserted_at: NaiveDateTime,
@@ -264,7 +311,7 @@ pub struct DashboardWidget {
 }
 
 #[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
-#[view_skip_fields = "shareable_link, is_shareable_link_public, settings"]
+#[view_skip_fields = "shareable_link, is_shareable_link_public"]
 pub struct Dashboard {
     #[skip_in_changeset]
     pub id: i32,
@@ -284,12 +331,63 @@ pub struct Dashboard {
     pub notes_settings: Option<serde_json::Value>,
 }
 
+#[derive(Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Deserialize, Clone)]
+#[diesel(sql_type = VarChar)]
+#[serde(rename_all = "snake_case")]
+pub enum SupportedDatabases {
+    ApiClient,
+    Postgres,
+    Redshift,
+    Mysql,
+    Clickhouse,
+    Redis,
+    Influx,
+    Mongo,
+}
+
+impl ToSql<VarChar, Pg> for SupportedDatabases {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> serialize::Result {
+        let value: String = match *self {
+            SupportedDatabases::Postgres => "postgres".to_string(),
+            SupportedDatabases::Mysql => "mysql".to_string(),
+            SupportedDatabases::Clickhouse => "clickhouse".to_string(),
+            SupportedDatabases::Redis => "redis".to_string(),
+            SupportedDatabases::Influx => "influx".to_string(),
+            SupportedDatabases::Mongo => "mongo".to_string(),
+            SupportedDatabases::Redshift => "redshift".to_string(),
+            SupportedDatabases::ApiClient => "api_client".to_string(),
+        };
+        let mut new_out = out.reborrow();
+        ToSql::<VarChar, Pg>::to_sql(&value, &mut new_out)
+    }
+}
+
+impl FromSql<VarChar, Pg> for SupportedDatabases {
+    fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
+        match String::from_sql(bytes)?.as_str() {
+            "postgres" => Ok(SupportedDatabases::Postgres),
+            "mysql" => Ok(SupportedDatabases::Mysql),
+            "clickhouse" => Ok(SupportedDatabases::Clickhouse),
+            "redis" => Ok(SupportedDatabases::Redis),
+            "influx" => Ok(SupportedDatabases::Influx),
+            "mongo" => Ok(SupportedDatabases::Mongo),
+            "redshift" => Ok(SupportedDatabases::Redshift),
+            "api_client" => Ok(SupportedDatabases::ApiClient),
+            _ => Err(format!(
+                "Unrecognized enum value: {}",
+                String::from_sql(bytes)?.as_str()
+            )
+            .into()),
+        }
+    }
+}
+
 #[derive(Queryable, Debug, Insertable, AsChangeset, Serialize, Deserialize, Changeset)]
 pub struct Database {
     #[skip_in_changeset]
     pub id: i32,
     pub name: Option<String>,
-    pub db_type: Option<String>,
+    pub db_type: Option<SupportedDatabases>,
     pub config: Option<serde_json::Value>,
     #[serde(skip_deserializing)]
     pub inserted_at: NaiveDateTime,
@@ -300,14 +398,28 @@ pub struct Database {
     pub unique_identifier: Option<Uuid>,
 }
 
-#[derive(Queryable, Debug)]
+#[derive(
+    Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Deserialize, Clone, DatabaseEnum,
+)]
+#[diesel(sql_type = Int4)]
+#[serde(rename_all = "snake_case")]
+pub enum FkType {
+    Fk = 0,
+    Guess = 1,
+    UserDefined = 2,
+}
+
+#[derive(Queryable, Debug, Insertable, AsChangeset, Serialize, Deserialize, Changeset)]
 pub struct ForeignKey {
+    #[skip_in_changeset]
     pub id: i32,
     pub name: Option<String>,
-    pub fk_type: Option<i32>,
+    pub fk_type: Option<FkType>,
     pub column_id: Option<i32>,
     pub foreign_column_id: Option<i32>,
+    #[serde(skip_deserializing)]
     pub inserted_at: NaiveDateTime,
+    #[serde(skip_deserializing)]
     pub updated_at: NaiveDateTime,
 }
 
@@ -412,6 +524,7 @@ pub enum QueryType {
 #[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
 // #[view_skip_fields = "results_view_settings, cached_results, columns"]
 pub struct Question {
+    #[skip_in_changeset]
     pub id: i32,
     pub title: Option<String>,
     pub last_updated: Option<NaiveDateTime>,
@@ -472,13 +585,60 @@ pub struct RulesEngineUser {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Queryable, Debug)]
+#[derive(
+    Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Deserialize, Clone, Default,
+)]
+#[diesel(sql_type = VarChar)]
+pub enum TimeUnit {
+    #[default]
+    Hour,
+    Day,
+    Week,
+    Month,
+}
+
+impl ToSql<VarChar, Pg> for TimeUnit {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> serialize::Result {
+        let value: String = match *self {
+            TimeUnit::Hour => "Hour".to_string(),
+            TimeUnit::Day => "Day".to_string(),
+            TimeUnit::Week => "Week".to_string(),
+            TimeUnit::Month => "Month".to_string(),
+        };
+        let mut new_out = out.reborrow();
+        ToSql::<VarChar, Pg>::to_sql(&value, &mut new_out)
+    }
+}
+
+impl FromSql<VarChar, Pg> for TimeUnit {
+    fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
+        match String::from_sql(bytes)?.as_str() {
+            "Hour" => Ok(TimeUnit::Hour),
+            "Day" => Ok(TimeUnit::Day),
+            "Week" => Ok(TimeUnit::Week),
+            "Month" => Ok(TimeUnit::Month),
+            _ => Err(format!(
+                "Unrecognized enum value: {}",
+                String::from_sql(bytes)?.as_str()
+            )
+            .into()),
+        }
+    }
+}
+
+#[derive(
+    Queryable, Debug, Serialize, Deserialize, Changeset, View, QueryableByName, Clone, Default,
+)]
+#[id_data_type = "i64"]
 pub struct Schedule {
+    #[skip_in_changeset]
     pub id: i64,
     pub every: Option<i32>,
-    pub time_unit: Option<String>,
+    pub time_unit: Option<TimeUnit>,
     pub time_details: Option<Vec<Option<serde_json::Value>>>,
+    #[skip_in_changeset]
     pub next_execution_time: Option<NaiveDateTime>,
+    #[skip_in_changeset]
     pub is_running: Option<bool>,
     pub job_details: Option<serde_json::Value>,
     pub is_active: Option<bool>,
@@ -486,6 +646,7 @@ pub struct Schedule {
     pub timezone: Option<String>,
     pub inserted_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub subject: Option<String>,
 }
 
 #[derive(Queryable, Debug)]
@@ -568,15 +729,19 @@ pub struct Snapshot {
     pub keep_latest: Option<i32>,
 }
 
-#[derive(Queryable, Debug)]
+#[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
+#[id_data_type = "i64"]
 pub struct Snippet {
+    #[skip_in_changeset]
     pub id: i64,
     pub name: Option<String>,
     pub text: Option<String>,
     pub database_id: Option<i64>,
     pub owner_id: Option<i64>,
     pub expand_on_select: Option<bool>,
+    #[serde(skip_deserializing)]
     pub inserted_at: NaiveDateTime,
+    #[serde(skip_deserializing)]
     pub updated_at: NaiveDateTime,
 }
 
@@ -603,8 +768,9 @@ pub struct TagDashboard {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Queryable, Debug)]
+#[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
 pub struct TagQuestion {
+    #[skip_in_changeset]
     pub id: i32,
     pub tag_id: Option<i32>,
     pub question_id: Option<i32>,
@@ -663,11 +829,21 @@ pub struct UserPermissionSet {
 // pub struct MyType;
 
 #[derive(
-    Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Deserialize, Clone, DatabaseEnum,
+    Debug,
+    PartialEq,
+    FromSqlRow,
+    AsExpression,
+    Eq,
+    Serialize,
+    Deserialize,
+    Clone,
+    DatabaseEnum,
+    Default,
 )]
 #[diesel(sql_type = Int4)]
 #[serde(rename_all = "lowercase")]
 pub enum SettingsTypes {
+    #[default]
     General = 1,
     Variable = 2,
 }
@@ -718,6 +894,43 @@ pub struct User {
     pub password: Option<String>,
 }
 
+#[derive(
+    Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Deserialize, Clone, Default,
+)]
+#[diesel(sql_type = VarChar)]
+pub enum VariableType {
+    #[default]
+    String,
+    Integer,
+    Date,
+}
+
+impl ToSql<VarChar, Pg> for VariableType {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> serialize::Result {
+        let value: String = match *self {
+            VariableType::String => "String".to_string(),
+            VariableType::Integer => "Integer".to_string(),
+            VariableType::Date => "Date".to_string(),
+        };
+        let mut new_out = out.reborrow();
+        ToSql::<VarChar, Pg>::to_sql(&value, &mut new_out)
+    }
+}
+
+impl FromSql<VarChar, Pg> for VariableType {
+    fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
+        match String::from_sql(bytes)?.as_str() {
+            "String" => Ok(VariableType::String),
+            "Integer" => Ok(VariableType::Integer),
+            "Date" => Ok(VariableType::Date),
+            _ => Err(format!(
+                "Unrecognized enum value: {}",
+                String::from_sql(bytes)?.as_str()
+            )
+            .into()),
+        }
+    }
+}
 #[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
 #[view_skip_fields = "default_operator, default_options, question_filter_id, column_id"]
 pub struct Variable {
@@ -725,7 +938,7 @@ pub struct Variable {
     pub id: i32,
     pub name: Option<String>,
     pub default: Option<String>,
-    pub var_type: Option<String>,
+    pub var_type: Option<VariableType>,
     pub column_id: Option<i32>,
     pub question_id: Option<i32>,
     pub dashboard_id: Option<i32>,
@@ -738,6 +951,83 @@ pub struct Variable {
     pub default_options: Option<Vec<Option<serde_json::Value>>>,
 }
 
+#[derive(
+    Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Deserialize, Clone, Default,
+)]
+#[diesel(sql_type = VarChar)]
+#[serde(rename_all = "snake_case")]
+pub enum RendererTypes {
+    Area,
+    Bar,
+    Bubble,
+    CustomList,
+    Funnel,
+    Line,
+    Number,
+    Pie,
+    #[default]
+    Table,
+    TransposedTable,
+}
+
+impl fmt::Display for RendererTypes {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            RendererTypes::Area => write!(f, "area"),
+            RendererTypes::Bar => write!(f, "bar"),
+            RendererTypes::Bubble => write!(f, "bubble"),
+            RendererTypes::CustomList => write!(f, "custom_list"),
+            RendererTypes::Funnel => write!(f, "funnel"),
+            RendererTypes::Line => write!(f, "line"),
+            RendererTypes::Number => write!(f, "number"),
+            RendererTypes::Pie => write!(f, "pie"),
+            RendererTypes::Table => write!(f, "table"),
+            RendererTypes::TransposedTable => write!(f, "transposed_table"),
+        }
+    }
+}
+
+impl ToSql<VarChar, Pg> for RendererTypes {
+    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> serialize::Result {
+        let value: String = match *self {
+            RendererTypes::Area => "area".to_string(),
+            RendererTypes::Bar => "bar".to_string(),
+            RendererTypes::Bubble => "bubble".to_string(),
+            RendererTypes::CustomList => "custom_list".to_string(),
+            RendererTypes::Funnel => "funnel".to_string(),
+            RendererTypes::Line => "line".to_string(),
+            RendererTypes::Number => "number".to_string(),
+            RendererTypes::Pie => "pie".to_string(),
+            RendererTypes::Table => "table".to_string(),
+            RendererTypes::TransposedTable => "transposed_table".to_string(),
+        };
+        let mut new_out = out.reborrow();
+        ToSql::<VarChar, Pg>::to_sql(&value, &mut new_out)
+    }
+}
+
+impl FromSql<VarChar, Pg> for RendererTypes {
+    fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
+        match String::from_sql(bytes)?.as_str() {
+            "area" => Ok(RendererTypes::Area),
+            "bar" => Ok(RendererTypes::Bar),
+            "bubble" => Ok(RendererTypes::Bubble),
+            "custom_list" => Ok(RendererTypes::CustomList),
+            "funnel" => Ok(RendererTypes::Funnel),
+            "line" => Ok(RendererTypes::Line),
+            "number" => Ok(RendererTypes::Number),
+            "pie" => Ok(RendererTypes::Pie),
+            "table" => Ok(RendererTypes::Table),
+            "transposed_table" => Ok(RendererTypes::TransposedTable),
+            _ => Err(format!(
+                "Unrecognized enum value: {}",
+                String::from_sql(bytes)?.as_str()
+            )
+            .into()),
+        }
+    }
+}
+
 #[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
 #[id_data_type = "i64"]
 pub struct Visualization {
@@ -746,7 +1036,7 @@ pub struct Visualization {
     pub name: Option<String>,
     pub settings: Option<serde_json::Value>,
     pub query_terms: Option<serde_json::Value>,
-    pub renderer_type: Option<String>,
+    pub renderer_type: Option<RendererTypes>,
     pub question_id: Option<i64>,
     #[serde(skip_deserializing)]
     pub inserted_at: NaiveDateTime,
@@ -765,7 +1055,6 @@ pub struct WidgetItem {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Queryable, Debug)]
 pub struct Widget {
     pub id: i32,
     pub column_name: String,
@@ -786,14 +1075,25 @@ pub struct BgJob {
     pub failed_attempts: i32,
     pub status: JobStatus,
     pub message: serde_json::value::Value,
+    pub name: Option<String>,
 }
 
 #[derive(
-    Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Deserialize, Clone, DatabaseEnum,
+    Debug,
+    PartialEq,
+    FromSqlRow,
+    AsExpression,
+    Eq,
+    Serialize,
+    Deserialize,
+    Clone,
+    DatabaseEnum,
+    Default,
 )]
 #[diesel(sql_type = Int4)]
 #[serde(rename_all = "snake_case")]
 pub enum JobStatus {
+    #[default]
     Queued = 1,
     Running = 2,
     Failed = 3,

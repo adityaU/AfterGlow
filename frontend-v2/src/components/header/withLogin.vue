@@ -1,149 +1,209 @@
 <template>
   <nav
-    class="tw-flex tw-bg-white tw-items-center tw-border-b tw-text-default/80 tw-justify-between tw-leading-4 tw-px-4"
+    class="slide-transition tw-flex tw-flex-col tw-bg-white tw-text-default/80 tw-justify-between tw-leading-4 tw-border-r"
+    v-if="session.token != '' && !permissions.loading"
+    @mouseenter="expanded = true"
+    @mouseleave="expanded = false"
+    :class="expanded ? 'tw-w-[254px]' : 'tw-w-[50px]'"
   >
-    <ul class="tw-flex tw-items-center">
-      <li class="tw-p-1 tw-py-2">
+    <ul
+      class="tw-flex tw-flex-col tw-items-start tw-justify-center tw-divide-y"
+    >
+      <li class="tw-px-4 tw-py-2 tw-mx-auto">
         <router-link :to="{ path: '/questions/new', query: { data: null } }"
-          ><img src="/assets/images/logo.png" class="tw-h-12"
+          ><img
+            src="/assets/images/logo.png"
+            class="tw-h-12"
+            :class="
+              expanded ? 'tw-h-[35px] tw-w-[40px]' : 'tw-h-[24px] tw-w-[28px]'
+            "
         /></router-link>
       </li>
-      <li class="tw-px-2 hover:tw-text-default">
-        <div class="tw-flex tw-items-center tw-cursor-pointer">
-          <div>Dashboards</div>
-
-          <ChevronDownIcon size="16" />
-        </div>
-        <q-menu
-          flat="true"
-          transition-show="jump-down"
-          transition-hide="jump-up"
-          max-height="500px"
-          class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-auto"
-          @show="menuShow"
-          @keydown="onKeydown"
+      <li class="tw-w-full">
+        <div
+          :class="!expanded ? 'tw-flex tw-items-center tw-justify-center' : ''"
+          class="tw-flex menu-item tw-px-4 tw-gap-2 tw-py-2 tw-items-center tw-cursor-pointer"
+          @click="dashboardsMenuOpen = !dashboardsMenuOpen"
         >
-          <router-link
-            :to="'/dashboards/' + dashboard.id"
-            v-for="dashboard in dashboards"
-            :key="dashboard"
-          >
-            <div
-              class="menu-item tw-py-2 tw-flex tw-items-center tw-border-b-0"
-              v-close-popup
+          <LayoutBoardIcon
+            :size="iconSize"
+            :class="expanded ? 'icon-primary' : ''"
+          />
+          <div v-if="expanded">Dashboards</div>
+
+          <ChevronDownIcon size="16" v-if="!dashboardsMenuOpen && expanded" />
+          <ChevronRightIcon size="16" v-if="dashboardsMenuOpen && expanded" />
+        </div>
+        <Transition>
+          <div class="tw-bg-secondary" v-if="dashboardsMenuOpen && expanded">
+            <router-link
+              :to="'/dashboards/' + dashboard.id"
+              v-for="dashboard in dashboards"
+              :key="dashboard"
             >
-              <LayoutBoardIcon size="28" class="icon-primary" />
-              {{ dashboard.title }}
-            </div>
-          </router-link>
-          <router-link
-            to="/dashboards"
-            class="menu-item tw-border-t tw-py-3"
-            v-close-popup
-          >
-            All Dashboards</router-link
-          >
-        </q-menu>
+              <div
+                class="tw-py-2 tw-px-8 tw-flex tw-gap-2 tw-items-center tw-border-b-0 menu-item"
+                v-close-popup
+              >
+                <LayoutBoardIcon size="28" class="icon-primary" />
+                <span class="tw-w-[150px] tw-truncate">
+                  {{ dashboard.title }}
+                </span>
+              </div>
+            </router-link>
+            <router-link to="/dashboards" v-close-popup>
+              <div
+                class="tw-py-2 tw-px-8 tw-flex tw-gap-2 tw-items-center tw-border-b-0 menu-item"
+              >
+                <StackIcon size="28" class="icon-primary" />
+                All Dashboards
+              </div></router-link
+            >
+          </div>
+        </Transition>
       </li>
-      <li class="tw-px-2 hover:tw-text-default">
-        <router-link to="/questions"> Questions </router-link>
+      <li class="hover:tw-text-default tw-w-full">
+        <router-link
+          to="/questions"
+          class="tw-flex tw-gap-2 tw-items-center menu-item tw-px-4 tw-py-2"
+          :class="!expanded ? 'tw-flex tw-items-center tw-justify-center' : ''"
+        >
+          <CircleLetterQIcon
+            :size="iconSize"
+            :class="expanded ? 'icon-primary' : ''"
+          />
+          <div v-if="expanded">Questions</div>
+        </router-link>
       </li>
       <li
-        class="tw-px-2 hover:tw-text-default"
+        class="hover:tw-text-default tw-w-full"
         v-if="permissions.canCreateQuestion"
       >
-        <router-link :to="{ path: '/questions/new', query: { data: null } }">
-          New Question</router-link
+        <router-link
+          class="tw-flex tw-gap-2 tw-items-center menu-item tw-px-4 tw-py-2"
+          :class="!expanded ? 'tw-flex tw-items-center tw-justify-center' : ''"
+          :to="{ path: '/questions/new', query: { data: null } }"
         >
+          <CirclePlusIcon
+            :size="iconSize"
+            :class="expanded ? 'icon-primary' : ''"
+          />
+
+          <div v-if="expanded">New Question</div>
+        </router-link>
       </li>
       <li
-        class="tw-px-2 hover:tw-text-default"
+        class="hover:tw-text-default tw-w-full"
         v-if="!permissions.canEditQuestion"
       >
-        <router-link to="/data_references/databases">
+        <router-link
+          to="/data_references/databases "
+          :class="!expanded ? 'tw-flex tw-items-center tw-justify-center' : ''"
+          class="tw-flex tw-gap-2 tw-items-center menu-item tw-px-4 tw-py-2"
+        >
+          <DatabaseIcon
+            :size="iconSize"
+            :class="expanded ? 'icon-primary' : ''"
+          />
           Data Reference
         </router-link>
       </li>
 
-      <li class="tw-p-2 tw-py-4" v-else>
-        <div class="tw-flex tw-items-center tw-cursor-pointer">
-          More
-          <ChevronDownIcon size="16" />
-        </div>
-        <q-menu
-          flat="true"
-          transition-show="jump-down"
-          transition-hide="jump-up"
-          max-height="500px"
-          class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
-          @show="menuShow"
-          @keydown="onKeydown"
+      <li class="tw-w-full" v-else>
+        <div
+          class="tw-flex tw-items-center tw-gap-2 tw-cursor-pointer tw-px-4 tw-py-2 menu-item"
+          :class="!expanded ? 'tw-flex tw-items-center tw-justify-center' : ''"
+          @click="moreMenuOpen = !moreMenuOpen"
         >
-          <router-link to="/data_references/databases">
-            <div
-              class="menu-item tw-border-t tw-py-2 tw-min-w-[150px]"
-              v-close-popup
-            >
-              <DatabaseIcon size="28" class="icon-primary" />
-              Data Reference
-            </div>
-          </router-link>
-          <router-link to="/snippets/">
-            <div
-              class="menu-item tw-border-t tw-py-2 tw-min-w-[150px]"
-              v-close-popup
-              v-if="permissions.canEditQuestion"
-            >
-              <CodePlusIcon size="28" class="icon-primary" />
-              Manage Snippets
-            </div>
-          </router-link>
-        </q-menu>
+          <CategoryIcon
+            :size="iconSize"
+            :class="expanded ? 'icon-primary' : ''"
+          />
+          <div v-if="expanded">More</div>
+          <ChevronDownIcon size="16" v-if="!moreMenuOpen && expanded" />
+          <ChevronRightIcon size="16" v-if="moreMenuOpen && expanded" />
+        </div>
+        <Transition>
+          <div class="tw-bg-secondary" v-if="moreMenuOpen && expanded">
+            <router-link to="/data_references/databases">
+              <div
+                class="tw-py-2 tw-px-8 tw-flex tw-gap-2 tw-items-center tw-border-b-0 menu-item"
+                v-close-popup
+              >
+                <DatabaseIcon size="28" class="icon-primary" />
+                Data Reference
+              </div>
+            </router-link>
+            <router-link to="/snippets/">
+              <div
+                class="tw-py-2 tw-px-8 tw-flex tw-gap-2 tw-items-center tw-border-b-0 menu-item"
+                v-close-popup
+                v-if="permissions.canEditQuestion"
+              >
+                <CodePlusIcon size="28" class="icon-primary" />
+                Manage Snippets
+              </div>
+            </router-link>
+          </div>
+        </Transition>
       </li>
     </ul>
-    <ul class="tw-flex tw-items-center">
-      <li class="tw-p-2 tw-py-4">
-        <div class="tw-flex tw-items-center tw-cursor-pointer">
-          <div>{{ currentUser.full_name || currentUser.email }}</div>
-
-          <ChevronDownIcon size="16" />
-        </div>
-        <q-menu
-          flat="true"
-          transition-show="jump-down"
-          transition-hide="jump-up"
-          max-height="500px"
-          class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
-          @show="menuShow"
-          @keydown="onKeydown"
-        >
-          <router-link to="/settings">
+    <ul class="tw-flex tw-items-center tw-justify-center tw-w-full">
+      <li
+        class="tw-w-full"
+        :class="!expanded ? 'tw-items-center' : ''"
+        @click="userMenuOpen = !userMenuOpen"
+      >
+        <Transition name="slide-opposite">
+          <div class="tw-bg-secondary" v-if="userMenuOpen && expanded">
+            <router-link to="/settings">
+              <div
+                class="menu-item tw-border-t tw-py-2 tw-min-w-[150px]"
+                v-close-popup
+                v-if="permissions.isAdmin"
+              >
+                <SettingsIcon size="28" class="icon-primary" />
+                Settings
+              </div>
+            </router-link>
+            <router-link to="/user/configuration">
+              <div
+                class="menu-item tw-border-t tw-py-2 tw-min-w-[150px]"
+                v-close-popup
+                v-if="permissions.canEditQuestion"
+              >
+                <UserIcon size="28" class="icon-primary" /> User Configurations
+              </div>
+            </router-link>
             <div
               class="menu-item tw-border-t tw-py-2 tw-min-w-[150px]"
               v-close-popup
-              v-if="permissions.isAdmin"
+              @click="logout"
             >
-              <SettingsIcon size="28" class="icon-primary" />
-              Settings
+              Logout
             </div>
-          </router-link>
-          <router-link to="/user/configuration">
-            <div
-              class="menu-item tw-border-t tw-py-2 tw-min-w-[150px]"
-              v-close-popup
-              v-if="permissions.canEditQuestion"
-            >
-              <UserIcon size="28" class="icon-primary" /> User Configurations
-            </div>
-          </router-link>
-          <div
-            class="menu-item tw-border-t tw-py-2 tw-min-w-[150px]"
-            v-close-popup
-            @click="logout"
-          >
-            Logout
           </div>
-        </q-menu>
+        </Transition>
+        <div
+          class="tw-flex tw-flex-col tw-items-center tw-gap-2 tw-px-2 tw-py-2 tw-cursor-pointer"
+        >
+          <img
+            class="tw-rounded-full tw-border-4"
+            :class="
+              expanded ? 'tw-h-[40px] tw-w-[40px]' : 'tw-h-[28px] tw-w-[28px]'
+            "
+            :src="currentUser.profile_pic"
+          />
+          <div
+            class="tw-flex tw-items-center tw-cursor-pointer"
+            v-if="expanded"
+          >
+            <div>{{ currentUser.full_name || currentUser.email }}</div>
+
+            <ChevronDownIcon size="16" v-if="!userMenuOpen && expanded" />
+            <ChevronRightIcon size="16" v-if="userMenuOpen && expanded" />
+          </div>
+        </div>
       </li>
     </ul>
   </nav>
@@ -153,6 +213,7 @@
 import { fetchDashboards } from 'src/apis/dashboards';
 import { sessionStore } from 'stores/session';
 import { currentUserStore } from 'stores/currentUser';
+import { sidebarState } from 'src/stores/sidebarStore';
 import {
   LayoutBoardIcon,
   SettingsIcon,
@@ -160,6 +221,11 @@ import {
   DatabaseIcon,
   CodePlusIcon,
   UserIcon,
+  CirclePlusIcon,
+  ChevronRightIcon,
+  StackIcon,
+  CategoryIcon,
+  CircleLetterQIcon,
 } from 'vue-tabler-icons';
 const session = sessionStore();
 export default {
@@ -167,24 +233,43 @@ export default {
   components: {
     LayoutBoardIcon,
     SettingsIcon,
+    CirclePlusIcon,
+    CategoryIcon,
+    StackIcon,
     ChevronDownIcon,
     DatabaseIcon,
     CodePlusIcon,
+    ChevronRightIcon,
     UserIcon,
+    CircleLetterQIcon,
   },
 
   computed: {
     currentUser() {
       return this.permissions.getDetails;
     },
+    iconSize() {
+      return this.expanded ? 28 : window.screen.width > 1920 ? 28 : 24;
+    },
+  },
+
+  watch: {
+    expanded() {
+      this.sidebarState.setExpanded(this.expanded);
+    },
   },
 
   data() {
     const currentUser = currentUserStore();
     return {
+      sidebarState: sidebarState(),
       dashboards: [],
       permissions: currentUser,
       session: session,
+      dashboardsMenuOpen: false,
+      moreMenuOpen: false,
+      userMenuOpen: false,
+      expanded: false,
     };
   },
 
@@ -201,3 +286,32 @@ export default {
   },
 };
 </script>
+<style lang="scss" scoped>
+.v-enter-active {
+  transition: all 0.3s linear;
+}
+
+.v-leave-active {
+  transition: all 0.3s linear;
+}
+
+.v-enter-from,
+.v-leave-to {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+
+.slide-opposite-enter-active {
+  transition: all 0.3s linear;
+}
+
+.slide-opposite-leave-active {
+  transition: all 0.3s linear;
+}
+
+.slide-opposite-enter-from,
+.slide-opposite-leave-to {
+  transform: translateY(20px);
+  opacity: 0;
+}
+</style>

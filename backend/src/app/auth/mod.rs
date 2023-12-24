@@ -20,12 +20,15 @@ use reqwest::header::CONTENT_TYPE;
 use serde::Deserialize;
 use serde::Serialize;
 
-
 use crate::repository::models::Organization;
+
 use crate::repository::models::User;
 use crate::repository::models::UserChangeset;
 use crate::views::user::RestrictedUserView;
 use lazy_static::lazy_static;
+
+use super::settings::theme;
+use super::settings::theme::Theme;
 
 #[derive(Deserialize)]
 pub struct OAuthResponse {
@@ -50,6 +53,7 @@ pub struct AGCallbackResponse {
     pub token: String,
     pub user: RestrictedUserView,
     pub permissions: Vec<String>,
+    pub theme: Theme,
 }
 
 lazy_static! {
@@ -76,7 +80,9 @@ pub fn verify_token(
         .and_then(|id| id.parse::<i32>().map_err(|_| "Invalid token".to_owned()))?;
     let user = User::find(conn, user_id).map_err(|_err| "Unable to find User".to_owned())?;
     let permissions = user.fetch_permissions(conn);
+    let th = theme::get(conn);
     Ok(AGCallbackResponse {
+        theme: th,
         token: token_str,
         user: RestrictedUserView::from_model(&user),
         permissions,
@@ -192,11 +198,13 @@ pub async fn google_callback(
     let user = User::create_or_update(conn, user)?;
     let permissions = user.fetch_permissions(conn);
     let token = sign(&user);
+    let th = theme::get(conn);
 
     Ok(AGCallbackResponse {
         token,
         user: RestrictedUserView::from_model(&user),
         permissions,
+        theme: th,
     })
 }
 

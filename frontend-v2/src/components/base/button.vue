@@ -1,6 +1,6 @@
 <template>
   <button
-    class="tw-text-center tw-rounded tw-px-2 tw-py-1 tw-border tw-font-semibold tw-from-indigo-400"
+    class="tw-text-center tw-border tw-font-semibold tw-from-indigo-400 tw-rounded-full tw-px-4 tw-py-2"
     @click="handleClick"
   >
     <slot />

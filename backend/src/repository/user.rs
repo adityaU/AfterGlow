@@ -12,6 +12,7 @@ use diesel::NullableExpressionMethods;
 use diesel::prelude::*;
 
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
+use sha2::{Digest, Sha256};
 
 #[derive(AsChangeset)]
 #[diesel(table_name = users)]
@@ -20,6 +21,23 @@ pub struct UserActivationChangeset {
 }
 
 impl User {
+    pub fn system_user(conn: &mut PgConnection) -> Result<Self, Error> {
+        users::table
+            .filter(users::email.eq("AG::System"))
+            .first(conn)
+    }
+    pub fn search(conn: &mut PgConnection, q: String) -> Result<Vec<Self>, Error> {
+        users::table
+            .filter(
+                users::email
+                    .ilike(format!("%{}%", q))
+                    .or(users::first_name.ilike(format!("%{}%", q)))
+                    .or(users::last_name.ilike(format!("%{}%", q))),
+            )
+            .order(users::email.asc())
+            .select(users::all_columns)
+            .load::<Self>(conn)
+    }
     pub fn find_by_ids(conn: &mut PgConnection, ids: Vec<i32>) -> Result<Vec<Self>, Error> {
         users::table
             .filter(users::id.eq_any(ids))
@@ -150,9 +168,18 @@ impl User {
             .collect::<Vec<Result<Self, Error>>>())
     }
 
+    pub fn encryt_password(password: String) -> String {
+        let mut hasher = Sha256::new();
+        Digest::update(&mut hasher, password);
+        let result = hasher.finalize();
+        format!("{:x}", result)
+    }
+
     // find domain from email return String
     pub fn find_domain(email: &str) -> String {
         let mut domain = email.split("@").collect::<Vec<&str>>();
-        domain.pop().unwrap().to_string()
+        let domain = domain.pop().unwrap().to_string();
+        println!("domain: {}", domain);
+        domain
     }
 }

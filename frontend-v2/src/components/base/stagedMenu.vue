@@ -4,7 +4,7 @@
     transition-show="scale"
     transition-hide="scale"
     max-height="800px"
-    class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
+    class="tw-rounded-2xl tw-border tw-overflow-hidden"
     @show="menuShow"
     @keydown="onKeydown"
   >

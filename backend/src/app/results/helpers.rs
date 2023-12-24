@@ -1,15 +1,11 @@
 use serde_json::json;
 use sha2::{Digest, Sha256};
-use uuid::Uuid;
 
-use crate::repository::models::Database;
 
-pub fn hashed_db_credentials(db: &Database) -> String {
-    let data = format!(
-        "{}/{}",
-        json!(db.config),
-        db.unique_identifier.unwrap_or(Uuid::default())
-    );
+use crate::app::databases::DBConfig;
+
+pub fn hashed_db_credentials(db: &DBConfig) -> String {
+    let data = format!("{}", json!(db),);
 
     let mut hasher = Sha256::new();
     Digest::update(&mut hasher, data);

@@ -1,19 +1,38 @@
 <template>
   <div>
     <div class="tw-flex tw-cursor-pointer">
-      <div class="tw-border tw-border-primary tw-px-4 !tw-py-1 tw-text-primary tw-font-semibold tw-shadow-inner tw-border-2" :class="selectedDatabaseLocal?.name ? 'tw-rounded-l-full' : 'tw-rounded-full'
-        ">
+      <div
+        class="tw-border tw-border-primary tw-px-4 !tw-py-1 tw-text-primary tw-font-semibold tw-border-2"
+        :class="
+          selectedDatabaseLocal?.name ? 'tw-rounded-l-full' : 'tw-rounded-full'
+        "
+      >
         Data Source
       </div>
       <div
-        class="tw-border tw-border-primary tw-bg-primary tw-text-white tw-px-4 !tw-py-1 tw-rounded-r-full tw-shadow-inner tw-border-2"
-        v-if="selectedDatabaseLocal?.name">
+        class="tw-border tw-border-primary tw-bg-primary tw-text-white tw-px-4 !tw-py-1 tw-rounded-r-full tw-border-2"
+        v-if="selectedDatabaseLocal?.name"
+      >
         {{ selectedDatabaseLocal?.name }}
       </div>
-      <q-menu flat="true" transition-show="scale" transition-hide="scale" max-height="800px"
-        class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown">
-        <SelectOptions :options="databases" v-model:selected="selectedDatabaseLocal" :menuShow="menuShow" iconLetter="D"
-          displayKey="name" areOptionObjects="true" hideOnClick="true" />
+      <q-menu
+        flat="true"
+        transition-show="scale"
+        transition-hide="scale"
+        max-height="800px"
+        class="tw-rounded-2xl tw-border tw-overflow-hidden"
+        @show="menuShow"
+        @keydown="onKeydown"
+      >
+        <SelectOptions
+          :options="databases"
+          v-model:selected="selectedDatabaseLocal"
+          :menuShow="menuShow"
+          iconLetter="D"
+          displayKey="name"
+          areOptionObjects="true"
+          hideOnClick="true"
+        />
       </q-menu>
     </div>
   </div>

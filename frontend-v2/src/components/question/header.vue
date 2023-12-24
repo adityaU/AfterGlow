@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="tw-flex tw-bg-white tw-py-4 tw-px-4 tw-shadow-sm tw-border-b tw-items-center"
-  >
+  <div class="tw-flex tw-bg-white tw-py-4 tw-px-4 tw-items-center">
     <div
       class="tw-cursor-pointer tw-flex-1"
       @click="openQuestionTitleModal = true"
@@ -21,6 +19,14 @@
       class="tw-flex tw-gap-4 tw-leading-4 tw-items-center"
       v-if="currentUser.canEditQuestion"
     >
+      <div
+        class="tw-font-semibold tw-text-primary tw-uppercase tw-cursor-pointer"
+        @click="$emit('setShowEditor')"
+        v-if="!showEditor"
+      >
+        Show Editor
+      </div>
+
       <div
         class="tw-font-semibold tw-text-primary tw-uppercase tw-cursor-pointer"
         @click="save"
@@ -48,16 +54,16 @@
       >
         delete
       </div>
-      <span
-        class="tw-cursor-pointer tw-mr-4 tw-border tw-pb-1 tw-px-2 tw-rounded-sm tw-mx-0.5 tw-border-default/20 tw-bg-secondary tw-text-default"
+      <div
+        class="tw-cursor-pointer icon-default"
         @click="showQuestionSettingsModal = true"
         v-if="questionLocal.id && currentUser.canEditQuestion"
       >
         <q-tooltip transition-show="scale" transition-hide="scale">
           Show question Settings
         </q-tooltip>
-        <SettingsIcon class="tw-h-3 tw-w-3 tw-inline" />
-      </span>
+        <SettingsIcon size="20" />
+      </div>
     </div>
 
     <AGTitleModal
@@ -110,7 +116,7 @@ const currentUser = currentUserStore();
 
 export default {
   name: 'AGQuestionHeader',
-  props: ['question', 'tags'],
+  props: ['question', 'tags', 'showEditor'],
   components: {
     AGTitleModal,
     AGShareQuestionModal,

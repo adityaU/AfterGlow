@@ -85,7 +85,6 @@
             <AGColorSelector
               naked="true"
               v-model:selectedColor="settingsLocal.borderColor"
-              :additionalColors="additionalColors"
             />
           </div>
         </div>
@@ -147,7 +146,6 @@
               <AGColorSelector
                 naked="true"
                 v-model:selectedColor="settingsLocal.ratingColor"
-                :additionalColors="additionalColors"
               />
             </div>
 
@@ -169,7 +167,6 @@
               <AGColorSelector
                 naked="true"
                 v-model:selectedColor="settingsLocal.progressColor"
-                :additionalColors="additionalColors"
               />
             </div>
 
@@ -190,7 +187,6 @@
               <AGColorSelector
                 naked="true"
                 v-model:selectedColor="settingsLocal.backgroundColor"
-                :additionalColors="additionalBackgroundColors"
                 allowRandom="true"
               />
             </div>
@@ -200,7 +196,6 @@
               <AGColorSelector
                 naked="true"
                 v-model:selectedColor="settingsLocal.textColor"
-                :additionalColors="additionalColors"
                 allowRandom="true"
                 allowAuto="true"
               />
@@ -219,7 +214,6 @@
               <AGColorSelector
                 naked="true"
                 v-model:selectedColor="settingsLocal.prefix.color"
-                :additionalColors="additionalColors"
                 allowAuto="true"
                 allowRandom="true"
               />
@@ -235,7 +229,6 @@
               <AGColorSelector
                 naked="true"
                 v-model:selectedColor="settingsLocal.suffix.color"
-                :additionalColors="additionalColors"
                 allowAuto="true"
                 allowRandom="true"
               />
@@ -424,7 +417,6 @@
             <AGColorSelector
               naked="true"
               v-model:selectedColor="settingsLocal.labelColor"
-              :additionalColors="additionalColors"
             />
           </div>
           <AGSelect
@@ -463,7 +455,6 @@
             <AGColorSelector
               naked="true"
               v-model:selectedColor="settingsLocal.containerBackgroundColor"
-              :additionalColors="additionalBackgroundColors"
               allowRandom="true"
             />
           </div>
@@ -483,7 +474,6 @@
             <AGColorSelector
               naked="true"
               v-model:selectedColor="settingsLocal.containerBorderColor"
-              :additionalColors="additionalBackgroundColors"
               allowRandom="true"
             />
           </div>
@@ -560,10 +550,10 @@ const newSettings = {
   displayText: '{{columnValue}}',
   url: '{{columnValue}}',
   imageShape: 'round',
-  ratingColor: '#6e7687',
+  ratingColor: 'rgb(var(--color-default))',
   maximum: 5,
   progressMaximum: 100,
-  progressColor: '#6e7687',
+  progressColor: 'rgb(var(--color-default))',
   borderColor: '#fff',
   containerBorderColor: 'transparent',
   containerBorderRadius: '0',
@@ -582,7 +572,7 @@ const newSettings = {
   labelFontSize: '1rem',
   labelFontWeight: 'semibold',
   labelPosition: 'left-center',
-  labelColor: '#6e7687',
+  labelColor: 'rgb(var(--color-default))',
   paddingX: 1,
   paddingY: 0.5,
   iconGap: 0.5,
@@ -637,14 +627,6 @@ export default {
         ? { ...cloneDeep(newSettings), ...cloneDeep(this.settings) }
         : cloneDeep(newSettings),
       wrappedCollumnName: '{{columnValue}}',
-      additionalColors: ['white', '#6e7687', '#f5f7fb', '#e5e7eb'],
-      additionalBackgroundColors: [
-        'transparent',
-        'white',
-        '#6e7687',
-        '#f5f7fb',
-        '#e5e7eb',
-      ],
       borderPositionOptions: ['left', 'right', 'top', 'bottom'].map((v) => {
         return { name: v, value: v };
       }),
@@ -679,10 +661,16 @@ export default {
 
   methods: {
     addPrefix() {
-      this.settingsLocal.prefix = { icon: null, color: '#6e7687' };
+      this.settingsLocal.prefix = {
+        icon: null,
+        color: 'rgb(var(--color-default))',
+      };
     },
     addSuffix() {
-      this.settingsLocal.suffix = { icon: null, color: '#6e7687' };
+      this.settingsLocal.suffix = {
+        icon: null,
+        color: 'rgb(var(--color-default))',
+      };
     },
     removePrefix() {
       delete this.settingsLocal.prefix;

@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 
-use actix_web::{error, web, HttpRequest, HttpResponse, Responder};
-use serde::{Deserialize, Deserializer, Serialize};
+use actix_web::{web, HttpRequest, HttpResponse, Responder};
+use serde::Serialize;
 
 use crate::{
     app::{
@@ -12,7 +12,7 @@ use crate::{
     repository::DBPool,
 };
 
-use super::common::ResponseData;
+use super::helpers::{get_current_user_id, get_current_user_ord_id};
 
 #[derive(Serialize, Debug)]
 pub struct ResultResponseData<T> {
@@ -22,31 +22,15 @@ pub struct ResultResponseData<T> {
 
 pub(crate) async fn results(
     pool: web::Data<Arc<DBPool>>,
-    payload: web::Json<config::QuestionConfig>,
+    payload: web::Json<config::QuestionHumanSql>,
     connection_pools: web::Data<Arc<Mutex<results::ConnectionPools>>>,
     req: HttpRequest,
 ) -> impl Responder {
     // let conn = pool.get();
     let conn = pool.get();
 
-    let current_user_id = req
-        .headers()
-        .get("user_id")
-        .unwrap()
-        .to_str()
-        .unwrap()
-        .parse::<i32>()
-        .ok()
-        .unwrap_or(0);
-    let current_users_org = req
-        .headers()
-        .get("organization_id")
-        .unwrap()
-        .to_str()
-        .unwrap()
-        .parse::<i64>()
-        .ok()
-        .unwrap_or(0);
+    let current_user_id = get_current_user_id(&req);
+    let current_users_org = get_current_user_ord_id(&req);
     let mut conn_pools = Arc::clone(&*connection_pools.into_inner());
     fetch(
         &mut conn.unwrap(),
@@ -56,7 +40,12 @@ pub(crate) async fn results(
         current_users_org,
     )
     .await
-    .map(|(d, query)| HttpResponse::Ok().json(ResultResponseData { data: d, query }))
+    .map(|(d, query)| {
+        HttpResponse::Ok().json(ResultResponseData {
+            data: d,
+            query: query.clone().to_string(),
+        })
+    })
     .map_err(|err| err)
     //
 }
@@ -64,7 +53,7 @@ pub(crate) async fn results(
 pub async fn fetch_viz_results_from_id(
     pool: web::Data<Arc<DBPool>>,
     vis_id: web::Path<i64>,
-    payload: web::Json<config::QuestionConfig>,
+    payload: web::Json<config::QuestionHumanSql>,
     connection_pools: web::Data<Arc<Mutex<results::ConnectionPools>>>,
     req: HttpRequest,
 ) -> impl Responder {

@@ -55,7 +55,6 @@
           <ColorSelect
             v-model:selectedColor="apiActionLocal.color"
             naked="true"
-            :additionalColors="additionalColors"
           />
         </div>
       </div>
@@ -81,7 +80,6 @@
               apiActionLocal.display_settings.backgroundColor
             "
             naked="true"
-            :additionalColors="additionalColors"
           />
         </div>
       </div>
@@ -267,7 +265,6 @@ export default {
         { name: 'Show Results in Modal', value: 'show-in-modal' },
       ],
       apiActionLocal: apiActionLocal,
-      additionalColors: ['white', '#6e7687', '#f5f7fb'],
       prefixSuffixOptions: ['prefix', 'suffix'].map((v) => {
         return { name: v, value: v };
       }),

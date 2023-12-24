@@ -1,8 +1,11 @@
 use std::sync::Arc;
 
+
+
 use actix_web::{error, web, HttpResponse, Responder};
 
 use crate::app::auth;
+use crate::errors::AGError;
 use crate::repository::DBPool;
 use serde::Deserialize;
 use serde::Serialize;
@@ -53,5 +56,5 @@ pub async fn google_callback(
     auth::google_callback(&mut conn, payload.code.clone())
         .await
         .map(|resp| HttpResponse::Ok().json(resp))
-        .map_err(|err| error::ErrorBadRequest(err))
+        .map_err(|err| AGError::<String>::new(err))
 }

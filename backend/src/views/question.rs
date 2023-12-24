@@ -3,12 +3,13 @@ use std::collections::HashMap;
 use chrono::NaiveDateTime;
 use diesel::PgConnection;
 
-
 use serde::{Deserialize, Serialize};
 
 use crate::repository::{
-    models::{ApiAction, ApiActionView, QueryType, Question, Tag, User},
-    tag::StrippedQuestionTagView,
+    models::{
+        ApiAction, ApiActionView, QueryType, Question, Tag, User, Variable, Visualization,
+    },
+    tag::{QuestionTag, StrippedQuestionTagView},
 };
 
 use super::user::RestrictedUserView;
@@ -99,6 +100,9 @@ pub struct QuestionShowView {
     pub owner_id: Option<i32>,
     pub config: Option<serde_json::Value>,
     pub api_action: Option<ApiActionView>,
+    pub visualizations: Option<Vec<Visualization>>,
+    pub variables: Option<Vec<Variable>>,
+    pub tags: Option<Vec<QuestionTag>>,
 }
 
 impl QuestionShowView {
@@ -108,6 +112,9 @@ impl QuestionShowView {
             Some(aa) => Some(ApiActionView::from_model(&aa)),
             None => None,
         };
+        let visualizations = Visualization::find_by_question_id(conn, question.id).ok();
+        let variables = Variable::find_by_question_id(conn, question.id).ok();
+        let tags = Tag::find_by_question_id(conn, question.id).ok();
         Self {
             id: question.id,
             title: question.title.clone(),
@@ -122,7 +129,10 @@ impl QuestionShowView {
             shared_to: question.shared_to.clone(),
             owner_id: question.owner_id,
             config: question.config.clone(),
-            api_action: api_action,
+            api_action,
+            visualizations,
+            variables,
+            tags,
         }
     }
 }

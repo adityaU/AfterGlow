@@ -1,5 +1,5 @@
 <template>
-  <div class="tw-bg-white tw-rounded-sm tw-shadow-sm">
+  <div class="tw-bg-white">
     <div
       class="tw-flex tw-flex-wrap tw-justify-between tw-items-center tw-py-4"
       @click="$emit('update:showQuery', !showQuery)"
@@ -48,6 +48,7 @@
     <div class="tw-h-[300px]" v-if="showQuery">
       <MonacoEditor
         theme="AGDraculaTheme"
+        class="tw-rounded-b-2xl"
         :value="query"
         :language="query_type"
         :options="{ languageWorkers: ['sql', 'json'] }"

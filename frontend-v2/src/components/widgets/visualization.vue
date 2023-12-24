@@ -22,7 +22,7 @@
                 transition-hide="scale"
                 max-height="400px"
                 :offset="[0, 5]"
-                class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
+                class="tw-rounded-2xl tw-border tw-overflow-hidden"
                 @show="menuShow"
                 @keydown="onKeydown"
               >
@@ -47,15 +47,6 @@
                     <RefreshIcon size="16" class="icon-primary tw-mr-2" />
                     <span class="">Refresh</span>
                   </div>
-                  <div
-                    @click="$emit('update:showRemoveFromDashboardModal', true)"
-                    :tabindex="index + 1"
-                    v-if="currentUser.canDeleteDashboard"
-                    class="tw-cursor-pointer tw-whitespace-nowrap tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
-                  >
-                    <XIcon size="16" class="icon-primary tw-mr-2" />
-                    <span class="">Remove from Dashboard</span>
-                  </div>
                 </div>
               </q-menu>
               <Menu2Icon size="16" />
@@ -66,7 +57,7 @@
       </template>
       <template v-else>
         <div
-          class="tw-flex tw-items-center tw-whitespace-nowrap tw-gap-2 tw-absolute tw-p-2 tw-right-1 tw-top-1 tw-z-10 tw-bg-white tw-rounded-sm tw-border"
+          class="tw-flex tw-items-center tw-whitespace-nowrap tw-gap-2 tw-absolute tw-p-2 tw-right-1 tw-top-1 tw-z-10 tw-bg-white tw-rounded-2xl tw-border"
           v-if="editMode"
         >
           <div class="tw-cursor-pointer">
@@ -76,7 +67,7 @@
               transition-hide="scale"
               max-height="400px"
               :offset="[0, 5]"
-              class="tw-rounded-sm tw-shadow-sm tw-border tw-overflow-hidden"
+              class="tw-rounded-2xl tw-border tw-overflow-hidden"
               @show="menuShow"
               @keydown="onKeydown"
             >
@@ -97,15 +88,6 @@
                 >
                   <RefreshIcon size="16" class="icon-primary tw-mr-2" />
                   <span class="">Refresh</span>
-                </div>
-                <div
-                  @click="$emit('update:showRemoveFromDashboardModal', true)"
-                  :tabindex="index + 1"
-                  v-if="currentUser.canDeleteDashboard"
-                  class="tw-cursor-pointer tw-whitespace-nowrap tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
-                >
-                  <XIcon size="16" class="icon-primary tw-mr-2" />
-                  <span class="">Remove from Dashboard</span>
                 </div>
               </div>
             </q-menu>
@@ -159,21 +141,12 @@ const apiActions = apiActionStore();
 const currentUser = currentUserStore();
 export default {
   name: 'AGWidgetViz',
-  props: [
-    'id',
-    'queryKey',
-    'editMode',
-    'size',
-    'showRemoveFromDashboardModal',
-    'showHeader',
-    'headerStyle',
-  ],
+  props: ['id', 'queryKey', 'editMode', 'size', 'showHeader', 'headerStyle'],
   components: {
     VizComponent,
     Menu2Icon,
     AGLoader,
     ArrowBearRightIcon,
-    XIcon,
     RefreshIcon,
   },
   data() {
@@ -275,10 +248,7 @@ export default {
       this.question = question;
       this.vizLoading = loading;
       if (question) {
-        const variableIDs = question.variables.data.map((v) => v.id);
-        fetchVariables(variableIDs, (vars, _) => {
-          this.variables = vars;
-        });
+        this.variables = question.variables;
       }
     },
     setApiActionKey(key, loading) {

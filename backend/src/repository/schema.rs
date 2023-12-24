@@ -171,12 +171,14 @@ diesel::table! {
 diesel::table! {
     bg_queue (id) {
         id -> Uuid,
-        inserted_at -> Timestamptz,
-        updated_at -> Timestamptz,
-        scheduled_for -> Timestamptz,
+        inserted_at -> Timestamp,
+        updated_at -> Timestamp,
+        scheduled_for -> Timestamp,
         failed_attempts -> Int4,
         status -> Int4,
         message -> Jsonb,
+        #[max_length = 255]
+        name -> Nullable<Varchar>,
     }
 }
 
@@ -466,6 +468,8 @@ diesel::table! {
         timezone -> Nullable<Varchar>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
+        #[max_length = 255]
+        subject -> Nullable<Varchar>,
     }
 }
 

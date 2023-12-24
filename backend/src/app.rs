@@ -1,8 +1,11 @@
 pub mod api_actions;
 pub mod auth;
+pub mod autocomplete;
+pub mod bg_jobs;
+pub mod dashboards;
 pub mod databases;
 pub mod questions;
 pub mod results;
+pub mod schedule;
 pub mod settings;
 pub mod visualizations;
-pub mod bg_jobs;
