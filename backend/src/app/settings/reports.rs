@@ -5,7 +5,7 @@ use crate::{
     response_text::SMTP_CONFIG_FETCH_ERROR,
 };
 
-const REPORT_CONFIG_NAMES: [&str; 10] = [
+pub const REPORT_CONFIG_NAMES: [&str; 10] = [
     "AWS_ACCESS_KEY_ID",
     "AWS_SECRET_ACCESS_KEY",
     "EMAIL_USERNAME",

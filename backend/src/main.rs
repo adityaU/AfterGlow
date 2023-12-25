@@ -61,7 +61,8 @@ fn run_migrations() {
     let mut conn = pool.get().unwrap();
     conn.run_pending_migrations(MIGRATIONS)
         .expect("Could not run migrations");
-    seeds::create_default_users(pool);
+    seeds::create_default_users(pool.clone());
+    seeds::create_default_settings(pool);
     // You would typically call diesel_migrations::run_pending_migrations here
 }
 
@@ -96,7 +97,7 @@ async fn run_server() -> std::io::Result<()> {
             .wrap(Logger::new("%a \"%r\" %s %b  \"%{User-Agent}i\" %Dms"))
             .configure(router::config)
     })
-    .bind("0.0.0.0:8080")?
+    .bind("0.0.0.0:4000")?
     .run()
     .await
 }

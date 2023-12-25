@@ -1,5 +1,3 @@
-
-
 use super::models::Organization;
 use super::schema::organizations::dsl::*;
 
@@ -7,6 +5,12 @@ use diesel::result::Error;
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
 
 impl Organization {
+    pub fn active_count(conn: &mut PgConnection) -> Result<i64, Error> {
+        organizations
+            .filter(is_deactivated.eq(false))
+            .count()
+            .get_result(conn)
+    }
     pub fn sorted_index(conn: &mut PgConnection) -> Result<Vec<Self>, Error> {
         organizations.order(google_domain.asc()).load::<Self>(conn)
     }

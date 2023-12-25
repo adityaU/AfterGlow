@@ -1,20 +1,115 @@
 use chrono::Utc;
-use diesel::{r2d2::ConnectionManager, PgConnection};
+
 
 use dotenv::dotenv;
 
-use crate::repository::{
-    models::{PermissionSet, User, UserChangeset, UserPermissionSet, UserPermissionSetChangeset},
-    DBPool,
+use crate::{
+    app::settings::reports::REPORT_CONFIG_NAMES,
+    repository::{
+        models::{
+            PermissionSet, Setting, User, UserChangeset, UserPermissionSet,
+        },
+        DBPool,
+    },
 };
 
+pub fn create_default_settings(pool: DBPool) {
+    for setting in REPORT_CONFIG_NAMES {
+        let conn = pool.get();
+        let _ = Setting::find_by_name_or_create(
+            &mut conn.unwrap(),
+            setting.to_string(),
+            "".to_string(),
+        );
+    }
+
+    let conn = pool.get();
+   let _ =  Setting::find_by_name_or_create(
+        &mut conn.unwrap(),
+        "THEME_PRIMARY_COLOR".to_string(),
+        "rgb(85 64 198)".to_string(),
+    );
+    let conn = pool.get();
+   let _ =  Setting::find_by_name_or_create(
+        &mut conn.unwrap(),
+        "THEME_TERTIARY_COLOR".to_string(),
+        "rgb(229 231 235)".to_string(),
+    );
+    let conn = pool.get();
+   let _ =  Setting::find_by_name_or_create(
+        &mut conn.unwrap(),
+        "THEME_WHITE_COLOR".to_string(),
+        "rgb(255 255 255)".to_string(),
+    );
+    let conn = pool.get();
+ let _ =    Setting::find_by_name_or_create(
+        &mut conn.unwrap(),
+        "THEME_SECONDARY_COLOR".to_string(),
+        "rgb(245 247 251)".to_string(),
+    );
+    let conn = pool.get();
+  let _ =   Setting::find_by_name_or_create(
+        &mut conn.unwrap(),
+        "THEME_DEFAULT_COLOR".to_string(),
+        "rgb(32 33 36)".to_string(),
+    );
+    let conn = pool.get();
+   let _ =  Setting::find_by_name_or_create(
+        &mut conn.unwrap(),
+        "MAX_FRONTEND_LIMIT".to_string(),
+        "2000".to_string(),
+    );
+    let conn = pool.get();
+  let _ =   Setting::find_by_name_or_create(
+        &mut conn.unwrap(),
+        "DOWNLOAD_ALLOWED".to_string(),
+        "true".to_string(),
+    );
+    let conn = pool.get();
+   let _ =  Setting::find_by_name_or_create(
+        &mut conn.unwrap(),
+        "MAX_DOWNLOAD_LIMIT".to_string(),
+        "".to_string(),
+    );
+    let conn = pool.get();
+  let _ =   Setting::find_by_name_or_create(
+        &mut conn.unwrap(),
+        "OPENAI_MODEL_NAME".to_string(),
+        "".to_string(),
+    );
+    let conn = pool.get();
+    let _ = Setting::find_by_name_or_create(
+        &mut conn.unwrap(),
+        "OPENAI_ENABLED".to_string(),
+        "false".to_string(),
+    );
+    let conn = pool.get();
+    let _ = Setting::find_by_name_or_create(
+        &mut conn.unwrap(),
+        "OPENAI_API_KEY".to_string(),
+        "".to_string(),
+    );
+    let conn = pool.get();
+    let _ = Setting::find_by_name_or_create(
+        &mut conn.unwrap(),
+        "USERS_CAN_OVERRIDE_OPENAI_KEY ".to_string(),
+        "false".to_string(),
+    );
+    let conn = pool.get();
+   let _ =  Setting::find_by_name_or_create(
+        &mut conn.unwrap(),
+        "GLOBAL_OPENAI_KEY".to_string(),
+        "".to_string(),
+    );
+}
+
 pub fn create_default_users(pool: DBPool) {
-    let mut conn = pool.get();
+    let conn = pool.get();
     let now = Utc::now().naive_utc();
     let admin_permission_set_id = PermissionSet::admin(&mut conn.unwrap()).unwrap().id;
-    let mut conn = pool.get();
+    let conn = pool.get();
     let viewer_permission_set_id = PermissionSet::viewer(&mut conn.unwrap()).unwrap().id;
-    let mut conn = pool.get();
+    let conn = pool.get();
 
     let user = UserChangeset {
         first_name: Some("AG ".to_string()),
@@ -31,13 +126,13 @@ pub fn create_default_users(pool: DBPool) {
     };
 
     let admin = User::create_or_update(&mut conn.unwrap(), user).unwrap();
-    let mut conn = pool.get();
+    let conn = pool.get();
     let _ = UserPermissionSet::create_or_update_for_user(
         &mut conn.unwrap(),
         admin.id,
         admin_permission_set_id,
     );
-    let mut conn = pool.get();
+    let conn = pool.get();
     let user = UserChangeset {
         first_name: Some("AG ".to_string()),
         last_name: Some("Viewer".to_string()),
@@ -53,14 +148,14 @@ pub fn create_default_users(pool: DBPool) {
     };
 
     let viewer = User::create_or_update(&mut conn.unwrap(), user).unwrap();
-    let mut conn = pool.get();
+    let conn = pool.get();
     let _ = UserPermissionSet::create_or_update_for_user(
         &mut conn.unwrap(),
         viewer.id,
         viewer_permission_set_id,
     );
 
-    let mut conn = pool.get();
+    let conn = pool.get();
     let user = UserChangeset {
         first_name: Some("AG ".to_string()),
         last_name: Some("System".to_string()),
@@ -76,7 +171,7 @@ pub fn create_default_users(pool: DBPool) {
     };
 
     let system = User::create_or_update(&mut conn.unwrap(), user).unwrap();
-    let mut conn = pool.get();
+    let conn = pool.get();
     let _ = UserPermissionSet::create_or_update_for_user(
         &mut conn.unwrap(),
         system.id,
@@ -86,7 +181,7 @@ pub fn create_default_users(pool: DBPool) {
     let admin_email = std::env::var("AG_ADMIN_EMAIL");
     match admin_email {
         Ok(email) => {
-            let mut conn = pool.get();
+            let conn = pool.get();
             let user = UserChangeset {
                 first_name: None,
                 last_name: None,
@@ -102,7 +197,7 @@ pub fn create_default_users(pool: DBPool) {
             };
             let admin = User::create_or_update(&mut conn.unwrap(), user).unwrap();
 
-            let mut conn = pool.get();
+            let conn = pool.get();
             let _ = UserPermissionSet::create_or_update_for_user(
                 &mut conn.unwrap(),
                 admin.id,

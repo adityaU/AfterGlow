@@ -60,31 +60,43 @@ async fn authenticate(
             )
         })?;
 
-        let organization = Organization::find_by_domain(
-            &mut connection,
-            User::find_domain(user.email.unwrap().as_str()).as_str(),
-        )
-        .map_err(|_| {
-            AGError::<String>::new_with_details(
-                "Unauthorized: Reason: Domain not found".to_string(),
-                None,
-                StatusCode::UNAUTHORIZED,
-            )
+        let active_org_count = Organization::active_count(&mut connection).map_err(|_| {
+            actix_web::error::ErrorUnauthorized("Unable to find Active organizations")
         })?;
+        println!("Active org count: {}", active_org_count);
 
-        if organization.is_deactivated {
-            return Err(AGError::<String>::new_with_details(
-                "Unauthorized: Domain is not allowed.".to_string(),
-                None,
-                StatusCode::UNAUTHORIZED,
+        if active_org_count > 0 {
+            let organization = Organization::find_by_domain(
+                &mut connection,
+                User::find_domain(user.email.unwrap().as_str()).as_str(),
             )
-            .into());
-        }
+            .map_err(|_| {
+                AGError::<String>::new_with_details(
+                    "Unauthorized: Reason: Domain not found".to_string(),
+                    None,
+                    StatusCode::UNAUTHORIZED,
+                )
+            })?;
 
-        req.headers_mut().append(
-            HeaderName::from_static("organization_id"),
-            HeaderValue::from(organization.id),
-        );
+            if organization.is_deactivated {
+                return Err(AGError::<String>::new_with_details(
+                    "Unauthorized: Domain is not allowed.".to_string(),
+                    None,
+                    StatusCode::UNAUTHORIZED,
+                )
+                .into());
+            }
+
+            req.headers_mut().append(
+                HeaderName::from_static("organization_id"),
+                HeaderValue::from(organization.id),
+            );
+        } else {
+            req.headers_mut().append(
+                HeaderName::from_static("organization_id"),
+                HeaderValue::from(0),
+            );
+        }
 
         req.headers_mut().append(
             HeaderName::from_static("user_id"),
