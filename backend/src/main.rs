@@ -97,7 +97,7 @@ async fn run_server() -> std::io::Result<()> {
             .wrap(Logger::new("%a \"%r\" %s %b  \"%{User-Agent}i\" %Dms"))
             .configure(router::config)
     })
-    .bind("0.0.0.0:4000")?
+    .bind("0.0.0.0:4300")?
     .run()
     .await
 }

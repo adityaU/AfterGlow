@@ -1,3 +1,7 @@
+use actix_files as fs;
+use actix_web::HttpRequest;
+use fs::NamedFile;
+use std::io;
 use std::sync::Arc;
 
 use crate::app::auth::verify_token;
@@ -12,7 +16,7 @@ use crate::errors::AGError;
 use crate::repository::models::{Organization, User};
 use crate::repository::DBPool;
 use actix_web::body::MessageBody;
-use actix_web::dev::ServiceResponse;
+use actix_web::dev::{fn_service, ServiceResponse};
 use actix_web::{dev::ServiceRequest, web, Error};
 use actix_web_grants::permissions::AttachPermissions;
 
@@ -421,8 +425,22 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
         );
 }
 
+fn static_config(cfg: &mut web::ServiceConfig) {
+    cfg.service(
+        fs::Files::new("/", "../frontend-v2/dist/spa/")
+            .index_file("index.html")
+            .default_handler(fn_service(|req: ServiceRequest| async {
+                let (req, _) = req.into_parts();
+                let file = NamedFile::open_async("../frontend-v2/dist/spa/index.html").await?;
+                let res = file.into_response(&req);
+                Ok(ServiceResponse::new(req, res))
+            })),
+    );
+}
+
 // this function could be located in a different module
 
 pub fn config(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::scope("/api/v2").configure(scoped_config));
+    cfg.service(web::scope("/api/v2").configure(scoped_config))
+        .service(web::scope("").configure(static_config));
 }
