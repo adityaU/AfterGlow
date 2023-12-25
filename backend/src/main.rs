@@ -88,7 +88,7 @@ async fn run_server() -> std::io::Result<()> {
     tokio::spawn(async move { worker::run(queue_clone1, ll_data_clone1).await });
     tokio::spawn(async move { scheduled_worker::run(queue_clone2, ll_data_clone2).await });
 
-    env_logger::init_from_env(env_logger::Env::new().default_filter_or("debug"));
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(pool.clone()))

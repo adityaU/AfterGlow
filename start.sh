@@ -1,4 +1,3 @@
-service nginx start
-cd /var/app/
-_build/prod/backend migrate
-_build/prod/backend serve
+cd /var/app/backend
+./backend migrate
+./backend serve
