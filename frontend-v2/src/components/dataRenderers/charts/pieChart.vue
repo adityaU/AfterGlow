@@ -4,11 +4,7 @@
       {{ chartInformationMessage }}
     </div>
   </div>
-  <div
-    ref="chart-block"
-    class="tw-h-full tw-w-full"
-    v-if="!shouldShowChartInformation"
-  ></div>
+  <div ref="chart-block" class="tw-h-full tw-w-full" v-if="!shouldShowChartInformation"></div>
 </template>
 
 <script>
@@ -36,12 +32,17 @@ echarts.use([
   UniversalTransition,
 ]);
 
+import { rgbToHex } from 'src/helpers/colorGenerator';
+import { currentUserStore } from 'src/stores/currentUser';
+
 import { shallowRef } from 'vue';
 import {
   defaultColors,
   generateColors,
 } from '../../../helpers/colorGenerator.ts';
 import { findDataType } from 'src/helpers/dataTypes';
+
+let currentUser = currentUserStore();
 export default {
   name: 'AGPie',
   components: {},
@@ -248,19 +249,26 @@ export default {
           text: settings.title,
           left: 'center',
           textStyle: {
-            color: 'rgb(var(--color-default))',
+            color: rgbToHex(currentUser.getTheme.default_color),
             fontSize: 25,
           },
         },
         legend: {
           bottom: '20',
           type: 'scroll',
-          pageIconColor: 'rgb(var(--color-default))',
-          pageTextStyle: { color: 'rgb(var(--color-default))' },
+          pageIconColor: rgbToHex(currentUser.getTheme.default_color),
+          pageTextStyle: {
+            color: rgbToHex(currentUser.getTheme.default_color),
+          },
           padding: [10, 20],
         },
         tooltip: {
           trigger: 'item',
+          backgroundColor: rgbToHex(currentUser.getTheme.white_color),
+          borderColor: rgbToHex(currentUser.getTheme.tertiary_color),
+          textStyle: {
+            color: rgbToHex(currentUser.getTheme.default_color),
+          }
           // order: 'valueDesc',
           // formatter: this.tooltipFormatter                                        // formatter: function (params) {
           //         let tar;
@@ -385,7 +393,7 @@ export default {
                 .filter((datum) => {
                   return !isNaN(datum.value) && datum.value;
                 }),
-              color: generateColors(det[1].length),
+              color: generateColors(det[1].length, true),
               label: {
                 show: showLabel,
                 position: 'outside',
@@ -482,7 +490,7 @@ export default {
           if (
             options.series.length % (2 * div) != 0 &&
             Math.ceil(options.series.length / (2 * div)) ===
-              Math.ceil((i + 1) / (2 * div))
+            Math.ceil((i + 1) / (2 * div))
           ) {
             const newDiv = (options.series.length % (2 * div)) / 2;
             xBase = (100 / (newDiv + 1)) * ((j % newDiv) + 1);

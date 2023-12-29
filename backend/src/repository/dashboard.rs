@@ -14,7 +14,7 @@ impl dashboards::table {
             return "dashboards.id = ANY(select dashboards.id from dashboards)".into();
         }
 
-        let q = format!("dashboards.id = ANY(select dashboards.id from dashboards
+        format!("dashboards.id = ANY(select dashboards.id from dashboards
             left join dashboard_widgets
             on dashboards.id = dashboard_widgets.widget_id and dashboard_widgets.widget_type = 'tabs'
             left join dashboards db
@@ -26,9 +26,7 @@ impl dashboards::table {
             or 'all' = ANY(db.shared_to)
             or '{}' = ANY(dashboards.shared_to)
             or 'all' = ANY(dashboards.shared_to))  
-            group by 1)", user_email, user_email, user_email);
-        println!("{}", q);
-        q
+            group by 1)", user_email, user_email, user_email)
     }
 }
 
@@ -50,18 +48,25 @@ impl Dashboard {
         conn: &mut PgConnection,
         user_email: String,
         permissions: Vec<String>,
+        limit: Option<i64>,
     ) -> Result<Vec<Self>, Error> {
-        dashboards::table
+        let query = dashboards::table
             .filter(sql::<Bool>(
                 dashboards::table::shared_with_user(user_email, permissions).as_str(),
             ))
             .order(dashboards::title.asc())
-            .load::<Self>(conn)
+            .into_boxed();
+        let query = if let Some(limit) = limit {
+            query.limit(limit)
+        } else {
+            query
+        };
+        query.load::<Self>(conn)
     }
 
     pub fn scoped_find(
         conn: &mut PgConnection,
-        id: i32,
+        id: i64,
         user_email: String,
         permissions: Vec<String>,
     ) -> Result<Self, Error> {
@@ -75,7 +80,7 @@ impl Dashboard {
 
     pub fn fetch_possible_variables(
         conn: &mut PgConnection,
-        did: i32,
+        did: i64,
     ) -> Result<Vec<Variable>, Error> {
         dashboard_widgets::table
             .filter(dashboard_widgets::dashboard_id.nullable().eq(did as i64))

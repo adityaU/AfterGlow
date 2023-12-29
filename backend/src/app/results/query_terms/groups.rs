@@ -1,6 +1,6 @@
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::{app::questions::config};
+use crate::app::questions::config;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum GroupDuration {
@@ -80,7 +80,7 @@ impl<'de> Deserialize<'de> for GroupDuration {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum Grouping {
     Raw {
         value: String,

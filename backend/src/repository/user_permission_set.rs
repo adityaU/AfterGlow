@@ -1,5 +1,3 @@
-
-
 use super::models::UserPermissionSet;
 use super::models::UserPermissionSetChangeset;
 use super::schema::permission_sets;
@@ -12,7 +10,7 @@ use diesel::result::Error;
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
 
 impl UserPermissionSet {
-    pub fn find_by_user_id(conn: &mut PgConnection, uid: i32) -> Result<Self, Error> {
+    pub fn find_by_user_id(conn: &mut PgConnection, uid: i64) -> Result<Self, Error> {
         user_permission_sets::table
             .filter(user_permission_sets::user_id.eq(uid))
             .first(conn)
@@ -20,8 +18,8 @@ impl UserPermissionSet {
 
     pub fn create_or_update_for_user(
         conn: &mut PgConnection,
-        uid: i32,
-        permission_set_id: i32,
+        uid: i64,
+        permission_set_id: i64,
     ) -> Result<Self, Error> {
         let updated_model = UserPermissionSetChangeset {
             user_id: Some(uid),
@@ -35,19 +33,19 @@ impl UserPermissionSet {
         }
     }
 
-    pub fn fetch_permission_sets_by_user_id(conn: &mut PgConnection, uid: i32) -> Vec<i32> {
+    pub fn fetch_permission_sets_by_user_id(conn: &mut PgConnection, uid: i64) -> Vec<i64> {
         user_permission_sets::table
             .filter(user_permission_sets::user_id.eq(uid))
             .inner_join(permission_sets::table)
             .select(permission_sets::id)
-            .load::<i32>(conn)
+            .load::<i64>(conn)
             .ok()
             .unwrap_or(vec![])
 
         // convert permissions to Vec<String>
     }
 
-    pub fn fetch_permissions_by_user_id(conn: &mut PgConnection, uid: i32) -> Vec<String> {
+    pub fn fetch_permissions_by_user_id(conn: &mut PgConnection, uid: i64) -> Vec<String> {
         user_permission_sets::table
             .filter(user_permission_sets::user_id.eq(uid))
             .inner_join(permission_sets::table)

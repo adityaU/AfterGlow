@@ -5,6 +5,7 @@ export const currentUserStore = defineStore('currentUser', {
   state: () => ({
     permissions: reactive([]),
     details: reactive({}),
+    theme: reactive({}),
     viewerMode: false,
     loading: false,
   }),
@@ -80,6 +81,9 @@ export const currentUserStore = defineStore('currentUser', {
     getDetails() {
       return this.details;
     },
+    getTheme() {
+      return this.theme;
+    },
   },
 
   actions: {
@@ -92,6 +96,7 @@ export const currentUserStore = defineStore('currentUser', {
       this.loading = false;
       this.permissions = det.permissions;
       this.details = det.user;
+      this.theme = det.theme;
     },
     reset() {
       this.loading = true;

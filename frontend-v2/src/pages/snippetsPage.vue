@@ -77,8 +77,10 @@ export default {
   },
 
   methods: {
-    setDatabase(database) {
-      this.database = database;
+    setDatabase(database, loading) {
+      if (!loading){
+         this.database = database;
+      }
     },
   },
 };

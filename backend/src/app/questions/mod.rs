@@ -66,7 +66,7 @@ pub fn payload_to_update_changeset(
     }
 }
 
-pub fn create_variable_changeset(var: &Variable, question_id: i32) -> VariableChangeset {
+pub fn create_variable_changeset(var: &Variable, question_id: i64) -> VariableChangeset {
     VariableChangeset {
         name: Some(var.name.clone()),
         inserted_at: Utc::now().naive_utc(),
@@ -84,7 +84,7 @@ pub fn create_variable_changeset(var: &Variable, question_id: i32) -> VariableCh
 
 pub fn create_visualization_changeset(
     viz: &Visualization,
-    question_id: i32,
+    question_id: i64,
 ) -> VisualizationChangeset {
     VisualizationChangeset {
         name: Some(viz.name.clone()),

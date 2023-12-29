@@ -7,7 +7,11 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use actix_web::{middleware::Logger, web::Data, App, HttpServer};
+use actix_web::{
+    middleware::{self, Logger},
+    web::Data,
+    App, HttpServer,
+};
 use app::bg_jobs::{pg_queue::PostgresQueue, scheduled_worker, worker, LongLivedData};
 // use diesel::prelude::*;
 use clap::{self, Command};
@@ -70,6 +74,9 @@ fn run_migrations() {
 async fn run_server() -> std::io::Result<()> {
     dotenv().ok();
 
+    let port = std::env::var("AG_PORT").unwrap_or_else(|_| "4300".to_string());
+    let log_level = std::env::var("AG_LOG_LEVEL").unwrap_or_else(|_| "debug".to_string());
+
     let connection_pools = Arc::new(Mutex::new(app::results::ConnectionPools {
         postgres: HashMap::new(),
     }));
@@ -88,16 +95,17 @@ async fn run_server() -> std::io::Result<()> {
     tokio::spawn(async move { worker::run(queue_clone1, ll_data_clone1).await });
     tokio::spawn(async move { scheduled_worker::run(queue_clone2, ll_data_clone2).await });
 
-    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or(log_level));
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(pool.clone()))
             .app_data(Data::new(queue.clone()))
             .app_data(Data::new(connection_pools.clone()))
             .wrap(Logger::new("%a \"%r\" %s %b  \"%{User-Agent}i\" %Dms"))
+            .wrap(middleware::Compress::default())
             .configure(router::config)
     })
-    .bind("0.0.0.0:4300")?
+    .bind(format!("0.0.0.0:{}", port))?
     .run()
     .await
 }

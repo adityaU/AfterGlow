@@ -3,14 +3,12 @@ use std::collections::HashMap;
 use chrono::NaiveDateTime;
 use diesel::{result::Error, PgConnection};
 
-use crate::repository::models::{Team};
+use crate::repository::models::Team;
 use serde::{Deserialize, Serialize};
-
-
 
 #[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct PreloadedTeamView {
-    pub id: i32,
+    pub id: i64,
     pub name: String,
     pub description: Option<String>,
     #[serde(skip_deserializing)]
@@ -23,16 +21,16 @@ pub(crate) struct PreloadedTeamView {
 
 impl PreloadedTeamView {
     pub fn from_model_list(conn: &mut PgConnection, teams: Vec<Team>) -> Result<Vec<Self>, Error> {
-        let team_ids = teams.iter().map(|team| team.id).collect::<Vec<i32>>();
+        let team_ids = teams.iter().map(|team| team.id).collect::<Vec<i64>>();
         let accessible_databases = Team::find_accessible_databases_count(conn, &team_ids)?;
         let users = Team::find_users_count(conn, &team_ids)?;
-        let mut accessible_databases_map: HashMap<i32, i64> = HashMap::new();
+        let mut accessible_databases_map: HashMap<i64, i64> = HashMap::new();
 
         for db in accessible_databases {
             accessible_databases_map.insert(db.team_id.unwrap(), db.count);
         }
 
-        let mut users_map: HashMap<i32, i64> = HashMap::new();
+        let mut users_map: HashMap<i64, i64> = HashMap::new();
 
         for u in users {
             users_map.insert(u.team_id.unwrap(), u.count);
@@ -49,8 +47,8 @@ impl PreloadedTeamView {
     }
     fn from_team_database_view(
         team: Team,
-        accessible_databases: &HashMap<i32, i64>,
-        users_map: &HashMap<i32, i64>,
+        accessible_databases: &HashMap<i64, i64>,
+        users_map: &HashMap<i64, i64>,
     ) -> Self {
         let dbs = accessible_databases.get(&team.id).unwrap_or(&0i64);
         let users = users_map.get(&team.id).unwrap_or(&0i64);

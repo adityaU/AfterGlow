@@ -7,7 +7,7 @@ use crate::repository::models::{Dashboard, VariableView};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DetailedDashboardView {
-    pub id: i32,
+    pub id: i64,
     pub title: Option<String>,
     pub update_interval: Option<i32>,
     pub last_updated: Option<NaiveDateTime>,
@@ -18,7 +18,7 @@ pub struct DetailedDashboardView {
     pub is_shareable_link_public: Option<bool>,
     pub settings: Option<serde_json::Value>,
     pub shared_to: Option<Vec<Option<String>>>,
-    pub owner_id: Option<i32>,
+    pub owner_id: Option<i64>,
     pub possible_variables: Vec<VariableView>, // pub notes: Vec<NoteView>,
                                                // pub owner: Option<RestrictedUserView>,
                                                // pub tags: Vec<TagView>,

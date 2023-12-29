@@ -9,16 +9,13 @@
 <template>
   <!-- <div v-for="datum, j in row" :key="datum" class="tw-col-span-2"> -->
   <div
-    class="tw-border tw-break-inside-avoid-column tw-px-16 tw-py-8 tw-flex tw-flex-col tw-justify-center tw-items-center"
-  >
-    <div
-      class="tw-flex tw-text-center tw-justify-center tw-items-end tw-whitespace-nowrap"
-    >
+    class="tw-border tw-rounded-2xl tw-break-inside-avoid-column tw-px-16 tw-py-8 tw-flex tw-flex-col tw-justify-center tw-items-center">
+    <div class="tw-flex tw-text-center tw-justify-center tw-items-end tw-whitespace-nowrap">
       <div>
-        <div class="tw-inline font-transition tw-text-black/80">
+        <div class="tw-inline font-transition tw-text-default/80">
           {{ settings.dataPrefix }}
         </div>
-        <div class="tw-inline font-transition tw-text-black/80 font-data">
+        <div class="tw-inline font-transition tw-text-default/80 font-data">
           {{
             formatNumber(
               precise(data.dataValues[index], settings.dataPrecision),
@@ -26,16 +23,14 @@
             )
           }}
         </div>
-        <div class="tw-inline font-transition tw-text-black/80">
+        <div class="tw-inline font-transition tw-text-default/80">
           {{ settings.dataSuffix }}
         </div>
       </div>
     </div>
 
-    <div
-      class="tw-flex font-transition font-trend tw-items-center tw-justify-start tw-flex-[0] tw-whitespace-nowrap"
-      v-if="data.referenceValues"
-    >
+    <div class="tw-flex font-transition font-trend tw-items-center tw-justify-start tw-flex-[0] tw-whitespace-nowrap"
+      v-if="data.referenceValues">
       <div class="tw-ml-3">
         {{ settings.trendPrefix }}
         {{
@@ -46,36 +41,14 @@
         }}{{ settings.trendSuffix || '%' }}
       </div>
       <div>
-        <ArrowDownIcon
-          class="tw-stroke-red-500"
-          v-if="data.referenceValues[index] < 0"
-          size="14"
-        />
-        <ArrowUpIcon
-          class="tw-stroke-green-500"
-          v-if="data.referenceValues[index] > 0"
-          size="14"
-        />
-        <MenuIcon
-          class="tw-stroke-blue-500"
-          v-if="data.referenceValues[index] === 0"
-          size="14"
-        />
+        <ArrowDownIcon class="tw-stroke-red-500" v-if="data.referenceValues[index] < 0" size="14" />
+        <ArrowUpIcon class="tw-stroke-green-500" v-if="data.referenceValues[index] > 0" size="14" />
+        <MenuIcon class="tw-stroke-blue-500" v-if="data.referenceValues[index] === 0" size="14" />
       </div>
     </div>
-    <div
-      class="text-center tw-whitespace-nowrap tw-flex-[0]"
-      v-if="settings.subtitleColumn && data.subtitles"
-    >
-      <AGTDRenderer
-        :colDetails="colDetails"
-        isColumnObject="false"
-        :value="data.subtitles[index]"
-        :columns="columns"
-        :index="subtitleColumnIndex"
-        showFilters="false"
-        hideMenu="true"
-      />
+    <div class="text-center tw-whitespace-nowrap tw-flex-[0]" v-if="settings.subtitleColumn && data.subtitles">
+      <AGTDRenderer :colDetails="colDetails" isColumnObject="false" :value="data.subtitles[index]" :columns="columns"
+        :index="subtitleColumnIndex" showFilters="false" hideMenu="true" />
     </div>
   </div>
 

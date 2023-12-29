@@ -17,8 +17,8 @@ use actix_web_grants::proc_macro::has_permissions;
 //
 #[derive(Debug, Deserialize)]
 pub struct Payload {
-    user_id: Option<i32>,
-    database_id: Option<i32>,
+    user_id: Option<i64>,
+    database_id: Option<i64>,
 }
 
 // base::generate_index(_index, Team, TeamView, "Any");
@@ -56,7 +56,7 @@ pub(crate) async fn index(
 pub(crate) async fn remove_user(
     pool: web::Data<Arc<DBPool>>,
     params: web::Json<Payload>,
-    team_id: web::Path<i32>,
+    team_id: web::Path<i64>,
 ) -> impl Responder {
     let conn = pool.get();
     let user_id = params.user_id.unwrap_or(0);
@@ -69,7 +69,7 @@ pub(crate) async fn remove_user(
 pub(crate) async fn add_user(
     pool: web::Data<Arc<DBPool>>,
     params: web::Json<Payload>,
-    team_id: web::Path<i32>,
+    team_id: web::Path<i64>,
 ) -> impl Responder {
     let conn = pool.get();
     let user_id = params.user_id.unwrap_or(0);
@@ -82,7 +82,7 @@ pub(crate) async fn add_user(
 pub(crate) async fn remove_database(
     pool: web::Data<Arc<DBPool>>,
     params: web::Json<Payload>,
-    team_id: web::Path<i32>,
+    team_id: web::Path<i64>,
 ) -> impl Responder {
     let conn = pool.get();
     let database_id = params.database_id.unwrap_or(0);
@@ -95,7 +95,7 @@ pub(crate) async fn remove_database(
 pub(crate) async fn add_database(
     pool: web::Data<Arc<DBPool>>,
     params: web::Json<Payload>,
-    team_id: web::Path<i32>,
+    team_id: web::Path<i64>,
 ) -> impl Responder {
     let conn = pool.get();
     let database_id = params.database_id.unwrap_or(0);

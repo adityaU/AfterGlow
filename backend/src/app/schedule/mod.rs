@@ -68,7 +68,7 @@ pub enum JobTypes {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct DashboardJobDetail {
-    pub dashboard_id: i32,
+    pub dashboard_id: i64,
     #[serde(rename = "type")]
     pub type_: JobTypes,
 }

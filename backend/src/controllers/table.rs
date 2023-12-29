@@ -15,7 +15,7 @@ use actix_web_grants::proc_macro::has_permissions;
 
 #[derive(Deserialize)]
 pub struct QueryParams {
-    database_id: Option<i32>,
+    database_id: Option<i64>,
     q: Option<String>,
 }
 
@@ -30,7 +30,7 @@ pub struct QueryParams {
 // );
 base::generate_update!(update, Table, TableChangeset, TableView, "Settings.all");
 
-pub(crate) async fn show(pool: web::Data<Arc<DBPool>>, item_id: web::Path<i32>) -> impl Responder {
+pub(crate) async fn show(pool: web::Data<Arc<DBPool>>, item_id: web::Path<i64>) -> impl Responder {
     let conn = pool.get();
     Table::find(&mut conn.unwrap(), item_id.into_inner())
         .map(|item| {

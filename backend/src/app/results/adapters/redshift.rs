@@ -15,27 +15,32 @@ use tokio_postgres::{NoTls, Row};
 use uuid::Uuid;
 
 use super::{
-    super::query_builders::QueryBuilder, DBAdapter, DBAdapterResponse, DBColumn, DBTable,
+    super::query_builders::QueryBuilder, DBAdapter, DBAdapterResponse, DBColumn, DBTable, DBValue,
     ForeignKey, PrimaryKey,
 };
 
 use crate::app::{
     databases::DBConfig,
     results::{
-        adapters::DBValue,
         helpers::hashed_db_credentials,
         payload_adapter::AdaptedPayload,
-        query_builders::{postgres::Postgres, sql_base::SQlBased as _},
+        query_builders::{redshift::Redshift, sql_base::SQlBased as _},
         ColumnDetail, ConnectionPools, DataType, QueryError,
     },
 };
 
-pub struct PostgresAdapter {
+pub struct RedshiftAdapter {
     pub db_config: DBConfig,
 }
 
+struct FlatSchema {
+    table_name: String,
+    column_name: String,
+    data_type: String,
+}
+
 #[async_trait::async_trait]
-impl DBAdapter for PostgresAdapter {
+impl DBAdapter for RedshiftAdapter {
     async fn fetch_response(
         &self,
         conn: &mut PgConnection,
@@ -44,10 +49,10 @@ impl DBAdapter for PostgresAdapter {
         user_id: i64,
         org_id: i64,
     ) -> Result<DBAdapterResponse, QueryError> {
-        let query = Postgres::new(adapted_payload)
+        let query = Redshift::new(adapted_payload)
             .build(conn, user_id, org_id)
             .map_err(|err| QueryError::new(err, "".to_string()))?;
-        let pool = self.get_pool(cps)?;
+        let pool = Self::get_pool(&self, cps)?;
         let (rows, columns, column_details) = Self::fetch(
             pool,
             query.final_query.clone(),
@@ -69,15 +74,15 @@ impl DBAdapter for PostgresAdapter {
         cps: &Arc<Mutex<ConnectionPools>>,
     ) -> Result<Vec<PrimaryKey>, QueryError> {
         let query = r#"SELECT
-            pg_attribute.attname as column_name, concat('"', nspname, '"."',  pg_class.relname, '"') as table_name
-          FROM pg_index, pg_class, pg_attribute, pg_namespace
-          WHERE
-            indrelid = pg_class.oid AND
-            nspname = 'public' AND
-            pg_class.relnamespace = pg_namespace.oid AND
-            pg_attribute.attrelid = pg_class.oid AND
-            pg_attribute.attnum = any(pg_index.indkey)
-           AND indisprimary"#;
+        pg_attribute.attname as column_name, '"' + nspname + '"."' +  pg_class.relname + '"' as table_name
+      FROM pg_index, pg_class, pg_attribute, pg_namespace
+      WHERE
+        indrelid = pg_class.oid AND
+        pg_class.relnamespace = pg_namespace.oid AND
+        pg_attribute.attrelid = pg_class.oid AND
+        pg_attribute.attnum =  ANY(string_to_array(textin(int2vectorout(pg_index.indkey)), ' '))
+        and nspname not in ('information_schema', 'pg_catalog', 'pg_toast')
+       AND indisprimary"#;
 
         let pool = self.get_pool(cps)?;
         let rows = Self::fetch_raw(pool, query.to_string()).await?;
@@ -103,90 +108,59 @@ impl DBAdapter for PostgresAdapter {
         &self,
         cps: &Arc<Mutex<ConnectionPools>>,
     ) -> Result<Vec<ForeignKey>, QueryError> {
-        let query = r#"SELECT conname as name
-            ,concat('"', n.nspname, '"."', conrelid::regclass::text, '"') AS "table_name"
-            ,CASE WHEN pg_get_constraintdef(c.oid) LIKE 'FOREIGN KEY %' THEN substring(pg_get_constraintdef(c.oid), 14, position(')' in pg_get_constraintdef(c.oid))-14) END AS "column_name"
-            ,concat('"', n.nspname, '"."', CASE WHEN pg_get_constraintdef(c.oid) LIKE 'FOREIGN KEY %' THEN substring(pg_get_constraintdef(c.oid), position(' REFERENCES ' in pg_get_constraintdef(c.oid))+12, position('(' in substring(pg_get_constraintdef(c.oid), 14))-position(' REFERENCES ' in pg_get_constraintdef(c.oid))+1) END, '"') AS "foreign_table_name"
-            ,CASE WHEN pg_get_constraintdef(c.oid) LIKE 'FOREIGN KEY %' THEN substring(pg_get_constraintdef(c.oid), position('(' in substring(pg_get_constraintdef(c.oid), 14))+14, position(')' in substring(pg_get_constraintdef(c.oid), position('(' in substring(pg_get_constraintdef(c.oid), 14))+14))-1) END AS "foreign_column_name"
-        FROM   pg_constraint c
-        JOIN   pg_namespace n ON n.oid = c.connamespace
-        WHERE  contype IN ('f')
-        AND pg_get_constraintdef(c.oid) LIKE 'FOREIGN KEY %'
-        ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC"#;
-
-        let pool = self.get_pool(cps)?;
-        let rows = Self::fetch_raw(pool, query.to_string()).await?;
-
-        let mut res: Vec<ForeignKey> = vec![];
-        for row in &rows {
-            let column_name: String = row
-                .try_get("column_name")
-                .map_err(|err| QueryError::new(err.to_string(), query.to_string()))?;
-            let table_name: String = row
-                .try_get("table_name")
-                .map_err(|err| QueryError::new(err.to_string(), query.to_string()))?;
-            let foreign_table_name: String = row
-                .try_get("foreign_table_name")
-                .map_err(|err| QueryError::new(err.to_string(), query.to_string()))?;
-            let foreign_column_name: String = row
-                .try_get("foreign_column_name")
-                .map_err(|err| QueryError::new(err.to_string(), query.to_string()))?;
-            let relation_name: String = row
-                .try_get("name")
-                .map_err(|err| QueryError::new(err.to_string(), query.to_string()))?;
-            res.push(ForeignKey {
-                column_name,
-                table_name,
-                foreign_table_name,
-                foreign_column_name,
-                relation_name,
-            })
-        }
-
-        Ok(res)
+        Ok(vec![])
     }
     async fn get_schema(
         &self,
         cps: &Arc<Mutex<ConnectionPools>>,
     ) -> Result<Vec<DBTable>, QueryError> {
-        let query = r#"select
-      table_catalog,
-      CONCAT('"', table_schema,'"."', table_name, '"') as table_name,
-      table_name as readable_table_name,
-      table_schema,
-      json_agg((select x from (select cast(column_name as text) as "name", cast(data_type as text) as "data_type") x)) as columns
-      from information_schema.columns
-
-      where information_schema.columns.table_schema not in ('information_schema', 'pg_catalog')
-        group by table_catalog,table_schema, table_name"#;
-        let pool = self.get_pool(cps)?;
+        let query = r#"select '"' + table_schema + '"."' + table_name + '"' as table_name
+        , column_name, data_type
+        from information_schema.columns where table_schema not in ('information_schema', 'pg_catalog')
+        order by ordinal_position"#;
+        let pool = Self::get_pool(&self, cps)?;
         let rows = Self::fetch_raw(pool, query.to_string()).await?;
 
-        let mut res: Vec<DBTable> = vec![];
+        let mut schema: HashMap<String, DBTable> = HashMap::new();
         for row in &rows {
-            let columns: Value = row
-                .try_get("columns")
+            let column_name: String = row
+                .try_get("column_name")
                 .map_err(|err| QueryError::new(err.to_string(), query.to_string()))?;
-            let columns: Vec<DBColumn> = from_value(columns)
+            let data_type: String = row
+                .try_get("data_type")
                 .map_err(|err| QueryError::new(err.to_string(), query.to_string()))?;
             let table_name: String = row
                 .try_get("table_name")
                 .map_err(|err| QueryError::new(err.to_string(), query.to_string()))?;
-            let readable_table_name: String = row
-                .try_get("readable_table_name")
-                .map_err(|err| QueryError::new(err.to_string(), query.to_string()))?;
-            res.push(DBTable {
-                columns,
-                table_name,
-                readable_table_name,
-            })
-        }
 
+            match schema.get(&table_name) {
+                Some(_) => {
+                    schema.get_mut(&table_name).unwrap().columns.push(DBColumn {
+                        name: column_name.clone(),
+                        data_type: data_type.clone(),
+                    });
+                }
+                None => {
+                    schema.insert(
+                        table_name.clone(),
+                        DBTable {
+                            table_name: table_name.clone(),
+                            readable_table_name: table_name.clone(),
+                            columns: vec![],
+                        },
+                    );
+                }
+            }
+        }
+        let mut res: Vec<DBTable> = vec![];
+        for (_, table) in schema {
+            res.push(table);
+        }
         Ok(res)
     }
 }
 
-impl PostgresAdapter {
+impl RedshiftAdapter {
     pub fn new(db_config: DBConfig) -> Self {
         Self { db_config }
     }

@@ -38,7 +38,7 @@ impl User {
             .select(users::all_columns)
             .load::<Self>(conn)
     }
-    pub fn find_by_ids(conn: &mut PgConnection, ids: Vec<i32>) -> Result<Vec<Self>, Error> {
+    pub fn find_by_ids(conn: &mut PgConnection, ids: Vec<i64>) -> Result<Vec<Self>, Error> {
         users::table
             .filter(users::id.eq_any(ids))
             .load::<Self>(conn)
@@ -67,14 +67,14 @@ impl User {
         UserPermissionSet::fetch_permissions_by_user_id(conn, self.id)
     }
 
-    pub fn fetch_permissions_by_user_id(conn: &mut PgConnection, pk: i32) -> Vec<String> {
+    pub fn fetch_permissions_by_user_id(conn: &mut PgConnection, pk: i64) -> Vec<String> {
         UserPermissionSet::fetch_permissions_by_user_id(conn, pk)
     }
 
-    pub fn fetch_permission_sets(&self, conn: &mut PgConnection) -> Vec<i32> {
+    pub fn fetch_permission_sets(&self, conn: &mut PgConnection) -> Vec<i64> {
         UserPermissionSet::fetch_permission_sets_by_user_id(conn, self.id)
     }
-    pub fn deactivate(conn: &mut PgConnection, uid: i32) -> Result<Self, Error> {
+    pub fn deactivate(conn: &mut PgConnection, uid: i64) -> Result<Self, Error> {
         let updated_model = UserActivationChangeset {
             is_deactivated: true,
         };
@@ -82,7 +82,7 @@ impl User {
         Self::update_activation(conn, uid, updated_model)
     }
 
-    pub fn activate(conn: &mut PgConnection, uid: i32) -> Result<Self, Error> {
+    pub fn activate(conn: &mut PgConnection, uid: i64) -> Result<Self, Error> {
         let updated_model = UserActivationChangeset {
             is_deactivated: false,
         };
@@ -92,7 +92,7 @@ impl User {
 
     pub fn update_activation(
         conn: &mut PgConnection,
-        uid: i32,
+        uid: i64,
         updated_model: UserActivationChangeset,
     ) -> Result<Self, Error> {
         diesel::update(users::table.find(uid))
@@ -100,7 +100,7 @@ impl User {
             .get_result(conn)
     }
 
-    pub fn find_by_team_id(conn: &mut PgConnection, tid: i32) -> Result<Vec<Self>, Error> {
+    pub fn find_by_team_id(conn: &mut PgConnection, tid: i64) -> Result<Vec<Self>, Error> {
         users::table
             .inner_join(user_teams::table.on(users::id.nullable().eq(user_teams::user_id)))
             .filter(user_teams::team_id.eq(tid))
@@ -111,7 +111,7 @@ impl User {
     pub fn create_bulk(
         conn: &mut PgConnection,
         emails: Vec<String>,
-        ps_id: i32,
+        ps_id: i64,
     ) -> Result<Vec<Result<Self, Error>>, Error> {
         PermissionSet::find(conn, ps_id)?;
 
@@ -179,7 +179,6 @@ impl User {
     pub fn find_domain(email: &str) -> String {
         let mut domain = email.split("@").collect::<Vec<&str>>();
         let domain = domain.pop().unwrap().to_string();
-        println!("domain: {}", domain);
         domain
     }
 }

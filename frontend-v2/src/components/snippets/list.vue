@@ -15,7 +15,7 @@
       Database: {{ databaseName }} doesn't have any snippets. You can create
       snippets from sql editor in any question on this database.
     </div>
-    <div class="tw-grid tw-grid-cols-5 tw-gap-2" v-else>
+    <div class="tw-grid tw-grid-cols-4 tw-gap-4 tw-py-2" v-else>
       <div
         class="tw-py-2 tw-bg-white ag-card"
         v-for="snippet in snippets"

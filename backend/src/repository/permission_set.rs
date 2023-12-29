@@ -7,7 +7,7 @@ use diesel::result::Error;
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
 
 impl PermissionSet {
-    pub fn find_by_user_id(conn: &mut PgConnection, uid: i32) -> Result<Vec<Self>, Error> {
+    pub fn find_by_user_id(conn: &mut PgConnection, uid: i64) -> Result<Vec<Self>, Error> {
         permission_sets::table
             .inner_join(
                 user_permission_sets::table.on(permission_sets::id

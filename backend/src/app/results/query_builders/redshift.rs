@@ -4,11 +4,11 @@ use crate::app::{results::payload_adapter::AdaptedPayload, settings::limit};
 
 use super::{sql_base::SQlBased, Queries, QueryBuilder};
 
-pub struct Postgres {
+pub struct Redshift {
     pub inner: AdaptedPayload, // ...
 }
 
-impl QueryBuilder for Postgres {
+impl QueryBuilder for Redshift {
     fn build(&self, conn: &mut PgConnection, user_id: i64, org_id: i64) -> Result<Queries, String> {
         let (mut queries, variables) = match &self.inner {
             AdaptedPayload::ApiAction {
@@ -46,7 +46,7 @@ impl QueryBuilder for Postgres {
     }
 }
 
-impl SQlBased for Postgres {
+impl SQlBased for Redshift {
     fn new(inner: AdaptedPayload) -> Self {
         Self { inner }
     }

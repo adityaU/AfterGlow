@@ -77,7 +77,7 @@ pub fn verify_token(
     let user_id = claims
         .get("id")
         .ok_or("Invalid token".to_owned())
-        .and_then(|id| id.parse::<i32>().map_err(|_| "Invalid token".to_owned()))?;
+        .and_then(|id| id.parse::<i64>().map_err(|_| "Invalid token".to_owned()))?;
     let user = User::find(conn, user_id).map_err(|_err| "Unable to find User".to_owned())?;
     let permissions = user.fetch_permissions(conn);
     let th = theme::get(conn);

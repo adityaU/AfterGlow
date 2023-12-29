@@ -64,7 +64,7 @@ pub fn is_report_config_complete(conn: &mut PgConnection) -> bool {
     true
 }
 
-pub fn is_download_allowed(conn: &mut PgConnection, user_id: i32, org_id: i64) -> bool {
+pub fn is_download_allowed(conn: &mut PgConnection, user_id: i64, org_id: i64) -> bool {
     let setting_name = "DOWNLOAD_ALLOWED".to_string();
     let us = UserSetting::find_by_user_id_and_name(conn, user_id, setting_name.clone());
     if let Some(s) = us {

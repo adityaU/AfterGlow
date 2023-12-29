@@ -1,6 +1,5 @@
 use std::fmt;
 
-
 use diesel::PgConnection;
 use fancy_regex::Regex;
 use lazy_static::lazy_static;
@@ -57,7 +56,7 @@ pub fn complete(
     conn: &mut PgConnection,
     sql: &str,
     prefix: &str,
-    database_id: i32,
+    database_id: i64,
 ) -> Result<Vec<Suggestions>, AutoCompleteError> {
     let mut table_options = vec![];
     for capture in TABLE_REGEX.captures_iter(sql).filter_map(Result::ok) {
@@ -89,7 +88,7 @@ pub fn complete(
 fn make_suggestions(
     conn: &mut PgConnection,
     table_option: &TableOption,
-    database_id: i32,
+    database_id: i64,
     alias: String,
 ) -> Result<Vec<Suggestions>, AutoCompleteError> {
     let columns =

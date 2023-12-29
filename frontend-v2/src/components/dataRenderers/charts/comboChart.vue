@@ -4,11 +4,7 @@
       {{ chartInformationMessage }}
     </div>
   </div>
-  <div
-    ref="chart-block"
-    class="tw-h-full tw-w-full"
-    v-if="!shouldShowChartInformation"
-  ></div>
+  <div ref="chart-block" class="tw-h-full tw-w-full" v-if="!shouldShowChartInformation"></div>
 </template>
 
 <script>
@@ -23,6 +19,8 @@ import {
 import { LineChart, BarChart, ScatterChart } from 'echarts/charts';
 import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
+import { currentUserStore } from 'src/stores/currentUser';
+import { rgbToHex } from 'src/helpers/colorGenerator';
 
 echarts.use([
   TitleComponent,
@@ -46,6 +44,7 @@ const chartDTMapping = {
 import { findDataType } from '../../../helpers/dataTypes';
 
 import { shallowRef } from 'vue';
+let currentUser = currentUserStore();
 export default {
   name: 'AGCombo',
   components: {},
@@ -225,15 +224,15 @@ export default {
           text: settings.title,
           left: 'center',
           textStyle: {
-            color: 'rgb(var(--color-default))',
+            color: rgbToHex(currentUser.getTheme.default_color),
             fontSize: 25,
           },
         },
         legend: {
           bottom: '10',
           type: 'scroll',
-          pageIconColor: 'rgb(var(--color-default))',
-          pageTextStyle: { color: 'rgb(var(--color-default))' },
+          pageIconColor: rgbToHex(currentUser.getTheme.white_color),
+          pageTextStyle: { color: rgbToHex(currentUser.getTheme.default_color) },
           padding: [5, 10],
         },
         tooltip: {
@@ -275,7 +274,7 @@ export default {
           },
           axisLine: {
             lineStyle: {
-              color: 'rgb(var(--color-default))',
+              color: rgbToHex(currentUser.getTheme.default_color),
             },
           },
         };
@@ -287,7 +286,7 @@ export default {
           },
           axisLine: {
             lineStyle: {
-              color: 'rgb(var(--color-default))',
+              color: rgbToHex(currentUser.getTheme.default_color),
             },
           },
         };
@@ -357,8 +356,8 @@ export default {
               label: {
                 show: showLabel,
                 position: 'top',
-                backgroundColor: 'rgb(var(--color-white))',
-                color: 'rgb(var(--color-default))',
+                backgroundColor: rgbToHex(currentUser.getTheme.white_color),
+                color: rgbToHex(currentUser.getTheme.default_color),
               },
             };
 

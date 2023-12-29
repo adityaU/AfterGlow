@@ -6,7 +6,7 @@ import apiConfig from '../helpers/apiConfig';
 import { sessionStore } from 'stores/session';
 
 const dashboards = dashboardsStore();
-const fetchDashboard = async function (id, payload, token, callback) {
+const fetchDashboard = async function(id, payload, token, callback) {
   callback(null, true);
   const key = await hash('id=' + id + '&payload=' + JSON.stringify(payload));
   apiV2
@@ -22,7 +22,7 @@ const fetchDashboard = async function (id, payload, token, callback) {
     });
 };
 
-const fetchDashboardHTML = async function (id, token, callback) {
+const fetchDashboardHTML = async function(id, token, callback) {
   callback(null, true);
   apiV2
     .get('dashboards/' + id + '/html', apiConfig(token))
@@ -35,10 +35,11 @@ const fetchDashboardHTML = async function (id, token, callback) {
     });
 };
 
-const fetchDashboards = async function (token, callback) {
+const fetchDashboards = async function(token, callback, limit) {
   callback(null, true);
+  limit = limit || 0
   apiV2
-    .get('dashboards', apiConfig(token))
+    .get('dashboards?limit=' + limit, apiConfig(token))
     .then((response) => {
       callback(response.data.data, false);
     })
@@ -48,7 +49,7 @@ const fetchDashboards = async function (token, callback) {
     });
 };
 
-const saveDashboard = async function (id, payload, token, callback) {
+const saveDashboard = async function(id, payload, token, callback) {
   callback(true);
   apiV2
     .put('dashboards/' + id, payload, apiConfig(token))
@@ -61,7 +62,7 @@ const saveDashboard = async function (id, payload, token, callback) {
     });
 };
 
-const createDashboard = async function (payload, token, callback) {
+const createDashboard = async function(payload, token, callback) {
   callback(null, true);
   apiV2
     .post('dashboards', payload, apiConfig(token))
@@ -74,7 +75,7 @@ const createDashboard = async function (payload, token, callback) {
     });
 };
 
-const fetchVariables = async function (variableIds, callback) {
+const fetchVariables = async function(variableIds, callback) {
   if (variableIds.length > 0) {
     const session = sessionStore();
 
@@ -93,7 +94,7 @@ const fetchVariables = async function (variableIds, callback) {
   }
 };
 
-const addVariable = async function (payload, dashboardID, callback) {
+const addVariable = async function(payload, dashboardID, callback) {
   const session = sessionStore();
   payload.dashboard_id = dashboardID;
   payload.question_id = null;
@@ -117,7 +118,7 @@ const addVariable = async function (payload, dashboardID, callback) {
     });
 };
 
-const saveVariable = async function (payload, callback) {
+const saveVariable = async function(payload, callback) {
   const session = sessionStore();
   callback(null, true);
   payload = { data: { type: 'variables', attributes: payload } };
@@ -143,7 +144,7 @@ const saveVariable = async function (payload, callback) {
     });
 };
 
-const deleteVariable = async function (varID, callback) {
+const deleteVariable = async function(varID, callback) {
   const session = sessionStore();
   callback(false, true);
   api
@@ -157,7 +158,7 @@ const deleteVariable = async function (varID, callback) {
     });
 };
 
-const searchDashboards = async function (query, callback) {
+const searchDashboards = async function(query, callback) {
   const session = sessionStore();
   callback([], true);
   apiV2

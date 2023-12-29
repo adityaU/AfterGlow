@@ -3,12 +3,12 @@
   width: 1000px;
 }
 
-.monaco-editor .suggest-widget.docs-side > .details {
+.monaco-editor .suggest-widget.docs-side>.details {
   width: 60%;
   max-height: 800px !important;
 }
 
-.monaco-editor .suggest-widget.docs-side > .tree {
+.monaco-editor .suggest-widget.docs-side>.tree {
   width: 30%;
   float: left;
 }
@@ -19,22 +19,10 @@
 </style>
 <template>
   <div class="tw-h-full" ref="code-wrapper">
-    <MonacoEditor
-      theme="AGDraculaTheme"
-      v-model:value="codeLocal"
-      language="sql"
-      :options="editorOptions"
-      @editorWillMount="editorWillMount"
-      @editorDidMount="editorDidMount"
-    />
-    <AGCreateSnippetModal
-      v-model:open="openCreateSnippetModal"
-      :databaseID="databaseID"
-      :text="selectedText"
-      @newSnippet="(snippet) => updateSQL(snippet)"
-      :key="selectedText"
-      v-if="selectedText"
-    />
+    <MonacoEditor theme="AGDraculaTheme" v-model:value="codeLocal" language="sql" :options="editorOptions"
+      @editorWillMount="editorWillMount" @editorDidMount="editorDidMount" />
+    <AGCreateSnippetModal v-model:open="openCreateSnippetModal" :databaseID="databaseID" :text="selectedText"
+      @newSnippet="(snippet) => updateSQL(snippet)" :key="selectedText" v-if="selectedText" />
     <AGToast v-model:show="showToast" type="ok">{{ toastText }}</AGToast>
   </div>
 </template>
@@ -212,9 +200,8 @@ export default {
                   label: {
                     label: `sn:${k.name}:${k.id} `,
                     description: k.text,
-                    detail: `${
-                      k.expand_on_select ? 'expandable' : 'non expandable'
-                    }`,
+                    detail: `${k.expand_on_select ? 'expandable' : 'non expandable'
+                      }`,
                   },
 
                   kind: monaco.languages.CompletionItemKind.Keyword,
@@ -365,8 +352,8 @@ export default {
       );
       this.editorInstance.addCommand(
         this.monaco.KeyMod.CtrlCmd |
-          this.monaco.KeyMod.Shift |
-          this.monaco.KeyCode.Enter,
+        this.monaco.KeyMod.Shift |
+        this.monaco.KeyCode.Enter,
         () => {
           const selected = this.editorInstance
             .getModel()
@@ -663,7 +650,7 @@ export default {
     setupMonaco() {
       let monaco = this.monaco;
       if (monaco) {
-        monaco.editor.defineTheme('AGDraculaTheme', AGDraculaTheme);
+        monaco.editor.defineTheme('AGDraculaTheme', AGDraculaTheme());
         monaco.languages.setLanguageConfiguration('plaintext', {
           wordPattern: /'?\w[\w'-.:]*[?!,;:"]*/,
         });

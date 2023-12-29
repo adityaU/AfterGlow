@@ -7,9 +7,7 @@ use diesel::{expression_methods::ExpressionMethods, QueryDsl, RunQueryDsl};
 
 impl UserSetting {
     //find user settings by user id
-    pub fn find_by_user_id(conn: &mut PgConnection, uid: i32) -> Result<Vec<Self>, Error> {
-        let uid = uid as i64;
-
+    pub fn find_by_user_id(conn: &mut PgConnection, uid: i64) -> Result<Vec<Self>, Error> {
         user_settings::table
             .filter(user_settings::user_id.eq(uid))
             .load::<Self>(conn)
@@ -17,10 +15,9 @@ impl UserSetting {
 
     pub fn find_by_user_id_and_name(
         conn: &mut PgConnection,
-        uid: i32,
+        uid: i64,
         name: String,
     ) -> Option<String> {
-        let uid = uid as i64;
         user_settings::table
             .filter(user_settings::user_id.eq(uid))
             .filter(user_settings::name.eq(name))

@@ -1,20 +1,11 @@
 <template>
-  <q-menu
-    flat="true"
-    transition-show="scale"
-    transition-hide="scale"
-    max-height="800px"
-    class="tw-rounded-2xl tw-border tw-overflow-hidden"
-    @show="menuShow"
-    @keydown="onKeydown"
-  >
+  <q-menu flat="true" transition-show="scale" transition-hide="scale" max-height="800px"
+    class="tw-rounded-2xl tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown">
     <slot name="header" />
-    <div
-      class="tw-max-h-[650px] tw-overflow-auto"
-      v-for="(stage, i) in stages"
-      :key="stage"
-    >
-      <slot :name="stage.name" v-if="currentStage === i" />
+    <div class="tw-overflow-auto tw-max-h-[300px]">
+      <div class="tw-max-h-[650px] tw-overflow-auto" v-for="(stage, i) in stages" :key="stage">
+        <slot :name="stage.name" v-if="currentStage === i" />
+      </div>
     </div>
     <slot name="footer" />
   </q-menu>

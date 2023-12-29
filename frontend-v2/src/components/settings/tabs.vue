@@ -1,19 +1,20 @@
 <template>
   <div class="">
-    <div class="tw-flex tw-flex-col tw-rounded-2xl tw-border">
+    <div class="tw-flex tw-flex-col tw-border tw-h-full tw-bg-white">
       <div
-        class="tw-font-semibold tw-border-b tw-p-2 tw-cursor-pointer tw-bg-white last:tw-border-b-0 first:tw-rounded-t-xl last:tw-rounded-b-xl"
-        :class="currentTab === tab.val ? 'tw-text-primary' : 'tw-text-default'"
-        v-for="tab in tabs"
-        :key="tab"
-        @click="$emit('update:currentTab', tab.val)"
-      >
-        {{ tab.name }}
+        class="tw-font-semibold tw-border-b tw-p-2 tw-cursor-pointer last:tw-border-b-0 hover:tw-text-white hover:tw-bg-primary"
+        :class="currentTab === tab.val ? 'tw-text-primary' : 'tw-text-default'" v-for="tab in tabs" :key="tab"
+        @click="$emit('update:currentTab', tab.val)">
+        <div class="tw-flex tw-gap-2 tw-items-center">
+          <component :is="tab.icon" />
+          {{ tab.name }}
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script>
+import { DatabaseIcon, UserIcon, UsersIcon, AffiliateIcon, MailCogIcon, TableOptionsIcon, LockAccessIcon, RobotIcon } from 'vue-tabler-icons';
 export default {
   name: 'AGSettingsTabs',
 
@@ -22,14 +23,14 @@ export default {
   data() {
     return {
       tabs: [
-        { name: 'Databases', val: 'databases' },
-        { name: 'Users', val: 'users' },
-        { name: 'Teams', val: 'teams' },
-        { name: 'Organizations', val: 'organizations' },
-        { name: 'Reports Configuration', val: 'reportsConfig' },
-        { name: 'Frontend Configuration', val: 'frontendConfig' },
-        { name: 'Permissions', val: 'permissions' },
-        { name: 'OpenAI Configuration', val: 'openai' },
+        { name: 'Databases', val: 'databases', icon: DatabaseIcon },
+        { name: 'Users', val: 'users', icon: UserIcon },
+        { name: 'Teams', val: 'teams', icon: UsersIcon },
+        { name: 'Organizations', val: 'organizations', icon: AffiliateIcon },
+        { name: 'Reports Configuration', val: 'reportsConfig', icon: MailCogIcon },
+        { name: 'Frontend Configuration', val: 'frontendConfig', icon: TableOptionsIcon },
+        { name: 'Permissions', val: 'permissions', icon: LockAccessIcon },
+        { name: 'OpenAI Configuration', val: 'openai', icon: RobotIcon },
       ],
     };
   },

@@ -13,6 +13,7 @@ const defaultColors = {
     '#e5e7eb',
     '#ffffff',
     '#202124',
+    'transparent',
   ],
   otherColors: [
     "#f8fafc",
@@ -288,7 +289,7 @@ const generateColors = function(n: number, darkOnly) {
     }
 
     return transposedColorArray.filter((c) => {
-      return darkOnly ? (autoTextColor(c) == 'rgb(var(--color-white))') : (autoTextColor(c) != 'rgb(var(--color-white))');
+      return darkOnly ? (autoTextColor(c) == 'white') : (autoTextColor(c) != 'white');
     }).slice(0, n);
   }
   const colors = [...defaultColors.otherColors];
@@ -316,8 +317,8 @@ const getComplementaryColor = (color = '') => {
 };
 
 const autoTextColor = function(bgColor) {
-  const lightColor = 'rgb(var(--color-white))';
-  const darkColor = 'rgb(var(--color-default))';
+  const lightColor = 'white';
+  const darkColor = 'rgb(32 33 36)';
   if (!bgColor) {
     return darkColor;
   }
@@ -337,10 +338,10 @@ const autoTextColor = function(bgColor) {
 };
 
 const getRandomColor = function(value, darkOnly) {
-  let colors = generateColors(800);
+  let colors = generateColors(242, darkOnly);
   if (darkOnly) {
     colors = colors.filter((c) => {
-      return autoTextColor(c) == 'rgb(var(--color-white))';
+      return autoTextColor(c) == 'white';
     });
   }
   const sha = hash(value.toString());
@@ -349,6 +350,18 @@ const getRandomColor = function(value, darkOnly) {
   );
   return colors[index];
 };
+const rgbToHex = function(rgb) {
+  // Extract the numbers from the string using regex
+  const rgbValues = rgb.match(/\d+/g);
+
+  // Convert each RGB value to a two-digit hexadecimal string
+  const hex = rgbValues.map(value => {
+    const hexValue = parseInt(value).toString(16);
+    return hexValue.length === 1 ? '0' + hexValue : hexValue;
+  }).join('');
+
+  return '#' + hex;
+}
 
 export {
   generateColors,
@@ -356,4 +369,5 @@ export {
   autoTextColor,
   getRandomColor,
   getComplementaryColor,
+  rgbToHex,
 };

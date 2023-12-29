@@ -20,4 +20,5 @@ pub mod tag;
 pub mod team;
 pub mod user;
 pub mod user_setting;
+pub mod variable;
 pub mod visualization;

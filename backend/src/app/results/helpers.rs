@@ -1,7 +1,6 @@
 use serde_json::json;
 use sha2::{Digest, Sha256};
 
-
 use crate::app::databases::DBConfig;
 
 pub fn hashed_db_credentials(db: &DBConfig) -> String {
@@ -15,7 +14,7 @@ pub fn hashed_db_credentials(db: &DBConfig) -> String {
     format!("{:x}", result)
 }
 
-pub fn make_alias(table_name: &String) -> String {
+pub fn make_alias(table_name: &str) -> String {
     let is_delimiter = |c: char| c == '_' || c == '"' || c == ' ' || c == '.';
 
     let parts: Vec<&str> = table_name.split(is_delimiter).collect();

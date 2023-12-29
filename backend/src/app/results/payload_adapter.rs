@@ -1,5 +1,3 @@
-
-
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -14,14 +12,14 @@ use super::query_terms::{
     views::{make_views, View},
 };
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Variable {
     pub name: String,
     pub value: serde_json::value::Value,
     pub var_type: VariableType,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum AdaptedPayload {
     ApiAction {
         database: config::Database,
@@ -124,7 +122,7 @@ pub fn make_variable(vars: &Vec<config::Variable>) -> Vec<Variable> {
         .collect::<Vec<Variable>>()
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct QueryTerms {
     pub filters: Vec<Filter>,
     pub sortings: Vec<Sort>,

@@ -1,8 +1,8 @@
 <template>
   <div v-if="!currentUser.loading">
-    <div class="tw-flex tw-mx-6 tw-my-3">
-      <AGSettingsTabs v-model:currentTab="currentTab" class="tw-w-[20%]" />
-      <component :is="settingsComponents[currentTab]" :key="currentTab" />
+    <div class="tw-flex tw-mr-6 tw-gap-4">
+      <AGSettingsTabs v-model:currentTab="currentTab" class="tw-w-[220px] tw-h-[calc(100vh-33px)] tw-fixed" />
+      <component :is="settingsComponents[currentTab]" :key="currentTab" class="tw-mr-6 tw-my-8 tw-ml-[240px]" />
     </div>
   </div>
   <AGLoader v-else />
@@ -43,7 +43,9 @@ export default {
 
   watch: {
     $route() {
-      this.currentTab = this.$route.query?.currentTab || 'databases';
+      if (this.currentTab != this.$route.query?.currentTab) {
+        this.currentTab = this.$route.query?.currentTab || 'databases';
+      }
     },
     currentTab() {
       this.$router.push({ query: { currentTab: this.currentTab } });

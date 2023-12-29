@@ -95,7 +95,7 @@ impl From<diesel::result::Error> for DashboardWriteError {
 
 pub fn update(
     conn: &mut PgConnection,
-    id: i32,
+    id: i64,
     dc: &mut DashboardChangeset,
 ) -> Result<DashboardView, DashboardWriteError> {
     let dashboard = conn
@@ -117,7 +117,7 @@ pub fn update(
 pub fn create(
     conn: &mut PgConnection,
     dc: &mut DashboardChangeset,
-    current_user_id: i32,
+    current_user_id: i64,
 ) -> Result<DashboardView, DashboardWriteError> {
     set_create_defaults(dc, current_user_id);
 
@@ -150,7 +150,7 @@ fn set_update_defaults(dc: &mut DashboardChangeset, dashboard: Dashboard) {
     }
 }
 
-fn set_create_defaults(dc: &mut DashboardChangeset, current_user_id: i32) {
+fn set_create_defaults(dc: &mut DashboardChangeset, current_user_id: i64) {
     dc.owner_id = Some(current_user_id);
     dc.shareable_link = Some(uuid::Uuid::new_v4());
     dc.inserted_at = Utc::now().naive_utc();
@@ -184,7 +184,6 @@ fn sync_widgets(
                     serde_json::from_value(wid.widget_configuration.clone().unwrap_or_default())
                         .map_err(|err| DashboardWriteError::InvalidSettings(err.to_string()))?;
                 config.tabs_config.tabs.iter().for_each(|tab| {
-                    println!("tab: {:?}", tab);
                     save_widget(
                         dashboard,
                         &Widget {
@@ -215,9 +214,7 @@ fn save_widget(
         inserted_at: Utc::now().naive_utc(),
         updated_at: Utc::now().naive_utc(),
     };
-    DashboardWidget::find_or_create(conn, &wc).map_err(|err| {
-        println!("err: {}", err);
-        DashboardWriteError::CouldNotCreateDashboardWidget(err.to_string())
-    })?;
+    DashboardWidget::find_or_create(conn, &wc)
+        .map_err(|err| DashboardWriteError::CouldNotCreateDashboardWidget(err.to_string()))?;
     Ok(())
 }

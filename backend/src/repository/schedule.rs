@@ -14,7 +14,7 @@ impl Schedule {
     pub fn create_or_update_for_dashboard(
         conn: &mut PgConnection,
         schedule_changeset: ScheduleChangeset,
-        dashboard_id: i32,
+        dashboard_id: i64,
     ) -> Result<Self, Error> {
         match Self::fetch_by_dashboard_id(conn, dashboard_id) {
             Ok(schedule) => match schedule.get(0) {
@@ -58,13 +58,13 @@ impl Schedule {
 
     pub fn fetch_by_dashboard_id(
         conn: &mut PgConnection,
-        dashboard_id: i32,
+        dashboard_id: i64,
     ) -> Result<Vec<Self>, Error> {
         let query = sql_query(
             "select * from schedules where (job_details ->> 'dashboard_id')::int = $1 limit 1",
         );
 
-        let query = query.bind::<Int4, _>(dashboard_id);
+        let query = query.bind::<Int8, _>(dashboard_id);
 
         query.load(conn)
     }

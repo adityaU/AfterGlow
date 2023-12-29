@@ -1,8 +1,8 @@
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::{app::questions::config};
+use crate::app::questions::config;
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum Filter {
     Raw {
         value: String,
@@ -15,14 +15,23 @@ pub enum Filter {
     QBDatetime {
         column: String,
         operator: FilterOperator,
-        value: DateObject,
+        value: DateObjectInner,
     },
     Invalid,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
-pub enum DateObject {
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct DateObject {
+    #[serde(rename = "type")]
+    type_: String,
+    value: DateObjectInner,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(untagged)]
+pub enum DateObjectInner {
     DatePicker(String),
+    #[serde(rename_all = "camelCase")]
     DurationPicker {
         duration_value: i32,
         duration_type: DurationType,
@@ -30,7 +39,8 @@ pub enum DateObject {
     },
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "lowercase")]
 pub enum DurationType {
     Seconds,
     Minutes,
@@ -42,7 +52,8 @@ pub enum DurationType {
     Years,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "lowercase")]
 pub enum DurationTenseType {
     Ago,
     Later,
@@ -139,6 +150,7 @@ pub fn make_filters(filters: Vec<config::Filter>) -> Vec<Filter> {
                 Filter::Raw { value }
             }
             false => {
+                println!("filter==========================: {:?}", &filter);
                 let column = if let Some(v) = filter.column {
                     v
                 } else {
@@ -166,6 +178,7 @@ pub fn make_filters(filters: Vec<config::Filter>) -> Vec<Filter> {
                         let val = match value {
                             Some(v) => {
                                 let value: Result<DateObject, _> = serde_json::from_value(v);
+                                println!("value=======================: {:?}", &value);
                                 match value {
                                     Ok(t) => t,
                                     Err(_) => return Filter::Invalid,
@@ -176,7 +189,7 @@ pub fn make_filters(filters: Vec<config::Filter>) -> Vec<Filter> {
                         Filter::QBDatetime {
                             column,
                             operator,
-                            value: val,
+                            value: val.value,
                         }
                     }
                     false => Filter::QB {

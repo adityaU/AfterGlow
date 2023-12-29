@@ -2141,11 +2141,6 @@
   "resolved" "https://registry.npmjs.org/err-code/-/err-code-3.0.1.tgz"
   "version" "3.0.1"
 
-"esbuild-linux-64@0.14.51":
-  "integrity" "sha512-dxjhrqo5i7Rq6DXwz5v+MEHVs9VNFItJmHBe1CxROWNf4miOGoQhqSG8StStbDkQ1Mtobg6ng+4fwByOhoQoeA=="
-  "resolved" "https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.14.51.tgz"
-  "version" "0.14.51"
-
 "esbuild@^0.14.27", "esbuild@0.14.51":
   "integrity" "sha512-+CvnDitD7Q5sT7F+FM65sWkF8wJRf+j9fPcprxYV4j+ohmzVj2W7caUqH2s5kCaCJAfcAICjSlKhDCcvDpU7nw=="
   "resolved" "https://registry.npmjs.org/esbuild/-/esbuild-0.14.51.tgz"
@@ -2682,6 +2677,11 @@
   "integrity" "sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw=="
   "resolved" "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz"
   "version" "1.0.0"
+
+"fsevents@~2.3.2":
+  "integrity" "sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw=="
+  "resolved" "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz"
+  "version" "2.3.3"
 
 "function-bind@^1.1.1":
   "integrity" "sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A=="
@@ -5971,9 +5971,9 @@
   "version" "3.2.0"
 
 "vue-tabler-icons@^2.9.0":
-  "integrity" "sha512-ooTVgEK6OMQdrlqrypfTdi0hxS55P26Ed00TIEw+VepeY3RsCryBO1tHSE+nO/E8jtXd/3J0LnO9zNTdM1ABRw=="
-  "resolved" "https://registry.npmjs.org/vue-tabler-icons/-/vue-tabler-icons-2.20.0.tgz"
-  "version" "2.20.0"
+  "integrity" "sha512-rEZYPd37j1sd/9gBFtC1u8wj3Pz1S3gLP1tgexvnivzQPXphc6M+7XuTSOd7wtdpaLt1sQgDmuQxIgczzrvf0A=="
+  "resolved" "https://registry.npmjs.org/vue-tabler-icons/-/vue-tabler-icons-2.21.0.tgz"
+  "version" "2.21.0"
 
 "vue@^2.6.14 || ^3.2.0", "vue@^3.0.0", "vue@^3.0.0-0 || ^2.6.0", "vue@^3.0.1", "vue@^3.2.0", "vue@^3.2.25", "vue@^3.2.29", "vue@^3.2.37", "vue@>= 3", "vue@3.2.37":
   "integrity" "sha512-bOKEZxrm8Eh+fveCqS1/NkG/n6aMidsI6hahas7pa0w/l7jkbssJVsRhVDs07IdDq7h9KHswZOgItnwJAgtVtQ=="

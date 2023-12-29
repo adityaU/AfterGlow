@@ -1,9 +1,7 @@
 <template>
   <div class="tw-bg-white">
-    <div
-      class="tw-flex tw-flex-wrap tw-justify-between tw-items-center tw-py-4"
-      @click="$emit('update:showQuery', !showQuery)"
-    >
+    <div class="tw-flex tw-flex-wrap tw-justify-between tw-items-center tw-py-4"
+      @click="$emit('update:showQuery', !showQuery)">
       <div class="tw-cursor-pointer tw-col-span-8 tw-pl-3">
         <ChevronRightIcon class="tw-inline" size="14" v-if="!showQuery" />
         <ChevronDownIcon class="tw-inline" size="14" v-if="showQuery" />
@@ -14,29 +12,17 @@
 
       <div class="tw-text-right tw-pr-4">
         <span class="tw-text-primary tw-font-semibold note">
-          <CheckIcon
-            class="tw-inline tw-text-green-700"
-            size="14"
-            v-if="fromCache"
-          />
-          <XIcon
-            class="tw-inline tw-text-red-700"
-            size="14"
-            v-if="!fromCache"
-          />
+          <CheckIcon class="tw-inline tw-text-green-700" size="14" v-if="fromCache" />
+          <XIcon class="tw-inline tw-text-red-700" size="14" v-if="!fromCache" />
           Cached
         </span>
       </div>
       <div class="tw-text-right tw-pr-4" v-if="!fromCache">
-        <span class="note tw-font-semibold tw-text-primary"
-          >Last Updated At:</span
-        >
+        <span class="note tw-font-semibold tw-text-primary">Last Updated At:</span>
         <span class="note"> now</span>
       </div>
       <div class="tw-text-right tw-pr-4" v-if="fromCache">
-        <span class="note tw-font-semibold tw-text-primary"
-          >Last Updated At:</span
-        >
+        <span class="note tw-font-semibold tw-text-primary">Last Updated At:</span>
         <span class="note"> &nbsp; {{ lastUpdatedAt }}</span>
       </div>
 
@@ -46,16 +32,9 @@
       </div>
     </div>
     <div class="tw-h-[300px]" v-if="showQuery">
-      <MonacoEditor
-        theme="AGDraculaTheme"
-        class="tw-rounded-b-2xl"
-        :value="query"
-        :language="query_type"
-        :options="{ languageWorkers: ['sql', 'json'] }"
-        @editorWillMount="editorWillMount"
-        @editorDidMount="editorDidMount"
-        @change="change"
-      />
+      <MonacoEditor theme="AGDraculaTheme" class="tw-rounded-b-2xl" :value="query" :language="query_type"
+        :options="{ languageWorkers: ['sql', 'json'] }" @editorWillMount="editorWillMount"
+        @editorDidMount="editorDidMount" @change="change" />
     </div>
   </div>
 </template>
@@ -126,7 +105,7 @@ export default {
       }, 500);
     },
     editorWillMount(monaco) {
-      monaco.editor.defineTheme('AGDraculaTheme', AGDraculaTheme);
+      monaco.editor.defineTheme('AGDraculaTheme', AGDraculaTheme());
       setSQLFormatter(monaco);
     },
   },

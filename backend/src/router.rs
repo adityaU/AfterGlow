@@ -1,15 +1,19 @@
-use actix_files as fs;
-use actix_web::HttpRequest;
-use fs::NamedFile;
+use actix_files as actix_fs;
+use actix_fs::NamedFile;
+use actix_web::body::BoxBody;
+use actix_web::{HttpRequest, HttpResponse};
+use askama::Template;
+use std::fs;
 use std::io;
 use std::sync::Arc;
 
 use crate::app::auth::verify_token;
 
+use crate::app::settings::theme;
 use crate::controllers::{
     api_action, auth, autocomplete, column, dashboard, database, note, organization,
     organization_setting, permission_set, question, result, setting, snippet, table, tag, team,
-    user, user_setting, visualization,
+    user, user_setting, variable, visualization,
 };
 
 use crate::errors::AGError;
@@ -26,6 +30,16 @@ use actix_web_lab::middleware::Next;
 
 use reqwest::header::{HeaderName, HeaderValue};
 use reqwest::StatusCode;
+
+#[derive(Template)] // this will generate the code...
+#[template(path = "theme.html")] // using the template in this path, relative
+struct ThemeStyleTemplate {
+    color_primary: String,
+    color_secondary: String,
+    color_tertiary: String,
+    color_default: String,
+    color_white: String,
+}
 
 async fn authenticate(
     mut req: ServiceRequest,
@@ -67,7 +81,6 @@ async fn authenticate(
         let active_org_count = Organization::active_count(&mut connection).map_err(|_| {
             actix_web::error::ErrorUnauthorized("Unable to find Active organizations")
         })?;
-        println!("Active org count: {}", active_org_count);
 
         if active_org_count > 0 {
             let organization = Organization::find_by_domain(
@@ -126,6 +139,11 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
     cfg.service(web::resource("/verify_token/").route(web::post().to(auth::veriy_token)))
         .service(web::resource("/callback/google").route(web::post().to(auth::google_callback)))
         .service(web::resource("/auth/google").route(web::get().to(auth::redirect_to_google)))
+        .service(
+            web::resource("/variables")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(variable::index)),
+        )
         .service(
             web::resource("/databases")
                 .wrap(from_fn(authenticate))
@@ -427,14 +445,28 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
 
 fn static_config(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        fs::Files::new("/", "../frontend-v2/dist/spa/")
-            .index_file("index.html")
-            .default_handler(fn_service(|req: ServiceRequest| async {
+        actix_fs::Files::new("/", "../frontend-v2/dist/spa/").default_handler(fn_service(
+            |req: ServiceRequest| async {
                 let (req, _) = req.into_parts();
-                let file = NamedFile::open_async("../frontend-v2/dist/spa/index.html").await?;
-                let res = file.into_response(&req);
+
+                let pool = req.app_data::<web::Data<Arc<DBPool>>>().unwrap();
+                let mut contents = fs::read_to_string("../frontend-v2/dist/spa/index.html")
+                    .expect("index file is not available");
+                let theme_colors = theme::get(&mut pool.get().unwrap());
+                contents += (ThemeStyleTemplate {
+                    color_primary: theme_colors.primary_color,
+                    color_secondary: theme_colors.secondary_color,
+                    color_tertiary: theme_colors.tertiary_color,
+                    color_default: theme_colors.default_color,
+                    color_white: theme_colors.white_color,
+                }
+                .render()
+                .unwrap()
+                .as_str());
+                let res = HttpResponse::new(StatusCode::OK).set_body(BoxBody::new(contents));
                 Ok(ServiceResponse::new(req, res))
-            })),
+            },
+        )),
     );
 }
 

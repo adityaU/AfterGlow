@@ -75,7 +75,7 @@ const fetchDatabase = async function(id, token, callback) {
 const fetchDatabaseWithConfig = async function(id, token, callback) {
   callback(null, true);
   apiV2
-    .get('/databases?id=' + id + '&include_config=true', apiConfig(token))
+    .get('/databases/' + id + '?include_config=true', apiConfig(token))
     .then((response) => {
       callback(response.data.data, false);
     });

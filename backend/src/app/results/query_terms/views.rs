@@ -1,8 +1,8 @@
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use crate::{app::questions::config};
+use crate::app::questions::config;
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum View {
     Raw {
         value: String,
@@ -18,7 +18,7 @@ pub enum View {
     Invalid,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub enum Column {
     Column(String),
     AllColumns,

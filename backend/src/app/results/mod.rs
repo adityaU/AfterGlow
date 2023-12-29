@@ -5,7 +5,7 @@ pub mod query_builders;
 pub mod query_terms;
 
 use std::{
-    collections::{HashMap},
+    collections::HashMap,
     fmt,
     sync::{Arc, Mutex},
 };
@@ -18,16 +18,15 @@ use serde::{Deserialize, Serialize, Serializer};
 
 use serde::ser::SerializeStruct;
 
-use crate::app::results::adapters::DBAdapter;
+use crate::app::results::adapters::{
+    postgres::PostgresAdapter, redshift::RedshiftAdapter, DBAdapter,
+};
 use crate::{
     app::{api_actions, results::payload_adapter::AdaptedPayload},
     repository::models::SupportedDatabases,
 };
 
-use self::{
-    adapters::{postgres::PostgresAdapter},
-    query_builders::postgres::DBValue,
-};
+use self::adapters::DBValue;
 
 use super::{api_actions::ApiActionResponse, databases::get_db_config, questions::config};
 
@@ -89,6 +88,7 @@ pub struct QueryResults {
     pub rows: Arc<Vec<Vec<DBValue>>>,
     pub final_query: Arc<String>,
     pub guessed_formats: Arc<Vec<Format>>,
+    pub original_query_columns: Arc<Vec<String>>,
 }
 
 #[derive(Debug, Serialize)]
@@ -120,11 +120,12 @@ impl Serialize for QueryResults {
         state.serialize_field("rows", &*self.rows)?;
         state.serialize_field("final_query", &*self.final_query)?;
         state.serialize_field("guessed_formats", &*self.guessed_formats)?;
+        state.serialize_field("original_query_columns", &*self.original_query_columns)?;
         state.end()
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ColumnDetail {
     pub data_type: DataType,
     pub is_array: bool,
@@ -144,7 +145,7 @@ pub enum FormattableDBValue {
     NotTaggable,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum DataType {
     String,
     Number,
@@ -166,12 +167,12 @@ pub async fn fetch(
     conn: &mut PgConnection,
     payload: config::QuestionHumanSql,
     cps: &Arc<Mutex<ConnectionPools>>,
-    user_id: i32,
+    user_id: i64,
     org_id: i64,
 ) -> Result<(ResultsResponse, Arc<String>), QueryError> {
     let db_id = match payload.database.as_ref().map(|db| &db.id) {
-        Some(config::StringOrInt32::String(s)) => s.parse::<i32>().unwrap_or_default(),
-        Some(config::StringOrInt32::Int(i)) => *i,
+        Some(config::StringOrInt64::String(s)) => s.parse::<i64>().unwrap_or_default(),
+        Some(config::StringOrInt64::Int(i)) => *i,
         None => 0, // default value
     };
     let adapted_payload = AdaptedPayload::new(payload.clone());
@@ -191,38 +192,138 @@ pub async fn fetch(
         ));
     }
 
-    // let query = Postgres {
-    //     inner: adapted_payload,
-    // }
-    // .build(conn, user_id, org_id)
-    // .map_err(|err| QueryError::new(err, "".to_string()))?;
-
     let (db_config, db_type) = get_db_config(conn, db_id)
         .map_err(|err| QueryError::new(err.to_string(), "".to_string()))?;
-    let db_adapter_response = match db_type {
-        SupportedDatabases::Postgres => {
-            PostgresAdapter::fetch_response(conn, db_config, cps, adapted_payload, user_id, org_id)
-                .await?
-        }
-        _ => {
-            return Err(QueryError::new(
-                "Unsupported database type".to_string(),
-                "".to_string(),
-            ))
-        }
-    };
+    let adapter = db_type.get_adapter(db_config.clone());
+    let (original_query_columns, column_details) =
+        fetch_original_query_columns(&adapted_payload, &adapter, conn, cps, user_id, org_id)
+            .await?;
+    let db_adapter_response = adapter
+        .fetch_response(conn, cps, adapted_payload, user_id, org_id)
+        .await?;
 
     let formats = find_formattable_columns(&db_adapter_response.column_details.clone());
     Ok((
         ResultsResponse::QueryResponse(QueryResults {
             columns: db_adapter_response.columns.clone(),
-            column_details: db_adapter_response.column_details.clone(),
+            column_details: find_column_details(column_details, &db_adapter_response),
             rows: db_adapter_response.rows.clone(),
             final_query: db_adapter_response.final_query.clone(),
             guessed_formats: Arc::new(formats),
+            original_query_columns: match original_query_columns.is_none() {
+                true => db_adapter_response.columns.clone(),
+                false => original_query_columns.unwrap(),
+            },
         }),
         db_adapter_response.adapted_query.clone(),
     ))
+}
+
+fn find_column_details(
+    column_details: Option<Arc<HashMap<String, ColumnDetail>>>,
+    db_adapter_response: &adapters::DBAdapterResponse,
+) -> Arc<HashMap<String, ColumnDetail>> {
+    match column_details {
+        None => db_adapter_response.column_details.clone(),
+        Some(col_details) => {
+            let mut col_details = (&*col_details).clone();
+            for (k, v) in &*db_adapter_response.column_details {
+                col_details.insert(k.clone(), v.clone());
+            }
+            println!("col_details: {:?}", col_details);
+            Arc::new(col_details)
+        }
+    }
+}
+
+async fn fetch_original_query_columns(
+    adapted_payload: &AdaptedPayload,
+    adapter: &Arc<dyn DBAdapter>,
+    conn: &mut PgConnection,
+    cps: &Arc<Mutex<ConnectionPools>>,
+    user_id: i64,
+    org_id: i64,
+) -> Result<
+    (
+        Option<Arc<Vec<String>>>,
+        Option<Arc<HashMap<String, ColumnDetail>>>,
+    ),
+    QueryError,
+> {
+    Ok(
+        match should_fetch_for_original_query_colums(adapted_payload) {
+            true => {
+                let mut limit_one_payload = adapted_payload.clone();
+                set_limit_on_payload(&mut limit_one_payload, 1);
+                println!("limit_one_payload: {:?}", &limit_one_payload);
+                let res = adapter
+                    .fetch_response(conn, cps, limit_one_payload, user_id, org_id)
+                    .await?;
+                (Some(res.columns), Some(res.column_details))
+            }
+            false => (None, None),
+        },
+    )
+}
+
+fn set_limit_on_payload(adapted_payload: &mut AdaptedPayload, limit: i64) {
+    match adapted_payload {
+        AdaptedPayload::ApiAction {
+            database: _,
+            api_action: _,
+            variables: _,
+        } => (),
+        AdaptedPayload::Raw {
+            database: _,
+            raw_query: _,
+            variables: _,
+            visualization_query_terms,
+        } => {
+            visualization_query_terms.groupings = vec![];
+            visualization_query_terms.views = vec![];
+            visualization_query_terms.limit = Some(limit);
+        }
+        AdaptedPayload::QB {
+            database: _,
+            question_query_terms: _,
+            table: _,
+            variables: _,
+            visualization_query_terms,
+        } => {
+            visualization_query_terms.groupings = vec![];
+            visualization_query_terms.views = vec![];
+            visualization_query_terms.limit = Some(limit);
+        }
+    }
+}
+
+fn should_fetch_for_original_query_colums(adapted_payload: &AdaptedPayload) -> bool {
+    match adapted_payload {
+        AdaptedPayload::ApiAction {
+            database: _,
+            api_action: _,
+            variables: _,
+        } => false,
+        AdaptedPayload::Raw {
+            database: _,
+            raw_query: _,
+            variables: _,
+            visualization_query_terms,
+        } => {
+            !(visualization_query_terms.groupings.is_empty()
+                && visualization_query_terms.views.is_empty())
+        }
+        AdaptedPayload::QB {
+            database: _,
+            question_query_terms: _,
+            table: _,
+            variables: _,
+            visualization_query_terms,
+        } => {
+            !(visualization_query_terms.groupings.is_empty()
+                && visualization_query_terms.views.is_empty())
+        }
+    }
 }
 
 fn find_formattable_columns(column_details: &Arc<HashMap<String, ColumnDetail>>) -> Vec<Format> {

@@ -6,9 +6,7 @@ use diesel::PgConnection;
 use serde::{Deserialize, Serialize};
 
 use crate::repository::{
-    models::{
-        ApiAction, ApiActionView, QueryType, Question, Tag, User, Variable, Visualization,
-    },
+    models::{ApiAction, ApiActionView, QueryType, Question, Tag, User, Variable, Visualization},
     tag::{QuestionTag, StrippedQuestionTagView},
 };
 
@@ -20,7 +18,7 @@ use uuid::Uuid;
 
 #[derive(Deserialize, Serialize)]
 pub struct QuestionIndexView {
-    id: i32,
+    id: i64,
     title: String,
     inserted_at: NaiveDateTime,
     database_name: String,
@@ -39,8 +37,8 @@ impl QuestionIndexView {
             .map(|item| item.owner_id.unwrap_or(0))
             .collect();
         let users = User::find_by_ids(conn, owner_ids)?;
-        let mut owner_user_map: HashMap<i32, RestrictedUserView> = HashMap::new();
-        let mut question_tag_map: HashMap<i32, Vec<StrippedQuestionTagView>> = HashMap::new();
+        let mut owner_user_map: HashMap<i64, RestrictedUserView> = HashMap::new();
+        let mut question_tag_map: HashMap<i64, Vec<StrippedQuestionTagView>> = HashMap::new();
 
         for tag in tags {
             question_tag_map
@@ -84,7 +82,7 @@ impl QuestionIndexView {
 
 #[derive(Deserialize, Serialize)]
 pub struct QuestionShowView {
-    pub id: i32,
+    pub id: i64,
     pub title: Option<String>,
     pub last_updated: Option<NaiveDateTime>,
     pub sql: Option<String>,
@@ -97,7 +95,7 @@ pub struct QuestionShowView {
     pub shareable_link: Option<Uuid>,
     pub is_shareable_link_public: Option<bool>,
     pub shared_to: Option<Vec<Option<String>>>,
-    pub owner_id: Option<i32>,
+    pub owner_id: Option<i64>,
     pub config: Option<serde_json::Value>,
     pub api_action: Option<ApiActionView>,
     pub visualizations: Option<Vec<Visualization>>,

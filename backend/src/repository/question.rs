@@ -2,28 +2,17 @@ use super::models::User;
 
 use super::models::Question;
 
-
-
-
-
 use super::schema::{questions, tag_questions};
 
 use diesel::dsl::sql;
-
-
 
 use diesel::JoinOnDsl;
 use diesel::NullableExpressionMethods;
 use diesel::PgTextExpressionMethods;
 
-
-
 use diesel::result::Error;
 
-
-
 use diesel::sql_types::Bool;
-
 
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
 use serde_json::{Map, Value};
@@ -41,7 +30,7 @@ impl questions::table {
             return "questions.id = ANY(select questions.id from questions)".into();
         }
 
-        let q = format!("questions.id = ANY(SELECT s.id
+        format!("questions.id = ANY(SELECT s.id
             FROM questions s
             LEFT JOIN dashboard_widgets dwq ON dwq.widget_id = s.id AND dwq.widget_type = 'question'
             LEFT JOIN dashboards ddwq ON dwq.dashboard_id = ddwq.id
@@ -60,9 +49,7 @@ impl questions::table {
             OR 'all' = ANY (ddwv.shared_to) 
             OR '{}' = ANY (ddd.shared_to) 
             OR 'all' = ANY (ddd.shared_to)
-            GROUP BY s.id)", user_email, user_email, user_email, user_email, user_email);
-        println!("{}", q);
-        q
+            GROUP BY s.id)", user_email, user_email, user_email, user_email, user_email)
     }
 }
 
@@ -100,7 +87,7 @@ impl Question {
 
     pub fn find_by_tag_id(
         conn: &mut PgConnection,
-        tag: i32,
+        tag: i64,
         user_email: String,
         permissions: Vec<String>,
     ) -> Result<Vec<Self>, Error> {
@@ -137,7 +124,7 @@ impl Question {
     pub fn search_question_with_tag(
         conn: &mut PgConnection,
         q: String,
-        tag: i32,
+        tag: i64,
         user_email: String,
         permissions: Vec<String>,
     ) -> Result<Vec<Self>, Error> {
@@ -159,7 +146,7 @@ impl Question {
     pub fn search(
         conn: &mut PgConnection,
         q: String,
-        tag: i32,
+        tag: i64,
         user_email: String,
         permissions: Vec<String>,
     ) -> Result<Vec<Self>, Error> {

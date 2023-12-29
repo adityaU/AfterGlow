@@ -13,14 +13,14 @@ pub(crate) fn get_current_user_ord_id(req: &HttpRequest) -> i64 {
     current_users_org
 }
 
-pub(crate) fn get_current_user_id(req: &HttpRequest) -> i32 {
+pub(crate) fn get_current_user_id(req: &HttpRequest) -> i64 {
     let current_user_id = req
         .headers()
         .get("user_id")
         .unwrap()
         .to_str()
         .unwrap()
-        .parse::<i32>()
+        .parse::<i64>()
         .ok()
         .unwrap_or(0);
     current_user_id

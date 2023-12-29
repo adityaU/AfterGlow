@@ -3,11 +3,7 @@ use std::{fmt, sync::Arc};
 use diesel::PgConnection;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    app::{
-        bg_jobs::{Error as BGJobError, JobEssentials, LongLivedData},
-    },
-};
+use crate::app::bg_jobs::{Error as BGJobError, JobEssentials, LongLivedData};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum DashboardMailerError {
@@ -46,7 +42,7 @@ impl From<DashboardMailerError> for BGJobError {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DashboardMailerJob {
     pub recipients: Vec<String>,
-    pub dashboard_id: i32,
+    pub dashboard_id: i64,
 }
 
 #[async_trait::async_trait]

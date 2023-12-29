@@ -17,7 +17,7 @@ use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct Payload {
-    user_id: Option<i32>,
+    user_id: Option<i64>,
 }
 
 // base::generate_index!(index, UserSetting, UserSettingView, "Settings.all");

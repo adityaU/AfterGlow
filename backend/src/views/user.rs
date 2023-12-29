@@ -7,7 +7,7 @@ use crate::repository::models::User;
 #[derive(Debug, Serialize, Deserialize, Clone)]
 
 pub struct RestrictedUserView {
-    pub id: i32,
+    pub id: i64,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub email: Option<String>,

@@ -28,7 +28,7 @@ impl visualizations::table {
         if permissions.contains(&"Settings.all".to_string()) {
             return "visualizations.id in (select id from visualizations)".into();
         }
-        let q = format!("visualizations.id = ANY(select id from visualizations where question_id in (SELECT s.id
+        format!("visualizations.id = ANY(select id from visualizations where question_id in (SELECT s.id
             FROM questions s
             LEFT JOIN dashboard_widgets dwq ON dwq.widget_id = s.id AND dwq.widget_type = 'question'
             LEFT JOIN dashboards ddwq ON dwq.dashboard_id = ddwq.id
@@ -47,9 +47,7 @@ impl visualizations::table {
             OR 'all' = ANY (ddwv.shared_to) 
             OR '{}' = ANY (ddd.shared_to) 
             OR 'all' = ANY (ddd.shared_to)
-            GROUP BY s.id))", user_email, user_email, user_email, user_email, user_email);
-        println!("{}", q);
-        q
+            GROUP BY s.id))", user_email, user_email, user_email, user_email, user_email)
     }
 }
 
@@ -67,9 +65,9 @@ impl Visualization {
             .filter(visualizations::id.eq(id))
             .first::<Self>(conn)
     }
-    pub fn find_by_question_id(conn: &mut PgConnection, qid: i32) -> Result<Vec<Self>, Error> {
+    pub fn find_by_question_id(conn: &mut PgConnection, qid: i64) -> Result<Vec<Self>, Error> {
         visualizations::table
-            .filter(visualizations::question_id.eq(qid as i64))
+            .filter(visualizations::question_id.eq(qid))
             .load::<Self>(conn)
     }
 

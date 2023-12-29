@@ -18,7 +18,7 @@ use std::sync::Arc;
 
 #[derive(Debug, Deserialize)]
 pub struct QueryParams {
-    question_id: Option<i32>,
+    question_id: Option<i64>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -29,7 +29,7 @@ pub struct Payload {
 pub(crate) async fn send_request(
     pool: web::Data<Arc<DBPool>>,
     _params: web::Query<QueryParams>,
-    api_action_id: web::Path<i32>,
+    api_action_id: web::Path<i64>,
     payload: web::Json<Payload>,
 ) -> impl Responder {
     let conn = pool.get();

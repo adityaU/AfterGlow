@@ -18,11 +18,11 @@ use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQ
 #[derive(Queryable, Debug, Clone, View, Serialize, Deserialize)]
 #[view_name = "StrippedQuestionTagView"]
 pub struct QuestionTag {
-    pub id: i32,
+    pub id: i64,
     pub name: String,
     pub description: Option<String>,
     pub color: Option<String>,
-    pub question_id: Option<i32>,
+    pub question_id: Option<i64>,
 }
 
 #[derive(Debug)]
@@ -56,7 +56,7 @@ impl tags::table {
             )
             .select(tags::id)
             .group_by(tags::id)
-            .load::<i32>(conn)?;
+            .load::<i64>(conn)?;
 
         Ok(base_query.filter(tags::id.eq_any(tag_ids)))
     }
@@ -79,7 +79,7 @@ impl Tag {
 
     pub fn find_by_question_id(
         conn: &mut PgConnection,
-        qid: i32,
+        qid: i64,
     ) -> Result<Vec<QuestionTag>, Error> {
         let query = tags::table
             .inner_join(tag_questions::table.on(tags::id.nullable().eq(tag_questions::tag_id)))
@@ -95,7 +95,7 @@ impl Tag {
     }
     pub fn find_by_question_ids(
         conn: &mut PgConnection,
-        qids: Vec<i32>,
+        qids: Vec<i64>,
     ) -> Result<Vec<QuestionTag>, Error> {
         let query = tags::table
             .inner_join(tag_questions::table.on(tags::id.nullable().eq(tag_questions::tag_id)))
@@ -107,10 +107,9 @@ impl Tag {
                 tags::color,
                 tag_questions::question_id,
             ));
-        println!("{}", debug_query::<Pg, _>(&query));
         query.load::<QuestionTag>(conn)
     }
-    pub fn find_by_dashboard_id(conn: &mut PgConnection, did: i32) -> Result<Vec<Self>, Error> {
+    pub fn find_by_dashboard_id(conn: &mut PgConnection, did: i64) -> Result<Vec<Self>, Error> {
         tags::table
             .inner_join(
                 tag_dashboards::table.on(tags::id.nullable().eq(tag_dashboards::dashboard_id)),
@@ -122,7 +121,7 @@ impl Tag {
     pub fn create_question_tag(
         conn: &mut PgConnection,
         tag_changeset: TagChangeset,
-        question_id: i32,
+        question_id: i64,
     ) -> Result<(), Error> {
         Ok(conn.transaction::<_, Error, _>(|conn| {
             let tag = Self::create(conn, tag_changeset)?;
@@ -160,8 +159,8 @@ impl TagQuestion {
 
     pub fn delete_by_tag_ids_and_question_id(
         conn: &mut PgConnection,
-        tag_ids: Vec<i32>,
-        question_id: i32,
+        tag_ids: Vec<i64>,
+        question_id: i64,
     ) -> Result<(), Error> {
         diesel::delete(tag_questions::table)
             .filter(tag_questions::tag_id.eq_any(tag_ids))

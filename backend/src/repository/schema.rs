@@ -81,11 +81,11 @@ diesel::table! {
 
 diesel::table! {
     alerts (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         name -> Nullable<Varchar>,
         config -> Nullable<Jsonb>,
-        question_id -> Nullable<Int4>,
+        question_id -> Nullable<Int8>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -93,8 +93,8 @@ diesel::table! {
 
 diesel::table! {
     api_action_logs (id) {
-        id -> Int4,
-        api_action_id -> Nullable<Int4>,
+        id -> Int8,
+        api_action_id -> Nullable<Int8>,
         url -> Text,
         request_headers -> Nullable<Jsonb>,
         response_headers -> Nullable<Jsonb>,
@@ -103,7 +103,7 @@ diesel::table! {
         request_method -> Nullable<Int4>,
         status_code -> Nullable<Int4>,
         variables -> Nullable<Array<Nullable<Varchar>>>,
-        user_id -> Nullable<Int4>,
+        user_id -> Nullable<Int8>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -111,8 +111,8 @@ diesel::table! {
 
 diesel::table! {
     api_actions (id) {
-        id -> Int4,
-        question_id -> Nullable<Int4>,
+        id -> Int8,
+        question_id -> Nullable<Int8>,
         url -> Text,
         headers -> Nullable<Jsonb>,
         body -> Nullable<Text>,
@@ -139,7 +139,7 @@ diesel::table! {
         #[max_length = 255]
         success_key -> Nullable<Varchar>,
         action_level -> Nullable<Int4>,
-        visualization_id -> Nullable<Int4>,
+        visualization_id -> Nullable<Int8>,
         loading_message -> Nullable<Text>,
         display_settings -> Nullable<Jsonb>,
         #[max_length = 255]
@@ -184,12 +184,12 @@ diesel::table! {
 
 diesel::table! {
     column_values (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         name -> Nullable<Varchar>,
         #[max_length = 255]
         value -> Nullable<Varchar>,
-        column_id -> Nullable<Int4>,
+        column_id -> Nullable<Int8>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -198,10 +198,10 @@ diesel::table! {
 diesel::table! {
     #[sql_name = "columns"]
     columns_ (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         name -> Nullable<Varchar>,
-        table_id -> Nullable<Int4>,
+        table_id -> Nullable<Int8>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
         #[max_length = 255]
@@ -226,7 +226,7 @@ diesel::table! {
 
 diesel::table! {
     dashboards (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         title -> Nullable<Varchar>,
         update_interval -> Nullable<Int4>,
@@ -238,14 +238,14 @@ diesel::table! {
         is_shareable_link_public -> Nullable<Bool>,
         settings -> Nullable<Jsonb>,
         shared_to -> Nullable<Array<Nullable<Varchar>>>,
-        owner_id -> Nullable<Int4>,
+        owner_id -> Nullable<Int8>,
         notes_settings -> Nullable<Jsonb>,
     }
 }
 
 diesel::table! {
     databases (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         name -> Nullable<Varchar>,
         #[max_length = 255]
@@ -260,12 +260,12 @@ diesel::table! {
 
 diesel::table! {
     foreign_keys (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         name -> Nullable<Varchar>,
         fk_type -> Nullable<Int4>,
-        column_id -> Nullable<Int4>,
-        foreign_column_id -> Nullable<Int4>,
+        column_id -> Nullable<Int8>,
+        foreign_column_id -> Nullable<Int8>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -273,8 +273,8 @@ diesel::table! {
 
 diesel::table! {
     generated_alerts (id) {
-        id -> Int4,
-        alert_id -> Nullable<Int4>,
+        id -> Int8,
+        alert_id -> Nullable<Int8>,
         status -> Nullable<Int4>,
         failing_conditions -> Nullable<Array<Nullable<Jsonb>>>,
         inserted_at -> Timestamp,
@@ -284,9 +284,9 @@ diesel::table! {
 
 diesel::table! {
     notes (id) {
-        id -> Int4,
+        id -> Int8,
         content -> Text,
-        dashboard_id -> Nullable<Int4>,
+        dashboard_id -> Nullable<Int8>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -342,7 +342,7 @@ diesel::table! {
 
 diesel::table! {
     permission_sets (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         name -> Nullable<Varchar>,
         inserted_at -> Timestamp,
@@ -352,8 +352,8 @@ diesel::table! {
 
 diesel::table! {
     permissions (id) {
-        id -> Int4,
-        permission_set_id -> Nullable<Int4>,
+        id -> Int8,
+        permission_set_id -> Nullable<Int8>,
         #[max_length = 255]
         name -> Nullable<Varchar>,
         inserted_at -> Timestamp,
@@ -363,7 +363,7 @@ diesel::table! {
 
 diesel::table! {
     question_banks (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         title -> Nullable<Varchar>,
         questions -> Nullable<Array<Nullable<Int4>>>,
@@ -374,15 +374,15 @@ diesel::table! {
 
 diesel::table! {
     question_widgets (id) {
-        id -> Int4,
-        widget_id -> Nullable<Int4>,
-        question_id -> Nullable<Int4>,
+        id -> Int8,
+        widget_id -> Nullable<Int8>,
+        question_id -> Nullable<Int8>,
     }
 }
 
 diesel::table! {
     questions (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         title -> Nullable<Varchar>,
         last_updated -> Nullable<Timestamp>,
@@ -398,7 +398,7 @@ diesel::table! {
         columns_ -> Nullable<Array<Nullable<Varchar>>>,
         cached_results -> Nullable<Jsonb>,
         shared_to -> Nullable<Array<Nullable<Varchar>>>,
-        owner_id -> Nullable<Int4>,
+        owner_id -> Nullable<Int8>,
         config -> Nullable<Jsonb>,
     }
 }
@@ -478,7 +478,7 @@ diesel::table! {
         id -> Int8,
         #[max_length = 255]
         name -> Nullable<Varchar>,
-        snapshot_id -> Nullable<Int4>,
+        snapshot_id -> Nullable<Int8>,
         value -> Nullable<Text>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
@@ -488,8 +488,8 @@ diesel::table! {
 
 diesel::table! {
     send_alert_configs (id) {
-        id -> Int4,
-        alert_id -> Nullable<Int4>,
+        id -> Int8,
+        alert_id -> Nullable<Int8>,
         #[max_length = 255]
         message_template -> Nullable<Varchar>,
         comm_type -> Nullable<Int4>,
@@ -503,7 +503,7 @@ diesel::table! {
 
 diesel::table! {
     settings (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         name -> Varchar,
         value -> Nullable<Text>,
@@ -522,7 +522,7 @@ diesel::table! {
         refresh_interval -> Nullable<Int4>,
         #[max_length = 255]
         sheet_id -> Nullable<Varchar>,
-        subsheet_id -> Nullable<Int4>,
+        subsheet_id -> Nullable<Int8>,
         api_key_id -> Nullable<Int8>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
@@ -533,7 +533,7 @@ diesel::table! {
     snapshot_data (id) {
         id -> Int8,
         row -> Jsonb,
-        snapshot_id -> Nullable<Int4>,
+        snapshot_id -> Nullable<Int8>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
         identifier -> Nullable<Uuid>,
@@ -549,7 +549,7 @@ diesel::table! {
         description -> Nullable<Varchar>,
         #[sql_name = "columns"]
         columns_ -> Nullable<Array<Nullable<Varchar>>>,
-        question_id -> Int4,
+        question_id -> Int8,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
         scheduled -> Nullable<Bool>,
@@ -560,7 +560,7 @@ diesel::table! {
         should_create_csv -> Nullable<Bool>,
         should_send_mail_on_completion -> Nullable<Bool>,
         mail_to -> Nullable<Array<Nullable<Varchar>>>,
-        parent_id -> Nullable<Int4>,
+        parent_id -> Nullable<Int8>,
         searchable_columns -> Nullable<Array<Nullable<Varchar>>>,
         keep_latest -> Nullable<Int4>,
     }
@@ -582,10 +582,10 @@ diesel::table! {
 
 diesel::table! {
     tables (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         name -> Nullable<Varchar>,
-        database_id -> Nullable<Int4>,
+        database_id -> Nullable<Int8>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
         #[max_length = 255]
@@ -597,9 +597,9 @@ diesel::table! {
 
 diesel::table! {
     tag_dashboards (id) {
-        id -> Int4,
-        tag_id -> Nullable<Int4>,
-        dashboard_id -> Nullable<Int4>,
+        id -> Int8,
+        tag_id -> Nullable<Int8>,
+        dashboard_id -> Nullable<Int8>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -607,9 +607,9 @@ diesel::table! {
 
 diesel::table! {
     tag_questions (id) {
-        id -> Int4,
-        tag_id -> Nullable<Int4>,
-        question_id -> Nullable<Int4>,
+        id -> Int8,
+        tag_id -> Nullable<Int8>,
+        question_id -> Nullable<Int8>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -617,7 +617,7 @@ diesel::table! {
 
 diesel::table! {
     tags (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         name -> Varchar,
         #[max_length = 255]
@@ -631,9 +631,9 @@ diesel::table! {
 
 diesel::table! {
     team_databases (id) {
-        id -> Int4,
-        database_id -> Nullable<Int4>,
-        team_id -> Nullable<Int4>,
+        id -> Int8,
+        database_id -> Nullable<Int8>,
+        team_id -> Nullable<Int8>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -641,7 +641,7 @@ diesel::table! {
 
 diesel::table! {
     teams (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         name -> Varchar,
         description -> Nullable<Text>,
@@ -652,9 +652,9 @@ diesel::table! {
 
 diesel::table! {
     user_permission_sets (id) {
-        id -> Int4,
-        user_id -> Nullable<Int4>,
-        permission_set_id -> Nullable<Int4>,
+        id -> Int8,
+        user_id -> Nullable<Int8>,
+        permission_set_id -> Nullable<Int8>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -677,9 +677,9 @@ diesel::table! {
 
 diesel::table! {
     user_teams (id) {
-        id -> Int4,
-        user_id -> Nullable<Int4>,
-        team_id -> Nullable<Int4>,
+        id -> Int8,
+        user_id -> Nullable<Int8>,
+        team_id -> Nullable<Int8>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -687,7 +687,7 @@ diesel::table! {
 
 diesel::table! {
     users (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         first_name -> Nullable<Varchar>,
         #[max_length = 255]
@@ -709,21 +709,21 @@ diesel::table! {
 
 diesel::table! {
     variables (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         name -> Nullable<Varchar>,
         #[max_length = 255]
         default -> Nullable<Varchar>,
         #[max_length = 255]
         var_type -> Nullable<Varchar>,
-        column_id -> Nullable<Int4>,
-        question_id -> Nullable<Int4>,
-        dashboard_id -> Nullable<Int4>,
+        column_id -> Nullable<Int8>,
+        question_id -> Nullable<Int8>,
+        dashboard_id -> Nullable<Int8>,
         #[max_length = 255]
         default_operator -> Nullable<Varchar>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
-        question_filter_id -> Nullable<Int4>,
+        question_filter_id -> Nullable<Int8>,
         default_options -> Nullable<Array<Nullable<Jsonb>>>,
     }
 }
@@ -745,13 +745,13 @@ diesel::table! {
 
 diesel::table! {
     widget_items (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         text -> Nullable<Varchar>,
         config -> Nullable<Jsonb>,
         #[max_length = 255]
         value -> Nullable<Varchar>,
-        widget_id -> Nullable<Int4>,
+        widget_id -> Nullable<Int8>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -759,7 +759,7 @@ diesel::table! {
 
 diesel::table! {
     widgets (id) {
-        id -> Int4,
+        id -> Int8,
         #[max_length = 255]
         column_name -> Varchar,
         #[max_length = 255]
@@ -774,30 +774,30 @@ diesel::joinable!(alert_events -> alert_settings (alert_setting_id));
 diesel::joinable!(alert_events_transformed_data -> alert_events (alert_event_id));
 diesel::joinable!(alert_level_settings -> alert_settings (alert_setting_id));
 diesel::joinable!(alert_notification_settings -> alert_settings (alert_setting_id));
-// diesel::joinable!(alert_settings -> questions (question_id));
+diesel::joinable!(alert_settings -> questions (question_id));
 diesel::joinable!(alerts -> questions (question_id));
 diesel::joinable!(api_action_logs -> users (user_id));
 diesel::joinable!(api_actions -> questions (question_id));
 diesel::joinable!(column_values -> columns_ (column_id));
 diesel::joinable!(columns_ -> tables (table_id));
-// diesel::joinable!(dashboard_widgets -> dashboards (dashboard_id));
+diesel::joinable!(dashboard_widgets -> dashboards (dashboard_id));
 diesel::joinable!(dashboards -> users (owner_id));
 diesel::joinable!(generated_alerts -> alerts (alert_id));
 diesel::joinable!(notes -> dashboards (dashboard_id));
-// diesel::joinable!(organization_settings -> api_actions (api_action_id));
+diesel::joinable!(organization_settings -> api_actions (api_action_id));
 diesel::joinable!(organization_settings -> organizations (organization_id));
 diesel::joinable!(permissions -> permission_sets (permission_set_id));
 diesel::joinable!(question_widgets -> questions (question_id));
 diesel::joinable!(question_widgets -> widgets (widget_id));
 diesel::joinable!(questions -> users (owner_id));
 diesel::joinable!(rules_engine_permissions -> rules_engine_roles (role_id));
-// diesel::joinable!(searchable_columns -> snapshots (snapshot_id));
+diesel::joinable!(searchable_columns -> snapshots (snapshot_id));
 diesel::joinable!(send_alert_configs -> alerts (alert_id));
 diesel::joinable!(sheet_configs -> user_settings (api_key_id));
-// diesel::joinable!(snapshot_data -> snapshots (snapshot_id));
+diesel::joinable!(snapshot_data -> snapshots (snapshot_id));
 diesel::joinable!(snapshots -> questions (question_id));
-// diesel::joinable!(snippets -> databases (database_id));
-// diesel::joinable!(snippets -> users (owner_id));
+diesel::joinable!(snippets -> databases (database_id));
+diesel::joinable!(snippets -> users (owner_id));
 diesel::joinable!(tables -> databases (database_id));
 diesel::joinable!(tag_dashboards -> dashboards (dashboard_id));
 diesel::joinable!(tag_dashboards -> tags (tag_id));
@@ -807,14 +807,14 @@ diesel::joinable!(team_databases -> databases (database_id));
 diesel::joinable!(team_databases -> teams (team_id));
 diesel::joinable!(user_permission_sets -> permission_sets (permission_set_id));
 diesel::joinable!(user_permission_sets -> users (user_id));
-// diesel::joinable!(user_settings -> api_actions (api_action_id));
-// diesel::joinable!(user_settings -> users (user_id));
+diesel::joinable!(user_settings -> api_actions (api_action_id));
+diesel::joinable!(user_settings -> users (user_id));
 diesel::joinable!(user_teams -> teams (team_id));
 diesel::joinable!(user_teams -> users (user_id));
 diesel::joinable!(users -> organizations (organization_id));
 diesel::joinable!(variables -> columns_ (column_id));
 diesel::joinable!(variables -> dashboards (dashboard_id));
-// diesel::joinable!(visualizations -> questions (question_id));
+diesel::joinable!(visualizations -> questions (question_id));
 diesel::joinable!(widget_items -> widgets (widget_id));
 
 diesel::allow_tables_to_appear_in_same_query!(

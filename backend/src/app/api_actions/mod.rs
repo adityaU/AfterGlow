@@ -7,7 +7,7 @@ use reqwest::{
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
-use crate::repository::models::{ApiActionChangeset};
+use crate::repository::models::ApiActionChangeset;
 
 use super::results::payload_adapter::Variable;
 
@@ -107,7 +107,6 @@ pub async fn fetch_response(
 }
 
 fn make_reqwest_headers(api_action_headers: Value) -> Result<HeaderMap, String> {
-    println!("api_action_headers: {:?}", api_action_headers);
     let headers: HashMap<Option<String>, Option<String>> =
         serde_json::from_value(api_action_headers)
             .map_err(|err| format!("Error Decoding Headers: {}", err))?;

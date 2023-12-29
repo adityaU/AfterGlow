@@ -239,7 +239,7 @@ fn next_schedule_time_for_day(
         next_day = set_meridiem(next_day, am.clone());
 
         if next_day < now {
-            next_day = next_day + Duration::from_secs(60 * 60 * 24);
+            next_day += Duration::from_secs(60 * 60 * 24);
         }
         return timezoned_datetime_to_utc(next_day, tz);
     }

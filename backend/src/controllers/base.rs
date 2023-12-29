@@ -59,7 +59,7 @@ macro_rules! generate_update {
         pub(crate) async fn $fn_name(
             pool: web::Data<Arc<DBPool>>,
             data: web::Json<$changeset>,
-            item_id: web::Path<i32>,
+            item_id: web::Path<i64>,
         ) -> impl Responder {
             let conn = pool.get();
             $model::update(&mut conn.unwrap(), item_id.into_inner(), data.into_inner())
@@ -96,7 +96,7 @@ macro_rules! generate_show {
         #[has_permissions($show_permission)]
         pub(crate) async fn $fn_name(
             pool: web::Data<Arc<DBPool>>,
-            item_id: web::Path<i32>,
+            item_id: web::Path<i64>,
         ) -> impl Responder {
             let conn = pool.get();
             $model::find(&mut conn.unwrap(), item_id.into_inner())

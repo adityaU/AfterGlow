@@ -19,8 +19,8 @@ use actix_web_grants::proc_macro::has_permissions;
 //
 #[derive(Debug, Deserialize)]
 pub struct Payload {
-    user_id: Option<i32>,
-    permission_set_id: Option<i32>,
+    user_id: Option<i64>,
+    permission_set_id: Option<i64>,
 }
 
 // base::generate_index(_index, PermissionSet, PermissionSetView, "Any");

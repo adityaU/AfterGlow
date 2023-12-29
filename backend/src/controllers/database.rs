@@ -9,7 +9,7 @@ use crate::app::bg_jobs::pg_queue::PostgresQueue;
 use crate::app::bg_jobs::Queue;
 use crate::errors::AGError;
 use crate::response_text::SYNC_DB_JOB_TRIGGER_SUCCESS;
-use crate::views::database::DatabaseView;
+use crate::views::database::{DatabaseView, DetailedDatabaseView};
 use crate::{
     controllers::common::ResponseData,
     repository::{models::Database, models::DatabaseChangeset, DBPool},
@@ -22,8 +22,9 @@ use actix_web_grants::proc_macro::has_permissions;
 
 #[derive(Deserialize)]
 pub struct QueryParams {
-    team_id: Option<i32>,
+    team_id: Option<i64>,
     query: Option<String>,
+    include_config: Option<bool>,
 }
 
 pub(crate) async fn create(
@@ -46,7 +47,7 @@ pub(crate) async fn create(
 pub(crate) async fn update(
     pool: web::Data<Arc<DBPool>>,
     data: web::Json<DatabaseChangeset>,
-    item_id: web::Path<i32>,
+    item_id: web::Path<i64>,
     pg_queue: web::Data<Arc<PostgresQueue>>,
 ) -> impl Responder {
     let conn = pool.get();
@@ -60,17 +61,43 @@ pub(crate) async fn update(
         data: DatabaseView::from_model(&resp),
     }))
 }
-base::generate_show!(show, Database, DatabaseView, "Settings.all");
+#[has_permissions("Settings.all")]
+pub(crate) async fn show(
+    pool: web::Data<Arc<DBPool>>,
+    item_id: web::Path<i64>,
+    params: web::Query<QueryParams>,
+) -> impl Responder {
+    let conn = pool.get();
+
+    let include_config = params.include_config.unwrap_or(false);
+    Database::find(&mut conn.unwrap(), item_id.into_inner())
+        .map(|item| {
+            if include_config {
+                HttpResponse::Ok().json(ResponseData {
+                    data: DetailedDatabaseView::from_model(&item),
+                })
+            } else {
+                HttpResponse::Ok().json(ResponseData {
+                    data: DatabaseView::from_model(&item),
+                })
+            }
+        })
+        .map_err(|err| error::ErrorNotFound(err))
+}
 
 pub(crate) async fn index(
     pool: web::Data<Arc<DBPool>>,
     params: web::Query<QueryParams>,
+    req: HttpRequest,
+    auth_details: AuthDetails,
 ) -> impl Responder {
     let team_id = params.team_id.unwrap_or(0);
 
+    let current_user_email = get_current_user_email(&req);
+    let permissions = auth_details.permissions;
     let conn = pool.get();
     let users = if team_id == 0 {
-        Database::sorted_index(&mut conn.unwrap())
+        Database::sorted_index(&mut conn.unwrap(), current_user_email, permissions)
     } else {
         Database::find_by_team_id(&mut conn.unwrap(), team_id)
     };
@@ -86,7 +113,7 @@ pub(crate) async fn index(
 }
 
 pub(crate) async fn sync(
-    database_id: web::Path<i32>,
+    database_id: web::Path<i64>,
     pg_queue: web::Data<Arc<PostgresQueue>>,
 ) -> impl Responder {
     let pg_queue = Arc::clone(&*pg_queue.into_inner());
@@ -161,7 +188,7 @@ pub(crate) async fn search(
 // pub(crate) async fn update(
 //     pool: web::Data<DBPool>,
 //     data: web::Json<DatabaseChangeset>,
-//     database_id: web::Path<i32>,
+//     database_id: web::Path<i64>,
 //     let conn = pool.get();
 //     Database::update(
 //         &mut conn.unwrap(),
@@ -178,7 +205,7 @@ pub(crate) async fn search(
 // }
 
 // #[has_permissions("Settings.all")]
-// pub(crate) async fn show(pool: web::Data<DBPool>, database_id: web::Path<i32>) -> impl Responder {
+// pub(crate) async fn show(pool: web::Data<DBPool>, database_id: web::Path<i64>) -> impl Responder {
 //     let conn = pool.get();
 //     Database::find(&mut conn.unwrap(), database_id.into_inner())
 //         .map(|databases| HttpResponse::Ok().json(ResponseData { data: databases }))

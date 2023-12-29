@@ -13,11 +13,12 @@ use lettre::message::{header, Mailboxes};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use crate::app::results::adapters::DBValue;
 use crate::app::visualizations::renderer_config::{RendererConfig, Table};
 use crate::app::{
     bg_jobs::{Error as BGJobError, JobEssentials, LongLivedData},
     questions::config::QuestionHumanSql,
-    results::{self, query_builders::postgres::DBValue},
+    results::{self},
     settings::{
         reports::{get_smtp_config, SMTPConfig},
         s3_config,
@@ -133,7 +134,7 @@ struct ChartTemplate {
 pub struct SendCSVJob {
     pub email: String,
     pub payload: QuestionHumanSql,
-    pub user_id: i32,
+    pub user_id: i64,
     pub org_id: i64,
 }
 
@@ -208,7 +209,7 @@ impl SendCSVJob {
     }
     pub async fn get_csv_download_attributes(
         payload: QuestionHumanSql,
-        user_id: i32,
+        user_id: i64,
         org_id: i64,
         data: Arc<LongLivedData>,
         preview_limit: usize,
@@ -464,12 +465,10 @@ We've cooked up something special for you! 🎨 Your data is ready and waiting f
             .credentials(SMTPCredentials::new(smtp_conf.username, smtp_conf.password))
             .build();
 
-        let is_sent = mailer
+        let _ = mailer
             .send(email)
             .await
             .map_err(|err| SendCSVError::CouldNotSendEmail(err.to_string()))?;
-
-        println!("is_sent: {:?}", is_sent);
 
         Ok(())
     }

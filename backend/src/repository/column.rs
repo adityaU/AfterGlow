@@ -12,7 +12,7 @@ impl Column {
     pub fn find_by_tablename_and_database_id(
         conn: &mut PgConnection,
         table_name: String,
-        database_id: i32,
+        database_id: i64,
     ) -> Result<Vec<Self>, Error> {
         columns_::table
             .inner_join(tables::table)
@@ -25,7 +25,7 @@ impl Column {
             .select(columns_::all_columns)
             .load::<Self>(conn)
     }
-    pub fn find_by_table_id(conn: &mut PgConnection, tid: i32) -> Result<Vec<Self>, Error> {
+    pub fn find_by_table_id(conn: &mut PgConnection, tid: i64) -> Result<Vec<Self>, Error> {
         columns_::table
             .filter(columns_::table_id.eq(tid))
             .order(columns_::name.asc())
@@ -35,7 +35,7 @@ impl Column {
     pub fn find_by_name_and_table_id(
         conn: &mut PgConnection,
         name: String,
-        table_id: i32,
+        table_id: i64,
     ) -> Result<Self, Error> {
         columns_::table
             .filter(columns_::name.eq(name).and(columns_::table_id.eq(table_id)))
@@ -46,13 +46,13 @@ impl Column {
     pub fn delete_old_columns(
         conn: &mut PgConnection,
         names: &Vec<String>,
-        table_id: i32,
+        table_id: i64,
     ) -> Result<(), Error> {
         conn.transaction::<_, Error, _>(|conn| {
             let column_ids = columns_::table
                 .filter(not(columns_::name.eq_any(names)).and(columns_::table_id.eq(table_id)))
                 .select(columns_::id)
-                .load::<i32>(conn)?;
+                .load::<i64>(conn)?;
             diesel::delete(columns_::table.filter(columns_::id.eq_any(&column_ids)))
                 .execute(conn)?;
             Ok(())

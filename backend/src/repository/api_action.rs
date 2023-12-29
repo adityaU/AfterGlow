@@ -37,14 +37,14 @@ impl ApiAction {
     }
     pub fn find_direct_actions_by_question_id(
         conn: &mut PgConnection,
-        qid: i32,
+        qid: i64,
     ) -> Result<Self, Error> {
         api_actions::table
             .filter(api_actions::question_id.eq(qid))
             .filter(api_actions::action_level.eq(ActionLevel::Question))
             .first::<Self>(conn)
     }
-    pub fn find_by_question_id(conn: &mut PgConnection, qid: i32) -> Result<Vec<Self>, Error> {
+    pub fn find_by_question_id(conn: &mut PgConnection, qid: i64) -> Result<Vec<Self>, Error> {
         api_actions::table
             .filter(api_actions::question_id.eq(qid))
             .filter(api_actions::action_level.eq(ActionLevel::QuestionResponse))

@@ -22,7 +22,7 @@ pub fn derive_changeset(input: TokenStream) -> TokenStream {
     let name = ast.ident;
     let mut changeset_fields = vec![];
     let mut table_name = pluralized_snakecase(name.to_string());
-    let mut id_data_type = "i32".to_string();
+    let mut id_data_type = "i64".to_string();
 
     // Extract table_name attribute if it exists
     for attr in &ast.attrs {

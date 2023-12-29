@@ -21,7 +21,7 @@ pub struct DBConfig {
 
 pub fn get_db_config(
     conn: &mut PgConnection,
-    db_id: i32,
+    db_id: i64,
 ) -> Result<(DBConfig, SupportedDatabases), String> {
     let db = Database::find(conn, db_id)
         .map_err(|_err| "database record was not found. May be it was deleted and a new database was created. Please reselect the database on questions page.".to_string())?;

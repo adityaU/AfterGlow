@@ -10,7 +10,7 @@ use super::common::ResponseData;
 pub struct QueryParams {
     query: String,
     prefix: Option<String>,
-    database_id: Option<i32>,
+    database_id: Option<i64>,
 }
 
 pub(crate) async fn complete(

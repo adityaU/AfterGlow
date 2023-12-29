@@ -5,6 +5,9 @@
 
 use std::io::Write;
 
+use crate::app::databases::DBConfig;
+use crate::app::results::adapters::DBAdapter;
+
 use super::schema::*;
 use chrono::{DateTime, NaiveDate, NaiveDateTime};
 use diesel::deserialize::{self, FromSql, FromSqlRow};
@@ -119,18 +122,18 @@ pub struct AlertSetting {
 
 #[derive(Queryable, Debug)]
 pub struct Alert {
-    pub id: i32,
+    pub id: i64,
     pub name: Option<String>,
     pub config: Option<serde_json::Value>,
-    pub question_id: Option<i32>,
+    pub question_id: Option<i64>,
     pub inserted_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
 
 #[derive(Queryable, Debug)]
 pub struct ApiActionLog {
-    pub id: i32,
-    pub api_action_id: Option<i32>,
+    pub id: i64,
+    pub api_action_id: Option<i64>,
     pub url: String,
     pub request_headers: Option<serde_json::Value>,
     pub response_headers: Option<serde_json::Value>,
@@ -139,7 +142,7 @@ pub struct ApiActionLog {
     pub request_method: Option<i32>,
     pub status_code: Option<i32>,
     pub variables: Option<Vec<Option<String>>>,
-    pub user_id: Option<i32>,
+    pub user_id: Option<i64>,
     pub inserted_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -180,8 +183,8 @@ pub enum HTTPMethod {
 #[view_skip_fields = "on_success, on_failure, failure_message, failure_key, success_message, success_key, action_level"]
 pub struct ApiAction {
     #[skip_in_changeset]
-    pub id: i32,
-    pub question_id: Option<i32>,
+    pub id: i64,
+    pub question_id: Option<i64>,
     pub url: String,
     pub headers: Option<serde_json::Value>,
     pub body: Option<String>,
@@ -203,7 +206,7 @@ pub struct ApiAction {
     pub success_message: Option<String>,
     pub success_key: Option<String>,
     pub action_level: Option<ActionLevel>,
-    pub visualization_id: Option<i32>,
+    pub visualization_id: Option<i64>,
     pub loading_message: Option<String>,
     pub display_settings: Option<serde_json::Value>,
     pub open_option: Option<String>,
@@ -229,10 +232,10 @@ pub struct AuditLog {
 
 #[derive(Queryable, Debug)]
 pub struct ColumnValue {
-    pub id: i32,
+    pub id: i64,
     pub name: Option<String>,
     pub value: Option<String>,
-    pub column_id: Option<i32>,
+    pub column_id: Option<i64>,
     pub inserted_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -241,9 +244,9 @@ pub struct ColumnValue {
 #[table_name = "columns_"]
 pub struct Column {
     #[skip_in_changeset]
-    pub id: i32,
+    pub id: i64,
     pub name: Option<String>,
-    pub table_id: Option<i32>,
+    pub table_id: Option<i64>,
     #[serde(skip_deserializing)]
     pub inserted_at: NaiveDateTime,
     #[serde(skip_deserializing)]
@@ -314,7 +317,7 @@ pub struct DashboardWidget {
 #[view_skip_fields = "shareable_link, is_shareable_link_public"]
 pub struct Dashboard {
     #[skip_in_changeset]
-    pub id: i32,
+    pub id: i64,
     pub title: Option<String>,
     pub update_interval: Option<i32>,
     pub last_updated: Option<NaiveDateTime>,
@@ -327,7 +330,7 @@ pub struct Dashboard {
     pub is_shareable_link_public: Option<bool>,
     pub settings: Option<serde_json::Value>,
     pub shared_to: Option<Vec<Option<String>>>,
-    pub owner_id: Option<i32>,
+    pub owner_id: Option<i64>,
     pub notes_settings: Option<serde_json::Value>,
 }
 
@@ -385,7 +388,7 @@ impl FromSql<VarChar, Pg> for SupportedDatabases {
 #[derive(Queryable, Debug, Insertable, AsChangeset, Serialize, Deserialize, Changeset)]
 pub struct Database {
     #[skip_in_changeset]
-    pub id: i32,
+    pub id: i64,
     pub name: Option<String>,
     pub db_type: Option<SupportedDatabases>,
     pub config: Option<serde_json::Value>,
@@ -412,11 +415,11 @@ pub enum FkType {
 #[derive(Queryable, Debug, Insertable, AsChangeset, Serialize, Deserialize, Changeset)]
 pub struct ForeignKey {
     #[skip_in_changeset]
-    pub id: i32,
+    pub id: i64,
     pub name: Option<String>,
     pub fk_type: Option<FkType>,
-    pub column_id: Option<i32>,
-    pub foreign_column_id: Option<i32>,
+    pub column_id: Option<i64>,
+    pub foreign_column_id: Option<i64>,
     #[serde(skip_deserializing)]
     pub inserted_at: NaiveDateTime,
     #[serde(skip_deserializing)]
@@ -425,8 +428,8 @@ pub struct ForeignKey {
 
 #[derive(Queryable, Debug)]
 pub struct GeneratedAlert {
-    pub id: i32,
-    pub alert_id: Option<i32>,
+    pub id: i64,
+    pub alert_id: Option<i64>,
     pub status: Option<i32>,
     pub failing_conditions: Option<Vec<Option<serde_json::Value>>>,
     pub inserted_at: NaiveDateTime,
@@ -436,9 +439,9 @@ pub struct GeneratedAlert {
 #[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
 pub struct Note {
     #[skip_in_changeset]
-    pub id: i32,
+    pub id: i64,
     pub content: String,
-    pub dashboard_id: Option<i32>,
+    pub dashboard_id: Option<i64>,
     #[serde(skip_deserializing)]
     pub inserted_at: NaiveDateTime,
     #[serde(skip_deserializing)]
@@ -477,7 +480,7 @@ pub struct Organization {
 
 #[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
 pub struct PermissionSet {
-    pub id: i32,
+    pub id: i64,
     pub name: Option<String>,
     #[serde(skip_deserializing)]
     pub inserted_at: NaiveDateTime,
@@ -487,8 +490,8 @@ pub struct PermissionSet {
 
 #[derive(Queryable, Debug, Insertable, AsChangeset, Serialize, Deserialize)]
 pub struct Permission {
-    pub id: i32,
-    pub permission_set_id: Option<i32>,
+    pub id: i64,
+    pub permission_set_id: Option<i64>,
     pub name: Option<String>,
     pub inserted_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -496,7 +499,7 @@ pub struct Permission {
 
 #[derive(Queryable, Debug)]
 pub struct QuestionBank {
-    pub id: i32,
+    pub id: i64,
     pub title: Option<String>,
     pub questions: Option<Vec<Option<i32>>>,
     pub inserted_at: NaiveDateTime,
@@ -505,9 +508,9 @@ pub struct QuestionBank {
 
 #[derive(Queryable, Debug)]
 pub struct QuestionWidget {
-    pub id: i32,
-    pub widget_id: Option<i32>,
-    pub question_id: Option<i32>,
+    pub id: i64,
+    pub widget_id: Option<i64>,
+    pub question_id: Option<i64>,
 }
 
 #[derive(
@@ -521,11 +524,11 @@ pub enum QueryType {
     ApiClient = 2,
 }
 
-#[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
+#[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View, Default)]
 // #[view_skip_fields = "results_view_settings, cached_results, columns"]
 pub struct Question {
     #[skip_in_changeset]
-    pub id: i32,
+    pub id: i64,
     pub title: Option<String>,
     pub last_updated: Option<NaiveDateTime>,
     pub sql: Option<String>,
@@ -541,7 +544,7 @@ pub struct Question {
     pub columns_: Option<Vec<Option<String>>>,
     pub cached_results: Option<serde_json::Value>,
     pub shared_to: Option<Vec<Option<String>>>,
-    pub owner_id: Option<i32>,
+    pub owner_id: Option<i64>,
     pub config: Option<serde_json::Value>,
 }
 
@@ -653,7 +656,7 @@ pub struct Schedule {
 pub struct SearchableColumn {
     pub id: i64,
     pub name: Option<String>,
-    pub snapshot_id: Option<i32>,
+    pub snapshot_id: Option<i64>,
     pub value: Option<String>,
     pub inserted_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -662,8 +665,8 @@ pub struct SearchableColumn {
 
 #[derive(Queryable, Debug)]
 pub struct SendAlertConfig {
-    pub id: i32,
-    pub alert_id: Option<i32>,
+    pub id: i64,
+    pub alert_id: Option<i64>,
     pub message_template: Option<String>,
     pub comm_type: Option<i32>,
     pub to_addresses: Option<Vec<Option<String>>>,
@@ -675,7 +678,7 @@ pub struct SendAlertConfig {
 #[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
 pub struct Setting {
     #[skip_in_changeset]
-    pub id: i32,
+    pub id: i64,
     pub name: String,
     pub value: Option<String>,
     #[serde(skip_deserializing)]
@@ -691,7 +694,7 @@ pub struct SheetConfig {
     pub table_name: Option<String>,
     pub refresh_interval: Option<i32>,
     pub sheet_id: Option<String>,
-    pub subsheet_id: Option<i32>,
+    pub subsheet_id: Option<i64>,
     pub api_key_id: Option<i64>,
     pub inserted_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
@@ -701,7 +704,7 @@ pub struct SheetConfig {
 pub struct SnapshotData {
     pub id: i64,
     pub row: serde_json::Value,
-    pub snapshot_id: Option<i32>,
+    pub snapshot_id: Option<i64>,
     pub inserted_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
     pub identifier: Option<Uuid>,
@@ -724,12 +727,12 @@ pub struct Snapshot {
     pub should_create_csv: Option<bool>,
     pub should_send_mail_on_completion: Option<bool>,
     pub mail_to: Option<Vec<Option<String>>>,
-    pub parent_id: Option<i32>,
+    pub parent_id: Option<i64>,
     pub searchable_columns: Option<Vec<Option<String>>>,
     pub keep_latest: Option<i32>,
 }
 
-#[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
+#[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View, Default)]
 #[id_data_type = "i64"]
 pub struct Snippet {
     #[skip_in_changeset]
@@ -748,9 +751,9 @@ pub struct Snippet {
 #[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
 pub struct Table {
     #[skip_in_changeset]
-    pub id: i32,
+    pub id: i64,
     pub name: Option<String>,
-    pub database_id: Option<i32>,
+    pub database_id: Option<i64>,
     #[serde(skip_deserializing)]
     pub inserted_at: NaiveDateTime,
     #[serde(skip_deserializing)]
@@ -761,9 +764,9 @@ pub struct Table {
 
 #[derive(Queryable, Debug)]
 pub struct TagDashboard {
-    pub id: i32,
-    pub tag_id: Option<i32>,
-    pub dashboard_id: Option<i32>,
+    pub id: i64,
+    pub tag_id: Option<i64>,
+    pub dashboard_id: Option<i64>,
     pub inserted_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -771,9 +774,9 @@ pub struct TagDashboard {
 #[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
 pub struct TagQuestion {
     #[skip_in_changeset]
-    pub id: i32,
-    pub tag_id: Option<i32>,
-    pub question_id: Option<i32>,
+    pub id: i64,
+    pub tag_id: Option<i64>,
+    pub question_id: Option<i64>,
     pub inserted_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -781,7 +784,7 @@ pub struct TagQuestion {
 #[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
 pub struct Tag {
     #[skip_in_changeset]
-    pub id: i32,
+    pub id: i64,
     pub name: String,
     pub description: Option<String>,
     #[serde(skip_deserializing)]
@@ -794,9 +797,9 @@ pub struct Tag {
 #[derive(Queryable, Debug, Changeset, View, Serialize, Deserialize)]
 pub struct TeamDatabase {
     #[skip_in_changeset]
-    pub id: i32,
-    pub database_id: Option<i32>,
-    pub team_id: Option<i32>,
+    pub id: i64,
+    pub database_id: Option<i64>,
+    pub team_id: Option<i64>,
     pub inserted_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -805,7 +808,7 @@ pub struct TeamDatabase {
 #[view_skip_fields("field_to_skip")]
 pub struct Team {
     #[skip_in_changeset]
-    pub id: i32,
+    pub id: i64,
     pub name: String,
     pub description: Option<String>,
     #[serde(skip_deserializing)]
@@ -817,9 +820,9 @@ pub struct Team {
 #[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
 pub struct UserPermissionSet {
     #[skip_in_changeset]
-    pub id: i32,
-    pub user_id: Option<i32>,
-    pub permission_set_id: Option<i32>,
+    pub id: i64,
+    pub user_id: Option<i64>,
+    pub permission_set_id: Option<i64>,
     pub inserted_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -866,9 +869,9 @@ pub struct UserSetting {
 #[derive(Queryable, Debug, Changeset, Serialize, Deserialize)]
 pub struct UserTeam {
     #[skip_in_changeset]
-    pub id: i32,
-    pub user_id: Option<i32>,
-    pub team_id: Option<i32>,
+    pub id: i64,
+    pub user_id: Option<i64>,
+    pub team_id: Option<i64>,
     #[serde(skip_deserializing)]
     pub inserted_at: NaiveDateTime,
     #[serde(skip_deserializing)]
@@ -878,7 +881,7 @@ pub struct UserTeam {
 #[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
 pub struct User {
     #[skip_in_changeset]
-    pub id: i32,
+    pub id: i64,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub email: Option<String>,
@@ -935,19 +938,19 @@ impl FromSql<VarChar, Pg> for VariableType {
 #[view_skip_fields = "default_operator, default_options, question_filter_id, column_id"]
 pub struct Variable {
     #[skip_in_changeset]
-    pub id: i32,
+    pub id: i64,
     pub name: Option<String>,
     pub default: Option<String>,
     pub var_type: Option<VariableType>,
-    pub column_id: Option<i32>,
-    pub question_id: Option<i32>,
-    pub dashboard_id: Option<i32>,
+    pub column_id: Option<i64>,
+    pub question_id: Option<i64>,
+    pub dashboard_id: Option<i64>,
     pub default_operator: Option<String>,
     #[serde(skip_deserializing)]
     pub inserted_at: NaiveDateTime,
     #[serde(skip_deserializing)]
     pub updated_at: NaiveDateTime,
-    pub question_filter_id: Option<i32>,
+    pub question_filter_id: Option<i64>,
     pub default_options: Option<Vec<Option<serde_json::Value>>>,
 }
 
@@ -955,7 +958,7 @@ pub struct Variable {
     Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Deserialize, Clone, Default,
 )]
 #[diesel(sql_type = VarChar)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "camelCase")]
 pub enum RendererTypes {
     Area,
     Bar,
@@ -967,6 +970,7 @@ pub enum RendererTypes {
     Pie,
     #[default]
     Table,
+    #[serde(rename = "transposed_table")]
     TransposedTable,
 }
 
@@ -976,7 +980,7 @@ impl fmt::Display for RendererTypes {
             RendererTypes::Area => write!(f, "area"),
             RendererTypes::Bar => write!(f, "bar"),
             RendererTypes::Bubble => write!(f, "bubble"),
-            RendererTypes::CustomList => write!(f, "custom_list"),
+            RendererTypes::CustomList => write!(f, "customList"),
             RendererTypes::Funnel => write!(f, "funnel"),
             RendererTypes::Line => write!(f, "line"),
             RendererTypes::Number => write!(f, "number"),
@@ -993,7 +997,7 @@ impl ToSql<VarChar, Pg> for RendererTypes {
             RendererTypes::Area => "area".to_string(),
             RendererTypes::Bar => "bar".to_string(),
             RendererTypes::Bubble => "bubble".to_string(),
-            RendererTypes::CustomList => "custom_list".to_string(),
+            RendererTypes::CustomList => "customList".to_string(),
             RendererTypes::Funnel => "funnel".to_string(),
             RendererTypes::Line => "line".to_string(),
             RendererTypes::Number => "number".to_string(),
@@ -1012,6 +1016,7 @@ impl FromSql<VarChar, Pg> for RendererTypes {
             "area" => Ok(RendererTypes::Area),
             "bar" => Ok(RendererTypes::Bar),
             "bubble" => Ok(RendererTypes::Bubble),
+            "customList" => Ok(RendererTypes::CustomList),
             "custom_list" => Ok(RendererTypes::CustomList),
             "funnel" => Ok(RendererTypes::Funnel),
             "line" => Ok(RendererTypes::Line),
@@ -1046,17 +1051,17 @@ pub struct Visualization {
 
 #[derive(Queryable, Debug)]
 pub struct WidgetItem {
-    pub id: i32,
+    pub id: i64,
     pub text: Option<String>,
     pub config: Option<serde_json::Value>,
     pub value: Option<String>,
-    pub widget_id: Option<i32>,
+    pub widget_id: Option<i64>,
     pub inserted_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
 
 pub struct Widget {
-    pub id: i32,
+    pub id: i64,
     pub column_name: String,
     pub name: String,
     pub renderer: Option<i32>,

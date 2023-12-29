@@ -64,8 +64,8 @@ pub fn make_question_config(
         .as_str()
         == "api_client"
     {
-        let api_action = ApiAction::find_direct_actions_by_question_id(conn, question_id as i32)
-            .map_err(|e| {
+        let api_action =
+            ApiAction::find_direct_actions_by_question_id(conn, question_id).map_err(|e| {
                 format!(
                     "Error finding ApiAction for Question id : {}, Error: {}",
                     question_id,
@@ -94,10 +94,10 @@ pub fn make_question_config(
 
 fn make_variables(
     conn: &mut PgConnection,
-    question_id: i32,
+    question_id: i64,
     payload: &config::QuestionHumanSql,
 ) -> Result<Vec<config::Variable>, String> {
-    let variables = Variable::find_by_question_id(conn, question_id as i32)
+    let variables = Variable::find_by_question_id(conn, question_id)
         .map_err(|e| {
             format!(
                 "Error finding Variables for Question id : {}, Error: {}",
@@ -142,9 +142,9 @@ fn match_name(var: &config::Variable, v: &Variable) -> bool {
     }
 }
 
-fn get_question_id_from_viz(viz: &Visualization) -> Result<i32, String> {
+fn get_question_id_from_viz(viz: &Visualization) -> Result<i64, String> {
     match viz.question_id {
-        Some(v) => Ok(v as i32),
+        Some(v) => Ok(v),
         None => return Err(format!("visualization has no question id : {}", viz.id))?,
     }
 }

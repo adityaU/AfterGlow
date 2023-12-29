@@ -28,7 +28,7 @@ pub struct QuestionHumanSql {
 pub struct Visualization {
     pub id: Option<i64>,
     pub name: String,
-    pub question_id: Option<i32>,
+    pub question_id: Option<i64>,
     pub query_terms: QueryTermDetails,
     pub settings: Option<serde_json::value::Value>,
     pub renderer_type: Option<RendererTypes>,
@@ -109,20 +109,20 @@ pub enum QueryType {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
-pub enum StringOrInt32 {
+pub enum StringOrInt64 {
     String(String),
-    Int(i32),
+    Int(i64),
 }
 
-impl Default for StringOrInt32 {
+impl Default for StringOrInt64 {
     fn default() -> Self {
-        StringOrInt32::Int(0)
+        StringOrInt64::Int(0)
     }
 }
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct Database {
-    pub id: StringOrInt32,
+    pub id: StringOrInt64,
     pub name: String,
     pub db_type: String,
     pub unique_identifier: Option<uuid::Uuid>,
@@ -145,8 +145,8 @@ pub struct Sorts {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Table {
-    pub database: Option<StringOrInt32>,
-    pub id: Option<StringOrInt32>,
+    pub database: Option<StringOrInt64>,
+    pub id: Option<StringOrInt64>,
     pub name: Option<String>,
     pub readable_table_name: Option<String>,
 }

@@ -27,7 +27,7 @@ pub struct QueryParams {
 
 #[derive(Deserialize)]
 pub struct QuestionPayload {
-    pub id: Option<i32>,
+    pub id: Option<i64>,
     pub human_sql: QuestionHumanSql,
     pub query_type: QueryType,
     pub sql: String,
@@ -43,13 +43,13 @@ pub struct QuestionPayload {
 
 #[derive(Deserialize)]
 pub struct TagPayload {
-    pub id: Option<i32>,
+    pub id: Option<i64>,
     pub color: Option<String>,
     pub name: Option<String>,
     pub description: Option<String>,
 }
 
-pub(crate) async fn show(pool: web::Data<Arc<DBPool>>, item_id: web::Path<i32>) -> impl Responder {
+pub(crate) async fn show(pool: web::Data<Arc<DBPool>>, item_id: web::Path<i64>) -> impl Responder {
     let conn = pool.get();
     Question::find(&mut conn.unwrap(), item_id.into_inner())
         .map(|item| {
@@ -69,7 +69,7 @@ pub(crate) async fn index(
     auth_details: AuthDetails,
 ) -> impl Responder {
     let tag = params.tag.clone().unwrap_or("".to_string());
-    let tag_id = tag.parse::<i32>().unwrap_or(0);
+    let tag_id = tag.parse::<i64>().unwrap_or(0);
     let q = params.q.clone().unwrap_or("".to_string());
     let conn = pool.get();
     let permissions = auth_details.permissions;

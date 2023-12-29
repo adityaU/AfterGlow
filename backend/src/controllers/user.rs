@@ -14,7 +14,7 @@ use std::sync::Arc;
 
 #[derive(Deserialize)]
 pub struct QueryParams {
-    team_id: Option<i32>,
+    team_id: Option<i64>,
     query: Option<String>,
 }
 
@@ -26,7 +26,7 @@ base::generate_show!(show, User, UserView, "Settings.all");
 #[derive(Deserialize)]
 pub struct Payload {
     emails: Vec<String>,
-    ps_id: i32,
+    ps_id: i64,
 }
 
 pub(crate) async fn index(
@@ -71,7 +71,7 @@ pub(crate) async fn create_bulk_user(
 
 pub(crate) async fn deactivate(
     pool: web::Data<Arc<DBPool>>,
-    user_id: web::Path<i32>,
+    user_id: web::Path<i64>,
 ) -> impl Responder {
     let conn = pool.get();
     User::deactivate(&mut conn.unwrap(), user_id.into_inner())
@@ -84,7 +84,7 @@ pub(crate) async fn deactivate(
 }
 pub(crate) async fn activate(
     pool: web::Data<Arc<DBPool>>,
-    user_id: web::Path<i32>,
+    user_id: web::Path<i64>,
 ) -> impl Responder {
     let conn = pool.get();
     User::activate(&mut conn.unwrap(), user_id.into_inner())

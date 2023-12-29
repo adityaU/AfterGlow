@@ -1,6 +1,6 @@
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
 use chrono::Utc;
-use serde::{Deserialize};
+use serde::Deserialize;
 
 use std::sync::Arc;
 
@@ -12,9 +12,7 @@ use crate::{
     controllers::{common::ResponseData, helpers::get_current_user_id},
     errors::AGError,
     repository::{
-        models::{
-            Dashboard, DashboardChangeset, DashboardView, Schedule, ScheduleChangeset,
-        },
+        models::{Dashboard, DashboardChangeset, DashboardView, Schedule, ScheduleChangeset},
         DBPool,
     },
     views::dashboard::DetailedDashboardView,
@@ -27,17 +25,26 @@ use super::helpers::get_current_user_email;
 #[derive(Deserialize)]
 pub struct QueryParams {
     query: Option<String>,
+    limit: Option<i64>,
 }
 
 pub(crate) async fn index(
     pool: web::Data<Arc<DBPool>>,
     req: HttpRequest,
     auth_details: AuthDetails,
+    params: web::Query<QueryParams>,
 ) -> impl Responder {
     let conn = pool.get();
     let current_user_email = get_current_user_email(&req);
     let permissions = auth_details.permissions;
-    Dashboard::sorted_index(&mut conn.unwrap(), current_user_email, permissions)
+
+    let limit = match params.limit {
+        Some(0) => None,
+        Some(l) => Some(l),
+        None => None,
+    };
+
+    Dashboard::sorted_index(&mut conn.unwrap(), current_user_email, permissions, limit)
         .map(|items| {
             let resp = items
                 .iter()
@@ -50,7 +57,7 @@ pub(crate) async fn index(
 
 pub(crate) async fn show(
     pool: web::Data<Arc<DBPool>>,
-    item_id: web::Path<i32>,
+    item_id: web::Path<i64>,
     req: HttpRequest,
     auth_details: AuthDetails,
 ) -> impl Responder {
@@ -88,7 +95,7 @@ pub(crate) async fn create(
 pub(crate) async fn update(
     pool: web::Data<Arc<DBPool>>,
     data: web::Json<DashboardChangeset>,
-    dashboard_id: web::Path<i32>,
+    dashboard_id: web::Path<i64>,
 ) -> impl Responder {
     let conn = pool.get();
     dashboards::update(
@@ -104,7 +111,7 @@ pub(crate) async fn update(
 pub(crate) async fn save_schedule(
     pool: web::Data<Arc<DBPool>>,
     data: web::Json<SchedulePayload>,
-    dashboard_id: web::Path<i32>,
+    dashboard_id: web::Path<i64>,
 ) -> impl Responder {
     let sc = ScheduleChangeset {
         every: Some(data.every),
@@ -136,7 +143,7 @@ pub(crate) async fn save_schedule(
 
 pub(crate) async fn fetch_schedule(
     pool: web::Data<Arc<DBPool>>,
-    dashboard_id: web::Path<i32>,
+    dashboard_id: web::Path<i64>,
 ) -> impl Responder {
     let conn = pool.get();
     Schedule::fetch_by_dashboard_id(&mut conn.unwrap(), dashboard_id.into_inner())

@@ -21,7 +21,7 @@ use crate::repository::models::Table;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SyncDBJob {
-    pub database_id: i32,
+    pub database_id: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default)]
@@ -113,9 +113,12 @@ impl JobEssentials for SyncDBJob {
             .pool
             .get()
             .map_err(|err| SyncDBError::CouldNotGetAGPoolConnection(err.to_string()))?;
-        let (db_config, _db_type) = get_db_config(&mut conn, self.database_id)
+        let (db_config, db_type) = get_db_config(&mut conn, self.database_id)
             .map_err(|err| SyncDBError::UnableToFetchDBConfig(err.to_string()))?;
-        let schema = PostgresAdapter::get_schema(&data.conn_pools, db_config.clone())
+
+        let adapter = db_type.get_adapter(db_config.clone());
+        let schema = adapter
+            .get_schema(&data.conn_pools)
             .await
             .map_err(|err| SyncDBError::UnableToFetchDBSchema(err.to_string()))?;
 
@@ -140,7 +143,8 @@ impl JobEssentials for SyncDBJob {
         //     .get()
         //     .map_err(|err| SyncDBError::CouldNotGetAGPoolConnection(err.to_string()))?;
 
-        let primary_keys = PostgresAdapter::get_primary_keys(&data.conn_pools, db_config.clone())
+        let primary_keys = adapter
+            .get_primary_keys(&data.conn_pools)
             .await
             .map_err(|err| SyncDBError::UnableToFetchPrimaryKeys(err.to_string()))?;
 
@@ -155,7 +159,8 @@ impl JobEssentials for SyncDBJob {
         Table::update_primary_keys(&mut conn, self.database_id, primary_keys)
             .map_err(|err| SyncDBError::UnableToUpdatePrimaryKey(err.to_string()))?;
 
-        let foreign_keys = PostgresAdapter::get_fkeys(&data.conn_pools, db_config.clone())
+        let foreign_keys = adapter
+            .get_fkeys(&data.conn_pools)
             .await
             .map_err(|err| SyncDBError::UnableToFetchForeignKeys(err.to_string()))?;
 
@@ -177,7 +182,7 @@ impl SyncDBJob {
     fn sync_table(
         conn: &mut PgConnection,
         table: &DBTable,
-        database_id: i32,
+        database_id: i64,
     ) -> Result<(), SyncDBError> {
         let existing =
             Table::find_by_name_and_database_id(conn, table.table_name.clone(), database_id).ok();
@@ -238,7 +243,7 @@ impl SyncDBJob {
     fn sync_columns(
         conn: &mut PgConnection,
         column: &DBColumn,
-        table_id: i32,
+        table_id: i64,
     ) -> Result<(), SyncDBError> {
         let existing = Column::find_by_name_and_table_id(conn, column.name.clone(), table_id).ok();
         match existing {
