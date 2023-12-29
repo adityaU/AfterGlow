@@ -2,11 +2,11 @@ FROM debian:stable-slim
 LABEL maintainer="Aditya Upadhyay <im.adityau@gmail.com>"
 RUN apt-get update && apt-get install -y nginx libpq-dev openssl ca-certificates && apt-get clean && rm -rf /var/lib/apt/lists/*
 WORKDIR /var/app
-RUN mkdir -p /var/app/_build/prod
-COPY  backend/target/release/backend  /var/app/_build/prod/backend
+RUN mkdir -p /var/app/backend
+COPY  backend/target/release/backend  /var/app/backend/backend
 # WORKDIR /var/app/frontend/
 # COPY frontend/dist/ ./
-WORKDIR /var/app/frontend-v2/
+WORKDIR /var/app/frontend-v2/dist/spa/
 COPY frontend-v2/dist/spa/ ./ 
 
 WORKDIR /var/app
