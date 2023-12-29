@@ -73,7 +73,7 @@ body{
       @apply tw-overflow-hidden tw-border tw-rounded-2xl  tw-border;
     }
     .input-border {
-      @apply tw-border tw-border-default/20 tw-rounded-2xl tw-border;
+      @apply tw-border tw-border tw-rounded-2xl tw-border;
     }
     .input-border:focus-visible{
       @apply tw-border-primary tw-outline-0 tw-border   tw-shadow-primary;

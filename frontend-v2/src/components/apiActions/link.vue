@@ -8,21 +8,11 @@
 }
 </style>
 <template>
-  <div
-    :style="buttonStyle"
-    class="tw-cursor-pointer tw-flex tw-items-center tw-gap-1 btn tw-font-semibold"
-    :class="fullWidth ? 'tw-w-full tw-items-center tw-justify-center' : ''"
-    @click="clicked()"
-  >
-    <AGTableCellFormatter
-      :parentStyle="parentStyle"
-      @update:parentStyle="(val) => $emit('update:parentStyle', val)"
-      :formattingSettings="link.formattingSettings"
-      dataType="text"
-      :value="format(link.value)"
-      :displayName="link.displayName"
-      :class="fullWidth ? 'tw-flex-1 tw-justify-center tw-items-center' : ''"
-    />
+  <div :style="buttonStyle" class="tw-cursor-pointer tw-flex tw-items-center tw-gap-1 btn tw-font-semibold"
+    :class="fullWidth ? 'tw-w-full tw-items-center tw-justify-center' : ''" @click="clicked()">
+    <AGTableCellFormatter :parentStyle="parentStyle" @update:parentStyle="(val) => $emit('update:parentStyle', val)"
+      :formattingSettings="link.formattingSettings" dataType="text" :value="format(link.value)"
+      :displayName="link.displayName" :class="fullWidth ? 'tw-flex-1 tw-justify-center tw-items-center' : ''" />
     <!--   <div v-html="iconHtmlWithCorrectSize" v-if="showIconPrefix && link.details.display_settings.icon" > -->
     <!--   </div> -->
     <!--   <div v-if="showText" class="tw-uppercase"> -->
@@ -31,12 +21,8 @@
     <!--   <div v-html="iconHtmlWithCorrectSize" v-if="showIconSuffix && link.details.display_settings.icon" > -->
     <!--   </div> -->
   </div>
-  <AGModal
-    v-model:show="open"
-    :loading="loading"
-    :size="loading ? 'small' : 'large'"
-    :loadingMessage="link.details.loading_message"
-  >
+  <AGModal v-model:show="open" :loading="loading" :size="loading ? 'small' : 'large'"
+    :loadingMessage="link.details.loading_message">
     <template #header>
       <div class="tw-flex tw-w-full tw-items-center tw-pr-4">
         <div class="tw-p-2 tw-text-2xl tw-flex-1">Response</div>
@@ -49,15 +35,9 @@
     </template>
     <template #body>
       <div class="tw-h-[300px]">
-        <MonacoEditor
-          theme="AGDraculaTheme"
-          :value="response.response_body"
-          :language="contentType"
-          :options="{ languageWorkers: ['sql', 'json', 'html', 'xml'] }"
-          @editorWillMount="editorWillMount"
-          @editorDidMount="editorDidMount"
-          @change="change"
-        />
+        <MonacoEditor theme="AGDraculaTheme" :value="response.response_body" :language="contentType"
+          :options="{ languageWorkers: ['sql', 'json', 'html', 'xml'] }" @editorWillMount="editorWillMount"
+          @editorDidMount="editorDidMount" @change="change" />
       </div>
     </template>
     <template #footer> </template>
@@ -189,7 +169,7 @@ export default {
           '--color': this.link.details.color,
           '--border-color':
             this.link.details.display_settings.backgroundColor ===
-            'rgb(var(--color-white))'
+              'rgb(var(--color-white))'
               ? 'var(--color-tertiary)'
               : this.link.details.display_settings.backgroundColor,
           '--padding': '0.5rem 1rem',

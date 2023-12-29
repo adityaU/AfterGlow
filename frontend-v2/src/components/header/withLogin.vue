@@ -108,6 +108,7 @@
               </div>
             </router-link>
             <div class="menu-item tw-border-t tw-py-2 tw-min-w-[150px]" v-close-popup @click="logout">
+              <LogoutIcon size="28" class="icon-primary" />
               Logout
             </div>
           </div>
@@ -144,6 +145,7 @@ import {
   StackIcon,
   CategoryIcon,
   CircleLetterQIcon,
+  LogoutIcon,
 } from 'vue-tabler-icons';
 const session = sessionStore();
 export default {
@@ -160,6 +162,7 @@ export default {
     ChevronRightIcon,
     UserIcon,
     CircleLetterQIcon,
+    LogoutIcon,
   },
 
   computed: {

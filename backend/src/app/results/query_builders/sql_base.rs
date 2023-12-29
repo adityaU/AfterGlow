@@ -29,7 +29,7 @@ lazy_static! {
 }
 
 lazy_static! {
-    static ref VARIABLE_REGEX: Regex = Regex::new(r"\{\{\s*([^{}]+)\s*\}\}").unwrap();
+    pub static ref VARIABLE_REGEX: Regex = Regex::new(r"\{\{\s*([^{}]+)\s*\}\}").unwrap();
 }
 
 use crate::app::questions::config;

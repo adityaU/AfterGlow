@@ -1,6 +1,6 @@
 <template>
   <div class="">
-    <div class="tw-flex tw-flex-col tw-border tw-h-full tw-bg-white">
+    <div class="tw-flex tw-flex-col tw-border-r tw-h-full tw-bg-white">
       <div
         class="tw-font-semibold tw-border-b tw-p-2 tw-cursor-pointer last:tw-border-b-0 hover:tw-text-white hover:tw-bg-primary"
         :class="currentTab === tab.val ? 'tw-text-primary' : 'tw-text-default'" v-for="tab in tabs" :key="tab"

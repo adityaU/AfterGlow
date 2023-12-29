@@ -5,102 +5,52 @@
       {{ escapedText }} in name, url, headers and body fields. Using this
       feature in name field replaces the action name by column value
     </div>
-    <div
-      class="tw-p-2 tw-text-sm"
-      v-if="apiAction?.display_settings?.renderForm"
-    >
+    <div class="tw-p-2 tw-text-sm" v-if="apiAction?.display_settings?.renderForm">
       These additional variables from form are also available for you to use in
       the action.
-      <template
-        v-for="field in apiAction?.display_settings?.form?.fields"
-        :key="field"
-      >
-        <span
-          class="tw-px-2 tw-border tw-bg-secondary tw-mx-1"
-          v-if="field.show && field.type === 'Field'"
-        >
+      <template v-for="field in apiAction?.display_settings?.form?.fields" :key="field">
+        <span class="tw-px-2 tw-border tw-bg-secondary tw-mx-1" v-if="field.show && field.type === 'Field'">
           {{ wrapInCurly(field.label) }}
         </span>
       </template>
-      <span
-        class="tw-cursor-pointer tw-text-primary tw-m-2"
-        @click="$emit('editForm')"
-        >Edit Form</span
-      >
+      <span class="tw-cursor-pointer tw-text-primary tw-m-2" @click="$emit('editForm')">Edit Form</span>
     </div>
     <div class="tw-grid tw-grid-cols-12">
       <div class="tw-col-span-4 tw-px-2 tw-mb-2" v-if="!questionLevel">
         <div class="tw-text-sm tw-font-semibold">Name</div>
-        <AGInput
-          label="Name"
-          placeholder="Give it a name"
-          class="tw-mb-1"
-          v-model:value="apiActionLocal.name"
-        />
+        <AGInput label="Name" placeholder="Give it a name" class="tw-mb-1" v-model:value="apiActionLocal.name" />
 
-        <div
-          class="tw-py-1 tw-text-red-500 tw-text-sm"
-          v-if="errorMessage.name && !questionLevel"
-        >
+        <div class="tw-py-1 tw-text-red-500 tw-text-sm" v-if="errorMessage.name && !questionLevel">
           {{ errorMessage.name }}
         </div>
       </div>
 
-      <div
-        class="tw-col-span-1 tw-px-2 tw-mb-2 tw-text-right"
-        v-if="!questionLevel"
-      >
+      <div class="tw-col-span-1 tw-px-2 tw-mb-2 tw-text-right" v-if="!questionLevel">
         <div class="tw-text-sm tw-font-semibold">color</div>
         <div class="tw-mb-1 tw-mt-1">
-          <ColorSelect
-            v-model:selectedColor="apiActionLocal.color"
-            naked="true"
-          />
+          <ColorSelect v-model:selectedColor="apiActionLocal.color" naked="true" />
         </div>
       </div>
-      <div
-        class="tw-col-span-12 tw-px-2 tw-mb-2 tw-ml-[-10px] tw-mt-2"
-        v-if="!questionLevel"
-      >
-        <q-toggle
-          v-model="availability"
-          color="primary"
-          label="Available for current visualization only"
-        />
+      <div class="tw-col-span-12 tw-px-2 tw-mb-2 tw-ml-[-10px] tw-mt-2" v-if="!questionLevel">
+        <q-toggle v-model="availability" color="primary" label="Available for current visualization only" />
       </div>
 
-      <div
-        class="tw-col-span-1 tw-px-2 tw-mb-2 tw-text-right"
-        v-if="apiActionLocal.display_settings?.show_as_button && !questionLevel"
-      >
+      <div class="tw-col-span-1 tw-px-2 tw-mb-2 tw-text-right"
+        v-if="apiActionLocal.display_settings?.show_as_button && !questionLevel">
         <div class="tw-text-sm tw-font-semibold">Background color</div>
         <div class="tw-mb-1 tw-mt-1">
-          <ColorSelect
-            v-model:selectedColor="
-              apiActionLocal.display_settings.backgroundColor
-            "
-            naked="true"
-          />
+          <ColorSelect v-model:selectedColor="apiActionLocal.display_settings.backgroundColor
+            " naked="true" />
         </div>
       </div>
 
       <div class="tw-col-span-12 tw-px-2 tw-mb-2" v-if="!questionLevel">
         <div class="tw-text-sm tw-font-semibold">Loading state message</div>
-        <AGInput
-          label="URL"
-          placeholder="URL"
-          class="tw-mb-1"
-          v-model:value="apiActionLocal.loading_message"
-        />
+        <AGInput label="URL" placeholder="URL" class="tw-mb-1" v-model:value="apiActionLocal.loading_message" />
       </div>
       <div class="tw-col-span-12 tw-px-2 tw-mb-2">
         <div class="tw-text-sm tw-font-semibold">URL</div>
-        <AGInput
-          label="URL"
-          placeholder="URL"
-          class="tw-mb-1"
-          v-model:value="apiActionLocal.url"
-        />
+        <AGInput label="URL" placeholder="URL" class="tw-mb-1" v-model:value="apiActionLocal.url" />
 
         <div class="tw-py-1 tw-text-red-500 tw-text-sm" v-if="errorMessage.url">
           {{ errorMessage.url }}
@@ -108,75 +58,38 @@
       </div>
       <div class="tw-col-span-12 tw-px-2 tw-mb-2">
         <div class="tw-text-sm tw-font-semibold">Method</div>
-        <BoxSelect
-          :options="methodOptions"
-          v-model:selected="apiActionLocal.method"
-          class="tw-mb-1 tw-border-b-0"
-        />
+        <BoxSelect :options="methodOptions" v-model:selected="apiActionLocal.method" class="tw-mb-1 tw-border-b-0" />
       </div>
       <div class="tw-col-span-12 tw-px-2 tw-mb-2">
         <div class="tw-text-sm tw-font-semibold">Headers</div>
-        <div
-          class=""
-          v-for="(header, index) in apiActionLocal.dummyHeaders"
-          :key="header"
-        >
+        <div class="" v-for="(header, index) in apiActionLocal.dummyHeaders" :key="header">
           <div class="tw-grid tw-grid-cols-11">
             <div class="tw-col-span-5 tw-pr-1">
-              <AGInput
-                label="Name"
-                placeholder="Header Key"
-                class="tw-mb-1"
-                v-model:value="header.name"
-              />
+              <AGInput label="Name" placeholder="Header Key" class="tw-mb-1 tw-rounded-r-none"
+                v-model:value="header.name" />
             </div>
             <div class="tw-col-span-5 tw-pl-1">
-              <AGInput
-                label="Name"
-                placeholder="Header Value"
-                class="tw-mb-1"
-                v-model:value="header.value"
-              />
+              <AGInput label="Name" placeholder="Header Value" class="tw-mb-1" v-model:value="header.value" />
             </div>
-            <AGButton
-              class="tw-border-0 tw-text-primary tw-px-0 tw-text-red-500"
-              @clicked="apiActionLocal.dummyHeaders.splice(index, 1)"
-            >
+            <AGButton class="tw-border-0 tw-text-primary tw-px-0 tw-text-red-500"
+              @clicked="apiActionLocal.dummyHeaders.splice(index, 1)">
               DELETE
             </AGButton>
           </div>
         </div>
-        <AGButton
-          class="tw-border-0 tw-text-primary tw-px-0"
-          @clicked="
-            apiActionLocal.dummyHeaders.push({ name: null, value: null })
-          "
-        >
+        <AGButton class="tw-border-0 tw-text-primary tw-px-0" @clicked="
+          apiActionLocal.dummyHeaders.push({ name: null, value: null })
+          ">
           <PlusIcon size="14" class="tw-inline" /> Add Header
         </AGButton>
       </div>
-      <div
-        class="tw-col-span-12 tw-px-2 tw-mb-2"
-        v-if="apiActionLocal.method != 'GET'"
-      >
+      <div class="tw-col-span-12 tw-px-2 tw-mb-2" v-if="apiActionLocal.method != 'GET'">
         <div class="tw-text-sm tw-font-semibold">Body</div>
-        <AGInput
-          label="Name"
-          placeholder="Body"
-          class="tw-mb-1"
-          v-model:value="apiActionLocal.body"
-          textArea="true"
-          rows="10"
-        />
+        <AGInput label="Name" placeholder="Body" class="tw-mb-1" v-model:value="apiActionLocal.body" textArea="true"
+          rows="10" />
       </div>
-      <div
-        class="tw-col-span-12 tw-px-2 tw-mb-2 tw-ml-[-10px]"
-        v-if="apiActionLocal.method === 'GET' && !questionLevel"
-      >
-        <BoxSelect
-          :options="openOptions"
-          v-model:selected="apiActionLocal.open_option"
-        />
+      <div class="tw-col-span-12 tw-px-2 tw-mb-2 tw-ml-[-10px]" v-if="apiActionLocal.method === 'GET' && !questionLevel">
+        <BoxSelect :options="openOptions" v-model:selected="apiActionLocal.open_option" />
       </div>
     </div>
   </div>
@@ -237,8 +150,8 @@ export default {
   data() {
     let openOption =
       this.apiAction &&
-      !this.apiAction.open_option &&
-      this.apiAction.open_in_new_tab
+        !this.apiAction.open_option &&
+        this.apiAction.open_in_new_tab
         ? 'open-new-tab'
         : (this.apiAction && this.apiAction.open_option) || 'open-same-tab';
     openOption = this.questionLevel ? 'show-in-modal' : openOption;
