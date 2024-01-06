@@ -10,7 +10,10 @@ use crate::{controllers::common::ResponseData, repository::DBPool};
 
 use actix_web_grants::proc_macro::has_permissions;
 
-#[has_permissions("Settings.all")]
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
+
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn index(pool: web::Data<Arc<DBPool>>) -> impl Responder {
     let conn = pool.get();
     Organization::sorted_index(&mut conn.unwrap())
@@ -23,19 +26,37 @@ pub(crate) async fn index(pool: web::Data<Arc<DBPool>>) -> impl Responder {
         })
         .map_err(|err| AGError::<String>::new(err))
 }
-base::generate_create!(
-    create,
-    Organization,
-    OrganizationChangeset,
-    OrganizationView,
-    "Settings.all"
-);
-base::generate_update!(
-    update,
-    Organization,
-    OrganizationChangeset,
-    OrganizationView,
-    "Settings.all",
-    i64
-);
-base::generate_show!(show, Organization, OrganizationView, "Settings.all", i64);
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
+pub(crate) async fn create(
+    pool: web::Data<Arc<DBPool>>,
+    data: web::Json<OrganizationChangeset>,
+) -> impl Responder {
+    let conn = pool.get();
+    Organization::create_with_default_settings(&mut conn.unwrap(), data.into_inner())
+        .map(|item| {
+            HttpResponse::Created().json(ResponseData {
+                data: OrganizationView::from_model(&item),
+            })
+        })
+        .map_err(|err| AGError::<String>::new(err))
+}
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
+pub(crate) async fn update(
+    pool: web::Data<Arc<DBPool>>,
+    data: web::Json<OrganizationChangeset>,
+    item_id: web::Path<i64>,
+) -> impl Responder {
+    let conn = pool.get();
+    Organization::update_with_default_settings(
+        &mut conn.unwrap(),
+        item_id.into_inner(),
+        data.into_inner(),
+    )
+    .map(|item| {
+        HttpResponse::Ok().json(ResponseData {
+            data: OrganizationView::from_model(&item),
+        })
+    })
+    .map_err(|err| AGError::<String>::new(err))
+}
+base::generate_show!(show, Organization, OrganizationView, "SettingsAll", i64);

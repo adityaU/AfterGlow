@@ -1,5 +1,6 @@
 use super::models::UserPermissionSet;
 use super::models::UserPermissionSetChangeset;
+use super::permissions::PermissionNames;
 use super::schema::permission_sets;
 use super::schema::permissions;
 use super::schema::user_permission_sets;
@@ -45,7 +46,7 @@ impl UserPermissionSet {
         // convert permissions to Vec<String>
     }
 
-    pub fn fetch_permissions_by_user_id(conn: &mut PgConnection, uid: i64) -> Vec<String> {
+    pub fn fetch_permissions_by_user_id(conn: &mut PgConnection, uid: i64) -> Vec<PermissionNames> {
         user_permission_sets::table
             .filter(user_permission_sets::user_id.eq(uid))
             .inner_join(permission_sets::table)
@@ -55,13 +56,11 @@ impl UserPermissionSet {
                     .eq(permissions::permission_set_id)),
             )
             .select(permissions::name)
-            .load::<Option<String>>(conn)
+            .load::<Option<PermissionNames>>(conn)
             .ok()
             .unwrap_or(vec![None])
             .into_iter()
-            .filter_map(|opt_str: Option<String>| opt_str)
+            .filter_map(|opt_str: Option<PermissionNames>| opt_str)
             .collect()
-
-        // convert permissions to Vec<String>
     }
 }

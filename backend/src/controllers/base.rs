@@ -1,7 +1,7 @@
 #[macro_export]
 macro_rules! generate_index {
     ($fn_name:ident, $model:ident, $view:ident, $index_permission:expr) => {
-        #[has_permissions($index_permission)]
+        #[has_permissions[$index_permission, type = "PermissionNames"]]
         pub(crate) async fn $fn_name(pool: web::Data<Arc<DBPool>>) -> impl Responder {
             let conn = pool.get();
             $model::index(&mut conn.unwrap())
@@ -19,7 +19,7 @@ macro_rules! generate_index {
 
 macro_rules! generate_create {
     ($fn_name:ident, $model:ident, $changeset:ident, $view:ident, $create_permission:expr) => {
-        #[has_permissions($create_permission)]
+        #[has_permissions[$create_permission, type = "PermissionNames"]]
         pub(crate) async fn $fn_name(
             pool: web::Data<Arc<DBPool>>,
             data: web::Json<$changeset>,
@@ -38,7 +38,7 @@ macro_rules! generate_create {
 
 macro_rules! generate_update {
     ($fn_name:ident, $model:ident, $changeset:ident, $view:ident, $update_permission:expr, $id_data_type:ident) => {
-        #[has_permissions($update_permission)]
+        #[has_permissions[$update_permission, type = "PermissionNames"]]
         pub(crate) async fn $fn_name(
             pool: web::Data<Arc<DBPool>>,
             data: web::Json<$changeset>,
@@ -55,7 +55,7 @@ macro_rules! generate_update {
         }
     };
     ($fn_name:ident, $model:ident, $changeset:ident, $view:ident, $update_permission:expr) => {
-        #[has_permissions($update_permission)]
+        #[has_permissions[$update_permission, type = "PermissionNames"]]
         pub(crate) async fn $fn_name(
             pool: web::Data<Arc<DBPool>>,
             data: web::Json<$changeset>,
@@ -75,7 +75,7 @@ macro_rules! generate_update {
 
 macro_rules! generate_show {
     ($fn_name:ident, $model:ident, $view:ident, $show_permission:expr, $id_data_type:ident) => {
-        #[has_permissions($show_permission)]
+        #[has_permissions[$show_permission, type = "PermissionNames"]]
         pub(crate) async fn $fn_name(
             pool: web::Data<Arc<DBPool>>,
             item_id: web::Path<$id_data_type>,
@@ -93,7 +93,7 @@ macro_rules! generate_show {
         }
     };
     ($fn_name:ident, $model:ident, $view:ident, $show_permission:expr) => {
-        #[has_permissions($show_permission)]
+        #[has_permissions[$show_permission, type = "PermissionNames"]]
         pub(crate) async fn $fn_name(
             pool: web::Data<Arc<DBPool>>,
             item_id: web::Path<i64>,

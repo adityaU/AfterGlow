@@ -20,6 +20,9 @@ use std::sync::Arc;
 use actix_web_grants::proc_macro::has_permissions;
 // constanrt hashmap that has method to permissions mapping
 
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
+
 #[derive(Deserialize)]
 pub struct QueryParams {
     team_id: Option<i64>,
@@ -27,10 +30,12 @@ pub struct QueryParams {
     include_config: Option<bool>,
 }
 
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn create(
     pool: web::Data<Arc<DBPool>>,
     data: web::Json<DatabaseChangeset>,
     pg_queue: web::Data<Arc<PostgresQueue>>,
+    auth_details: AuthDetails<PermissionNames>,
 ) -> impl Responder {
     let conn = pool.get();
     let resp = Database::create(&mut conn.unwrap(), data.into_inner());
@@ -38,17 +43,18 @@ pub(crate) async fn create(
         return Err(AGError::<String>::new(err));
     }
     let resp = resp.unwrap();
-    sync(resp.id.into(), pg_queue).await;
+    sync(auth_details, resp.id.into(), pg_queue).await;
     Ok(HttpResponse::Created().json(ResponseData {
         data: DatabaseView::from_model(&resp),
     }))
 }
-#[has_permissions("Settings.all")]
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn update(
     pool: web::Data<Arc<DBPool>>,
     data: web::Json<DatabaseChangeset>,
     item_id: web::Path<i64>,
     pg_queue: web::Data<Arc<PostgresQueue>>,
+    auth_details: AuthDetails<PermissionNames>,
 ) -> impl Responder {
     let conn = pool.get();
     let resp = Database::update(&mut conn.unwrap(), item_id.into_inner(), data.into_inner());
@@ -56,12 +62,12 @@ pub(crate) async fn update(
         return Err(AGError::<String>::new(err));
     }
     let resp = resp.unwrap();
-    sync(resp.id.into(), pg_queue).await;
+    sync(auth_details, resp.id.into(), pg_queue).await;
     Ok(HttpResponse::Ok().json(ResponseData {
         data: DatabaseView::from_model(&resp),
     }))
 }
-#[has_permissions("Settings.all")]
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn show(
     pool: web::Data<Arc<DBPool>>,
     item_id: web::Path<i64>,
@@ -85,11 +91,12 @@ pub(crate) async fn show(
         .map_err(|err| error::ErrorNotFound(err))
 }
 
+#[has_permissions["QuestionEdit", type = "PermissionNames"]]
 pub(crate) async fn index(
     pool: web::Data<Arc<DBPool>>,
     params: web::Query<QueryParams>,
     req: HttpRequest,
-    auth_details: AuthDetails,
+    auth_details: AuthDetails<PermissionNames>,
 ) -> impl Responder {
     let team_id = params.team_id.unwrap_or(0);
 
@@ -112,6 +119,7 @@ pub(crate) async fn index(
         .map_err(|err| AGError::<String>::new(err))
 }
 
+#[has_permissions["QuestionEdit", type = "PermissionNames"]]
 pub(crate) async fn sync(
     database_id: web::Path<i64>,
     pg_queue: web::Data<Arc<PostgresQueue>>,
@@ -130,11 +138,13 @@ pub(crate) async fn sync(
         })
         .map_err(|err| AGError::<String>::new(err))
 }
+
+#[has_permissions["QuestionEdit", type = "PermissionNames"]]
 pub(crate) async fn search(
     pool: web::Data<Arc<DBPool>>,
     qp: web::Query<QueryParams>,
     req: HttpRequest,
-    auth_details: AuthDetails,
+    auth_details: AuthDetails<PermissionNames>,
 ) -> impl Responder {
     let conn = pool.get();
     let current_user_email = get_current_user_email(&req);
@@ -154,60 +164,3 @@ pub(crate) async fn search(
     })
     .map_err(|err| AGError::<String>::new(err))
 }
-
-// pub(crate) async fn index(pool: web::Data<DBPool>) -> impl Responder {
-//     let conn = pool.get();
-//     Database::index(&mut conn.unwrap())
-//         .map(|databases| {
-//             let resp = databases
-//                 .iter()
-//                 .map(|db| DatabaseView::from_model(db))
-//                 .collect::<Vec<DatabaseView>>();
-//             HttpResponse::Ok().json(ResponseData { data: resp })
-//         })
-//         .map_err(|err| AGError::<String>::new(err))
-// }
-
-// #[has_permissions("Settings.all")]
-// pub(crate) async fn create(
-//     pool: web::Data<DBPool>,
-//     data: web::Json<DatabaseChangeset>,
-// ) -> impl Responder {
-//     let conn = pool.get();
-//     Database::create(&mut conn.unwrap(), data.into_inner())
-//         .map(|database| match verify_connection(&database) {
-//             true => HttpResponse::Ok().json(ResponseData { data: &database }),
-//             false => HttpResponse::BadRequest().json(AGError::<String>::new(
-//                 "Could not connect to database with given parameters",
-//             )),
-//         })
-//         .map_err(|err| AGError::<String>::new(err))
-// }
-
-// #[has_permissions("Settings.all")]
-// pub(crate) async fn update(
-//     pool: web::Data<DBPool>,
-//     data: web::Json<DatabaseChangeset>,
-//     database_id: web::Path<i64>,
-//     let conn = pool.get();
-//     Database::update(
-//         &mut conn.unwrap(),
-//         database_id.into_inner(),
-//         data.into_inner(),
-//     )
-//     .map(|database| match verify_connection(&database) {
-//         true => HttpResponse::Ok().json(ResponseData { data: &database }),
-//         false => HttpResponse::BadRequest().json(AGError::<String>::new(
-//             "Could not connect to database with given parameters",
-//         )),
-//     })
-//     .map_err(|err| AGError::<String>::new(err))
-// }
-
-// #[has_permissions("Settings.all")]
-// pub(crate) async fn show(pool: web::Data<DBPool>, database_id: web::Path<i64>) -> impl Responder {
-//     let conn = pool.get();
-//     Database::find(&mut conn.unwrap(), database_id.into_inner())
-//         .map(|databases| HttpResponse::Ok().json(ResponseData { data: databases }))
-//         .map_err(|err| AGError::<String>::new(err))
-// }

@@ -34,15 +34,9 @@ use diesel::debug_query;
 
 use std::fmt;
 
+use super::permissions::PermissionNames;
+
 use diesel::sql_types::HasSqlType;
-// pub trait Crud<T> {
-//     fn create(conn: &mut PgConnection, model: &T) -> Result<T, Error>;
-//     fn read(conn: &mut PgConnection, id: i32) -> Result<T, Error>;
-//     fn update(conn: &mut PgConnection, id: i32, updated_model: &T) -> Result<T, Error>;
-//     fn delete(conn: &mut PgConnection, id: i32) -> Result<(), Error>;
-// }
-//
-//
 
 #[derive(Debug)]
 pub struct CustomEnumError {
@@ -206,7 +200,7 @@ pub struct ApiAction {
     pub success_message: Option<String>,
     pub success_key: Option<String>,
     pub action_level: Option<ActionLevel>,
-    pub visualization_id: Option<i64>,
+    pub visualization_id: Option<i32>,
     pub loading_message: Option<String>,
     pub display_settings: Option<serde_json::Value>,
     pub open_option: Option<String>,
@@ -455,7 +449,7 @@ pub struct OrganizationSetting {
     pub id: i64,
     pub name: String,
     pub value: Option<String>,
-    pub setting_type: i32,
+    pub setting_type: SettingsTypes,
     pub organization_id: i64,
     pub api_action_id: Option<i64>,
     #[serde(skip_deserializing)]
@@ -480,6 +474,7 @@ pub struct Organization {
 
 #[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
 pub struct PermissionSet {
+    #[skip_in_changeset]
     pub id: i64,
     pub name: Option<String>,
     #[serde(skip_deserializing)]
@@ -488,11 +483,12 @@ pub struct PermissionSet {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Queryable, Debug, Insertable, AsChangeset, Serialize, Deserialize)]
+#[derive(Queryable, Debug, Insertable, AsChangeset, Serialize, Deserialize, Changeset)]
 pub struct Permission {
+    #[skip_in_changeset]
     pub id: i64,
     pub permission_set_id: Option<i64>,
-    pub name: Option<String>,
+    pub name: Option<PermissionNames>,
     pub inserted_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -854,6 +850,7 @@ pub enum SettingsTypes {
 #[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
 #[id_data_type = "i64"]
 pub struct UserSetting {
+    #[skip_in_changeset]
     pub id: i64,
     pub name: String,
     pub value: Option<String>,

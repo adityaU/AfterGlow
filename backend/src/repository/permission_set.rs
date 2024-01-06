@@ -1,6 +1,7 @@
-use super::models::PermissionSet;
+use super::models::{PermissionSet, PermissionSetChangeset};
 use super::schema::{permission_sets, user_permission_sets};
 
+use chrono::Utc;
 use diesel::prelude::*;
 
 use diesel::result::Error;
@@ -17,6 +18,24 @@ impl PermissionSet {
             .filter(user_permission_sets::user_id.eq(uid))
             .select(permission_sets::all_columns)
             .load::<Self>(conn)
+    }
+
+    pub fn find_or_create(conn: &mut PgConnection, name: &str) -> Result<Self, Error> {
+        let now = Utc::now().naive_utc();
+        let permission_set = permission_sets::table
+            .filter(permission_sets::name.eq(name))
+            .first::<Self>(conn);
+        match permission_set {
+            Ok(permission_set) => Ok(permission_set),
+            Err(_) => Self::create(
+                conn,
+                PermissionSetChangeset {
+                    name: Some(name.to_string()),
+                    inserted_at: now,
+                    updated_at: now,
+                },
+            ),
+        }
     }
 
     pub fn admin(conn: &mut PgConnection) -> Result<Self, Error> {

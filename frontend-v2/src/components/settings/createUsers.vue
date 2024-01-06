@@ -1,47 +1,23 @@
 <template>
   <teleport to="body">
-    <AGModal
-      class="!tw-fixed"
-      size="small"
-      :show="open"
-      @update:show="(val) => $emit('update:show', val)"
-    >
+    <AGModal class="!tw-fixed" size="small" :show="open" @update:show="(val) => $emit('update:show', val)">
       <template #header>
-        <div class="tw-p-2 tw-text-2xl tw-font-semibold">Create Users</div>
+        <div class="tw-px-4 tw-py-2 tw-text-2xl tw-font-semibold">Create Users</div>
       </template>
       <template #body>
-        <div class="tw-p-2 divide-y">
+        <div class="tw-px-4 tw-py-2 divide-y">
           <div class="label">Access Level</div>
           <div class="input-border tw-px-2 tw-py-1" v-if="permissionSets">
             {{ permissionSet?.name || 'Select Access level' }}
 
-            <q-menu
-              flat="true"
-              transition-show="scale"
-              transition-hide="scale"
-              max-height="800px"
-              class="tw-rounded-2xl tw-border tw-overflow-hidden"
-              @show="menuShow"
-              @keydown="onKeydown"
-              fit
-            >
-              <SelectOptions
-                :options="permissionSets"
-                v-model:selected="permissionSet"
-                :menuShow="menuShow"
-                displayKey="name"
-                areOptionObjects="true"
-                hideOnClick="true"
-                hideSearch="true"
-              />
+            <q-menu flat="true" transition-show="scale" transition-hide="scale" max-height="800px"
+              class="tw-rounded-2xl tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown" fit>
+              <SelectOptions :options="permissionSets" v-model:selected="permissionSet" :menuShow="menuShow"
+                displayKey="name" areOptionObjects="true" hideOnClick="true" hideSearch="true" />
             </q-menu>
           </div>
           <div class="label tw-mt-4">Emails</div>
-          <AGInput
-            v-model:value="newUserEmails"
-            textArea="true"
-            placeholder="Enter comma separated emails"
-          />
+          <AGInput v-model:value="newUserEmails" textArea="true" placeholder="Enter comma separated emails" />
 
           <div class="note">
             Users for all these email ids will be created only if -
@@ -58,18 +34,14 @@
         </div>
       </template>
       <template #footer>
-        <div class="tw-flex tw-justify-end tw-gap-1 tw-p-2">
-          <AGButton
-            class="tw-text-default hover:tw-bg-secondary tw-p-2"
-            @clicked="($emit('update:open', false) || true) && $emit('refresh')"
-          >
+        <div class="tw-flex tw-justify-end tw-gap-1 tw-px-4 tw-py-2">
+          <AGButton class="tw-text-default hover:tw-bg-secondary tw-p-2"
+            @clicked="($emit('update:open', false) || true) && $emit('refresh')">
             Cancel
           </AGButton>
           <AGButton
             class="tw-text-white hover:tw-bg-primary/80 disabled:tw-bg-secondary disabled:tw-text-default tw-bg-primary tw-p-2"
-            :class="newUserEmails && permissionSet ? '' : 'disabled'"
-            @clicked="save() || true"
-          >
+            :class="newUserEmails && permissionSet ? '' : 'disabled'" @clicked="save() || true">
             Create
           </AGButton>
         </div>

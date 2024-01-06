@@ -20,7 +20,8 @@
           placeholder="Search a visualization" :filter-results="false" :min-chars="1" :resolve-on-load="false" :delay="0"
           :searchable="false" :options="themeNames" />
       </div>
-      <div class="tw-flex tw-gap-2 tw-items-center tw-mt-2 tw-px-4 tw-pb-2 item-3070-columns">
+      <div class="tw-flex tw-gap-2 tw-items-center tw-mt-2 tw-px-4 item-3070-columns"
+        :class="themeName == 'Custom' ? 'tw-pb-2' : 'tw-pb-4'">
         <div class="label">Primary Color</div>
         <div>
           <AGColorSelector allow-more="false" :additional-colors="additionalBackgroundColors" class="tw-w-[24px]"

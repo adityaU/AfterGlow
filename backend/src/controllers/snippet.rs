@@ -13,12 +13,15 @@ use actix_web::http::StatusCode;
 
 use actix_web_grants::proc_macro::has_permissions;
 
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
+
 #[derive(Deserialize)]
 pub struct QueryParams {
     database_id: Option<i32>,
 }
 
-#[has_permissions("Question.edit")]
+#[has_permissions["QuestionEdit", type = "PermissionNames"]]
 pub(crate) async fn index(
     pool: web::Data<Arc<DBPool>>,
     query: web::Query<QueryParams>,
@@ -40,14 +43,14 @@ base::generate_create!(
     Snippet,
     SnippetChangeset,
     SnippetView,
-    "Question.edit"
+    "QuestionEdit"
 );
 base::generate_update!(
     update,
     Snippet,
     SnippetChangeset,
     SnippetView,
-    "Question.edit",
+    "QuestionEdit",
     i64
 );
-base::generate_show!(show, Snippet, SnippetView, "Question.edit", i64);
+base::generate_show!(show, Snippet, SnippetView, "QuestionEdit", i64);

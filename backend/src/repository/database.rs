@@ -1,4 +1,5 @@
 use super::models::Database;
+use super::permissions::PermissionNames;
 use super::schema::{databases, team_databases};
 
 use diesel::dsl::sql;
@@ -10,8 +11,8 @@ use diesel::sql_types::Bool;
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
 
 impl databases::table {
-    pub fn shared_with_user(user_email: String, permissions: Vec<String>) -> String {
-        if permissions.contains(&"Settings.all".to_string()) {
+    pub fn shared_with_user(user_email: String, permissions: Vec<PermissionNames>) -> String {
+        if permissions.contains(&PermissionNames::SettingsAll) {
             return "databases.id = ANY(select databases.id from databases)".into();
         }
 
@@ -37,7 +38,7 @@ impl Database {
         conn: &mut PgConnection,
         query: String,
         user_email: String,
-        permissions: Vec<String>,
+        permissions: Vec<PermissionNames>,
     ) -> Result<Vec<Self>, Error> {
         databases::table
             .filter(sql::<Bool>(
@@ -50,7 +51,7 @@ impl Database {
     pub fn sorted_index(
         conn: &mut PgConnection,
         user_email: String,
-        permissions: Vec<String>,
+        permissions: Vec<PermissionNames>,
     ) -> Result<Vec<Self>, Error> {
         databases::table
             .filter(sql::<Bool>(

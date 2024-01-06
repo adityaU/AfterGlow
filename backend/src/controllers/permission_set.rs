@@ -13,28 +13,25 @@ use crate::{controllers::common::ResponseData, repository::DBPool};
 
 use serde::Deserialize;
 
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
 use actix_web_grants::proc_macro::has_permissions;
-// constanrt hashmap that has method to permissions mapping
-//
-//
+
 #[derive(Debug, Deserialize)]
 pub struct Payload {
     user_id: Option<i64>,
     permission_set_id: Option<i64>,
 }
 
-// base::generate_index(_index, PermissionSet, PermissionSetView, "Any");
-// base::generate_create!(create, PermissionSet, PermissionSetChangeset, PermissionSetView, "Settings.all");
 base::generate_update!(
     update,
     PermissionSet,
     PermissionSetChangeset,
     PermissionSetView,
-    "Settings.all"
+    "SettingsAll"
 );
-// base::generate_show!(show, PermissionSet, PermissionSetView, "Settings.all");
 
-// actix controller that reads user_id from query strings and returns teams by that user
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn index(
     pool: web::Data<Arc<DBPool>>,
     params: web::Query<Payload>,
@@ -56,6 +53,7 @@ pub(crate) async fn index(
         .map_err(|err| AGError::<String>::new(err))
 }
 
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn update_user(
     pool: web::Data<Arc<DBPool>>,
     params: web::Path<Payload>,

@@ -2,6 +2,7 @@ use super::models::User;
 
 use super::models::Question;
 
+use super::permissions::PermissionNames;
 use super::schema::{questions, tag_questions};
 
 use diesel::dsl::sql;
@@ -25,8 +26,8 @@ pub struct QuestionWithUser {
 }
 
 impl questions::table {
-    pub fn shared_with_user(user_email: String, permissions: Vec<String>) -> String {
-        if permissions.contains(&"Settings.all".to_string()) {
+    pub fn shared_with_user(user_email: String, permissions: Vec<PermissionNames>) -> String {
+        if permissions.contains(&PermissionNames::SettingsAll) {
             return "questions.id = ANY(select questions.id from questions)".into();
         }
 
@@ -89,7 +90,7 @@ impl Question {
         conn: &mut PgConnection,
         tag: i64,
         user_email: String,
-        permissions: Vec<String>,
+        permissions: Vec<PermissionNames>,
     ) -> Result<Vec<Self>, Error> {
         questions::table
             .inner_join(
@@ -109,7 +110,7 @@ impl Question {
         conn: &mut PgConnection,
         q: String,
         user_email: String,
-        permissions: Vec<String>,
+        permissions: Vec<PermissionNames>,
     ) -> Result<Vec<Self>, Error> {
         questions::table
             .filter(sql::<Bool>(
@@ -126,7 +127,7 @@ impl Question {
         q: String,
         tag: i64,
         user_email: String,
-        permissions: Vec<String>,
+        permissions: Vec<PermissionNames>,
     ) -> Result<Vec<Self>, Error> {
         questions::table
             .filter(sql::<Bool>(
@@ -148,7 +149,7 @@ impl Question {
         q: String,
         tag: i64,
         user_email: String,
-        permissions: Vec<String>,
+        permissions: Vec<PermissionNames>,
     ) -> Result<Vec<Self>, Error> {
         match (q.as_str(), tag) {
             ("", 0) => Self::sorted_index(conn, user_email, permissions),
@@ -163,7 +164,7 @@ impl Question {
     pub fn sorted_index(
         conn: &mut PgConnection,
         user_email: String,
-        permissions: Vec<String>,
+        permissions: Vec<PermissionNames>,
     ) -> Result<Vec<Self>, Error> {
         let query = questions::table
             .filter(sql::<Bool>(

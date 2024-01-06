@@ -16,6 +16,9 @@ use actix_web_grants::proc_macro::has_permissions;
 
 use std::sync::Arc;
 
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
+
 #[derive(Debug, Deserialize)]
 pub struct QueryParams {
     question_id: Option<i64>,
@@ -26,6 +29,7 @@ pub struct Payload {
     variables: Vec<Variable>,
 }
 
+#[has_permissions["Any", type = "PermissionNames"]]
 pub(crate) async fn send_request(
     pool: web::Data<Arc<DBPool>>,
     _params: web::Query<QueryParams>,
@@ -42,6 +46,7 @@ pub(crate) async fn send_request(
         .map_err(|err| AGError::<String>::new(err))
 }
 
+#[has_permissions["Any", type = "PermissionNames"]]
 pub(crate) async fn index(
     pool: web::Data<Arc<DBPool>>,
     params: web::Query<QueryParams>,
@@ -69,10 +74,10 @@ base::generate_update!(
     ApiAction,
     ApiActionChangeset,
     ApiActionView,
-    "Settings.all"
+    "QuestionEdit"
 );
 
-#[has_permissions("Settings.all")]
+#[has_permissions["QuestionEdit", type = "PermissionNames"]]
 pub(crate) async fn create(
     pool: web::Data<Arc<DBPool>>,
     data: web::Json<ApiActionChangeset>,

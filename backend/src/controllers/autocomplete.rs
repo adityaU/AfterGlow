@@ -6,6 +6,10 @@ use crate::{app::autocomplete, errors::AGError, repository::DBPool};
 
 use super::common::ResponseData;
 
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
+use actix_web_grants::proc_macro::has_permissions;
+
 #[derive(serde::Deserialize)]
 pub struct QueryParams {
     query: String,
@@ -13,6 +17,7 @@ pub struct QueryParams {
     database_id: Option<i64>,
 }
 
+#[has_permissions["QuestionEdit", type = "PermissionNames"]]
 pub(crate) async fn complete(
     pool: web::Data<Arc<DBPool>>,
     qp: web::Query<QueryParams>,
@@ -28,6 +33,7 @@ pub(crate) async fn complete(
     .map_err(|err| AGError::<String>::new(err))
 }
 
+#[has_permissions["QuestionEdit", type = "PermissionNames"]]
 pub(crate) async fn recipients(
     pool: web::Data<Arc<DBPool>>,
     qp: web::Query<QueryParams>,

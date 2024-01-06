@@ -11,10 +11,9 @@ use std::sync::Arc;
 
 use serde::Deserialize;
 
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
 use actix_web_grants::proc_macro::has_permissions;
-// constanrt hashmap that has method to permissions mapping
-//
-//
 #[derive(Debug, Deserialize)]
 pub struct Payload {
     user_id: Option<i64>,
@@ -22,11 +21,12 @@ pub struct Payload {
 }
 
 // base::generate_index(_index, Team, TeamView, "Any");
-base::generate_create!(create, Team, TeamChangeset, TeamView, "Settings.all");
-base::generate_update!(update, Team, TeamChangeset, TeamView, "Settings.all");
+base::generate_create!(create, Team, TeamChangeset, TeamView, "SettingsAll");
+base::generate_update!(update, Team, TeamChangeset, TeamView, "SettingsAll");
 // base::generate_show!(show, Team, TeamView, "Settings.all");
 
 // actix controller that reads user_id from query strings and returns teams by that user
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn index(
     pool: web::Data<Arc<DBPool>>,
     params: web::Query<Payload>,
@@ -53,6 +53,7 @@ pub(crate) async fn index(
         .map_err(|err| AGError::<String>::new(err))
 }
 
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn remove_user(
     pool: web::Data<Arc<DBPool>>,
     params: web::Json<Payload>,
@@ -66,6 +67,7 @@ pub(crate) async fn remove_user(
         .map_err(|err| AGError::<String>::new(err))
 }
 
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn add_user(
     pool: web::Data<Arc<DBPool>>,
     params: web::Json<Payload>,
@@ -79,6 +81,7 @@ pub(crate) async fn add_user(
         .map_err(|err| AGError::<String>::new(err))
 }
 
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn remove_database(
     pool: web::Data<Arc<DBPool>>,
     params: web::Json<Payload>,
@@ -92,6 +95,7 @@ pub(crate) async fn remove_database(
         .map_err(|err| AGError::<String>::new(err))
 }
 
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn add_database(
     pool: web::Data<Arc<DBPool>>,
     params: web::Json<Payload>,

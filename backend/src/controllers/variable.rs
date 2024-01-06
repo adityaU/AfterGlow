@@ -12,11 +12,15 @@ use serde::Deserialize;
 
 use super::common::ResponseData;
 
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
+use actix_web_grants::proc_macro::has_permissions;
 #[derive(Deserialize)]
 pub struct QueryParams {
     question_id: Option<i64>,
 }
 
+#[has_permissions["QuestionShow", type = "PermissionNames"]]
 pub(crate) async fn index(
     pool: web::Data<Arc<DBPool>>,
     params: web::Query<QueryParams>,

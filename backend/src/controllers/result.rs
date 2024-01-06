@@ -13,13 +13,17 @@ use crate::{
 };
 
 use super::helpers::{get_current_user_id, get_current_user_ord_id};
+use actix_web_grants::{permissions::AuthDetails, proc_macro::has_permissions};
 
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
 #[derive(Serialize, Debug)]
 pub struct ResultResponseData<T> {
     pub data: T,
     pub query: String,
 }
 
+#[has_permissions["QuestionShow", type = "PermissionNames"]]
 pub(crate) async fn results(
     pool: web::Data<Arc<DBPool>>,
     payload: web::Json<config::QuestionHumanSql>,
@@ -50,12 +54,14 @@ pub(crate) async fn results(
     //
 }
 
+#[has_permissions["QuestionShow", type = "PermissionNames"]]
 pub async fn fetch_viz_results_from_id(
     pool: web::Data<Arc<DBPool>>,
     vis_id: web::Path<i64>,
     payload: web::Json<config::QuestionHumanSql>,
     connection_pools: web::Data<Arc<Mutex<results::ConnectionPools>>>,
     req: HttpRequest,
+    auth_details: AuthDetails<PermissionNames>,
 ) -> impl Responder {
     let conn = pool.get();
     let question_config = viz::make_question_config(
@@ -65,6 +71,7 @@ pub async fn fetch_viz_results_from_id(
     )
     .unwrap();
     results(
+        auth_details,
         pool,
         actix_web::web::Json(question_config),
         connection_pools,

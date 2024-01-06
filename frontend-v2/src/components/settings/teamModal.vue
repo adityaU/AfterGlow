@@ -2,10 +2,10 @@
   <teleport to="body">
     <AGModal class="!tw-fixed" size="small" :show="open" @update:show="(val) => $emit('update:show', val)">
       <template #header>
-        <div class="tw-p-2 tw-text-2xl tw-font-semibold">Team Settings</div>
+        <div class="tw-px-4 tw-py-2 tw-text-2xl tw-font-semibold">Team Settings</div>
       </template>
       <template #body>
-        <div class="tw-p-2 divide-y">
+        <div class="tw-px-4 tw-py-2 divide-y">
           <div class="label">Name</div>
           <AGInput v-model:value="teamLocal.name" placeholder="What do you call it?" debounce="300" />
 
@@ -26,7 +26,7 @@
         </div>
       </template>
       <template #footer>
-        <div class="tw-flex tw-justify-end tw-gap-1 tw-p-2">
+        <div class="tw-flex tw-justify-end tw-gap-1 tw-px-4 tw-py-2">
           <AGButton class="tw-text-default hover:tw-bg-secondary tw-p-2"
             @clicked="($emit('update:open', false) || true) && $emit('refresh')">
             {{ this.teamLocal.id ? 'Done' : 'Cancel' }}

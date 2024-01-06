@@ -1,10 +1,27 @@
-use super::models::Organization;
+use super::models::{Organization, OrganizationChangeset, OrganizationSetting};
 use super::schema::organizations::dsl::*;
 
 use diesel::result::Error;
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
 
 impl Organization {
+    pub fn create_with_default_settings(
+        conn: &mut PgConnection,
+        changeset: OrganizationChangeset,
+    ) -> Result<Self, Error> {
+        let org = Self::create(conn, changeset)?;
+        OrganizationSetting::create_defaults(conn, org.id)?;
+        Ok(org)
+    }
+    pub fn update_with_default_settings(
+        conn: &mut PgConnection,
+        org_id: i64,
+        changeset: OrganizationChangeset,
+    ) -> Result<Self, Error> {
+        let org = Self::update(conn, org_id, changeset)?;
+        OrganizationSetting::create_defaults(conn, org.id)?;
+        Ok(org)
+    }
     pub fn active_count(conn: &mut PgConnection) -> Result<i64, Error> {
         organizations
             .filter(is_deactivated.eq(false))

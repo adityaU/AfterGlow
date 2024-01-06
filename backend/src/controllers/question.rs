@@ -19,6 +19,9 @@ use crate::{
 };
 use actix_web_grants::{permissions::AuthDetails, proc_macro::has_permissions};
 
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
+
 #[derive(Deserialize)]
 pub struct QueryParams {
     tag: Option<String>,
@@ -61,12 +64,12 @@ pub(crate) async fn show(pool: web::Data<Arc<DBPool>>, item_id: web::Path<i64>) 
         .map_err(|err| AGError::<String>::new(err))
 }
 
-#[has_permissions("Any")]
+#[has_permissions["QuestionShow", type = "PermissionNames"]]
 pub(crate) async fn index(
     pool: web::Data<Arc<DBPool>>,
     params: web::Query<QueryParams>,
     req: HttpRequest,
-    auth_details: AuthDetails,
+    auth_details: AuthDetails<PermissionNames>,
 ) -> impl Responder {
     let tag = params.tag.clone().unwrap_or("".to_string());
     let tag_id = tag.parse::<i64>().unwrap_or(0);
@@ -90,7 +93,7 @@ pub(crate) async fn index(
     .map_err(|err| AGError::<String>::new(err))
 }
 
-#[has_permissions("Question.create")]
+#[has_permissions["QuestionCreate", type = "PermissionNames"]]
 pub(crate) async fn create(
     pool: web::Data<Arc<DBPool>>,
     data: web::Json<QuestionPayload>,

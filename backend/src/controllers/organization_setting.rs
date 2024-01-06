@@ -14,12 +14,15 @@ use serde::Deserialize;
 
 use actix_web_grants::proc_macro::has_permissions;
 
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
+
 #[derive(Deserialize)]
 pub struct QueryParams {
     organization_id: Option<i64>,
 }
 
-#[has_permissions("Settings.all")]
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn index(
     pool: web::Data<Arc<DBPool>>,
     params: web::Query<QueryParams>,
@@ -44,20 +47,20 @@ base::generate_create!(
     OrganizationSetting,
     OrganizationSettingChangeset,
     OrganizationSettingView,
-    "Settings.all"
+    "SettingsAll"
 );
 base::generate_update!(
     update,
     OrganizationSetting,
     OrganizationSettingChangeset,
     OrganizationSettingView,
-    "Settings.all",
+    "SettingsAll",
     i64
 );
 base::generate_show!(
     show,
     OrganizationSetting,
     OrganizationSettingView,
-    "Settings.all",
+    "SettingsAll",
     i64
 );

@@ -21,6 +21,8 @@ use crate::{
 use actix_web_grants::{permissions::AuthDetails, proc_macro::has_permissions};
 
 use super::helpers::get_current_user_email;
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
 
 #[derive(Deserialize)]
 pub struct QueryParams {
@@ -28,10 +30,11 @@ pub struct QueryParams {
     limit: Option<i64>,
 }
 
+#[has_permissions["DashboardShow", type = "PermissionNames"]]
 pub(crate) async fn index(
     pool: web::Data<Arc<DBPool>>,
     req: HttpRequest,
-    auth_details: AuthDetails,
+    auth_details: AuthDetails<PermissionNames>,
     params: web::Query<QueryParams>,
 ) -> impl Responder {
     let conn = pool.get();
@@ -55,11 +58,12 @@ pub(crate) async fn index(
         .map_err(|err| AGError::<String>::new(err))
 }
 
+#[has_permissions["DashboardShow", type = "PermissionNames"]]
 pub(crate) async fn show(
     pool: web::Data<Arc<DBPool>>,
     item_id: web::Path<i64>,
     req: HttpRequest,
-    auth_details: AuthDetails,
+    auth_details: AuthDetails<PermissionNames>,
 ) -> impl Responder {
     let conn = pool.get();
     let current_user_email = get_current_user_email(&req);
@@ -79,7 +83,7 @@ pub(crate) async fn show(
     .map_err(|err| AGError::<String>::new(err))
 }
 
-#[has_permissions("Dashboard.create")]
+#[has_permissions["DashboardCreate", type = "PermissionNames"]]
 pub(crate) async fn create(
     pool: web::Data<Arc<DBPool>>,
     data: web::Json<DashboardChangeset>,
@@ -91,7 +95,7 @@ pub(crate) async fn create(
         .map(|item| HttpResponse::Created().json(ResponseData { data: item }))
         .map_err(|err| AGError::<String>::new(err))
 }
-#[has_permissions("Dashboard.edit")]
+#[has_permissions["DashboardEdit", type = "PermissionNames"]]
 pub(crate) async fn update(
     pool: web::Data<Arc<DBPool>>,
     data: web::Json<DashboardChangeset>,
@@ -107,7 +111,7 @@ pub(crate) async fn update(
     .map_err(|err| AGError::<String>::new(err))
 }
 
-#[has_permissions("Dashboard.edit")]
+#[has_permissions["DashboardEdit", type = "PermissionNames"]]
 pub(crate) async fn save_schedule(
     pool: web::Data<Arc<DBPool>>,
     data: web::Json<SchedulePayload>,
@@ -141,6 +145,7 @@ pub(crate) async fn save_schedule(
         .map_err(|err| AGError::<String>::new(err))
 }
 
+#[has_permissions["DashboardEdit", type = "PermissionNames"]]
 pub(crate) async fn fetch_schedule(
     pool: web::Data<Arc<DBPool>>,
     dashboard_id: web::Path<i64>,
@@ -151,11 +156,12 @@ pub(crate) async fn fetch_schedule(
         .map_err(|err| AGError::<String>::new(err))
 }
 
+#[has_permissions["DashboardShow", type = "PermissionNames"]]
 pub(crate) async fn search(
     pool: web::Data<Arc<DBPool>>,
     qp: web::Query<QueryParams>,
     req: HttpRequest,
-    auth_details: AuthDetails,
+    auth_details: AuthDetails<PermissionNames>,
 ) -> impl Responder {
     let conn = pool.get();
     let current_user_email = get_current_user_email(&req);

@@ -66,9 +66,10 @@ chrono-tz = { version = "0.8.4", features = ["serde"] }
 clap = "4.4.11"
 diesel_migrations = { version = "2.1.0", features = ["postgres"] }
 actix-files = "0.6.2"
+strum = { version = "0.25.0", features = ["derive"] }
 
 [profile.release]
-opt-level = 'z'   # Optimize for size
+opt-level = 's'   # Optimize for size
 lto = true        # Enable link-time optimization
 codegen-units = 1 # Reduce number of codegen units to increase optimizations
 panic = 'abort'   # Abort on panic

@@ -1,11 +1,6 @@
 <template>
   <teleport to="body">
-    <AGModal
-      class="!tw-fixed"
-      size="small"
-      :show="open"
-      @update:show="(val) => $emit('update:show', val)"
-    >
+    <AGModal class="!tw-fixed" size="small" :show="open" @update:show="(val) => $emit('update:show', val)">
       <template #header>
         <div class="tw-flex tw-items-center tw-px-4 tw-gap-1 tw-py-2">
           <UserIcon size="48" class="icon-primary !tw-py-2 !tw-px-1" />
@@ -16,31 +11,14 @@
             </div>
           </div>
 
-          <div
-            class="tw-cursor-pointer tw-bg-primary tw-text-white tw-text-sm tw-px-2 tw-py-0.5 tw-rounded-full"
-            v-if="permissionSet"
-          >
+          <div class="tw-cursor-pointer tw-bg-primary tw-text-white tw-text-sm tw-px-4 tw-py-2 tw-rounded-full"
+            v-if="permissionSet">
             {{ permissionSet.name }}
 
-            <q-menu
-              flat="true"
-              transition-show="scale"
-              transition-hide="scale"
-              max-height="800px"
-              class="tw-rounded-2xl tw-border tw-overflow-hidden"
-              @show="menuShow"
-              @keydown="onKeydown"
-            >
-              <SelectOptions
-                :options="permissionSets"
-                :selected="permissionSet"
-                :menuShow="menuShow"
-                @select="saveUserPS"
-                displayKey="name"
-                areOptionObjects="true"
-                hideOnClick="true"
-                hideSearch="true"
-              />
+            <q-menu flat="true" transition-show="scale" transition-hide="scale" max-height="800px"
+              class="tw-rounded-2xl tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown">
+              <SelectOptions :options="permissionSets" :selected="permissionSet" :menuShow="menuShow" @select="saveUserPS"
+                displayKey="name" areOptionObjects="true" hideOnClick="true" hideSearch="true" />
             </q-menu>
           </div>
         </div>
@@ -49,39 +27,22 @@
         <div class="tw-p-4">
           <div class="tw-p-2 divide-y">
             <div class="label tw-mt-2">Teams</div>
-            <AGSearchSelect
-              :selected="teamNames"
-              :queryFunction="searchTeams"
-              :options="teamNameOptions"
-              @update:selected="selectTeam"
-              disableLocalSearch="true"
-              description="search for teams"
-              class="tw-p-2 tw-pl-0"
-            />
+            <AGSearchSelect :selected="teamNames" :queryFunction="searchTeams" :options="teamNameOptions"
+              @update:selected="selectTeam" disableLocalSearch="true" description="search for teams"
+              class="tw-p-2 tw-pl-0" />
           </div>
           <div class="tw-p-2 divide-y tw-mt-2">
             <div class="tw-font-semibold tw-text-lg">Settings</div>
 
             <div class="label">Maximum Number of Rows in Exports/Reports</div>
-            <AGInput
-              v-model:value="downloadLimitSettings.value"
-              v-if="downloadLimitSettings"
-              :placeholder="
-                'How many rows can ' + userLocal.full_name + ' download?'
-              "
-              type="number"
-              debounce="300"
-            />
+            <AGInput v-model:value="downloadLimitSettings.value" v-if="downloadLimitSettings" :placeholder="'How many rows can ' + userLocal.full_name + ' download?'
+              " type="number" debounce="300" />
             <div class="note">
               This overrides the Global and Organization Level Value
             </div>
 
-            <AGBool
-              v-model:value="canDownloadSetting.value"
-              v-if="canDownloadSetting"
-              label="Can Download Reports"
-              class="label tw-mt-2"
-            />
+            <AGBool v-model:value="canDownloadSetting.value" v-if="canDownloadSetting" label="Can Download Reports"
+              class="label tw-mt-2" />
             <div class="note">
               Use this option to disable downloads for this user. This overrides
               the Global and Organization Level Value
@@ -91,18 +52,13 @@
       </template>
       <template #footer>
         <div class="tw-flex tw-justify-end tw-gap-1 tw-p-2">
-          <AGButton
-            class="tw-text-default hover:tw-bg-secondary tw-p-2"
-            @clicked="($emit('update:open', false) || true) && $emit('refresh')"
-          >
+          <AGButton class="tw-text-default hover:tw-bg-secondary tw-p-2"
+            @clicked="($emit('update:open', false) || true) && $emit('refresh')">
             {{ this.userLocal.id ? 'Done' : 'Cancel' }}
           </AGButton>
           <AGButton
             class="tw-text-white hover:tw-bg-primary/80 disabled:tw-bg-secondary disabled:tw-text-default tw-bg-primary tw-p-2"
-            :class="userLocal.name ? '' : 'disabled'"
-            @clicked="save() || true"
-            v-if="!this.userLocal.id"
-          >
+            :class="userLocal.name ? '' : 'disabled'" @clicked="save() || true" v-if="!this.userLocal.id">
             Create
           </AGButton>
         </div>
@@ -218,7 +174,7 @@ export default {
       fetchPermissionSets(this.setPermissionSets);
       fetchUserPermissionSet(this.id, this.setUserPermissionSet),
         this.userLocal?.id &&
-          fetchUserSettings(this.userLocal.id, this.setSettings);
+        fetchUserSettings(this.userLocal.id, this.setSettings);
     }
   },
 

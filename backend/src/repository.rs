@@ -31,6 +31,7 @@ pub mod note;
 pub mod organization;
 pub mod organization_setting;
 pub mod permission_set;
+pub mod permissions;
 pub mod question;
 pub mod schedule;
 pub mod schema;

@@ -18,10 +18,13 @@ pub struct QueryParams {
     query: Option<String>,
 }
 
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
+
 base::generate_index!(_index, User, UserView, "Any");
-base::generate_create!(create, User, UserChangeset, UserView, "Settings.all");
-base::generate_update!(update, User, UserChangeset, UserView, "Settings.all");
-base::generate_show!(show, User, UserView, "Settings.all");
+base::generate_create!(create, User, UserChangeset, UserView, "SettingsAll");
+base::generate_update!(update, User, UserChangeset, UserView, "SettingsAll");
+base::generate_show!(show, User, UserView, "SettingsAll");
 
 #[derive(Deserialize)]
 pub struct Payload {
@@ -29,6 +32,7 @@ pub struct Payload {
     ps_id: i64,
 }
 
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn index(
     pool: web::Data<Arc<DBPool>>,
     params: web::Query<QueryParams>,
@@ -52,6 +56,7 @@ pub(crate) async fn index(
         .map_err(|err| AGError::<String>::new(err))
 }
 
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn create_bulk_user(
     pool: web::Data<Arc<DBPool>>,
     params: web::Json<Payload>,
@@ -69,6 +74,7 @@ pub(crate) async fn create_bulk_user(
         .map_err(|err| AGError::<String>::new(err))
 }
 
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn deactivate(
     pool: web::Data<Arc<DBPool>>,
     user_id: web::Path<i64>,
@@ -82,6 +88,8 @@ pub(crate) async fn deactivate(
         })
         .map_err(|err| AGError::<String>::new(err))
 }
+
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn activate(
     pool: web::Data<Arc<DBPool>>,
     user_id: web::Path<i64>,
@@ -96,6 +104,7 @@ pub(crate) async fn activate(
         .map_err(|err| AGError::<String>::new(err))
 }
 
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn search(
     pool: web::Data<Arc<DBPool>>,
     qp: web::Query<QueryParams>,

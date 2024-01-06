@@ -15,6 +15,8 @@ use std::sync::Arc;
 
 use serde::Deserialize;
 
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
 #[derive(Deserialize)]
 pub struct Payload {
     user_id: Option<i64>,
@@ -26,18 +28,19 @@ base::generate_create!(
     UserSetting,
     UserSettingChangeset,
     UserSettingView,
-    "Settings.all"
+    "SettingsAll"
 );
 base::generate_update!(
     update,
     UserSetting,
     UserSettingChangeset,
     UserSettingView,
-    "Settings.all",
+    "SettingsAll",
     i64
 );
-base::generate_show!(show, UserSetting, UserSettingView, "Settings.all", i64);
+base::generate_show!(show, UserSetting, UserSettingView, "SettingsAll", i64);
 
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn index(
     pool: web::Data<Arc<DBPool>>,
     params: web::Query<Payload>,

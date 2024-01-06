@@ -1,4 +1,5 @@
 use super::models::{DashboardWidget, DashboardWidgetChangeset, Variable, WidgetTypes};
+use super::permissions::PermissionNames;
 use super::schema::{dashboard_widgets, variables, visualizations};
 use super::{models::Dashboard, schema::dashboards};
 
@@ -9,8 +10,8 @@ use diesel::result::Error;
 use diesel::sql_types::{BigInt, Bool, Nullable};
 
 impl dashboards::table {
-    pub fn shared_with_user(user_email: String, permissions: Vec<String>) -> String {
-        if permissions.contains(&"Settings.all".to_string()) {
+    pub fn shared_with_user(user_email: String, permissions: Vec<PermissionNames>) -> String {
+        if permissions.contains(&PermissionNames::SettingsAll) {
             return "dashboards.id = ANY(select dashboards.id from dashboards)".into();
         }
 
@@ -35,7 +36,7 @@ impl Dashboard {
         conn: &mut PgConnection,
         query: &str,
         user_email: String,
-        permissions: Vec<String>,
+        permissions: Vec<PermissionNames>,
     ) -> Result<Vec<Self>, Error> {
         dashboards::table
             .filter(sql::<Bool>(
@@ -47,7 +48,7 @@ impl Dashboard {
     pub fn sorted_index(
         conn: &mut PgConnection,
         user_email: String,
-        permissions: Vec<String>,
+        permissions: Vec<PermissionNames>,
         limit: Option<i64>,
     ) -> Result<Vec<Self>, Error> {
         let query = dashboards::table
@@ -68,7 +69,7 @@ impl Dashboard {
         conn: &mut PgConnection,
         id: i64,
         user_email: String,
-        permissions: Vec<String>,
+        permissions: Vec<PermissionNames>,
     ) -> Result<Self, Error> {
         dashboards::table
             .filter(sql::<Bool>(

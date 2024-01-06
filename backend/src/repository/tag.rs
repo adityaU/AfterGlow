@@ -1,4 +1,5 @@
 use super::models::{TagChangeset, TagQuestion, TagQuestionChangeset};
+use super::permissions::PermissionNames;
 use super::schema::{questions, tag_dashboards, tag_questions};
 use super::{models::Tag, schema::tags};
 
@@ -36,11 +37,11 @@ impl tags::table {
     pub fn shared_with_user<'a>(
         conn: &mut PgConnection,
         user_email: String,
-        permissions: Vec<String>,
+        permissions: Vec<PermissionNames>,
     ) -> Result<tags::BoxedQuery<'a, Pg>, Error> {
         let base_query = tags::table.into_boxed();
 
-        if permissions.contains(&"Settings.all".to_string()) {
+        if permissions.contains(&PermissionNames::SettingsAll) {
             return Ok(base_query);
         }
 
@@ -71,7 +72,7 @@ impl Tag {
     pub fn scoped_index(
         conn: &mut PgConnection,
         user_email: String,
-        permissions: Vec<String>,
+        permissions: Vec<PermissionNames>,
     ) -> Result<Vec<Self>, Error> {
         let query = tags::table::shared_with_user(conn, user_email, permissions)?;
         query.select(tags::all_columns).load::<Self>(conn)

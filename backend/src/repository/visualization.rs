@@ -1,4 +1,5 @@
 use super::models::Visualization;
+use super::permissions::PermissionNames;
 use super::schema::{questions, visualizations};
 
 use diesel::dsl::sql;
@@ -24,8 +25,8 @@ pub struct QuestionVisulization {
 }
 
 impl visualizations::table {
-    fn shared_with_user<'a>(user_email: String, permissions: Vec<String>) -> String {
-        if permissions.contains(&"Settings.all".to_string()) {
+    fn shared_with_user<'a>(user_email: String, permissions: Vec<PermissionNames>) -> String {
+        if permissions.contains(&PermissionNames::SettingsAll) {
             return "visualizations.id in (select id from visualizations)".into();
         }
         format!("visualizations.id = ANY(select id from visualizations where question_id in (SELECT s.id
@@ -56,7 +57,7 @@ impl Visualization {
         conn: &mut PgConnection,
         id: i64,
         user_email: String,
-        permissions: Vec<String>,
+        permissions: Vec<PermissionNames>,
     ) -> Result<Self, Error> {
         visualizations::table
             .filter(sql::<Bool>(
@@ -75,7 +76,7 @@ impl Visualization {
         conn: &mut PgConnection,
         q: String,
         user_email: String,
-        permissions: Vec<String>,
+        permissions: Vec<PermissionNames>,
     ) -> Result<Vec<QuestionVisulization>, Error> {
         visualizations::table
             .filter(sql::<Bool>(

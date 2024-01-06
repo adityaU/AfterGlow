@@ -1,4 +1,4 @@
-use std::{sync::Arc};
+use std::sync::Arc;
 
 use super::{
     base,
@@ -9,6 +9,8 @@ use actix_web::{web, HttpRequest, HttpResponse, Responder};
 use chrono::Utc;
 use serde::Deserialize;
 
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
 use crate::{
     app::{
         bg_jobs::{jobs::send_csv::SendCSVJob, pg_queue::PostgresQueue, Queue},
@@ -48,23 +50,23 @@ base::generate_create!(
     Visualization,
     VisualizationChangeset,
     VisualizationView,
-    "Settings.all"
+    "QuestionEdit"
 );
 base::generate_update!(
     update,
     Visualization,
     VisualizationChangeset,
     VisualizationView,
-    "Settings.all",
+    "QuestionEdit",
     i64
 );
 
-#[has_permissions("Any")]
+#[has_permissions["QuestionShow", type = "PermissionNames"]]
 pub(crate) async fn show(
     pool: web::Data<Arc<DBPool>>,
     item_id: web::Path<i64>,
     req: HttpRequest,
-    auth_details: AuthDetails,
+    auth_details: AuthDetails<PermissionNames>,
 ) -> impl Responder {
     let conn = pool.get();
     let permissions = auth_details.permissions;
@@ -83,6 +85,7 @@ pub(crate) async fn show(
     .map_err(|err| AGError::<String>::new_with_details(err, None, StatusCode::NOT_FOUND))
 }
 
+#[has_permissions["QuestionShow", type = "PermissionNames"]]
 pub(crate) async fn create_csv(
     pool: web::Data<Arc<DBPool>>,
     payload: web::Json<config::QuestionHumanSql>,
@@ -126,11 +129,12 @@ pub(crate) async fn create_csv(
         .map_err(|err| AGError::<String>::new(err))
 }
 
+#[has_permissions["QuestionShow", type = "PermissionNames"]]
 pub(crate) async fn search(
     pool: web::Data<Arc<DBPool>>,
     req: HttpRequest,
     qp: web::Query<SearchQueryParams>,
-    auth_details: AuthDetails,
+    auth_details: AuthDetails<PermissionNames>,
 ) -> impl Responder {
     let conn = pool.get();
 
@@ -153,7 +157,7 @@ pub(crate) async fn search(
     .map_err(|err| AGError::<String>::new(err))
 }
 
-#[has_permissions("Question.edit")]
+#[has_permissions["QuestionEdit", type = "PermissionNames"]]
 pub(crate) async fn save_schedule(
     pool: web::Data<Arc<DBPool>>,
     data: web::Json<SchedulePayload>,
@@ -196,7 +200,7 @@ pub(crate) async fn save_schedule(
     .map_err(|err| AGError::<String>::new(err))
 }
 
-#[has_permissions("Question.edit")]
+#[has_permissions["QuestionEdit", type = "PermissionNames"]]
 pub(crate) async fn fetch_schedule(
     pool: web::Data<Arc<DBPool>>,
     visualization_id: web::Path<i64>,

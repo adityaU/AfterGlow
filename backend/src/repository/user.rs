@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 
 use super::models::{
-    Organization, PermissionSet, User, UserChangeset, UserPermissionSet, UserPermissionSetChangeset,
+    Organization, PermissionSet, User, UserChangeset, UserPermissionSet,
+    UserPermissionSetChangeset, UserSetting, UserSettingChangeset,
 };
+use super::permissions::PermissionNames;
 use super::schema::{user_teams, users};
 
 use chrono::Utc;
@@ -54,21 +56,19 @@ impl User {
         conn: &mut PgConnection,
         updated_model: UserChangeset,
     ) -> Result<Self, Error> {
-        match updated_model.email.clone() {
+        let user = match updated_model.email.clone() {
             Some(em) => match Self::find_by_email(conn, em) {
                 Ok(record) => Self::update(conn, record.id, updated_model),
                 _ => Self::create(conn, updated_model),
             },
-            None => return Err(Error::NotFound),
-        }
+            None => Err(Error::NotFound),
+        }?;
+        UserSetting::create_defaults(conn, user.id)?;
+        Ok(user)
     }
 
-    pub fn fetch_permissions(&self, conn: &mut PgConnection) -> Vec<String> {
+    pub fn fetch_permissions(&self, conn: &mut PgConnection) -> Vec<PermissionNames> {
         UserPermissionSet::fetch_permissions_by_user_id(conn, self.id)
-    }
-
-    pub fn fetch_permissions_by_user_id(conn: &mut PgConnection, pk: i64) -> Vec<String> {
-        UserPermissionSet::fetch_permissions_by_user_id(conn, pk)
     }
 
     pub fn fetch_permission_sets(&self, conn: &mut PgConnection) -> Vec<i64> {

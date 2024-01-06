@@ -24,6 +24,7 @@ use crate::repository::models::Organization;
 
 use crate::repository::models::User;
 use crate::repository::models::UserChangeset;
+use crate::repository::permissions::PermissionNames;
 use crate::views::user::RestrictedUserView;
 use lazy_static::lazy_static;
 
@@ -52,7 +53,7 @@ pub struct GoogleUserResult {
 pub struct AGCallbackResponse {
     pub token: String,
     pub user: RestrictedUserView,
-    pub permissions: Vec<String>,
+    pub permissions: Vec<PermissionNames>,
     pub theme: Theme,
 }
 

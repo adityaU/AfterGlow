@@ -35,7 +35,7 @@ lazy_static! {
 use crate::app::questions::config;
 
 use crate::app::results::payload_adapter::Variable;
-use crate::app::results::query_terms::filters::DateObjectInner;
+use crate::app::results::query_terms::filters::{DateObjectInner, DurationType};
 use crate::app::{
     results::{
         helpers::make_alias,
@@ -379,27 +379,13 @@ pub trait SQlBased {
                 duration_tense,
             } => {
                 use crate::app::results::query_terms::filters::DurationTenseType::*;
-                use crate::app::results::query_terms::filters::DurationType::*;
 
                 let op = match duration_tense {
                     Ago => "-",
                     Later => "+",
                 };
 
-                match duration_type {
-                    Seconds => format!("now() {} INTERVAL '{} seconds'", op, duration_value),
-                    Minutes => format!("now() {} INTERVAL '{} minutes'", op, duration_value),
-                    Hours => format!("now() {} INTERVAL '{} hours'", op, duration_value),
-                    Days => format!("current_date {} INTERVAL '{} days'", op, duration_value),
-                    Weeks => format!("current_date {} INTERVAL '{} weeks'", op, duration_value),
-                    Months => format!("current_date {} INTERVAL '{} months'", op, duration_value),
-                    Quarters => format!(
-                        "current_date {} INTERVAL '{} months'",
-                        op,
-                        3 * duration_value
-                    ),
-                    Years => format!("current_date {} INTERVAL '{} years'", op, duration_value),
-                }
+                Self::query_fragment_on_duration_type(duration_type, op, duration_value)
             }
         };
 
@@ -413,6 +399,27 @@ pub trait SQlBased {
             IsNull => format!("{} is null", aliased_column),
             IsNotNull => format!("{} is not null", aliased_column),
             _ => "INVALID DATE COMPARISON".to_string(),
+        }
+    }
+    fn query_fragment_on_duration_type(
+        duration_type: &DurationType,
+        op: &str,
+        duration_value: &i32,
+    ) -> String {
+        use crate::app::results::query_terms::filters::DurationType::*;
+        match duration_type {
+            Seconds => format!("now() {} INTERVAL '{} seconds'", op, duration_value),
+            Minutes => format!("now() {} INTERVAL '{} minutes'", op, duration_value),
+            Hours => format!("now() {} INTERVAL '{} hours'", op, duration_value),
+            Days => format!("current_date {} INTERVAL '{} days'", op, duration_value),
+            Weeks => format!("current_date {} INTERVAL '{} weeks'", op, duration_value),
+            Months => format!("current_date {} INTERVAL '{} months'", op, duration_value),
+            Quarters => format!(
+                "current_date {} INTERVAL '{} months'",
+                op,
+                3 * duration_value
+            ),
+            Years => format!("current_date {} INTERVAL '{} years'", op, duration_value),
         }
     }
 

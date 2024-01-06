@@ -16,16 +16,18 @@ use actix_web_grants::{permissions::AuthDetails, proc_macro::has_permissions};
 
 use super::base;
 
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
 #[derive(Deserialize)]
 pub struct QueryParams {
     q: Option<String>,
 }
 
-#[has_permissions("Any")]
+#[has_permissions["QuestionShow", type = "PermissionNames"]]
 pub(crate) async fn index(
     pool: web::Data<Arc<DBPool>>,
     req: HttpRequest,
-    auth_details: AuthDetails,
+    auth_details: AuthDetails<PermissionNames>,
 ) -> impl Responder {
     let conn = pool.get();
     let user_email = req
@@ -60,4 +62,4 @@ pub async fn search(pool: web::Data<Arc<DBPool>>, qp: web::Query<QueryParams>) -
         .map_err(|err| AGError::<String>::new(err))
 }
 
-base::generate_create!(create, Tag, TagChangeset, TagView, "Question.create");
+base::generate_create!(create, Tag, TagChangeset, TagView, "QuestionCreate");

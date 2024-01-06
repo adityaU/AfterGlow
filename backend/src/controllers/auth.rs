@@ -1,7 +1,5 @@
 use std::sync::Arc;
 
-
-
 use actix_web::{error, web, HttpResponse, Responder};
 
 use crate::app::auth;

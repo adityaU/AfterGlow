@@ -139,7 +139,7 @@ diesel::table! {
         #[max_length = 255]
         success_key -> Nullable<Varchar>,
         action_level -> Nullable<Int4>,
-        visualization_id -> Nullable<Int8>,
+        visualization_id -> Nullable<Int4>,
         loading_message -> Nullable<Text>,
         display_settings -> Nullable<Jsonb>,
         #[max_length = 255]

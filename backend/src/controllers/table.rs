@@ -13,6 +13,8 @@ use serde::Deserialize;
 
 use actix_web_grants::proc_macro::has_permissions;
 
+use crate::repository::permissions::PermissionNames;
+use crate::repository::permissions::PermissionNames::*;
 #[derive(Deserialize)]
 pub struct QueryParams {
     database_id: Option<i64>,
@@ -28,8 +30,9 @@ pub struct QueryParams {
 //     SettingView,
 //     "Settings.all"
 // );
-base::generate_update!(update, Table, TableChangeset, TableView, "Settings.all");
+base::generate_update!(update, Table, TableChangeset, TableView, "SettingsAll");
 
+#[has_permissions["QuestionEdit", type = "PermissionNames"]]
 pub(crate) async fn show(pool: web::Data<Arc<DBPool>>, item_id: web::Path<i64>) -> impl Responder {
     let conn = pool.get();
     Table::find(&mut conn.unwrap(), item_id.into_inner())
@@ -43,6 +46,7 @@ pub(crate) async fn show(pool: web::Data<Arc<DBPool>>, item_id: web::Path<i64>) 
 }
 //
 
+#[has_permissions["QuestionEdit", type = "PermissionNames"]]
 pub async fn search(
     pool: web::Data<Arc<DBPool>>,
     params: web::Query<QueryParams>,

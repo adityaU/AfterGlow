@@ -1,6 +1,12 @@
 use diesel::PgConnection;
 
-use crate::app::{results::payload_adapter::AdaptedPayload, settings::limit};
+use crate::app::{
+    results::{
+        payload_adapter::AdaptedPayload,
+        query_terms::filters::{DateObjectInner, DurationType, FilterOperator},
+    },
+    settings::limit,
+};
 
 use super::{sql_base::SQlBased, Queries, QueryBuilder};
 
@@ -49,5 +55,27 @@ impl QueryBuilder for Redshift {
 impl SQlBased for Redshift {
     fn new(inner: AdaptedPayload) -> Self {
         Self { inner }
+    }
+
+    fn query_fragment_on_duration_type(
+        duration_type: &DurationType,
+        op: &str,
+        duration_value: &i32,
+    ) -> String {
+        use crate::app::results::query_terms::filters::DurationType::*;
+        match duration_type {
+            Seconds => format!("getdate() {} INTERVAL '{} seconds'", op, duration_value),
+            Minutes => format!("getdate() {} INTERVAL '{} minutes'", op, duration_value),
+            Hours => format!("getdate() {} INTERVAL '{} hours'", op, duration_value),
+            Days => format!("current_date {} INTERVAL '{} days'", op, duration_value),
+            Weeks => format!("current_date {} INTERVAL '{} weeks'", op, duration_value),
+            Months => format!("current_date {} INTERVAL '{} months'", op, duration_value),
+            Quarters => format!(
+                "current_date {} INTERVAL '{} months'",
+                op,
+                3 * duration_value
+            ),
+            Years => format!("current_date {} INTERVAL '{} years'", op, duration_value),
+        }
     }
 }

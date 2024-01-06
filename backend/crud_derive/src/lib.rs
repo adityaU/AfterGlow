@@ -148,10 +148,10 @@ pub fn derive_changeset(input: TokenStream) -> TokenStream {
 
     };
 
-    // let ts = TokenStream::from(expanded);
-    // println!("==============================={}", ts);
-    // ts
-    TokenStream::from(expanded)
+    let ts = TokenStream::from(expanded);
+    println!("==============================={}", ts);
+    ts
+    // TokenStream::from(expanded)
 }
 
 #[proc_macro_derive(View, attributes(view_skip_fields, view_name))]

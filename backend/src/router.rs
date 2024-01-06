@@ -18,6 +18,7 @@ use crate::controllers::{
 
 use crate::errors::AGError;
 use crate::repository::models::{Organization, User};
+use crate::repository::permissions::PermissionNames;
 use crate::repository::DBPool;
 use actix_web::body::MessageBody;
 use actix_web::dev::{fn_service, ServiceResponse};
@@ -56,10 +57,10 @@ async fn authenticate(
         })?;
 
         let mut permissions = token_response.permissions;
-        permissions.push("Any".to_string());
+        permissions.push(PermissionNames::Any);
         req.attach(permissions);
 
-        if None == token_response.user.email {
+        if token_response.user.email.is_none() {
             return Err(AGError::<String>::new_with_details(
                 "Unauthorized: User email not found in token".to_string(),
                 None,
@@ -445,15 +446,16 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
 
 fn static_config(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        actix_fs::Files::new("/", "../frontend-v2/dist/spa/").default_handler(fn_service(
-            |req: ServiceRequest| async {
+        actix_fs::Files::new("", "../frontend-v2/dist/spa/")
+            .index_file("index.html")
+            .default_handler(fn_service(|req: ServiceRequest| async {
                 let (req, _) = req.into_parts();
 
                 let pool = req.app_data::<web::Data<Arc<DBPool>>>().unwrap();
                 let mut contents = fs::read_to_string("../frontend-v2/dist/spa/index.html")
                     .expect("index file is not available");
                 let theme_colors = theme::get(&mut pool.get().unwrap());
-                contents += (ThemeStyleTemplate {
+                contents += ThemeStyleTemplate {
                     color_primary: theme_colors.primary_color,
                     color_secondary: theme_colors.secondary_color,
                     color_tertiary: theme_colors.tertiary_color,
@@ -462,11 +464,10 @@ fn static_config(cfg: &mut web::ServiceConfig) {
                 }
                 .render()
                 .unwrap()
-                .as_str());
+                .as_str();
                 let res = HttpResponse::new(StatusCode::OK).set_body(BoxBody::new(contents));
                 Ok(ServiceResponse::new(req, res))
-            },
-        )),
+            })),
     );
 }
 
