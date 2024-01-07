@@ -14,6 +14,7 @@ use actix_web::{
 };
 use app::bg_jobs::{pg_queue::PostgresQueue, scheduled_worker, worker, LongLivedData};
 // use diesel::prelude::*;
+use actix_web_lab::middleware::CatchPanic;
 use clap::{self, Command};
 use diesel::migration::Migration;
 use diesel_migrations::embed_migrations;
@@ -101,6 +102,7 @@ async fn run_server() -> std::io::Result<()> {
             .app_data(Data::new(pool.clone()))
             .app_data(Data::new(queue.clone()))
             .app_data(Data::new(connection_pools.clone()))
+            .wrap(CatchPanic::default())
             .wrap(Logger::new("%a \"%r\" %s %b  \"%{User-Agent}i\" %Dms"))
             .wrap(middleware::Compress::default())
             .configure(router::config)

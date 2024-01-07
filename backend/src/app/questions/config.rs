@@ -24,7 +24,7 @@ pub struct QuestionHumanSql {
 }
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
-#[serde(rename_all = "camelCase")]
+// #[serde(rename_all = "camelCase")]
 pub struct Visualization {
     pub id: Option<i64>,
     pub name: String,
@@ -37,12 +37,12 @@ pub struct Visualization {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum QueryTermDetails {
-    QueryTermsUnderDetails { details: QueryTerms },
-    QueryTerms(QueryTerms),
+    QueryTermsUnderDetails { details: Option<QueryTerms> },
+    QueryTerms(Option<QueryTerms>),
 }
 impl Default for QueryTermDetails {
     fn default() -> Self {
-        QueryTermDetails::QueryTerms(QueryTerms::default())
+        QueryTermDetails::QueryTerms(None)
     }
 }
 
@@ -128,18 +128,87 @@ pub struct Database {
     pub unique_identifier: Option<uuid::Uuid>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(untagged)]
+pub enum Filters {
+    FiltersUnderDetails(Option<FiltersWithDetails>),
+    Filters(Option<Vec<Filter>>),
+}
+
+impl Default for Filters {
+    fn default() -> Self {
+        Filters::Filters(None)
+    }
+}
+
+impl Filters {
+    pub fn get_details(&self) -> Vec<Filter> {
+        match self {
+            Filters::FiltersUnderDetails(Some(details)) => details.details.clone(),
+            Filters::Filters(Some(details)) => details.clone(),
+            _ => vec![],
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
-pub struct Filters {
+pub struct FiltersWithDetails {
     pub details: Vec<Filter>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default, Clone)]
-pub struct Groupings {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(untagged)]
+pub enum Groupings {
+    GroupingsWithDetails(Option<GroupingsWithDetails>),
+    Groupings(Option<Vec<Grouping>>),
+}
+
+impl Default for Groupings {
+    fn default() -> Self {
+        Groupings::Groupings(None)
+    }
+}
+
+impl Groupings {
+    pub fn get_details(&self) -> Vec<Grouping> {
+        match self {
+            Groupings::GroupingsWithDetails(Some(details)) => details.details.clone(),
+            Groupings::Groupings(Some(details)) => details.clone(),
+            _ => vec![],
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct GroupingsWithDetails {
     pub details: Vec<Grouping>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(untagged)]
+pub enum Sorts {
+    SortsWithDetails(Option<SortsWithDetails>),
+    Sorts(Option<Vec<Sort>>),
+}
+
+impl Default for Sorts {
+    fn default() -> Self {
+        Sorts::Sorts(None)
+    }
+}
+
+impl Sorts {
+    pub fn get_details(&self) -> Vec<Sort> {
+        match self {
+            Sorts::SortsWithDetails(Some(details)) => details.details.clone(),
+            Sorts::Sorts(Some(details)) => details.clone(),
+            _ => vec![],
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
-pub struct Sorts {
+pub struct SortsWithDetails {
     pub details: Vec<Sort>,
 }
 
@@ -151,8 +220,31 @@ pub struct Table {
     pub readable_table_name: Option<String>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(untagged)]
+pub enum Views {
+    ViewsWithDetails(Option<ViewsWithDetails>),
+    Views(Option<Vec<View>>),
+}
+
+impl Default for Views {
+    fn default() -> Self {
+        Views::Views(None)
+    }
+}
+
+impl Views {
+    pub fn get_details(&self) -> Vec<View> {
+        match self {
+            Views::ViewsWithDetails(Some(details)) => details.details.clone(),
+            Views::Views(Some(details)) => details.clone(),
+            _ => vec![],
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
-pub struct Views {
+pub struct ViewsWithDetails {
     pub details: Vec<View>,
 }
 

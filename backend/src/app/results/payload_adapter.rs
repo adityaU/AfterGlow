@@ -72,24 +72,21 @@ impl AdaptedPayload {
                         .unwrap_or(config::Visualization::default())
                         .query_terms
                     {
-                        config::QueryTermDetails::QueryTermsUnderDetails { details: qt } => qt,
-                        config::QueryTermDetails::QueryTerms(qt) => qt,
+                        config::QueryTermDetails::QueryTermsUnderDetails { details: Some(qt) } => {
+                            qt
+                        }
+                        config::QueryTermDetails::QueryTerms(Some(qt)) => qt,
+                        _ => config::QueryTerms::default(),
                     },
                 ),
             },
             config::QueryType::QueryBuilder => AdaptedPayload::QB {
                 database: payload.database.unwrap_or_default(),
                 question_query_terms: QueryTerms::new(config::QueryTerms {
-                    filters: payload
-                        .filters
-                        .unwrap_or(config::Filters { details: vec![] }),
-                    sortings: payload
-                        .sortings
-                        .unwrap_or(config::Sorts { details: vec![] }),
-                    groupings: payload
-                        .groupings
-                        .unwrap_or(config::Groupings { details: vec![] }),
-                    views: payload.views.unwrap_or(config::Views { details: vec![] }),
+                    filters: payload.filters.unwrap_or_default(),
+                    sortings: payload.sortings.unwrap_or_default(),
+                    groupings: payload.groupings.unwrap_or_default(),
+                    views: payload.views.unwrap_or_default(),
                     limit: payload.limit,
                     offset: payload.offset,
                 }),
@@ -101,8 +98,11 @@ impl AdaptedPayload {
                         .unwrap_or(config::Visualization::default())
                         .query_terms
                     {
-                        config::QueryTermDetails::QueryTermsUnderDetails { details: qt } => qt,
-                        config::QueryTermDetails::QueryTerms(qt) => qt,
+                        config::QueryTermDetails::QueryTermsUnderDetails { details: Some(qt) } => {
+                            qt
+                        }
+                        config::QueryTermDetails::QueryTerms(Some(qt)) => qt,
+                        _ => config::QueryTerms::default(),
                     },
                 ),
             },
@@ -122,7 +122,7 @@ pub fn make_variable(vars: &Vec<config::Variable>) -> Vec<Variable> {
         .collect::<Vec<Variable>>()
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, Default)]
 pub struct QueryTerms {
     pub filters: Vec<Filter>,
     pub sortings: Vec<Sort>,
@@ -143,10 +143,10 @@ impl QueryTerms {
     }
     pub fn new(query_terms: config::QueryTerms) -> QueryTerms {
         Self {
-            filters: make_filters(query_terms.filters.details),
-            sortings: make_sorts(query_terms.sortings.details),
-            groupings: make_groupings(query_terms.groupings.details),
-            views: make_views(query_terms.views.details),
+            filters: make_filters(query_terms.filters.get_details()),
+            sortings: make_sorts(query_terms.sortings.get_details()),
+            groupings: make_groupings(query_terms.groupings.get_details()),
+            views: make_views(query_terms.views.get_details()),
             limit: query_terms.limit,
             offset: query_terms.offset,
         }
