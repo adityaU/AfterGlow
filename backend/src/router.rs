@@ -146,6 +146,11 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
                 .route(web::get().to(variable::index)),
         )
         .service(
+            web::resource("/variables/{variable_id}")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(variable::show)),
+        )
+        .service(
             web::resource("/databases")
                 .wrap(from_fn(authenticate))
                 .route(web::get().to(database::index))

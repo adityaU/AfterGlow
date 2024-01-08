@@ -173,7 +173,7 @@ pub fn make_filters(filters: Vec<config::Filter>) -> Vec<Filter> {
                     None
                 };
 
-                match filter.is_value_datetime {
+                match filter.is_value_datetime.unwrap_or_default() {
                     true => {
                         let val = match value {
                             Some(v) => {

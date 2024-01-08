@@ -74,3 +74,8 @@ impl error::ResponseError for QueryError {
         StatusCode::BAD_REQUEST
     }
 }
+impl From<String> for QueryError {
+    fn from(error: String) -> Self {
+        QueryError::new(error, "".to_string())
+    }
+}

@@ -6,6 +6,11 @@ use diesel::result::Error;
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
 
 impl Variable {
+    pub fn find_by_ids(conn: &mut PgConnection, ids: Vec<i64>) -> Result<Vec<Self>, Error> {
+        variables::table
+            .filter(variables::id.eq_any(ids))
+            .load::<Self>(conn)
+    }
     pub fn find_by_dashboard_id(conn: &mut PgConnection, did: i64) -> Result<Vec<Self>, Error> {
         variables::table
             .filter(variables::dashboard_id.eq(did))

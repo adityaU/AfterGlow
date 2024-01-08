@@ -252,7 +252,7 @@ pub struct ViewsWithDetails {
 #[serde(rename_all = "camelCase")]
 pub struct Filter {
     pub column: Option<String>,
-    pub is_value_datetime: bool,
+    pub is_value_datetime: Option<bool>,
     pub operator: Option<filters::FilterOperator>,
     pub raw: bool,
     pub value: Option<serde_json::value::Value>,

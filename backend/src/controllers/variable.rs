@@ -7,10 +7,10 @@ use crate::{
         DBPool,
     },
 };
-use actix_web::{web, HttpResponse, Responder};
+use actix_web::{error, web, HttpResponse, Responder};
 use serde::Deserialize;
 
-use super::common::ResponseData;
+use super::{base, common::ResponseData};
 
 use crate::repository::permissions::PermissionNames;
 use crate::repository::permissions::PermissionNames::*;
@@ -18,6 +18,7 @@ use actix_web_grants::proc_macro::has_permissions;
 #[derive(Deserialize)]
 pub struct QueryParams {
     question_id: Option<i64>,
+    ids: Option<String>,
 }
 
 #[has_permissions["QuestionShow", type = "PermissionNames"]]
@@ -40,5 +41,38 @@ pub(crate) async fn index(
         return resp;
     }
 
+    if params.ids.is_some() {
+        let conn = pool.get();
+        let ids = params
+            .ids
+            .clone()
+            .unwrap_or_default()
+            .split(",")
+            .map(|id| id.parse::<i64>().unwrap())
+            .collect::<Vec<i64>>();
+        let resp = Variable::find_by_ids(&mut conn.unwrap(), ids)
+            .map(|tags| {
+                let resp = tags
+                    .iter()
+                    .map(|tag| VariableView::from_model(tag))
+                    .collect::<Vec<VariableView>>();
+                HttpResponse::Ok().json(ResponseData { data: resp })
+            })
+            .map_err(|err| AGError::<String>::new(err));
+        return resp;
+    }
+
     return Err(AGError::<String>::new("No question id provided"));
+}
+
+#[has_permissions["QuestionShow",type = "PermissionNames"]]
+pub(crate) async fn show(pool: web::Data<Arc<DBPool>>, item_id: web::Path<i64>) -> impl Responder {
+    let conn = pool.get();
+    Variable::find(&mut conn.unwrap(), item_id.into_inner())
+        .map(|item| {
+            HttpResponse::Ok().json(ResponseData {
+                data: VariableView::from_model(&item),
+            })
+        })
+        .map_err(|err| error::ErrorNotFound(err))
 }

@@ -81,7 +81,7 @@ const fetchVariables = async function(variableIds, callback) {
 
     apiV2
       .get(
-        'variables?filter=' + JSON.stringify({ id: variableIds.join(',') }),
+        'variables?ids=' + variableIds.join(','),
         apiConfig(session.token)
       )
       .then((response) => {
