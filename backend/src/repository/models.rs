@@ -952,7 +952,7 @@ pub struct Variable {
 }
 
 #[derive(
-    Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Deserialize, Clone, Default,
+    Hash, Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Deserialize, Clone, Default,
 )]
 #[diesel(sql_type = VarChar)]
 #[serde(rename_all = "camelCase")]

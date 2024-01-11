@@ -24,12 +24,12 @@ pub struct QuestionHumanSql {
 }
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
-// #[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase")]
 pub struct Visualization {
     pub id: Option<i64>,
     pub name: String,
     pub question_id: Option<i64>,
-    pub query_terms: QueryTermDetails,
+    pub query_terms: Option<QueryTermDetails>,
     pub settings: Option<serde_json::value::Value>,
     pub renderer_type: Option<RendererTypes>,
 }

@@ -110,7 +110,37 @@ macro_rules! generate_show {
     };
 }
 
+macro_rules! generate_delete {
+    ($fn_name:ident, $model:ident, $show_permission:expr, $id_data_type:ident) => {
+        #[has_permissions[$show_permission, type = "PermissionNames"]]
+        pub(crate) async fn $fn_name(
+            pool: web::Data<Arc<DBPool>>,
+            item_id: web::Path<$id_data_type>,
+        ) -> impl Responder {
+            let conn = pool.get();
+            $model::delete(&mut conn.unwrap(), item_id.into_inner())
+                .map(|item| HttpResponse::Ok().json(ResponseData { data: "success" }))
+                .map_err(|err| {
+                    AGError::<String>::new_with_details(err, None, StatusCode::NOT_FOUND)
+                })
+        }
+    };
+    ($fn_name:ident, $model:ident, $show_permission:expr) => {
+        #[has_permissions[$show_permission, type = "PermissionNames"]]
+        pub(crate) async fn $fn_name(
+            pool: web::Data<Arc<DBPool>>,
+            item_id: web::Path<i64>,
+        ) -> impl Responder {
+            let conn = pool.get();
+            $model::delete(&mut conn.unwrap(), item_id.into_inner())
+                .map(|item| HttpResponse::Ok().json(ResponseData { data: "success" }))
+                .map_err(|err| error::ErrorNotFound(err))
+        }
+    };
+}
+
 pub(crate) use generate_create;
+pub(crate) use generate_delete;
 pub(crate) use generate_index;
 pub(crate) use generate_show;
 pub(crate) use generate_update;

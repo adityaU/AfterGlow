@@ -72,10 +72,10 @@ impl AdaptedPayload {
                         .unwrap_or(config::Visualization::default())
                         .query_terms
                     {
-                        config::QueryTermDetails::QueryTermsUnderDetails { details: Some(qt) } => {
-                            qt
-                        }
-                        config::QueryTermDetails::QueryTerms(Some(qt)) => qt,
+                        Some(config::QueryTermDetails::QueryTermsUnderDetails {
+                            details: Some(qt),
+                        }) => qt,
+                        Some(config::QueryTermDetails::QueryTerms(Some(qt))) => qt,
                         _ => config::QueryTerms::default(),
                     },
                 ),
@@ -98,10 +98,10 @@ impl AdaptedPayload {
                         .unwrap_or(config::Visualization::default())
                         .query_terms
                     {
-                        config::QueryTermDetails::QueryTermsUnderDetails { details: Some(qt) } => {
-                            qt
-                        }
-                        config::QueryTermDetails::QueryTerms(Some(qt)) => qt,
+                        Some(config::QueryTermDetails::QueryTermsUnderDetails {
+                            details: Some(qt),
+                        }) => qt,
+                        Some(config::QueryTermDetails::QueryTerms(Some(qt))) => qt,
                         _ => config::QueryTerms::default(),
                     },
                 ),

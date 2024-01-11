@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::{
     errors::AGError,
     repository::{
-        models::{Variable, VariableView},
+        models::{Variable, VariableChangeset, VariableView},
         DBPool,
     },
 };
@@ -76,3 +76,21 @@ pub(crate) async fn show(pool: web::Data<Arc<DBPool>>, item_id: web::Path<i64>) 
         })
         .map_err(|err| error::ErrorNotFound(err))
 }
+
+base::generate_create!(
+    create,
+    Variable,
+    VariableChangeset,
+    VariableView,
+    "DashboardEdit"
+);
+
+base::generate_update!(
+    update,
+    Variable,
+    VariableChangeset,
+    VariableView,
+    "DashboardEdit"
+);
+
+base::generate_delete!(delete, Variable, "DashboardEdit");

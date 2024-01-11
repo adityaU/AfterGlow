@@ -2,66 +2,33 @@
   <div class="tw-flex tw-items-center">
     <div class="tw-flex-1 tw-flex">
       <template v-for="variable in variables" :key="variable">
-        <div
-          class="tw-flex tw-items-center tw-m-1 tw-cursor-pointer tw-leading-4"
-        >
+        <div class="tw-flex tw-items-center tw-m-1 tw-cursor-pointer tw-leading-4">
           <div class="tw-flex">
-            <div
-              class="tw-bg-primary/90 tw-text-white tw-px-4 tw-py-2 tw-rounded-l-sm"
-            >
+            <div class="tw-bg-primary/90 tw-text-white tw-px-4 tw-py-2 tw-rounded-l-sm">
               {{ variable.name }}
             </div>
-            <div
-              class="tw-bg-primary tw-text-white tw-px-4 tw-py-2 tw-rounded-r-sm"
-              v-if="
-                variable.var_type === 'String' ||
-                variable.var_type === 'Integer'
-              "
-            >
+            <div class="tw-bg-primary tw-text-white tw-px-4 tw-py-2 tw-rounded-r-sm" v-if="variable.var_type === 'String' ||
+              variable.var_type === 'Integer'
+              ">
               {{ variable.value != null ? variable.value : variable.default }}
             </div>
-            <AGDatetimePicker
-              class="tw-bg-primary tw-text-white tw-px-4 tw-py-2 tw-rounded-r-sm tw-border-0"
-              v-model:value="variable.value"
-              type="datetime"
-              :clearCount="variable.clearCount"
-              v-if="variable.var_type === 'Date'"
-            />
-            <q-menu
-              flat="true"
-              transition-show="jump-down"
-              transition-hide="jump-up"
-              max-height="400px"
-              class="tw-rounded-full tw-border tw-overflow-hidden"
-              @show="menuShow"
-              @keydown="onKeydown"
-              fit
-              v-if="
-                variable.var_type === 'String' ||
+            <AGDatetimePicker class="tw-bg-primary tw-text-white tw-px-4 tw-py-2 tw-rounded-r-sm tw-border-0"
+              v-model:value="variable.value" type="datetime" :clearCount="variable.clearCount"
+              v-if="variable.var_type === 'Date'" />
+            <q-menu flat="true" transition-show="jump-down" transition-hide="jump-up" max-height="400px"
+              class="tw-rounded-full tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown" fit v-if="variable.var_type === 'String' ||
                 variable.var_type === 'Integer'
-              "
-            >
-              <AGInput
-                :placeholder="'Enter ' + variable.name"
-                v-model:value="variable.value"
-              />
+                ">
+              <AGInput :placeholder="'Enter ' + variable.name" v-model:value="variable.value" />
             </q-menu>
           </div>
         </div>
       </template>
     </div>
     <div class="tw-px-2 tw-flex tw-gap-1">
-      <AGButton
-        class="hover:tw-bg-default/80 tw-leading-4"
-        :style="clearButtonStyle"
-        v-if="showClearButton"
-        @click="clear()"
-      >
-        <q-tooltip
-          transition-show="scale"
-          transition-hide="scale"
-          v-if="clearButtonFormatting.iconOnly"
-        >
+      <AGButton class="hover:tw-bg-default/80 tw-leading-4" :style="clearButtonStyle" v-if="showClearButton"
+        @click="clear()">
+        <q-tooltip transition-show="scale" transition-hide="scale" v-if="clearButtonFormatting.iconOnly">
           {{ clearButtonName }}
         </q-tooltip>
         <div class="tw-flex tw-items-center tw-gap-1">
@@ -71,17 +38,9 @@
           </div>
         </div>
       </AGButton>
-      <AGButton
-        class="hover:tw-bg-default/80 tw-leading-4"
-        :style="resetButtonStyle"
-        v-if="showResetButton"
-        @click="reset()"
-      >
-        <q-tooltip
-          transition-show="scale"
-          transition-hide="scale"
-          v-if="resetButtonFormatting.iconOnly"
-        >
+      <AGButton class="hover:tw-bg-default/80 tw-leading-4" :style="resetButtonStyle" v-if="showResetButton"
+        @click="reset()">
+        <q-tooltip transition-show="scale" transition-hide="scale" v-if="resetButtonFormatting.iconOnly">
           {{ resetButtonName }}
         </q-tooltip>
         <div class="tw-flex tw-items-center tw-gap-1">
@@ -91,17 +50,9 @@
           </div>
         </div>
       </AGButton>
-      <AGButton
-        class="hover:tw-bg-default/80 tw-leading-4"
-        :style="refreshButtonStyle"
-        v-if="showRefreshButton"
-        @click="refresh()"
-      >
-        <q-tooltip
-          transition-show="scale"
-          transition-hide="scale"
-          v-if="refreshButtonFormatting.iconOnly"
-        >
+      <AGButton class="hover:tw-bg-default/80 tw-leading-4" :style="refreshButtonStyle" v-if="showRefreshButton"
+        @click="refresh()">
+        <q-tooltip transition-show="scale" transition-hide="scale" v-if="refreshButtonFormatting.iconOnly">
           {{ buttonName }}
         </q-tooltip>
         <div class="tw-flex tw-items-center tw-gap-1">
@@ -112,8 +63,7 @@
     </div>
     <div
       class="tw-flex tw-items-center tw-whitespace-nowrap tw-gap-2 tw-absolute tw-p-2 tw-right-1 tw-top-1 tw-z-10 tw-bg-white tw-rounded-2xl tw-border"
-      v-if="editMode"
-    >
+      v-if="editMode">
       <slot />
     </div>
   </div>

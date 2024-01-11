@@ -99,16 +99,11 @@ const addVariable = async function(payload, dashboardID, callback) {
   payload.dashboard_id = dashboardID;
   payload.question_id = null;
   callback(null, true);
-  payload = { data: { type: 'variables', attributes: payload } };
   apiV2
-    .post('variables/', payload, apiConfig(session.token))
+    .post('variables', payload, apiConfig(session.token))
     .then((response) => {
-      response.data.data.attributes.id = response.data.data.id;
       callback(
-        {
-          ...response.data.data.attributes,
-          ...(response.data.data.relationships || {}),
-        },
+        response.data.data,
         false
       );
     })
@@ -121,20 +116,15 @@ const addVariable = async function(payload, dashboardID, callback) {
 const saveVariable = async function(payload, callback) {
   const session = sessionStore();
   callback(null, true);
-  payload = { data: { type: 'variables', attributes: payload } };
-  api
+  apiV2
     .put(
       'variables/' + payload.data.attributes.id,
       payload,
       apiConfig(session.token)
     )
     .then((response) => {
-      response.data.data.attributes.id = response.data.data.id;
       callback(
-        {
-          ...response.data.data.attributes,
-          ...(response.data.data.relationships || {}),
-        },
+        response.data.data,
         false
       );
     })
@@ -147,7 +137,7 @@ const saveVariable = async function(payload, callback) {
 const deleteVariable = async function(varID, callback) {
   const session = sessionStore();
   callback(false, true);
-  api
+  apiV2
     .delete('variables/' + varID, apiConfig(session.token))
     .then((response) => {
       callback(true, false);

@@ -5,7 +5,7 @@ import hash from 'src/helpers/hash';
 import { sessionStore } from 'src/stores/session';
 
 const results = resultsStore();
-const fetchVizResults = async function (
+const fetchVizResults = async function(
   vizID,
   questionID,
   payload,
@@ -14,19 +14,25 @@ const fetchVizResults = async function (
   key
 ) {
   callback(null, '', true);
+  if (payload?.visualization?.query_terms) {
+    payload.visualization.queryTerms = payload.visualization.query_terms;
+  }
+  if (payload?.visualization?.renderer_type) {
+    payload.visualization.rendererType = payload.visualization.renderer_type;
+  }
   const url = vizID
     ? 'visualizations/' + vizID + '/results'
     : 'visualizations/results';
   key = key
     ? key
     : await hash(
-        'payload=' +
-          JSON.stringify(payload) +
-          '&questionID=' +
-          questionID +
-          '&vizID=' +
-          vizID
-      );
+      'payload=' +
+      JSON.stringify(payload) +
+      '&questionID=' +
+      questionID +
+      '&vizID=' +
+      vizID
+    );
   apiV2
     .post(url, payload, apiConfig(query.token))
     .then((response) => {
@@ -46,7 +52,7 @@ const fetchVizResults = async function (
     });
 };
 
-const fetchViz = function (vizID, query, callback) {
+const fetchViz = function(vizID, query, callback) {
   callback(null, true);
 
   apiV2
@@ -60,7 +66,7 @@ const fetchViz = function (vizID, query, callback) {
     });
 };
 
-const downloadVizData = function (payload, query, callback) {
+const downloadVizData = function(payload, query, callback) {
   callback(null, null, true);
   apiV2
     .post('/visualizations/create_csv', payload, apiConfig(query.token))
@@ -73,7 +79,7 @@ const downloadVizData = function (payload, query, callback) {
     });
 };
 
-const makeVisualizationFromResponse = function (viz) {
+const makeVisualizationFromResponse = function(viz) {
   return {
     id: viz.id,
     name: viz.name,
@@ -84,7 +90,7 @@ const makeVisualizationFromResponse = function (viz) {
   };
 };
 
-const searchVisualizations = async function (query, callback) {
+const searchVisualizations = async function(query, callback) {
   const session = sessionStore();
   callback(null, true);
   const response = await apiV2.get(

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use chrono::NaiveDateTime;
 use diesel::PgConnection;
 use serde::{Deserialize, Serialize};
@@ -56,6 +58,12 @@ impl DetailedDashboardView {
             .iter()
             .map(|var| VariableView::from_model(var))
             .collect::<Vec<VariableView>>();
+
+        let mut unique_map = HashMap::new();
+        for item in possible_variables {
+            unique_map.entry(item.name.clone()).or_insert(item);
+        }
+        let possible_variables: Vec<_> = unique_map.into_values().collect();
 
         Self {
             id: dashboard.id,

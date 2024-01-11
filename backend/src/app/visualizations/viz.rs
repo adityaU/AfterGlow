@@ -50,7 +50,7 @@ pub fn make_question_config(
         id: Some(viz_id),
         name: viz.name.unwrap_or_default().to_string(),
         question_id: Some(question_id),
-        query_terms: viz_query_terms,
+        query_terms: Some(viz_query_terms),
         settings: viz.settings,
         renderer_type: viz.renderer_type,
     });
