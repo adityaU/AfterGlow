@@ -2,7 +2,7 @@ use actix_web::{error, web, HttpRequest, HttpResponse, Responder};
 use actix_web_grants::permissions::AuthDetails;
 use serde::Deserialize;
 
-use super::base;
+
 use super::helpers::get_current_user_email;
 use crate::app::bg_jobs::jobs::sync_db::SyncDBJob;
 use crate::app::bg_jobs::pg_queue::PostgresQueue;

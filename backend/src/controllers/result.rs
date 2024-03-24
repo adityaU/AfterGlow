@@ -9,12 +9,11 @@ use crate::{
         results::{self, fetch, QueryError, ResultsResponse},
         visualizations::viz,
     },
-    errors::AGError,
     repository::DBPool,
 };
 
 use super::helpers::{get_current_user_id, get_current_user_ord_id};
-use actix_web_grants::{permissions::AuthDetails, proc_macro::has_permissions};
+use actix_web_grants::{proc_macro::has_permissions};
 
 use crate::repository::permissions::PermissionNames;
 use crate::repository::permissions::PermissionNames::*;

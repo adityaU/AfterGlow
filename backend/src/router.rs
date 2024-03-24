@@ -1,15 +1,17 @@
 use actix_files as actix_fs;
-use actix_fs::NamedFile;
+
 use actix_web::body::BoxBody;
-use actix_web::{HttpRequest, HttpResponse};
+
+use actix_web::{HttpResponse};
 use askama::Template;
 use std::fs;
-use std::io;
+
 use std::sync::Arc;
 
 use crate::app::auth::verify_token;
 
-use crate::app::settings::theme;
+use crate::app::settings::{theme};
+
 use crate::controllers::{
     api_action, auth, autocomplete, column, dashboard, database, note, organization,
     organization_setting, permission_set, question, result, setting, snippet, table, tag, team,
@@ -84,31 +86,36 @@ async fn authenticate(
         })?;
 
         if active_org_count > 0 {
-            let organization = Organization::find_by_domain(
-                &mut connection,
-                User::find_domain(user.email.unwrap().as_str()).as_str(),
-            )
-            .map_err(|_| {
-                AGError::<String>::new_with_details(
-                    "Unauthorized: Reason: Domain not found".to_string(),
-                    None,
-                    StatusCode::UNAUTHORIZED,
-                )
-            })?;
+            let domain = User::find_domain(user.email.unwrap().as_str());
+            if domain != "example.com" {
+                let organization = Organization::find_by_domain(&mut connection, domain.as_str())
+                    .map_err(|_| {
+                    AGError::<String>::new_with_details(
+                        "Unauthorized: Reason: Domain not found".to_string(),
+                        None,
+                        StatusCode::UNAUTHORIZED,
+                    )
+                })?;
 
-            if organization.is_deactivated {
-                return Err(AGError::<String>::new_with_details(
-                    "Unauthorized: Domain is not allowed.".to_string(),
-                    None,
-                    StatusCode::UNAUTHORIZED,
-                )
-                .into());
+                if organization.is_deactivated {
+                    return Err(AGError::<String>::new_with_details(
+                        "Unauthorized: Domain is not allowed.".to_string(),
+                        None,
+                        StatusCode::UNAUTHORIZED,
+                    )
+                    .into());
+                }
+
+                req.headers_mut().append(
+                    HeaderName::from_static("organization_id"),
+                    HeaderValue::from(organization.id),
+                );
+            } else {
+                req.headers_mut().append(
+                    HeaderName::from_static("organization_id"),
+                    HeaderValue::from(0),
+                );
             }
-
-            req.headers_mut().append(
-                HeaderName::from_static("organization_id"),
-                HeaderValue::from(organization.id),
-            );
         } else {
             req.headers_mut().append(
                 HeaderName::from_static("organization_id"),
@@ -139,7 +146,11 @@ async fn authenticate(
 fn scoped_config(cfg: &mut web::ServiceConfig) {
     cfg.service(web::resource("/verify_token/").route(web::post().to(auth::veriy_token)))
         .service(web::resource("/callback/google").route(web::post().to(auth::google_callback)))
+        .service(web::resource("/saml/acs").route(web::post().to(auth::saml_acs)))
+        .service(web::resource("/login").route(web::post().to(auth::password_login)))
+        .service(web::resource("/init_config").route(web::get().to(setting::init_config)))
         .service(web::resource("/auth/google").route(web::get().to(auth::redirect_to_google)))
+        .service(web::resource("/auth/saml").route(web::get().to(auth::initiate_saml)))
         .service(
             web::resource("/variables")
                 .wrap(from_fn(authenticate))
@@ -449,6 +460,11 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
             web::resource("/sql_autocomplete")
                 .wrap(from_fn(authenticate))
                 .route(web::get().to(autocomplete::complete)),
+        )
+        .service(
+            web::resource("/saml/metadata")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(auth::saml_metadata)),
         );
 }
 

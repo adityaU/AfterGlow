@@ -1,16 +1,16 @@
 use std::collections::HashMap;
-use std::fmt;
 
-use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
+
+
 use fancy_regex::Regex;
 
 use diesel::PgConnection;
-use rust_decimal::Decimal;
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use lazy_static::lazy_static;
-use uuid::Uuid;
+
 
 lazy_static! {
     static ref SNIPPET_RE: Regex = Regex::new(r"\{\{ *sn:.*?(?<snippet_id>\d+) *\}\}").unwrap();
@@ -47,19 +47,18 @@ use crate::app::{
             views::{Column, View},
         },
     },
-    settings::limit,
 };
 use crate::repository::models::{Question, Snippet, VariableType};
 
 use super::super::AdaptedPayload;
 
 use super::super::query_terms::{
-    filters::{DateObject, FilterOperator},
+    filters::{FilterOperator},
     groups::GroupDuration,
     sorts::SortDirection::{Ascending, Descending},
     views::ViewAggregations,
 };
-use super::{Queries, QueryBuilder};
+use super::{Queries};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SQLQueryOptions {

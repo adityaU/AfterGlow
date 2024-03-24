@@ -25,7 +25,7 @@ use crate::app::{
         adapters::DBValue,
         helpers::hashed_db_credentials,
         payload_adapter::AdaptedPayload,
-        query_builders::{postgres::Postgres, sql_base::SQlBased as _},
+        query_builders::{postgres::Postgres, sql_base::SQlBased as _, Queries},
         ColumnDetail, ConnectionPools, DataType, QueryError,
     },
 };
@@ -36,6 +36,17 @@ pub struct PostgresAdapter {
 
 #[async_trait::async_trait]
 impl DBAdapter for PostgresAdapter {
+    async fn fetch_query_only(
+        &self,
+        conn: &mut PgConnection,
+        adapted_payload: AdaptedPayload,
+        user_id: i64,
+        org_id: i64,
+    ) -> Result<Queries, QueryError> {
+        Postgres::new(adapted_payload)
+            .build(conn, user_id, org_id)
+            .map_err(|err| QueryError::new(err, "".to_string()))
+    }
     async fn fetch_response(
         &self,
         conn: &mut PgConnection,
@@ -446,11 +457,11 @@ impl PostgresAdapter {
                     let value: Option<Vec<Uuid>> = row.try_get(i).unwrap_or(None);
                     r.push(DBValue::VecUUID(value));
                 }
-                "json" | "jsonb" => {
+                "json" | "jsonb" | "super" => {
                     let value: Option<Value> = row.try_get(i).unwrap_or(None);
                     r.push(DBValue::Json(value));
                 }
-                "_json" | "_jsonb" => {
+                "_json" | "_jsonb" | "_super" => {
                     let value: Option<Vec<Value>> = row.try_get(i).unwrap_or(None);
                     r.push(DBValue::VecJSON(value));
                 }

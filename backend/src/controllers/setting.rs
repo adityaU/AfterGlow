@@ -3,6 +3,7 @@ use actix_web::{error, web, HttpResponse, Responder};
 use super::base;
 use std::sync::Arc;
 
+use crate::app::settings::init_config;
 use crate::repository::models::{Setting, SettingChangeset, SettingView};
 use crate::{controllers::common::ResponseData, repository::DBPool};
 
@@ -36,3 +37,13 @@ base::generate_update!(
     "SettingsAll"
 );
 base::generate_show!(show, Setting, SettingView, "SettingsAll");
+
+pub async fn init_config(
+    pool: web::Data<Arc<DBPool>>,
+    _query: web::Query<QueryParams>,
+) -> impl Responder {
+    let conn = pool.get();
+    init_config::get(&mut conn.unwrap())
+        .map(|resp| HttpResponse::Ok().json(ResponseData { data: resp }))
+        .map_err(|err| error::ErrorBadRequest(err))
+}

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use super::models::{
     Organization, PermissionSet, User, UserChangeset, UserPermissionSet,
-    UserPermissionSetChangeset, UserSetting, UserSettingChangeset,
+    UserPermissionSetChangeset, UserSetting,
 };
 use super::permissions::PermissionNames;
 use super::schema::{user_teams, users};
@@ -168,7 +168,7 @@ impl User {
             .collect::<Vec<Result<Self, Error>>>())
     }
 
-    pub fn encryt_password(password: String) -> String {
+    pub fn encrypt_password(password: String) -> String {
         let mut hasher = Sha256::new();
         Digest::update(&mut hasher, password);
         let result = hasher.finalize();

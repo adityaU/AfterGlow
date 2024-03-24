@@ -1,7 +1,7 @@
 use chrono::Utc;
 use diesel::PgConnection;
 
-use super::models::{SettingsTypes, UserChangeset, UserSettingChangeset};
+use super::models::{SettingsTypes, UserSettingChangeset};
 use super::{models::UserSetting, schema::user_settings};
 use diesel::result::Error;
 

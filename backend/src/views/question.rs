@@ -101,6 +101,7 @@ pub struct QuestionShowView {
     pub visualizations: Option<Vec<Visualization>>,
     pub variables: Option<Vec<Variable>>,
     pub tags: Option<Vec<QuestionTag>>,
+    pub is_editable_by_user: bool,
 }
 
 impl QuestionShowView {
@@ -131,6 +132,7 @@ impl QuestionShowView {
             visualizations,
             variables,
             tags,
+            is_editable_by_user: true,
         }
     }
 }

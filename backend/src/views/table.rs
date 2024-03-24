@@ -2,7 +2,7 @@ use chrono::NaiveDateTime;
 use diesel::PgConnection;
 use serde::{Deserialize, Serialize};
 
-use crate::repository::models::{Column, ColumnView, Table};
+use crate::repository::models::{Column, Table};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Unimplemented;

@@ -8,6 +8,12 @@ use diesel::result::Error;
 use diesel::{expression_methods::ExpressionMethods, QueryDsl, RunQueryDsl};
 
 impl Setting {
+    pub fn find_setting_by_name(conn: &mut PgConnection, name: String) -> Option<Self> {
+        settings::table
+            .filter(settings::name.eq(name))
+            .first::<Self>(conn)
+            .ok()
+    }
     //find user settings by user id
     pub fn find_by_name(conn: &mut PgConnection, name: String) -> Option<String> {
         settings::table
@@ -22,6 +28,42 @@ impl Setting {
         settings::table
             .filter(settings::name.eq_any(names))
             .load(conn)
+    }
+    pub fn find_by_name_and_ensure(
+        conn: &mut PgConnection,
+        name: String,
+        value: String,
+    ) -> Result<Option<String>, Error> {
+        let setting = Self::find_setting_by_name(conn, name.clone());
+
+        let now = Utc::now().naive_utc();
+        match setting {
+            Some(setting) => {
+                Self::update(
+                    conn,
+                    setting.id,
+                    SettingChangeset {
+                        name,
+                        value: Some(value),
+                        inserted_at: now,
+                        updated_at: now,
+                    },
+                );
+                Ok(Some("".to_owned()))
+            }
+            None => {
+                Self::create(
+                    conn,
+                    SettingChangeset {
+                        name,
+                        value: Some(value),
+                        inserted_at: now,
+                        updated_at: now,
+                    },
+                );
+                Ok(Some("".to_owned()))
+            }
+        }
     }
     pub fn find_by_name_or_create(
         conn: &mut PgConnection,

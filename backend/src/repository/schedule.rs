@@ -8,7 +8,7 @@ use crate::diesel::ExpressionMethods;
 use super::models::{Schedule, ScheduleChangeset};
 use super::schema::schedules;
 const MAX_FAILED_ATTEMPTS: i16 = 5;
-use diesel::sql_types::{Int4, Int8};
+use diesel::sql_types::{Int8};
 
 impl Schedule {
     pub fn create_or_update_for_dashboard(

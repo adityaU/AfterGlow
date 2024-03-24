@@ -9,7 +9,7 @@ use std::{
 
 use actix_web::{
     middleware::{self, Logger},
-    web::Data,
+    web::{self, Data},
     App, HttpServer,
 };
 use app::bg_jobs::{pg_queue::PostgresQueue, scheduled_worker, worker, LongLivedData};
@@ -67,7 +67,8 @@ fn run_migrations() {
     conn.run_pending_migrations(MIGRATIONS)
         .expect("Could not run migrations");
     seeds::create_default_users(pool.clone());
-    seeds::create_default_settings(pool);
+    seeds::create_default_settings(pool.clone());
+    seeds::setup_google_credentials(pool);
     // You would typically call diesel_migrations::run_pending_migrations here
 }
 
@@ -102,6 +103,7 @@ async fn run_server() -> std::io::Result<()> {
             .app_data(Data::new(pool.clone()))
             .app_data(Data::new(queue.clone()))
             .app_data(Data::new(connection_pools.clone()))
+            .data(web::FormConfig::default().limit(1 << 25))
             .wrap(CatchPanic::default())
             .wrap(Logger::new("%a \"%r\" %s %b  \"%{User-Agent}i\" %Dms"))
             .wrap(middleware::Compress::default())

@@ -148,16 +148,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    applications (id) {
-        id -> Int8,
-        #[max_length = 255]
-        name -> Varchar,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
     audit_logs (id) {
         id -> Int8,
         whodunit -> Nullable<Int4>,
@@ -417,42 +407,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    rules_engine_permissions (id) {
-        id -> Int8,
-        role_id -> Int8,
-        name -> Int4,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
-    rules_engine_roles (id) {
-        id -> Int8,
-        #[max_length = 255]
-        name -> Varchar,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
-    rules_engine_users (id) {
-        id -> Int8,
-        #[max_length = 255]
-        name -> Nullable<Varchar>,
-        #[max_length = 255]
-        email -> Varchar,
-        is_deactivated -> Bool,
-        #[max_length = 255]
-        profile_pic -> Nullable<Varchar>,
-        metadata -> Nullable<Jsonb>,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
     schedules (id) {
         id -> Int8,
         every -> Nullable<Int4>,
@@ -522,7 +476,7 @@ diesel::table! {
         refresh_interval -> Nullable<Int4>,
         #[max_length = 255]
         sheet_id -> Nullable<Varchar>,
-        subsheet_id -> Nullable<Int8>,
+        subsheet_id -> Nullable<Int4>,
         api_key_id -> Nullable<Int8>,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
@@ -776,6 +730,7 @@ diesel::joinable!(alert_level_settings -> alert_settings (alert_setting_id));
 diesel::joinable!(alert_notification_settings -> alert_settings (alert_setting_id));
 diesel::joinable!(alert_settings -> questions (question_id));
 diesel::joinable!(alerts -> questions (question_id));
+diesel::joinable!(api_action_logs -> api_actions (api_action_id));
 diesel::joinable!(api_action_logs -> users (user_id));
 diesel::joinable!(api_actions -> questions (question_id));
 diesel::joinable!(column_values -> columns_ (column_id));
@@ -790,7 +745,6 @@ diesel::joinable!(permissions -> permission_sets (permission_set_id));
 diesel::joinable!(question_widgets -> questions (question_id));
 diesel::joinable!(question_widgets -> widgets (widget_id));
 diesel::joinable!(questions -> users (owner_id));
-diesel::joinable!(rules_engine_permissions -> rules_engine_roles (role_id));
 diesel::joinable!(searchable_columns -> snapshots (snapshot_id));
 diesel::joinable!(send_alert_configs -> alerts (alert_id));
 diesel::joinable!(sheet_configs -> user_settings (api_key_id));
@@ -826,7 +780,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     alerts,
     api_action_logs,
     api_actions,
-    applications,
     audit_logs,
     bg_queue,
     column_values,
@@ -846,9 +799,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     question_widgets,
     questions,
     results_cache,
-    rules_engine_permissions,
-    rules_engine_roles,
-    rules_engine_users,
     schedules,
     searchable_columns,
     send_alert_configs,

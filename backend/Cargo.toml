@@ -68,6 +68,13 @@ diesel_migrations = { version = "2.1.0", features = ["postgres"] }
 actix-files = "0.6.2"
 strum = { version = "0.25.0", features = ["derive"] }
 serde_with = "3.4.0"
+samael = { version = "0.0.14", features = ["xmlsec"], path = "locals/samael" }
+openssl = "0.10.62"
+rcgen = "0.12.1"
+rsa = "0.9.6" # 
+rand = "0.8.5"
+postgres-types = { version = "0.2.6", features = ["derive"] }
+bytes = "1.6.0"
 
 [profile.release]
 opt-level = 's'   # Optimize for size

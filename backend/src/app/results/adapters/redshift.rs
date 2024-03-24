@@ -4,12 +4,15 @@ use std::{
     time::Duration,
 };
 
+use bytes::BytesMut;
+
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 use deadpool_postgres::{Manager, ManagerConfig, Pool, RecyclingMethod};
 use diesel::PgConnection;
 
 use rust_decimal::Decimal;
-use serde_json::{from_value, Value};
+use serde_json::Value;
+use std::error::Error;
 use tokio::time::timeout;
 use tokio_postgres::{NoTls, Row};
 use uuid::Uuid;
@@ -24,10 +27,51 @@ use crate::app::{
     results::{
         helpers::hashed_db_credentials,
         payload_adapter::AdaptedPayload,
-        query_builders::{redshift::Redshift, sql_base::SQlBased as _},
+        query_builders::{redshift::Redshift, sql_base::SQlBased as _, Queries},
         ColumnDetail, ConnectionPools, DataType, QueryError,
     },
 };
+
+use postgres_types::{to_sql_checked, FromSql, IsNull, ToSql, Type};
+
+#[derive(Debug, PartialEq)]
+struct Super(Value);
+
+impl<'a> FromSql<'a> for Super {
+    fn from_sql(
+        type_: &Type,
+        raw: &'a [u8],
+    ) -> Result<Self, Box<dyn Error + 'static + Send + Sync>> {
+        Ok(Super(serde_json::from_slice(raw)?))
+    }
+
+    fn accepts(T: &Type) -> bool {
+        T.name() == "super"
+    }
+
+    fn from_sql_null(type_: &Type) -> Result<Self, Box<dyn Error + 'static + Send + Sync>> {
+        Ok(Super(Value::Null))
+    }
+}
+
+impl ToSql for Super {
+    fn to_sql(
+        &self,
+        type_: &Type,
+        out: &mut BytesMut,
+    ) -> Result<IsNull, Box<dyn Error + 'static + Send + Sync>> {
+        match self.0 {
+            Value::Null => Ok(IsNull::Yes),
+            _ => Ok(IsNull::No),
+        }
+    }
+
+    fn accepts(T: &Type) -> bool {
+        T.name() == "super"
+    }
+
+    to_sql_checked!();
+}
 
 pub struct RedshiftAdapter {
     pub db_config: DBConfig,
@@ -41,6 +85,17 @@ struct FlatSchema {
 
 #[async_trait::async_trait]
 impl DBAdapter for RedshiftAdapter {
+    async fn fetch_query_only(
+        &self,
+        conn: &mut PgConnection,
+        adapted_payload: AdaptedPayload,
+        user_id: i64,
+        org_id: i64,
+    ) -> Result<Queries, QueryError> {
+        Redshift::new(adapted_payload)
+            .build(conn, user_id, org_id)
+            .map_err(|err| QueryError::new(err, "".to_string()))
+    }
     async fn fetch_response(
         &self,
         conn: &mut PgConnection,
@@ -106,7 +161,7 @@ impl DBAdapter for RedshiftAdapter {
 
     async fn get_fkeys(
         &self,
-        cps: &Arc<Mutex<ConnectionPools>>,
+        _cps: &Arc<Mutex<ConnectionPools>>,
     ) -> Result<Vec<ForeignKey>, QueryError> {
         Ok(vec![])
     }
@@ -358,7 +413,7 @@ impl RedshiftAdapter {
                     let value: Option<Vec<f64>> = row.try_get(i).unwrap_or(None);
                     r.push(DBValue::VecFloat64(value));
                 }
-                "text" | "varchar" | "name" | "char" | "bytea" | "bpchar" => {
+                "text" | "varchar" | "name" | "char" | "bpchar" => {
                     let value: Option<String> = row.try_get(i).unwrap_or(None);
                     r.push(DBValue::Strings(value));
                 }
@@ -428,9 +483,16 @@ impl RedshiftAdapter {
                     let value: Option<Vec<Value>> = row.try_get(i).unwrap_or(None);
                     r.push(DBValue::VecJSON(value));
                 }
+                "super" => {
+                    let value: Option<Super> = row.try_get(i).unwrap_or(None);
+                    println!("super value: {:?}", value);
+                    match value {
+                        None => r.push(DBValue::Json(None)),
+                        Some(v) => r.push(DBValue::Json(Some(v.0))),
+                    }
+                }
                 _ => {
-                    println!("Unsupported type: {}", column.type_().name());
-                    let value = Some(String::from("unsupported type"));
+                    let value = Some(format!("unsupported type: {}", column.type_().name(),));
                     r.push(DBValue::Strings(value));
                 }
             }

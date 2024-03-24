@@ -33,6 +33,7 @@ pub mod organization_setting;
 pub mod permission_set;
 pub mod permissions;
 pub mod question;
+pub mod results_cache;
 pub mod schedule;
 pub mod schema;
 pub mod settings;

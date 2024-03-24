@@ -3,7 +3,7 @@ use diesel::PgConnection;
 use crate::app::{
     results::{
         payload_adapter::AdaptedPayload,
-        query_terms::filters::{DateObjectInner, DurationType, FilterOperator},
+        query_terms::filters::{DurationType},
     },
     settings::limit,
 };

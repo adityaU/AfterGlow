@@ -544,8 +544,13 @@ pub struct Question {
     pub config: Option<serde_json::Value>,
 }
 
-#[derive(Queryable, Debug)]
+#[derive(
+    Queryable, Debug, Serialize, Deserialize, Changeset, View, QueryableByName, Clone, Default,
+)]
+#[id_data_type = "i64"]
+#[table_name = "results_cache"]
 pub struct ResultsCache {
+    #[skip_in_changeset]
     pub id: i64,
     pub key: Option<String>,
     pub sql: Option<String>,

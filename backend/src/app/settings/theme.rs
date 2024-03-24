@@ -1,7 +1,7 @@
 use diesel::PgConnection;
 use serde::{Deserialize, Serialize};
 
-use crate::{repository::models::Setting};
+use crate::repository::models::Setting;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Theme {

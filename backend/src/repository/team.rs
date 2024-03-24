@@ -1,6 +1,6 @@
 use super::models::{Team, TeamDatabase, TeamDatabaseChangeset, UserTeam, UserTeamChangeset};
 use super::schema::{team_databases, teams, user_teams};
-use diesel::sql_types::{BigInt, Int4, Int8, Nullable};
+use diesel::sql_types::{BigInt, Int8, Nullable};
 
 use chrono::NaiveDateTime;
 use diesel::dsl::sql;

@@ -6,7 +6,7 @@ use std::{
 
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 use diesel::PgConnection;
-use fancy_regex::Regex;
+
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -14,12 +14,15 @@ use uuid::Uuid;
 
 use crate::{
     app::databases::DBConfig,
-    repository::models::{Question, Snippet, SupportedDatabases},
+    repository::models::{SupportedDatabases},
 };
 
-use lazy_static::lazy_static;
 
-use super::{payload_adapter::AdaptedPayload, ColumnDetail, ConnectionPools, QueryError};
+
+use super::{
+    payload_adapter::AdaptedPayload, query_builders::Queries, ColumnDetail, ConnectionPools,
+    QueryError,
+};
 
 pub mod postgres;
 pub mod redshift;
@@ -167,6 +170,13 @@ pub struct PrimaryKey {
 
 #[async_trait::async_trait]
 pub trait DBAdapter: Send + Sync {
+    async fn fetch_query_only(
+        &self,
+        conn: &mut PgConnection,
+        adapted_payload: AdaptedPayload,
+        user_id: i64,
+        org_id: i64,
+    ) -> Result<Queries, QueryError>;
     async fn fetch_response(
         &self,
         conn: &mut PgConnection,

@@ -133,7 +133,7 @@ macro_rules! generate_delete {
         ) -> impl Responder {
             let conn = pool.get();
             $model::delete(&mut conn.unwrap(), item_id.into_inner())
-                .map(|item| HttpResponse::Ok().json(ResponseData { data: "success" }))
+                .map(|_item| HttpResponse::Ok().json(ResponseData { data: "success" }))
                 .map_err(|err| error::ErrorNotFound(err))
         }
     };

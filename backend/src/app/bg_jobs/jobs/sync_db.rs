@@ -12,7 +12,7 @@ use crate::{
     app::{
         bg_jobs::{Error as BGJobError, JobEssentials, LongLivedData},
         databases::get_db_config,
-        results::adapters::{postgres::PostgresAdapter, DBAdapter, DBColumn, DBTable},
+        results::adapters::{DBAdapter, DBColumn, DBTable},
     },
     repository::models::{Column, ColumnChangeset, TableChangeset},
 };

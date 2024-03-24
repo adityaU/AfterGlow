@@ -9,7 +9,7 @@ use crud_derive::View;
 use diesel::dsl::sql;
 use diesel::pg::Pg;
 use diesel::result::Error;
-use diesel::{debug_query, prelude::*};
+use diesel::{prelude::*};
 
 use diesel::sql_types::{Nullable, Text};
 use serde::{Deserialize, Serialize};
