@@ -115,7 +115,11 @@
         </Transition>
         <div class="tw-flex tw-flex-col tw-items-center tw-gap-2 tw-px-2 tw-py-2 tw-cursor-pointer">
           <img class="tw-rounded-full tw-border-4" :class="expanded ? 'tw-h-[40px] tw-w-[40px]' : 'tw-h-[28px] tw-w-[28px]'
-            " :src="currentUser.profile_pic" />
+            " :src="currentUser.profile_pic" v-if="currentUser.profile_pic" />
+          <div
+            class="tw-rounded-full tw-border-4 tw-flex tw-items-center tw-justify-center tw-bg-secondary tw-font-semibold tw-text-default"
+            :class="expanded ? 'tw-h-[40px] tw-w-[40px]' : 'tw-h-[28px] tw-w-[28px]'" v-if="!currentUser.profile_pic"> {{
+              currentUserInitials }}</div>
           <div class="tw-flex tw-items-center tw-cursor-pointer" v-if="expanded">
             <div>{{ currentUser.full_name || currentUser.email }}</div>
 
@@ -171,6 +175,9 @@ export default {
     },
     iconSize() {
       return this.expanded ? 28 : window.screen.width > 1920 ? 28 : 24;
+    },
+    currentUserInitials() {
+      return this.currentUser?.email && this.currentUser.email[0].toUpperCase();
     },
   },
 

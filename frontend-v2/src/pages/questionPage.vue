@@ -1,62 +1,28 @@
 <template>
   <template v-if="!currentUser.loading">
-    <AGQuestionHeader
-      class="slide-transition ag-header"
-      :class="
-        sidebarExpanded ? 'tw-w-[calc(100%-254px)]' : 'tw-w-[calc(100%-50px)]'
-      "
-      v-model:question="question"
-      v-model:tags="tags"
-      @save="saveQuestion"
-      :showEditor="showEditor"
-      @setShowEditor="setShowEditor"
-    />
+    <AGQuestionHeader class="slide-transition ag-header" :class="sidebarExpanded ? 'tw-w-[calc(100%-254px)]' : 'tw-w-[calc(100%-50px)]'
+      " v-model:question="question" v-model:tags="tags" @save="saveQuestion" :showEditor="showEditor"
+      @setShowEditor="setShowEditor" />
 
     <div class="ag-main-container">
       <Transition>
-        <AGQuestionEditor
-          class="tw-border tw-border-l-0 tw-overflow-hidden"
-          v-model:question="question"
-          @runQuery="(refresh(null, true) || true)"
-          v-model:code="code"
-          v-if="currentUser.canEditQuestion && showEditor"
-        />
+        <AGQuestionEditor class="tw-border tw-border-l-0 tw-overflow-hidden" v-model:question="question"
+          @runQuery="(refresh(null, true) || true)" v-model:code="code"
+          v-if="currentUser.canEditQuestion && showEditor && hasDatabaseAccess" />
       </Transition>
 
-      <VariablePane
-        class="tw-mx-6"
-        :class="!showEditor ? 'tw-mt-[65px]' : 'tw-mt-3'"
-        v-model:variables="variables"
-        :code="code"
-        v-model:variablesUpdated="variablesUpdated"
-      />
-      <AGLoader
-        :text="initializingMessage"
-        v-if="!dataLoaded"
-        class="tw-bg-white custom-shadow tw-rounded-2xl tw-min-h-[400px]"
-      />
+      <VariablePane class="tw-mx-6" :class="!showEditor ? 'tw-mt-[65px]' : 'tw-mt-3'" v-model:variables="variables"
+        :code="code" v-model:variablesUpdated="variablesUpdated" />
+      <AGLoader :text="initializingMessage" v-if="!dataLoaded"
+        class="tw-bg-white custom-shadow tw-rounded-2xl tw-min-h-[400px]" />
       <div class="tw-my-3 tw-mx-6">
         <div class="tw-h-full tw-w-full tw-flex" v-if="dataLoaded">
-          <BaseDataRenderer
-            :resultsKey="resultsKey"
-            :dataLoaded="dataLoaded"
-            v-model:visualizations="visualizations"
-            @deleteViz="deleteViz"
-            :apiActionKeyQuesLevel="apiActionKeyQuesLevel"
-            :apiActionKeyVizLevel="apiActionKeyVizLevel"
-            :queryKey="queryKey"
-            :questionID="questionID"
-            :variables="variables"
-            @fetchVizResults="refreshVizResults"
-            v-model:loading="loading"
-            @updateApiActions="fetchQuestionApiActions"
-            @updateViz="(viz) => refresh(null, true)"
-            :finalQuery="finalQuery"
-            @download="download"
-            :startingPage="startingPage"
-            :question="question"
-            ref="results-view"
-          ></BaseDataRenderer>
+          <BaseDataRenderer :resultsKey="resultsKey" :dataLoaded="dataLoaded" v-model:visualizations="visualizations"
+            @deleteViz="deleteViz" :apiActionKeyQuesLevel="apiActionKeyQuesLevel"
+            :apiActionKeyVizLevel="apiActionKeyVizLevel" :queryKey="queryKey" :questionID="questionID"
+            :variables="variables" @fetchVizResults="refreshVizResults" v-model:loading="loading"
+            @updateApiActions="fetchQuestionApiActions" @updateViz="(viz) => refresh(null, true)" :finalQuery="finalQuery"
+            @download="download" :startingPage="startingPage" :question="question" ref="results-view"></BaseDataRenderer>
         </div>
       </div>
       <AGToast v-model:show="toastShow" :type="toastType">{{
@@ -194,6 +160,9 @@ export default {
   },
 
   computed: {
+    hasDatabaseAccess() {
+      return !this.question?.human_sql?.database?.unique_identifier || this.currentUser?.hasDatabaseAccess(this.question?.human_sql?.database?.unique_identifier)
+    },
     sidebarExpanded() {
       return this.sidebar.expanded;
     },
@@ -241,7 +210,7 @@ export default {
       variablesUpdated: false,
       initializingMessage:
         InitializingMessages[
-          Math.floor(Math.random() * InitializingMessages.length)
+        Math.floor(Math.random() * InitializingMessages.length)
         ],
       sidebar: sidebar,
       showEditor: true,
@@ -476,11 +445,11 @@ export default {
       this.loading = true;
       hash(
         'payload=' +
-          JSON.stringify(payload) +
-          '&questionID=' +
-          (this.query.question_id || this.params.id) +
-          '&vizTerms=' +
-          JSON.stringify(vizTerms)
+        JSON.stringify(payload) +
+        '&questionID=' +
+        (this.query.question_id || this.params.id) +
+        '&vizTerms=' +
+        JSON.stringify(vizTerms)
       ).then((key) => {
         if (this.resultsStore.getResults(key)) {
           this.loading = false;
@@ -584,9 +553,9 @@ export default {
         ) || [];
       const firstViz =
         this.visualizations?.details?.details?.length > 0 &&
-        currentViz.length == 0
+          currentViz.length == 0
           ? (this.visualizations.details.details[0].current = true) &&
-            this.visualizations.details.details[0]
+          this.visualizations.details.details[0]
           : null;
       currentViz =
         currentViz && currentViz.length === 1 ? currentViz[0] : firstViz;
@@ -698,13 +667,12 @@ export default {
     },
 
     makeCodeFromApiAction() {
-      return `${this.question?.api_action?.url} ${
-        this.question?.api_action?.body
-      } ${this.question?.api_action?.dummyHeaders
-        ?.map((h) => {
-          return `${h.name} ${h.value}`;
-        })
-        ?.join(' ')}`;
+      return `${this.question?.api_action?.url} ${this.question?.api_action?.body
+        } ${this.question?.api_action?.dummyHeaders
+          ?.map((h) => {
+            return `${h.name} ${h.value}`;
+          })
+          ?.join(' ')}`;
     },
 
     saveQuestion() {

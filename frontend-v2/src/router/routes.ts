@@ -41,6 +41,10 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/loginPage.vue'),
       },
       {
+        path: '/api/saml/acs',
+        component: () => import('pages/loginPage.vue'),
+      },
+      {
         path: '/data_references/databases',
         component: () => import('pages/databasesPage.vue'),
       },

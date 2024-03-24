@@ -6,6 +6,7 @@ export const currentUserStore = defineStore('currentUser', {
     permissions: reactive([]),
     details: reactive({}),
     theme: reactive({}),
+    databases: reactive([]),
     viewerMode: false,
     loading: false,
   }),
@@ -97,9 +98,16 @@ export const currentUserStore = defineStore('currentUser', {
       this.permissions = det.permissions;
       this.details = det.user;
       this.theme = det.theme;
+      this.databases = det.databases;
+    },
+    setTheme(theme) {
+      this.theme = theme;
     },
     reset() {
       this.loading = true;
+    },
+    hasDatabaseAccess(databaseIdentifier) {
+      return this.databases.indexOf(databaseIdentifier) >= 0;
     },
   },
 });

@@ -14,7 +14,7 @@
   </div>
 </template>
 <script>
-import { DatabaseIcon, UserIcon, UsersIcon, AffiliateIcon, MailCogIcon, TableOptionsIcon, LockAccessIcon, RobotIcon } from 'vue-tabler-icons';
+import { DatabaseIcon, UserIcon, UsersIcon, AffiliateIcon, MailCogIcon, TableOptionsIcon, LockAccessIcon, RobotIcon, KeyIcon } from 'vue-tabler-icons';
 export default {
   name: 'AGSettingsTabs',
 
@@ -31,6 +31,7 @@ export default {
         { name: 'Frontend Configuration', val: 'frontendConfig', icon: TableOptionsIcon },
         { name: 'Permissions', val: 'permissions', icon: LockAccessIcon },
         { name: 'OpenAI Configuration', val: 'openai', icon: RobotIcon },
+        { name: 'Login Configuration', val: 'loginConfig', icon: KeyIcon },
       ],
     };
   },

@@ -14,11 +14,14 @@ const fetchVizResults = async function(
   key
 ) {
   callback(null, '', true);
-  if (payload?.visualization?.query_terms) {
-    payload.visualization.queryTerms = payload.visualization.query_terms;
+  if (payload?.visualization?.queryTerms?.details?.hasOwnProperty('details')) {
+    payload.visualization.queryTerms = payload.visualization.queryTerms.details;
   }
-  if (payload?.visualization?.renderer_type) {
-    payload.visualization.rendererType = payload.visualization.renderer_type;
+  if (payload?.visualization?.queryTerms) {
+    payload.visualization.query_terms = payload.visualization.queryTerms;
+  }
+  if (payload?.visualization?.rendererType) {
+    payload.visualization.renderer_type = payload.visualization.rendererType;
   }
   const url = vizID
     ? 'visualizations/' + vizID + '/results'

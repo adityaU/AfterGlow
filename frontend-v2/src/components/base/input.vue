@@ -1,30 +1,13 @@
 <template>
   <div class="">
-    <input
-      :type="type"
-      :min="min"
-      :max="max"
-      :placeholder="placeholder"
+    <input :type="type" :min="min" :max="max" :placeholder="placeholder"
       :class="invisible ? 'input-no-border' : 'input-border'"
-      class="!tw-px-4 !tw-py-2 tw-w-full tw-bg-white tw-rounded-full"
-      v-model="valueLocal"
-      @keypress.down="$emit('keypress:down')"
-      :disabled="disabled"
-      v-if="!textArea"
-    />
-    <textarea
-      :type="type"
-      :min="min"
-      :max="max"
-      :rows="rows"
-      :placeholder="placeholder"
+      class="!tw-px-4 !tw-py-2 tw-w-full tw-bg-white tw-rounded-full" v-model="valueLocal"
+      @keypress.down="$emit('keypress:down')" :disabled="disabled" v-if="!textArea" />
+    <textarea :type="type" :min="min" :max="max" :rows="rows" :placeholder="placeholder"
       :class="invisible ? 'input-no-border' : 'input-border'"
-      class="!tw-px-4 !tw-py-2 tw-w-full tw-bg-white tw-rounded-sm"
-      v-model="valueLocal"
-      @keypress.down="$emit('keypress:down')"
-      v-if="textArea"
-      :disabled="disabled"
-    />
+      class="!tw-px-4 !tw-py-2 tw-w-full tw-bg-white tw-rounded-2xl" v-model="valueLocal"
+      @keypress.down="$emit('keypress:down')" v-if="textArea" :disabled="disabled" />
   </div>
 </template>
 

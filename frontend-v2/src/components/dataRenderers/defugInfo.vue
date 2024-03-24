@@ -86,7 +86,7 @@ export default {
     cachedUntilTime() {
       return (
         this.cachedUntil &&
-        date.formatDate(this.cachedUntil, 'MMM DD, YYYY, hh:mm:ss A')
+        date.formatDate(this.cachedUntil + 'Z', 'MMM DD, YYYY, hh:mm:ss A')
       );
     },
   },

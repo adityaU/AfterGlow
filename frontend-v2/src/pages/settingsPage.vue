@@ -18,6 +18,7 @@ import AGSettingsTabs from 'components/settings/tabs.vue';
 import AGOrganizations from 'components/settings/organizations.vue';
 
 import AGOpenAIConfiguration from 'components/settings/openai.vue';
+import AGLoginConfiguration from 'components/settings/loginConfiguration.vue';
 import AGLoader from 'components/utils/loader.vue';
 
 import { authMixin } from 'src/mixins/auth';
@@ -34,6 +35,7 @@ const settingsComponents = {
   users: AGUsers,
   organizations: AGOrganizations,
   openai: AGOpenAIConfiguration,
+  loginConfig: AGLoginConfiguration,
 };
 
 export default {
