@@ -1,16 +1,9 @@
 <template>
-  <AGModal
-    :show="open"
-    @update:show="(val) => $emit('update:show', val)"
-    :loading="loading"
-    :loadingMessage="loadingMessage"
-    size="small"
-    bodyClass="tw"
-  >
+  <AGModal :show="open" @update:show="(val) => $emit('update:show', val)" :loading="loading"
+    :loadingMessage="loadingMessage" size="small" bodyClass="tw">
     <template #header>
       <div
-        class="tw-w-full tw-border-b-primary tw-border-b-2 tw-p-4 tw-text-primary tw-font-semibold tw-text-2xl tw-flex tw-items-center"
-      >
+        class="tw-w-full tw-border-b-primary tw-border-b-2 tw-p-4 tw-text-primary tw-font-semibold tw-text-2xl tw-flex tw-items-center">
         <div class="tw-flex-[1_1_80%]">Schedule Report</div>
         <div class="tw-flex-[1_1_10%] tw-flex tw-items-center">
           <AGBool v-model:val="isActive" :label="Active" />
@@ -22,21 +15,10 @@
         <AGLoader :text="loadingText" v-if="loading" />
         <div v-if="!loading">
           <div class="label">Email Subject</div>
-          <AGInput
-            v-model:value="subject"
-            label="Email Subject"
-            placeholder="Enter email subject"
-          />
-          <AGSchedulerTime
-            v-model:every="every"
-            v-model:timeUnit="timeUnit"
-            v-model:timeDetails="timeDetails"
-          />
+          <AGInput v-model:value="subject" label="Email Subject" placeholder="Enter email subject" />
+          <AGSchedulerTime v-model:every="every" v-model:timeUnit="timeUnit" v-model:timeDetails="timeDetails" />
 
-          <div
-            class="label tw-text-primary tw-p-2 tw-cursor-pointer"
-            @click="editNoteModalOpen = true"
-          >
+          <div class="label tw-text-primary tw-p-2 tw-cursor-pointer" @click="editNoteModalOpen = true">
             Edit Email Content
           </div>
 
@@ -53,56 +35,31 @@
           <!--   :searchable="true" -->
           <!--   :options="searchTimezones" -->
           <!-- /> -->
-          <Multiselect
-            :classes="multiselectCss"
-            mode="tags"
-            :object="true"
-            :modelValue="
-              recipients.map((item) => ({
-                value: item,
-                label: item,
-              })) || []
-            "
-            @update:modelValue="
-              recipients = $event.map((option) => option.label)
-            "
-            placeholder="Search emails or teams"
-            :close-on-select="false"
-            :filter-results="false"
-            :min-chars="1"
-            :resolve-on-load="false"
-            :delay="0"
-            :searchable="true"
-            :options="searchUsers"
-            createOption
-            @create="addNewEmail"
-          />
+          <Multiselect :classes="multiselectCss" mode="tags" :object="true" :modelValue="recipients.map((item) => ({
+            value: item,
+            label: item,
+          })) || []
+            " @update:modelValue="
+    recipients = $event.map((option) => option.label)
+    " placeholder="Search emails or teams" :close-on-select="false" :filter-results="false" :min-chars="1"
+            :resolve-on-load="false" :delay="0" :searchable="true" :options="searchUsers" createOption
+            @create="addNewEmail" />
         </div>
       </div>
     </template>
     <template #footer>
       <div class="tw-flex tw-justify-end tw-gap-2 tw-p-2 tw-border-t">
-        <AGButton class="" @click="$emit('update:open', false)"
-          >Cancel</AGButton
-        >
-        <AGButton class="">
-          <a :href="previewUrl" target="_" class=""> Preview </a>
-        </AGButton>
-        <AGButton class="tw-bg-primary tw-text-white" @click="save"
-          >Save</AGButton
-        >
+        <AGButton class="" @click="$emit('update:open', false)">Cancel</AGButton>
+        <!-- <AGButton class=""> -->
+        <!--   <a :href="previewUrl" target="_" class=""> Preview </a> -->
+        <!-- </AGButton> -->
+        <AGButton class="tw-bg-primary tw-text-white" @click="save">Save</AGButton>
       </div>
     </template>
   </AGModal>
 
-  <AGNote
-    v-model:content="noteContent"
-    v-model:open="editNoteModalOpen"
-    :id="noteId"
-    :query="query"
-    @save="saveNote"
-    :key="noteContent"
-  />
+  <AGNote v-model:content="noteContent" v-model:open="editNoteModalOpen" :id="noteId" :query="query" @save="saveNote"
+    :key="noteContent" />
 </template>
 
 <script>

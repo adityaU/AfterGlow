@@ -23,13 +23,9 @@ use serde::{
 use serde::ser::SerializeStruct;
 use serde_json::from_value;
 
-use crate::{
-    app::results::adapters::{DBAdapter},
-    repository::{models::ResultsCache},
-};
-use crate::{
-    app::{api_actions, results::payload_adapter::AdaptedPayload},
-};
+use crate::app::api_actions;
+use crate::app::results::payload_adapter::AdaptedPayload;
+use crate::{app::results::adapters::DBAdapter, repository::models::ResultsCache};
 
 use self::adapters::DBValue;
 
@@ -50,6 +46,15 @@ lazy_static! {
 pub struct QueryErrorDetails {
     pub message: String,
     pub final_query: String,
+}
+
+impl QueryErrorDetails {
+    pub fn new(message: String, final_query: String) -> Self {
+        Self {
+            message,
+            final_query,
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

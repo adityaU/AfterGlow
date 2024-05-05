@@ -1,5 +1,8 @@
-use super::models::{Team, TeamDatabase, TeamDatabaseChangeset, UserTeam, UserTeamChangeset};
-use super::schema::{team_databases, teams, user_teams};
+use super::models::{
+    SharedEntity, Team, TeamDatabase, TeamDatabaseChangeset, TeamShare, TeamShareChangeset,
+    UserTeam, UserTeamChangeset,
+};
+use super::schema::{team_databases, team_shares, teams, user_teams};
 use diesel::sql_types::{BigInt, Int8, Nullable};
 
 use chrono::NaiveDateTime;
@@ -22,6 +25,12 @@ pub struct UserCount {
 }
 
 impl Team {
+    pub fn find_by_name(conn: &mut PgConnection, name: String) -> Result<Self, Error> {
+        teams::table
+            .filter(teams::name.eq(name))
+            .select(teams::all_columns)
+            .first::<Self>(conn)
+    }
     pub fn search(conn: &mut PgConnection, q: String) -> Result<Vec<Self>, Error> {
         teams::table
             .filter(teams::name.ilike(format!("%{}%", q)))
@@ -106,5 +115,55 @@ impl Team {
             ))
             .group_by(team_databases::team_id)
             .load::<AccessibleDatabaseCount>(conn)
+    }
+}
+
+impl TeamShare {
+    pub fn create_or_update(
+        conn: &mut PgConnection,
+        changeset: TeamShareChangeset,
+    ) -> Result<Self, Error> {
+        diesel::insert_into(team_shares::table)
+            .values(&changeset)
+            .on_conflict((
+                team_shares::team_id,
+                team_shares::shared_id,
+                team_shares::shared_entity,
+            ))
+            .do_update()
+            .set(&changeset)
+            .get_result(conn)
+    }
+    pub fn find_names_by_shared_id(
+        conn: &mut PgConnection,
+        shared_id: i64,
+        shared_entity: SharedEntity,
+    ) -> Result<Vec<String>, Error> {
+        team_shares::table
+            .filter(
+                team_shares::shared_id
+                    .eq(shared_id)
+                    .and(team_shares::shared_entity.eq(shared_entity)),
+            )
+            .inner_join(teams::table.on(team_shares::team_id.eq(teams::id)))
+            .select(teams::name)
+            .load::<String>(conn)
+    }
+
+    pub fn delete_shares_by_team_id_and_shared_id(
+        conn: &mut PgConnection,
+        team_id: i64,
+        shared_id: i64,
+        shared_entity: SharedEntity,
+    ) -> Result<usize, Error> {
+        diesel::delete(
+            team_shares::table.filter(
+                team_shares::team_id
+                    .eq(team_id)
+                    .and(team_shares::shared_id.eq(shared_id))
+                    .and(team_shares::shared_entity.eq(shared_entity)),
+            ),
+        )
+        .execute(conn)
     }
 }

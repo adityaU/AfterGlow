@@ -1,24 +1,9 @@
 <template>
-  <div
-    class="tw-w-full tw-border tw-px-4 tw-py-2 tw-cursor-pointer tw-rounded-full"
-  >
+  <div class="tw-w-full tw-border tw-px-4 tw-py-2 tw-cursor-pointer">
     {{ displayText }}
-    <q-menu
-      flat="true"
-      transition-show="scale"
-      transition-hide="scale"
-      max-height="400px"
-      :offset="[0, 5]"
-      class="tw-rounded-2xl tw-border tw-overflow-hidden"
-      @show="menuShow"
-      @keydown="onKeydown"
-    >
-      <AGDatePicker
-        v-model:value="valueLocal"
-        v-model:displayText="displayText"
-        :type="type"
-        :clearCount="clearCount"
-      />
+    <q-menu flat="true" transition-show="scale" transition-hide="scale" max-height="400px" :offset="[0, 5]"
+      class="tw-rounded-2xl tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown">
+      <AGDatePicker v-model:value="valueLocal" v-model:displayText="displayText" :type="type" :clearCount="clearCount" />
     </q-menu>
   </div>
 </template>

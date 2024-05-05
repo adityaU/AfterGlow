@@ -52,16 +52,28 @@ pub struct TagPayload {
     pub description: Option<String>,
 }
 
-pub(crate) async fn show(pool: web::Data<Arc<DBPool>>, item_id: web::Path<i64>) -> impl Responder {
+pub(crate) async fn show(
+    pool: web::Data<Arc<DBPool>>,
+    item_id: web::Path<i64>,
+    req: HttpRequest,
+    auth_details: AuthDetails<PermissionNames>,
+) -> impl Responder {
     let conn = pool.get();
-    Question::find(&mut conn.unwrap(), item_id.into_inner())
-        .map(|item| {
-            let conn = pool.get();
-            HttpResponse::Ok().json(ResponseData {
-                data: QuestionShowView::from_model(&mut conn.unwrap(), &item),
-            })
+    let permissions = auth_details.permissions;
+    let current_user_email = get_current_user_email(&req);
+    Question::find_shared(
+        &mut conn.unwrap(),
+        item_id.into_inner(),
+        current_user_email,
+        permissions,
+    )
+    .map(|item| {
+        let conn = pool.get();
+        HttpResponse::Ok().json(ResponseData {
+            data: QuestionShowView::from_model(&mut conn.unwrap(), &item),
         })
-        .map_err(|err| AGError::<String>::new(err))
+    })
+    .map_err(|err| AGError::<String>::new(err))
 }
 
 #[has_permissions["QuestionShow", type = "PermissionNames"]]
@@ -101,7 +113,7 @@ pub(crate) async fn create(
 ) -> impl Responder {
     let conn = pool.get();
     let qp = data.into_inner();
-    questions::create(&mut conn.unwrap(), qp, req)
+    questions::save(&mut conn.unwrap(), qp, req)
         .map(|item| HttpResponse::Created().json(ResponseData { data: item }))
         .map_err(|err| AGError::<String>::new(err))
 }

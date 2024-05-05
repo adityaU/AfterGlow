@@ -20,14 +20,19 @@ impl dashboards::table {
             on dashboards.id = dashboard_widgets.widget_id and dashboard_widgets.widget_type = 'tabs'
             left join dashboards db
             on db.id = dashboard_widgets.dashboard_id
-            left join users 
+            left join users
             on dashboards.owner_id = users.id
+            LEFT JOIN team_shares ts ON ts.shared_id = dashboards.id AND ts.shared_entity = 2
+            LEFT JOIN teams t ON t.id = ts.team_id
+            LEFT JOIN user_teams ut ON ut.team_id = t.id
+            LEFT JOIN users u ON u.id = ut.user_id
             where (users.email = '{}'
             or '{}' = ANY(db.shared_to)
             or 'all' = ANY(db.shared_to)
             or '{}' = ANY(dashboards.shared_to)
-            or 'all' = ANY(dashboards.shared_to))  
-            group by 1)", user_email, user_email, user_email)
+            or 'all' = ANY(dashboards.shared_to))
+            or '{}' = u.email
+            group by 1)", user_email, user_email, user_email, user_email)
     }
 }
 

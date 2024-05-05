@@ -3,15 +3,16 @@ use std::fmt::{self, Formatter};
 use actix_web::HttpRequest;
 use chrono::Utc;
 use diesel::PgConnection;
+use regex::Regex;
 use serde_json::to_value;
 use uuid::Uuid;
 
 use crate::{
     controllers::{helpers::get_current_user_id, question::QuestionPayload},
     repository::models::{
-        Question, QuestionChangeset, Tag, TagChangeset, TagQuestion, TagQuestionChangeset,
-        Variable as DBVariable, VariableChangeset, Visualization as DBVisualization,
-        VisualizationChangeset,
+        Question, QuestionChangeset, SharedEntity, Tag, TagChangeset, TagQuestion,
+        TagQuestionChangeset, Team, TeamShare, TeamShareChangeset, Variable as DBVariable,
+        VariableChangeset, Visualization as DBVisualization, VisualizationChangeset,
     },
     views::question::QuestionShowView,
 };
@@ -151,7 +152,7 @@ impl From<diesel::result::Error> for QuestionCreateError {
     }
 }
 
-pub fn create(
+pub fn save(
     conn: &mut PgConnection,
     qp: QuestionPayload,
     req: HttpRequest,
@@ -163,8 +164,11 @@ pub fn create(
                 let question = Question::find(conn, qp.id.unwrap())
                     .map_err(|e| QuestionCreateError::ErrorFindingQuestion(e.to_string()))?;
                 let qc = payload_to_update_changeset(&qp, req, &question);
-                Question::update(conn, qp.id.unwrap(), qc)
-                    .map_err(|e| QuestionCreateError::ErrorUpdatingQuestion(e.to_string()))?
+                let res = Question::update(conn, qp.id.unwrap(), qc)
+                    .map_err(|e| QuestionCreateError::ErrorUpdatingQuestion(e.to_string()))?;
+                sync_shares(conn, &qp, question.id)
+                    .map_err(|e| QuestionCreateError::ErrorUpdatingQuestion(e.to_string()))?;
+                res
             } else {
                 let qc = payload_to_create_changeset(&qp, req);
                 Question::create(conn, qc)
@@ -252,4 +256,62 @@ pub fn create(
         })?;
 
     Ok(QuestionShowView::from_model(conn, &question))
+}
+
+fn sync_shares(
+    conn: &mut PgConnection,
+    qp: &QuestionPayload,
+    question_id: i64,
+) -> Result<(), diesel::result::Error> {
+    TeamShare::find_names_by_shared_id(conn, question_id, SharedEntity::Question)
+        .unwrap_or(vec![])
+        .iter()
+        .for_each(|team_name| {
+            if !qp
+                .shared_to
+                .clone()
+                .unwrap_or_else(Vec::new)
+                .iter()
+                .any(|item| {
+                    item.clone().unwrap_or("".to_string()).trim_matches('"') == team_name.clone()
+                })
+            {
+                if let Ok(team) = Team::find_by_name(conn, team_name.clone()) {
+                    let team_id = team.id;
+                    let _ = TeamShare::delete_shares_by_team_id_and_shared_id(
+                        conn,
+                        team_id,
+                        question_id,
+                        SharedEntity::Question,
+                    );
+                }
+            }
+        });
+    qp.shared_to
+        .clone()
+        .unwrap_or_else(Vec::new)
+        .iter()
+        .filter_map(|item| match item {
+            Some(s) if s.ends_with("@team") => Some(s.as_str().replace("@team", "")),
+            _ => None,
+        })
+        .for_each(|team_name| {
+            if let Ok(team) =
+                Team::find_by_name(conn, team_name.clone().trim_matches('"').to_string())
+            {
+                let team_id = team.id;
+                let _ = TeamShare::create_or_update(
+                    conn,
+                    TeamShareChangeset {
+                        team_id,
+                        shared_id: question_id,
+                        shared_entity: SharedEntity::Question,
+                        inserted_at: Utc::now().naive_utc(),
+                        updated_at: Utc::now().naive_utc(),
+                    },
+                );
+            }
+        });
+
+    Ok(())
 }

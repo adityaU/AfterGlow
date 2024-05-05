@@ -41,16 +41,36 @@ impl questions::table {
             LEFT JOIN dashboard_widgets dwvd ON (dwvd.widget_id = ddwv.id OR dwvd.widget_id = ddwq.id) AND dwvd.widget_type = 'tabs'
             LEFT JOIN dashboards ddd ON dwvd.dashboard_id = ddd.id
             LEFT JOIN users on users.id = s.owner_id
+            LEFT JOIN team_shares ts ON ts.shared_id = s.id AND ts.shared_entity = 1
+            LEFT JOIN teams t ON t.id = ts.team_id
+            LEFT JOIN user_teams ut ON ut.team_id = t.id
+            LEFT JOIN users u ON u.id = ut.user_id
+            LEFT JOIN team_shares tsd1 ON (tsd1.shared_id = ddwq.id AND tsd1.shared_entity = 2)
+            LEFT JOIN teams td1 ON td1.id = tsd1.team_id
+            LEFT JOIN user_teams utd1 ON utd1.team_id = td1.id
+            LEFT JOIN users ud1 ON ud1.id = utd1.user_id
+            LEFT JOIN team_shares tsd2 ON (tsd2.shared_id = ddd.id AND tsd2.shared_entity = 2)
+            LEFT JOIN teams td2 ON td2.id = tsd2.team_id
+            LEFT JOIN user_teams utd2 ON utd2.team_id = td2.id
+            LEFT JOIN users ud2 ON ud2.id = utd2.user_id
+            LEFT JOIN team_shares tsd3 ON (ts.shared_id = ddwv.id AND ts.shared_entity = 2)
+            LEFT JOIN teams td3 ON td3.id = tsd3.team_id
+            LEFT JOIN user_teams utd3 ON utd3.team_id = td3.id
+            LEFT JOIN users ud3 ON ud1.id = utd3.user_id
             WHERE users.email = '{}'
-            OR '{}' = ANY (s.shared_to) 
-            OR 'all' = ANY (s.shared_to) 
-            OR '{}' = ANY (ddwq.shared_to) 
-            OR 'all' = ANY (ddwq.shared_to) 
-            OR '{}' = ANY (ddwv.shared_to) 
-            OR 'all' = ANY (ddwv.shared_to) 
-            OR '{}' = ANY (ddd.shared_to) 
+            OR '{}' = ANY (s.shared_to)
+            OR 'all' = ANY (s.shared_to)
+            OR '{}' = ANY (ddwq.shared_to)
+            OR 'all' = ANY (ddwq.shared_to)
+            OR '{}' = ANY (ddwv.shared_to)
+            OR 'all' = ANY (ddwv.shared_to)
+            OR '{}' = ANY (ddd.shared_to)
             OR 'all' = ANY (ddd.shared_to)
-            GROUP BY s.id)", user_email, user_email, user_email, user_email, user_email)
+            OR '{}' = u.email
+            OR '{}' = ud1.email
+            OR '{}' = ud2.email
+            OR '{}' = ud3.email
+            GROUP BY s.id)", user_email, user_email, user_email, user_email, user_email, user_email, user_email, user_email, user_email)
     }
 }
 
@@ -84,6 +104,22 @@ impl Question {
                 None
             };
         db_config.map(|r| r.clone())
+    }
+
+    pub fn find_shared(
+        conn: &mut PgConnection,
+        question_id: i64,
+        user_email: String,
+        permissions: Vec<PermissionNames>,
+    ) -> Result<Self, Error> {
+        questions::table
+            .filter(sql::<Bool>(
+                questions::table::shared_with_user(user_email, permissions).as_str(),
+            ))
+            .filter(questions::id.eq(question_id))
+            .order(questions::updated_at.desc())
+            .select(questions::all_columns)
+            .first::<Self>(conn)
     }
 
     pub fn find_by_tag_id(

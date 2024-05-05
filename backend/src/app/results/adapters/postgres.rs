@@ -457,11 +457,11 @@ impl PostgresAdapter {
                     let value: Option<Vec<Uuid>> = row.try_get(i).unwrap_or(None);
                     r.push(DBValue::VecUUID(value));
                 }
-                "json" | "jsonb" | "super" => {
+                "json" | "jsonb" => {
                     let value: Option<Value> = row.try_get(i).unwrap_or(None);
                     r.push(DBValue::Json(value));
                 }
-                "_json" | "_jsonb" | "_super" => {
+                "_json" | "_jsonb" => {
                     let value: Option<Vec<Value>> = row.try_get(i).unwrap_or(None);
                     r.push(DBValue::VecJSON(value));
                 }

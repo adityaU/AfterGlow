@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::repository::models::{
     Dashboard, DashboardChangeset, DashboardView, DashboardWidget, DashboardWidgetChangeset,
-    WidgetTypes,
+    SharedEntity, Team, TeamShare, TeamShareChangeset, WidgetTypes,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -109,6 +109,7 @@ pub fn update(
                 .map_err(|err| DashboardWriteError::CouldNotUpdateDashboard(err.to_string()))?;
 
             sync_widgets(dc, &dashboard, conn)?;
+            sync_shares(conn, dc, dashboard.id)?;
             Ok(dashboard)
         })?;
     Ok(DashboardView::from_model(&dashboard))
@@ -216,5 +217,63 @@ fn save_widget(
     };
     DashboardWidget::find_or_create(conn, &wc)
         .map_err(|err| DashboardWriteError::CouldNotCreateDashboardWidget(err.to_string()))?;
+    Ok(())
+}
+
+fn sync_shares(
+    conn: &mut PgConnection,
+    qp: &DashboardChangeset,
+    dashboard_id: i64,
+) -> Result<(), diesel::result::Error> {
+    TeamShare::find_names_by_shared_id(conn, dashboard_id, SharedEntity::Dashboard)
+        .unwrap_or(vec![])
+        .iter()
+        .for_each(|team_name| {
+            if !qp
+                .shared_to
+                .clone()
+                .unwrap_or_else(Vec::new)
+                .iter()
+                .any(|item| {
+                    item.clone().unwrap_or("".to_string()).trim_matches('"') == team_name.clone()
+                })
+            {
+                if let Ok(team) = Team::find_by_name(conn, team_name.clone()) {
+                    let team_id = team.id;
+                    let _ = TeamShare::delete_shares_by_team_id_and_shared_id(
+                        conn,
+                        team_id,
+                        dashboard_id,
+                        SharedEntity::Dashboard,
+                    );
+                }
+            }
+        });
+    qp.shared_to
+        .clone()
+        .unwrap_or_else(Vec::new)
+        .iter()
+        .filter_map(|item| match item {
+            Some(s) if s.ends_with("@team") => Some(s.as_str().replace("@team", "")),
+            _ => None,
+        })
+        .for_each(|team_name| {
+            if let Ok(team) =
+                Team::find_by_name(conn, team_name.clone().trim_matches('"').to_string())
+            {
+                let team_id = team.id;
+                let _ = TeamShare::create_or_update(
+                    conn,
+                    TeamShareChangeset {
+                        team_id,
+                        shared_id: dashboard_id,
+                        shared_entity: SharedEntity::Dashboard,
+                        inserted_at: Utc::now().naive_utc(),
+                        updated_at: Utc::now().naive_utc(),
+                    },
+                );
+            }
+        });
+
     Ok(())
 }

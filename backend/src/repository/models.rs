@@ -1085,6 +1085,39 @@ pub struct BgJob {
     pub name: Option<String>,
 }
 
+#[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View, QueryableByName)]
+#[table_name = "team_shares"]
+#[id_data_type = "i64"]
+pub struct TeamShare {
+    #[skip_in_changeset]
+    pub id: i64,
+    pub team_id: i64,
+    pub shared_entity: SharedEntity,
+    pub shared_id: i64,
+    pub inserted_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(
+    Debug,
+    PartialEq,
+    FromSqlRow,
+    AsExpression,
+    Eq,
+    Serialize,
+    Deserialize,
+    Clone,
+    DatabaseEnum,
+    Default,
+)]
+#[diesel(sql_type = Int4)]
+#[serde(rename_all = "snake_case")]
+pub enum SharedEntity {
+    #[default]
+    Question = 1,
+    Dashboard = 2,
+}
+
 #[derive(
     Debug,
     PartialEq,

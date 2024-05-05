@@ -594,6 +594,17 @@ diesel::table! {
 }
 
 diesel::table! {
+    team_shares (id) {
+        id -> Int8,
+        team_id -> Int8,
+        shared_entity -> Int4,
+        shared_id -> Int8,
+        inserted_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     teams (id) {
         id -> Int8,
         #[max_length = 255]
@@ -812,6 +823,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     tag_questions,
     tags,
     team_databases,
+    team_shares,
     teams,
     user_permission_sets,
     user_settings,
