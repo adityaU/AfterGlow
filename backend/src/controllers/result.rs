@@ -9,11 +9,11 @@ use crate::{
         results::{self, fetch, QueryError, ResultsResponse},
         visualizations::viz,
     },
-    repository::DBPool,
+    repository::{models::AuditLog, DBPool},
 };
 
 use super::helpers::{get_current_user_id, get_current_user_ord_id};
-use actix_web_grants::{proc_macro::has_permissions};
+use actix_web_grants::proc_macro::has_permissions;
 
 use crate::repository::permissions::PermissionNames;
 use crate::repository::permissions::PermissionNames::*;
@@ -80,12 +80,27 @@ async fn fetch_results(
     let current_user_id = get_current_user_id(&req);
     let current_users_org = get_current_user_ord_id(&req);
     let mut conn_pools = Arc::clone(&*connection_pools.into_inner());
-    fetch(
+    let resp = fetch(
         &mut conn.unwrap(),
         payload,
         &mut conn_pools,
         current_user_id,
         current_users_org,
     )
-    .await
+    .await;
+
+    if let Ok((d, _)) = &resp {
+        match d {
+            ResultsResponse::ApiResponse(_) => todo!(),
+            ResultsResponse::QueryResponse(qr) => {
+                let conn = pool.get();
+                let _ = AuditLog::log_query_action(
+                    &mut conn.unwrap(),
+                    current_user_id,
+                    qr.audit_details.clone(),
+                );
+            }
+        }
+    }
+    resp
 }

@@ -12,11 +12,9 @@ use crate::{
             Error as BGJobError, JobEssentials, LongLivedData,
         },
         questions::config::QuestionHumanSql,
-        visualizations::{
-            viz,
-        },
+        visualizations::viz,
     },
-    repository::models::User,
+    repository::models::{AuditLog, User},
 };
 
 use super::send_csv::CSVMailTemplate;
@@ -73,7 +71,7 @@ impl JobEssentials for VisualizationMailerJob {
             .map_err(|err| VisualizationMailerError::NoSystemUser(err.to_string()))?
             .id;
 
-        let conn = data.pool.get();
+        let conn = data.clone().pool.get();
 
         let payload = viz::make_question_config(
             &mut conn.unwrap(),
@@ -96,16 +94,20 @@ impl JobEssentials for VisualizationMailerJob {
         )
         .map_err(|err| VisualizationMailerError::UnableToMakeDefaultPayload(err.to_string()))?;
         let (renderer, config) = SendCSVJob::fetch_renderer_and_config(&payload);
-        let (url, columns, preview_data, smtp_conf) = SendCSVJob::get_csv_download_attributes(
-            payload.clone(),
-            user_id,
-            0,
-            data,
-            PREVIEW_LIMIT,
-            renderer,
-            config,
-        )
-        .await?;
+        let (url, columns, preview_data, smtp_conf, audit_details) =
+            SendCSVJob::get_csv_download_attributes(
+                payload.clone(),
+                user_id,
+                0,
+                data.clone(),
+                PREVIEW_LIMIT,
+                renderer,
+                config,
+            )
+            .await?;
+
+        let conn = data.pool.clone().get();
+        let _ = AuditLog::log_download_action(&mut conn.unwrap(), user_id, audit_details);
         // remove hidden_columns from columns and corresponding index from preview data
         SendCSVJob::send_mail(
             self.recipients

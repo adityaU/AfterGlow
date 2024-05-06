@@ -7,3 +7,4 @@ erl_crash.dump
 Session.vim
 backend/target/
 backend/crud_derive/target/
+frontend-v3/target/

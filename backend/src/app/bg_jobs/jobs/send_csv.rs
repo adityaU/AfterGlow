@@ -14,6 +14,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::app::results::adapters::DBValue;
+use crate::app::results::AuditDetails;
 use crate::app::visualizations::renderer_config::{RendererConfig, Table};
 use crate::app::{
     bg_jobs::{Error as BGJobError, JobEssentials, LongLivedData},
@@ -24,7 +25,7 @@ use crate::app::{
         s3_config,
     },
 };
-use crate::repository::models::RendererTypes;
+use crate::repository::models::{AuditLog, RendererTypes};
 
 use lettre::{
     message::Mailbox,
@@ -145,16 +146,20 @@ impl JobEssentials for SendCSVJob {
         let user_id = self.user_id;
         let org_id = self.org_id;
         let (renderer, config) = Self::fetch_renderer_and_config(&self.payload);
-        let (url, _columns, preview_html, smtp_conf) = Self::get_csv_download_attributes(
-            self.payload.clone(),
-            user_id,
-            org_id,
-            data,
-            PREVIEW_LIMIT,
-            renderer,
-            config,
-        )
-        .await?;
+        let (url, _columns, preview_html, smtp_conf, audit_details) =
+            Self::get_csv_download_attributes(
+                self.payload.clone(),
+                user_id,
+                org_id,
+                data.clone(),
+                PREVIEW_LIMIT,
+                renderer,
+                config,
+            )
+            .await?;
+
+        let conn = data.pool.clone().get();
+        let _ = AuditLog::log_download_action(&mut conn.unwrap(), user_id, audit_details);
         Self::send_mail(
             vec![self.email.clone().as_str()],
             "Please Download your CSV",
@@ -215,10 +220,10 @@ impl SendCSVJob {
         preview_limit: usize,
         renderer: RendererTypes,
         config: Option<Value>,
-    ) -> Result<(String, Arc<Vec<String>>, String, SMTPConfig), SendCSVError> {
+    ) -> Result<(String, Arc<Vec<String>>, String, SMTPConfig, AuditDetails), SendCSVError> {
         let conn = data.pool.clone().get();
         let mut connection = conn.unwrap();
-        let (url, columns, preview_data) = {
+        let (url, columns, preview_data, audit_details) = {
             let response = results::fetch(
                 &mut connection,
                 payload.clone(),
@@ -241,7 +246,7 @@ impl SendCSVJob {
                     let mut connection = conn.unwrap();
                     let url = SendCSVJob::write_file_to_s3(&mut connection, file_path, key).await?;
                     let preview_data = SendCSVJob::get_first_n_rows(rows.clone(), preview_limit);
-                    (url, columns, preview_data)
+                    (url, columns, preview_data, resp.audit_details)
                 }
             }
         };
@@ -251,7 +256,7 @@ impl SendCSVJob {
         let smtp_conf = get_smtp_config(&mut connection)
             .map_err(|err| SendCSVError::CouldNotFetchSMTPConfig(err.to_string()))?;
         let preview_html = Self::make_preview_html(renderer, columns.clone(), preview_data.clone());
-        Ok((url, columns, preview_html, smtp_conf))
+        Ok((url, columns, preview_html, smtp_conf, audit_details))
     }
 
     fn make_preview_html(

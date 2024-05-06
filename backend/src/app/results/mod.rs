@@ -10,7 +10,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use chrono::{NaiveDateTime, Utc};
+use chrono::{DateTime, NaiveDateTime, Utc};
 use deadpool_postgres::Pool;
 use diesel::PgConnection;
 use regex::Regex;
@@ -23,13 +23,17 @@ use serde::{
 use serde::ser::SerializeStruct;
 use serde_json::from_value;
 
-use crate::app::api_actions;
 use crate::app::results::payload_adapter::AdaptedPayload;
+use crate::{app::api_actions, repository::models::Question};
 use crate::{app::results::adapters::DBAdapter, repository::models::ResultsCache};
 
 use self::adapters::DBValue;
 
-use super::{api_actions::ApiActionResponse, databases::get_db_config, questions::config};
+use super::{
+    api_actions::ApiActionResponse,
+    databases::get_db_config,
+    questions::config::{self, Visualization},
+};
 
 use lazy_static::lazy_static;
 
@@ -102,6 +106,7 @@ pub struct QueryResults {
     pub cache_updated_at: Option<NaiveDateTime>,
     pub cached_until: Option<NaiveDateTime>,
     pub from_cache: bool,
+    pub audit_details: AuditDetails,
 }
 
 struct QueryResultsVisitor;
@@ -126,6 +131,7 @@ impl<'de> Visitor<'de> for QueryResultsVisitor {
         let mut cache_updated_at = None;
         let mut cached_until = None;
         let mut from_cache = None;
+        let mut audit_details = None;
 
         while let Some(key) = map.next_key::<String>()? {
             match key.as_str() {
@@ -156,6 +162,10 @@ impl<'de> Visitor<'de> for QueryResultsVisitor {
                 "from_cache" => {
                     from_cache = Some(map.next_value()?);
                 }
+                "audit_details" => {
+                    audit_details = Some(map.next_value()?);
+                }
+
                 _ => {}
             }
         }
@@ -170,6 +180,8 @@ impl<'de> Visitor<'de> for QueryResultsVisitor {
         let original_query_columns = original_query_columns
             .ok_or_else(|| de::Error::missing_field("original_query_columns"))?;
         let from_cache = from_cache.ok_or_else(|| de::Error::missing_field("from_cache"))?;
+        let audit_details =
+            audit_details.ok_or_else(|| de::Error::missing_field("audit_details"))?;
 
         Ok(QueryResults {
             columns: Arc::new(columns),
@@ -181,6 +193,7 @@ impl<'de> Visitor<'de> for QueryResultsVisitor {
             cache_updated_at,
             cached_until,
             from_cache,
+            audit_details,
         })
     }
 }
@@ -226,6 +239,7 @@ impl Serialize for QueryResults {
         state.serialize_field("cache_updated_at", &self.cache_updated_at)?;
         state.serialize_field("cached_until", &self.cached_until)?;
         state.serialize_field("from_cache", &self.from_cache)?;
+        state.serialize_field("audit_details", &self.audit_details)?;
         state.end()
     }
 }
@@ -279,6 +293,15 @@ pub struct VizGeneralSettings {
     pub can_viewers_change_query_terms: bool,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AuditDetails {
+    database: i64,
+    fetched_rows: i64,
+    query_time: i64,
+    question_id: Option<i64>,
+    sql: String,
+}
+
 pub async fn fetch(
     conn: &mut PgConnection,
     payload: config::QuestionHumanSql,
@@ -308,24 +331,31 @@ pub async fn fetch(
         ));
     }
 
-    let (viz_id, cache_time_in_seconds) = fetch_cache_time_and_viz_id(&payload);
+    let (viz, cache_time_in_seconds) = fetch_cache_time_and_viz_id(&payload);
 
     let (db_config, db_type) = get_db_config(conn, db_id)
         .map_err(|err| QueryError::new(err.to_string(), "".to_string()))?;
     let adapter = db_type.get_adapter(db_config.clone());
-
+    let start_time = Utc::now();
     if cache_time_in_seconds > 0 {
         let query = adapter
             .fetch_query_only(conn, adapted_payload.clone(), user_id, org_id)
             .await?;
-        let results = ResultsCache::fetch_by_query(conn, query.final_query.clone(), viz_id).ok();
+        let results = ResultsCache::fetch_by_query(
+            conn,
+            query.final_query.clone(),
+            viz.id.unwrap_or_default(),
+        )
+        .ok();
         if let Some(results) = results {
             match results {
                 Some(results) => {
                     let res: Result<QueryResults, serde_json::Error> =
                         serde_json::from_value(results);
                     match res {
-                        Ok(res) => {
+                        Ok(mut res) => {
+                            res.audit_details.query_time =
+                                (Utc::now() - start_time).num_milliseconds();
                             return Ok((
                                 ResultsResponse::QueryResponse(res),
                                 query.adapted_query.into(),
@@ -340,7 +370,9 @@ pub async fn fetch(
                                 user_id,
                                 org_id,
                                 cache_time_in_seconds,
-                                viz_id,
+                                viz,
+                                start_time,
+                                db_id,
                             )
                             .await;
                         }
@@ -355,7 +387,9 @@ pub async fn fetch(
                         user_id,
                         org_id,
                         cache_time_in_seconds,
-                        viz_id,
+                        viz,
+                        start_time,
+                        db_id,
                     )
                     .await;
                 }
@@ -371,7 +405,9 @@ pub async fn fetch(
         user_id,
         org_id,
         cache_time_in_seconds,
-        viz_id,
+        viz,
+        start_time,
+        db_id,
     )
     .await
 }
@@ -384,7 +420,9 @@ async fn fetch_results_from_db(
     user_id: i64,
     org_id: i64,
     cache_time_in_seconds: i64,
-    viz_id: i64,
+    viz: Visualization,
+    start_time: DateTime<Utc>,
+    database_id: i64,
 ) -> Result<(ResultsResponse, Arc<String>), QueryError> {
     let (original_query_columns, column_details) =
         fetch_original_query_columns(&adapted_payload, &adapter, conn, cps, user_id, org_id)
@@ -394,6 +432,11 @@ async fn fetch_results_from_db(
         .fetch_response(conn, cps, adapted_payload, user_id, org_id)
         .await?;
     let formats = find_formattable_columns(&db_adapter_response.column_details.clone());
+    match Arc::try_unwrap(db_adapter_response.final_query.clone()) {
+        Ok(q) => println!("final_query is unique: {}", q),
+        Err(e) => println!("final_query is shared: {}", e),
+    }
+
     let mut query_results = QueryResults {
         columns: db_adapter_response.columns.clone(),
         column_details: find_column_details(column_details, &db_adapter_response),
@@ -407,6 +450,13 @@ async fn fetch_results_from_db(
         cache_updated_at: None,
         cached_until: None,
         from_cache: false,
+        audit_details: AuditDetails {
+            query_time: (Utc::now() - start_time).num_milliseconds(),
+            database: database_id,
+            fetched_rows: db_adapter_response.rows.len() as i64,
+            question_id: viz.question_id,
+            sql: db_adapter_response.final_query.as_ref().to_owned(),
+        },
     };
     if cache_time_in_seconds > 0 {
         query_results.cache_updated_at = Some(Utc::now().naive_utc());
@@ -422,7 +472,7 @@ async fn fetch_results_from_db(
         ResultsCache::push_to_cache(
             conn,
             db_adapter_response.final_query.clone().to_string(),
-            viz_id,
+            viz.id.unwrap_or_default(),
             res,
             cache_time_in_seconds,
         )
@@ -441,15 +491,15 @@ async fn fetch_results_from_db(
     ))
 }
 
-fn fetch_cache_time_and_viz_id(payload: &config::QuestionHumanSql) -> (i64, i64) {
+fn fetch_cache_time_and_viz_id(payload: &config::QuestionHumanSql) -> (Visualization, i64) {
     let viz = payload.visualization.clone().unwrap_or_default();
 
     let viz_id = viz.id.unwrap_or_default();
     if viz_id == 0 {
-        return (0, 0);
+        return (Visualization::default(), 0);
     }
 
-    let viz_settings = viz.settings.unwrap_or_default();
+    let viz_settings = viz.clone().settings.unwrap_or_default();
 
     let viz_settings: Option<VizSettings> = from_value(viz_settings).ok();
 
@@ -463,7 +513,7 @@ fn fetch_cache_time_and_viz_id(payload: &config::QuestionHumanSql) -> (i64, i64)
         0i64
     };
 
-    (viz_id, cache_time_in_settings)
+    (viz, cache_time_in_settings)
 }
 
 fn find_column_details(

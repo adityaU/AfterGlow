@@ -213,12 +213,22 @@ pub struct Application {
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
+#[derive(
+    Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Deserialize, Clone, DatabaseEnum,
+)]
+#[diesel(sql_type = Int4)]
+#[serde(rename_all = "snake_case")]
+pub enum AuditAction {
+    Query = 1,
+    Download = 4,
+}
 
-#[derive(Queryable, Debug)]
+#[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
 pub struct AuditLog {
+    #[skip_in_changeset]
     pub id: i64,
     pub whodunit: Option<i32>,
-    pub action: Option<i32>,
+    pub action: Option<AuditAction>,
     pub additional_data: Option<serde_json::Value>,
     pub inserted_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,

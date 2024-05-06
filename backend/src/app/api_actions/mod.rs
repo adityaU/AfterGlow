@@ -9,7 +9,9 @@ use serde_json::{Map, Value};
 
 use crate::repository::models::ApiActionChangeset;
 
-use super::results::{payload_adapter::Variable, query_builders::sql_base::VARIABLE_REGEX};
+use super::results::{
+    payload_adapter::Variable, query_builders::sql_base::VARIABLE_REGEX, AuditDetails,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RedirectResponse {
