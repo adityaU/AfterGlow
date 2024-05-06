@@ -68,10 +68,7 @@ export const currentUserStore = defineStore('currentUser', {
       );
     },
     canDownload() {
-      return (
-        this.permissions.indexOf('Download.enabled') >= 0 ||
-        this.permissions.indexOf('Settings.all') >= 0
-      );
+      return true;
     },
     isEditor() {
       return (
