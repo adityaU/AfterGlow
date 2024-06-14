@@ -93,7 +93,7 @@ async fn fetch_results(
 
     if let Ok((d, _)) = &resp {
         match d {
-            ResultsResponse::ApiResponse(_) => todo!(),
+            ResultsResponse::ApiResponse(_) => (),
             ResultsResponse::QueryResponse(qr) => {
                 let conn = pool.get();
                 let _ = AuditLog::log_query_action(
