@@ -1,6 +1,6 @@
 use std::{fmt, sync::Arc};
 
-use diesel::PgConnection;
+
 use serde::{Deserialize, Serialize};
 
 use crate::app::bg_jobs::{Error as BGJobError, JobEssentials, LongLivedData};
@@ -68,15 +68,15 @@ impl JobEssentials for DashboardMailerJob {
 }
 
 impl DashboardMailerJob {
-    async fn make_note_html(_conn: &mut PgConnection, _note_id: i64) -> String {
-        todo!()
-    }
+    // fn make_note_html(_conn: &mut PgConnection, _note_id: i64) -> String {
+    //     todo!()
+    // }
 
-    async fn make_visualization_html(_conn: &mut PgConnection, _viz_id: i64) -> String {
-        todo!()
-        // match Visualization::find(conn, viz_id) {
-        //     Ok(viz) => todo!(),
-        //     Err(Err) => todo!(),
-        // }
-    }
+    // async fn make_visualization_html(_conn: &mut PgConnection, _viz_id: i64) -> String {
+    //     todo!()
+    //     // match Visualization::find(conn, viz_id) {
+    //     //     Ok(viz) => todo!(),
+    //     //     Err(Err) => todo!(),
+    //     // }
+    // }
 }

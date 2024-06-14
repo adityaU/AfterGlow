@@ -1,8 +1,4 @@
-use std::{
-    error::Error as StdError,
-    fmt::{self},
-    sync::Arc,
-};
+use std::{error::Error as StdError, fmt, sync::Arc};
 
 use chrono::Utc;
 use diesel::PgConnection;

@@ -2,17 +2,17 @@ use chrono::Utc;
 
 use dotenv::dotenv;
 
-
 use rand::rngs::OsRng;
 use rcgen::{Certificate, CertificateParams, KeyPair};
 use rsa::pkcs8::{EncodePrivateKey, LineEnding};
 use rsa::RsaPrivateKey;
 
+use crate::repository::permissions::{EDITOR_PERMISSIONS, VIEWER_PERMISSIONS};
 use crate::{
     app::settings::reports::REPORT_CONFIG_NAMES,
     repository::{
         models::{Permission, PermissionSet, Setting, User, UserChangeset, UserPermissionSet},
-        permissions::{ADMIN_PERMISSIONS},
+        permissions::ADMIN_PERMISSIONS,
         DBPool,
     },
 };
@@ -21,10 +21,14 @@ pub fn setup_google_credentials(pool: DBPool) {
     dotenv().ok();
     let google_client_id = std::env::var("AG_GOOGLE_CLIENT_ID");
     let google_client_secret = std::env::var("AG_GOOGLE_CLIENT_SECRET");
-    println!("Google client id: {:?}", google_client_id);
-    println!("Google client secret: {:?}", google_client_secret);
     match (google_client_id, google_client_secret) {
         (Ok(client_id), Ok(client_secret)) => {
+            let conn = pool.get();
+            let _ = Setting::find_by_name_and_ensure(
+                &mut conn.unwrap(),
+                "GOOGLE_LOGIN_ENABLED".to_string(),
+                "true".to_string(),
+            );
             let conn = pool.get();
             let _ = Setting::find_by_name_and_ensure(
                 &mut conn.unwrap(),
@@ -188,8 +192,10 @@ pub fn create_default_settings(pool: DBPool) {
 }
 
 pub fn create_default_users(pool: DBPool) {
+    create_default_permissions(pool.clone());
     let conn = pool.get();
     let now = Utc::now().naive_utc();
+    // println!("conn {:?}", &conn);
     let admin_permission_set_id = PermissionSet::admin(&mut conn.unwrap()).unwrap().id;
     let conn = pool.get();
     let viewer_permission_set_id = PermissionSet::viewer(&mut conn.unwrap()).unwrap().id;
@@ -299,6 +305,18 @@ pub fn create_default_permissions(pool: DBPool) {
     ADMIN_PERMISSIONS.iter().for_each(|permission| {
         let conn = pool.get();
         let _ = Permission::find_or_create(&mut conn.unwrap(), permission, admin.id);
+    });
+    let conn = pool.get();
+    let editor = PermissionSet::find_or_create(&mut conn.unwrap(), "Editor").unwrap();
+    EDITOR_PERMISSIONS.iter().for_each(|permission| {
+        let conn = pool.get();
+        let _ = Permission::find_or_create(&mut conn.unwrap(), permission, editor.id);
+    });
+    let conn = pool.get();
+    let viewer = PermissionSet::find_or_create(&mut conn.unwrap(), "Viewer").unwrap();
+    VIEWER_PERMISSIONS.iter().for_each(|permission| {
+        let conn = pool.get();
+        let _ = Permission::find_or_create(&mut conn.unwrap(), permission, viewer.id);
     });
 }
 

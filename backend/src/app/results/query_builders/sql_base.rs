@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-
-
 use fancy_regex::Regex;
 
 use diesel::PgConnection;
@@ -10,7 +8,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use lazy_static::lazy_static;
-
 
 lazy_static! {
     static ref SNIPPET_RE: Regex = Regex::new(r"\{\{ *sn:.*?(?<snippet_id>\d+) *\}\}").unwrap();
@@ -36,16 +33,14 @@ use crate::app::questions::config;
 
 use crate::app::results::payload_adapter::Variable;
 use crate::app::results::query_terms::filters::{DateObjectInner, DurationType};
-use crate::app::{
-    results::{
-        helpers::make_alias,
-        payload_adapter::QueryTerms,
-        query_terms::{
-            filters::Filter,
-            groups::Grouping,
-            sorts::Sort,
-            views::{Column, View},
-        },
+use crate::app::results::{
+    helpers::make_alias,
+    payload_adapter::QueryTerms,
+    query_terms::{
+        filters::Filter,
+        groups::Grouping,
+        sorts::Sort,
+        views::{Column, View},
     },
 };
 use crate::repository::models::{Question, Snippet, VariableType};
@@ -53,12 +48,12 @@ use crate::repository::models::{Question, Snippet, VariableType};
 use super::super::AdaptedPayload;
 
 use super::super::query_terms::{
-    filters::{FilterOperator},
+    filters::FilterOperator,
     groups::GroupDuration,
     sorts::SortDirection::{Ascending, Descending},
     views::ViewAggregations,
 };
-use super::{Queries};
+use super::Queries;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SQLQueryOptions {

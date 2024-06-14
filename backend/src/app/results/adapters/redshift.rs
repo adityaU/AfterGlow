@@ -39,17 +39,17 @@ struct Super(Value);
 
 impl<'a> FromSql<'a> for Super {
     fn from_sql(
-        type_: &Type,
+        _type_: &Type,
         raw: &'a [u8],
     ) -> Result<Self, Box<dyn Error + 'static + Send + Sync>> {
         Ok(Super(serde_json::from_slice(raw)?))
     }
 
-    fn accepts(T: &Type) -> bool {
-        T.name() == "super"
+    fn accepts(t: &Type) -> bool {
+        t.name() == "super"
     }
 
-    fn from_sql_null(type_: &Type) -> Result<Self, Box<dyn Error + 'static + Send + Sync>> {
+    fn from_sql_null(_type__: &Type) -> Result<Self, Box<dyn Error + 'static + Send + Sync>> {
         Ok(Super(Value::Null))
     }
 }
@@ -57,8 +57,8 @@ impl<'a> FromSql<'a> for Super {
 impl ToSql for Super {
     fn to_sql(
         &self,
-        type_: &Type,
-        out: &mut BytesMut,
+        _type_: &Type,
+        _out: &mut BytesMut,
     ) -> Result<IsNull, Box<dyn Error + 'static + Send + Sync>> {
         match self.0 {
             Value::Null => Ok(IsNull::Yes),
@@ -66,8 +66,8 @@ impl ToSql for Super {
         }
     }
 
-    fn accepts(T: &Type) -> bool {
-        T.name() == "super"
+    fn accepts(t: &Type) -> bool {
+        t.name() == "super"
     }
 
     to_sql_checked!();

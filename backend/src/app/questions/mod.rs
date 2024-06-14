@@ -3,7 +3,7 @@ use std::fmt::{self, Formatter};
 use actix_web::HttpRequest;
 use chrono::Utc;
 use diesel::PgConnection;
-use regex::Regex;
+
 use serde_json::to_value;
 use uuid::Uuid;
 

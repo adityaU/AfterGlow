@@ -58,6 +58,8 @@ pub async fn fetch_viz_results_from_id(
         payload.into_inner(),
     )
     .map_err(|err| err)?;
+    println!("{:?}", question_config.variables);
+
     fetch_results(pool, question_config, connection_pools, req)
         .await
         .map(|(d, query)| {

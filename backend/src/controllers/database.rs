@@ -2,7 +2,6 @@ use actix_web::{error, web, HttpRequest, HttpResponse, Responder};
 use actix_web_grants::permissions::AuthDetails;
 use serde::Deserialize;
 
-
 use super::helpers::get_current_user_email;
 use crate::app::bg_jobs::jobs::sync_db::SyncDBJob;
 use crate::app::bg_jobs::pg_queue::PostgresQueue;
@@ -67,28 +66,37 @@ pub(crate) async fn update(
         data: DatabaseView::from_model(&resp),
     }))
 }
-#[has_permissions["SettingsAll", type = "PermissionNames"]]
+#[has_permissions["Any", type = "PermissionNames"]]
 pub(crate) async fn show(
     pool: web::Data<Arc<DBPool>>,
     item_id: web::Path<i64>,
     params: web::Query<QueryParams>,
+    req: HttpRequest,
+    auth_details: AuthDetails<PermissionNames>,
 ) -> impl Responder {
     let conn = pool.get();
+    let current_user_email = get_current_user_email(&req);
+    let permissions = auth_details.permissions;
 
     let include_config = params.include_config.unwrap_or(false);
-    Database::find(&mut conn.unwrap(), item_id.into_inner())
-        .map(|item| {
-            if include_config {
-                HttpResponse::Ok().json(ResponseData {
-                    data: DetailedDatabaseView::from_model(&item),
-                })
-            } else {
-                HttpResponse::Ok().json(ResponseData {
-                    data: DatabaseView::from_model(&item),
-                })
-            }
-        })
-        .map_err(|err| error::ErrorNotFound(err))
+    Database::find_by_id_for_user(
+        &mut conn.unwrap(),
+        item_id.into_inner(),
+        current_user_email,
+        permissions,
+    )
+    .map(|item| {
+        if include_config {
+            HttpResponse::Ok().json(ResponseData {
+                data: DetailedDatabaseView::from_model(&item),
+            })
+        } else {
+            HttpResponse::Ok().json(ResponseData {
+                data: DatabaseView::from_model(&item),
+            })
+        }
+    })
+    .map_err(|err| error::ErrorNotFound(err))
 }
 
 #[has_permissions["QuestionEdit", type = "PermissionNames"]]

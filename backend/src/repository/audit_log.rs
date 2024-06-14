@@ -1,7 +1,7 @@
-use diesel::{sql_query, PgConnection, RunQueryDsl};
+use diesel::{PgConnection, RunQueryDsl};
 
 use serde_json::to_value;
-use uuid::Uuid;
+
 
 use chrono::Utc;
 
@@ -9,14 +9,13 @@ use diesel::prelude::*;
 use diesel::result::Error;
 
 use crate::app::results::AuditDetails;
-use crate::diesel::BoolExpressionMethods;
-use crate::diesel::ExpressionMethods;
-use diesel::sql_types::{Int2, Int4, Timestamp, Uuid as PgUuid};
+
+
 
 use super::models::AuditAction;
 use super::models::{AuditLog, AuditLogChangeset};
 use super::schema::audit_logs;
-use super::schema::bg_queue;
+
 const MAX_FAILED_ATTEMPTS: i16 = 5;
 
 impl AuditLog {

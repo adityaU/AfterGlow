@@ -1,4 +1,4 @@
-use super::models::User;
+
 
 use super::models::Question;
 
@@ -19,11 +19,6 @@ use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQ
 use serde_json::{Map, Value};
 
 const INDEX_LIMIT: i64 = 20;
-
-pub struct QuestionWithUser {
-    pub question: Question,
-    pub user: User,
-}
 
 impl questions::table {
     pub fn shared_with_user(user_email: String, permissions: Vec<PermissionNames>) -> String {

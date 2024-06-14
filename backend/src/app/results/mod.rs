@@ -23,8 +23,8 @@ use serde::{
 use serde::ser::SerializeStruct;
 use serde_json::from_value;
 
+use crate::app::api_actions;
 use crate::app::results::payload_adapter::AdaptedPayload;
-use crate::{app::api_actions, repository::models::Question};
 use crate::{app::results::adapters::DBAdapter, repository::models::ResultsCache};
 
 use self::adapters::DBValue;

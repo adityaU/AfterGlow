@@ -63,7 +63,7 @@ fn main() -> std::io::Result<()> {
 fn run_migrations() {
     println!("Running migrations...");
     let pool = Database::new().pool;
-    let mut conn = pool.get().unwrap();
+    let mut conn = pool.clone().get().unwrap();
     conn.run_pending_migrations(MIGRATIONS)
         .expect("Could not run migrations");
     seeds::create_default_users(pool.clone());

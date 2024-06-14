@@ -34,6 +34,19 @@ impl databases::table {
 }
 
 impl Database {
+    pub fn find_by_id_for_user(
+        conn: &mut PgConnection,
+        database_id: i64,
+        user_email: String,
+        user_permissions: Vec<PermissionNames>,
+    ) -> Result<Self, Error> {
+        databases::table
+            .filter(sql::<Bool>(
+                databases::table::shared_with_user(user_email, user_permissions).as_str(),
+            ))
+            .filter(databases::id.eq(database_id))
+            .first::<Self>(conn)
+    }
     pub fn find_for_user(
         conn: &mut PgConnection,
         user_email: String,

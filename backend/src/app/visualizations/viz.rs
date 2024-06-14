@@ -97,7 +97,7 @@ fn make_variables(
     question_id: i64,
     payload: &config::QuestionHumanSql,
 ) -> Result<Vec<config::Variable>, String> {
-    let variables = Variable::find_by_question_id(conn, question_id)
+    let mut variables = Variable::find_by_question_id(conn, question_id)
         .map_err(|e| {
             format!(
                 "Error finding Variables for Question id : {}, Error: {}",
@@ -132,7 +132,27 @@ fn make_variables(
             }
         })
         .collect::<Vec<config::Variable>>();
+    variables.append(
+        &mut payload
+            .variables
+            .clone()
+            .unwrap_or_default()
+            .into_iter()
+            .filter(|var| {
+                !variables
+                    .iter()
+                    .any(|v| match_name_on_incoming_variable(v, var))
+            })
+            .collect::<Vec<config::Variable>>(),
+    );
     Ok(variables)
+}
+
+fn match_name_on_incoming_variable(var: &config::Variable, v: &config::Variable) -> bool {
+    match var.name.strip_prefix("q_") {
+        Some(name) => name == v.name.clone(),
+        None => var.name == v.name.clone(),
+    }
 }
 
 fn match_name(var: &config::Variable, v: &Variable) -> bool {
