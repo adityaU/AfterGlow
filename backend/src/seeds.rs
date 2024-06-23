@@ -1,13 +1,19 @@
 use chrono::Utc;
 
+use chrono_tz::UTC;
 use dotenv::dotenv;
 
 use rand::rngs::OsRng;
 use rcgen::{Certificate, CertificateParams, KeyPair};
 use rsa::pkcs8::{EncodePrivateKey, LineEnding};
 use rsa::RsaPrivateKey;
+use serde_json::json;
+use sqlparser::keywords::UUID;
+use uuid::Uuid;
 
+use crate::repository::models::{Database as DBModel, DatabaseChangeset, SupportedDatabases};
 use crate::repository::permissions::{EDITOR_PERMISSIONS, VIEWER_PERMISSIONS};
+use crate::repository::Database;
 use crate::{
     app::settings::reports::REPORT_CONFIG_NAMES,
     repository::{
@@ -318,6 +324,30 @@ pub fn create_default_permissions(pool: DBPool) {
         let conn = pool.get();
         let _ = Permission::find_or_create(&mut conn.unwrap(), permission, viewer.id);
     });
+}
+
+pub fn create_default_api_client(pool: DBPool) {
+    let conn = pool.get();
+    let gac = DBModel::find_by_name(&mut conn.unwrap(), "Generic API Client");
+    match gac {
+        Err(_) => {
+            let conn = pool.get();
+            DBModel::create(
+                &mut conn.unwrap(),
+                DatabaseChangeset {
+                    name: Some("Generic API Client".to_string()),
+                    db_type: Some(SupportedDatabases::ApiClient),
+                    config: Some(json!({})),
+                    inserted_at: Utc::now().naive_utc(),
+                    updated_at: Utc::now().naive_utc(),
+                    last_accessed_at: Some(Utc::now().naive_utc()),
+                    unique_identifier: Some(Uuid::new_v4()),
+                },
+            );
+            return;
+        }
+        Ok(_) => return,
+    }
 }
 
 fn generate_saml_keys() -> Result<(String, String), String> {

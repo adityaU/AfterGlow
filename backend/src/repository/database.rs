@@ -34,6 +34,11 @@ impl databases::table {
 }
 
 impl Database {
+    pub fn find_by_name(conn: &mut PgConnection, name: &str) -> Result<Self, Error> {
+        databases::table
+            .filter(databases::name.eq(name))
+            .first::<Self>(conn)
+    }
     pub fn find_by_id_for_user(
         conn: &mut PgConnection,
         database_id: i64,
