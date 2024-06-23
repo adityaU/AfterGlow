@@ -293,12 +293,6 @@ pub fn password_login(
     if user.is_deactivated.unwrap_or(false) {
         return Err("User is deactivated".to_string());
     }
-    println!("User: {:?}", &user);
-    println!("Password: {:?}", &password);
-    println!(
-        "Encrypted Password: {:?}",
-        &User::encrypt_password(password.clone())
-    );
     if User::encrypt_password(password.clone()) != user.password.unwrap_or("".to_string()) {
         return Err("Invalid Password".to_string());
     }

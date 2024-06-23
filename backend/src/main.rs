@@ -68,7 +68,8 @@ fn run_migrations() {
         .expect("Could not run migrations");
     seeds::create_default_users(pool.clone());
     seeds::create_default_settings(pool.clone());
-    seeds::setup_google_credentials(pool);
+    seeds::setup_google_credentials(pool.clone());
+    seeds::create_default_api_client(pool);
     // You would typically call diesel_migrations::run_pending_migrations here
 }
 

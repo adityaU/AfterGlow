@@ -222,7 +222,6 @@ pub fn create_default_users(pool: DBPool) {
     };
 
     let admin = User::create_or_update(&mut conn.unwrap(), user).unwrap();
-    println!("Admin user created: {:?}", admin);
     let conn = pool.get();
     let _ = UserPermissionSet::create_or_update_for_user(
         &mut conn.unwrap(),
