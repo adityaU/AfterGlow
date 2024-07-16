@@ -147,8 +147,8 @@ impl QueryTerms {
             sortings: make_sorts(query_terms.sortings.get_details()),
             groupings: make_groupings(query_terms.groupings.get_details()),
             views: make_views(query_terms.views.get_details()),
-            limit: query_terms.limit,
-            offset: query_terms.offset,
+            limit: query_terms.limit.unwrap_or_default().to_int64(),
+            offset: query_terms.offset.unwrap_or_default().to_int64(),
         }
     }
 }

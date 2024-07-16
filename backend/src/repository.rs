@@ -39,6 +39,7 @@ pub mod schedule;
 pub mod schema;
 pub mod settings;
 pub mod snippet;
+pub mod system_variable;
 pub mod table;
 pub mod tag;
 pub mod team;

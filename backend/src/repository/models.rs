@@ -1148,3 +1148,14 @@ pub enum JobStatus {
     Running = 2,
     Failed = 3,
 }
+
+#[derive(Queryable, Debug, Serialize, Deserialize, View, QueryableByName, Clone)]
+#[table_name = "system_variables"]
+pub struct SystemVariable {
+    pub id: i64,
+    pub name: String,
+    pub value: Vec<u8>,
+    pub additional_data: Vec<u8>,
+    pub inserted_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}

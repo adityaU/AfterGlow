@@ -535,6 +535,18 @@ diesel::table! {
 }
 
 diesel::table! {
+    system_variables (id) {
+        id -> Int8,
+        #[max_length = 255]
+        name -> Varchar,
+        value -> Bytea,
+        additional_data -> Bytea,
+        inserted_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     tables (id) {
         id -> Int8,
         #[max_length = 255]
@@ -818,6 +830,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     snapshot_data,
     snapshots,
     snippets,
+    system_variables,
     tables,
     tag_dashboards,
     tag_questions,

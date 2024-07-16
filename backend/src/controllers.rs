@@ -15,6 +15,7 @@ pub mod question;
 pub mod result;
 pub mod setting;
 pub mod snippet;
+pub mod system_variable;
 pub mod table;
 pub mod tag;
 pub mod team;

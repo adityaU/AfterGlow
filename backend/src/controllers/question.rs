@@ -1,5 +1,6 @@
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
 
+use chrono::NaiveDateTime;
 use serde::Deserialize;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -12,7 +13,7 @@ use crate::{
     controllers::{common::ResponseData, helpers::get_current_user_email},
     errors::AGError,
     repository::{
-        models::{QueryType, Question},
+        models::{ActionLevel, HTTPMethod, QueryType, Question},
         DBPool,
     },
     views::question::{QuestionIndexView, QuestionShowView},
@@ -42,6 +43,38 @@ pub struct QuestionPayload {
     pub variables: Vec<Variable>,
     pub tags: Option<Vec<TagPayload>>,
     pub shared_to: Option<Vec<Option<String>>>,
+    pub api_action: Option<ApiAction>,
+}
+
+#[derive(Deserialize)]
+pub struct ApiAction {
+    pub id: Option<i64>,
+    pub question_id: Option<i64>,
+    pub url: String,
+    pub headers: Option<serde_json::Value>,
+    pub body: Option<String>,
+    pub method: Option<HTTPMethod>,
+    pub name: Option<String>,
+    pub color: Option<String>,
+    pub open_in_new_tab: Option<bool>,
+    pub response_settings: Option<serde_json::Value>,
+    pub hidden: Option<bool>,
+    #[serde(skip_deserializing)]
+    pub inserted_at: NaiveDateTime,
+    #[serde(skip_deserializing)]
+    pub updated_at: NaiveDateTime,
+    pub column: Option<String>,
+    pub on_success: Option<i32>,
+    pub on_failure: Option<i32>,
+    pub failure_message: Option<String>,
+    pub failure_key: Option<String>,
+    pub success_message: Option<String>,
+    pub success_key: Option<String>,
+    pub action_level: Option<ActionLevel>,
+    pub visualization_id: Option<i32>,
+    pub loading_message: Option<String>,
+    pub display_settings: Option<serde_json::Value>,
+    pub open_option: Option<String>,
 }
 
 #[derive(Deserialize)]

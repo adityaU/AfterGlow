@@ -15,8 +15,8 @@ pub struct QuestionHumanSql {
     pub sortings: Option<Sorts>,
     pub table: Option<Table>,
     pub views: Option<Views>,
-    pub limit: Option<i64>,
-    pub offset: Option<i64>,
+    pub limit: Option<StringOrInt64>,
+    pub offset: Option<StringOrInt64>,
     pub query_type: Option<QueryType>,
     pub raw_query: Option<String>,
     pub variables: Option<Vec<Variable>>,
@@ -87,8 +87,8 @@ pub struct QueryTerms {
     pub groupings: Groupings,
     pub sortings: Sorts,
     pub views: Views,
-    pub limit: Option<i64>,
-    pub offset: Option<i64>,
+    pub limit: Option<StringOrInt64>,
+    pub offset: Option<StringOrInt64>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -117,6 +117,16 @@ pub enum StringOrInt64 {
 impl Default for StringOrInt64 {
     fn default() -> Self {
         StringOrInt64::Int(0)
+    }
+}
+
+impl StringOrInt64 {
+    pub fn to_int64(&self) -> Option<i64> {
+        match self {
+            StringOrInt64::Int(0) => None,
+            StringOrInt64::Int(value) => Some(value.clone()),
+            StringOrInt64::String(value) => value.parse::<i64>().ok(),
+        }
     }
 }
 

@@ -20,6 +20,8 @@ use serde_json::{Map, Value};
 
 const INDEX_LIMIT: i64 = 20;
 
+const DEFAULT_SORT_COLUMN: &str = "created_at";
+
 impl questions::table {
     pub fn shared_with_user(user_email: String, permissions: Vec<PermissionNames>) -> String {
         if permissions.contains(&PermissionNames::SettingsAll) {

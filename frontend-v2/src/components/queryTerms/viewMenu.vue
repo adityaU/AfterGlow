@@ -61,7 +61,7 @@
       </div>
     </template>
     <template #S1>
-      <div class="" v-if="!viewLocal.isAggregation">
+      <template v-if="!viewLocal.isAggregation">
         <SelectOptions
           :options="['All columns', ...columns]"
           :selected="viewLocal.columns"
@@ -71,7 +71,7 @@
         >
           <Columns3Icon size="16" />
         </SelectOptions>
-      </div>
+      </template>
       <div class="" v-if="viewLocal.isAggregation">
         <BoxSelect
           :options="aggregationOptions"

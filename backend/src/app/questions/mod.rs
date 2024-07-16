@@ -8,11 +8,15 @@ use serde_json::to_value;
 use uuid::Uuid;
 
 use crate::{
-    controllers::{helpers::get_current_user_id, question::QuestionPayload},
+    controllers::{
+        helpers::get_current_user_id,
+        question::{ApiAction, QuestionPayload},
+    },
     repository::models::{
-        Question, QuestionChangeset, SharedEntity, Tag, TagChangeset, TagQuestion,
-        TagQuestionChangeset, Team, TeamShare, TeamShareChangeset, Variable as DBVariable,
-        VariableChangeset, Visualization as DBVisualization, VisualizationChangeset,
+        ActionLevel, ApiAction as DBApiAction, ApiActionChangeset, Question, QuestionChangeset,
+        SharedEntity, Tag, TagChangeset, TagQuestion, TagQuestionChangeset, Team, TeamShare,
+        TeamShareChangeset, Variable as DBVariable, VariableChangeset,
+        Visualization as DBVisualization, VisualizationChangeset,
     },
     views::question::QuestionShowView,
 };
@@ -20,6 +24,35 @@ use crate::{
 use self::config::{Variable, Visualization};
 
 pub mod config;
+
+pub fn create_api_action_changeset(api_action: &ApiAction, ques_id: i64) -> ApiActionChangeset {
+    ApiActionChangeset {
+        question_id: Some(ques_id),
+        updated_at: Utc::now().naive_utc(),
+        url: api_action.url.clone(),
+        headers: api_action.headers.clone(),
+        body: api_action.body.clone(),
+        method: api_action.method.clone(),
+        name: api_action.name.clone(),
+        color: api_action.color.clone(),
+        open_in_new_tab: api_action.open_in_new_tab,
+        response_settings: api_action.response_settings.clone(),
+        hidden: api_action.hidden,
+        inserted_at: Utc::now().naive_utc(),
+        column: api_action.column.clone(),
+        on_success: api_action.on_success.clone(),
+        on_failure: api_action.on_failure.clone(),
+        failure_message: api_action.failure_message.clone(),
+        failure_key: api_action.failure_key.clone(),
+        success_message: api_action.success_message.clone(),
+        success_key: api_action.success_key.clone(),
+        action_level: Some(ActionLevel::Question),
+        visualization_id: api_action.visualization_id,
+        loading_message: api_action.loading_message.clone(),
+        display_settings: api_action.display_settings.clone(),
+        open_option: api_action.open_option.clone(),
+    }
+}
 
 pub fn payload_to_create_changeset(qp: &QuestionPayload, req: HttpRequest) -> QuestionChangeset {
     QuestionChangeset {
@@ -178,11 +211,24 @@ pub fn save(
             DBVariable::delete_by_question_id(conn, question.id)
                 .map_err(|e| QuestionCreateError::ErrorDeletingVariable(e.to_string()))?;
 
+            if qp.api_action.is_some() {
+                //save api_action
+                let api_action = qp.api_action.unwrap();
+                let api_action_changeset = create_api_action_changeset(&api_action, question.id);
+                if api_action.id.is_some() {
+                    DBApiAction::update(conn, api_action.id.unwrap(), api_action_changeset)
+                        .map_err(|e| QuestionCreateError::ErrorCreatingQuestion(e.to_string()))?;
+                } else {
+                    DBApiAction::create(conn, api_action_changeset)
+                        .map_err(|e| QuestionCreateError::ErrorCreatingQuestion(e.to_string()))?;
+                }
+            }
             for var in &qp.variables {
                 let var = create_variable_changeset(var, question.id);
                 DBVariable::create(conn, var)
                     .map_err(|e| QuestionCreateError::ErrorCreatingVariable(e.to_string()))?;
             }
+
             if let Some(tags) = &qp.tags {
                 let new_tags = tags
                     .iter()

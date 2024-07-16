@@ -1,6 +1,7 @@
 pub mod dashboard;
 pub mod database;
 pub mod question;
+pub mod system_variable;
 pub mod table;
 pub mod team;
 pub mod user;

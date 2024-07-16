@@ -111,6 +111,7 @@ impl QuestionShowView {
             Some(aa) => Some(ApiActionView::from_model(&aa)),
             None => None,
         };
+        println!("Api Action: {:?}", api_action);
         let visualizations = Visualization::find_by_question_id(conn, question.id).ok();
         let variables = Variable::find_by_question_id(conn, question.id).ok();
         let tags = Tag::find_by_question_id(conn, question.id).ok();

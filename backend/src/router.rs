@@ -2,7 +2,7 @@ use actix_files as actix_fs;
 
 use actix_web::body::BoxBody;
 
-use actix_web::{HttpResponse};
+use actix_web::HttpResponse;
 use askama::Template;
 use std::fs;
 
@@ -10,12 +10,12 @@ use std::sync::Arc;
 
 use crate::app::auth::verify_token;
 
-use crate::app::settings::{theme};
+use crate::app::settings::theme;
 
 use crate::controllers::{
     api_action, auth, autocomplete, column, dashboard, database, note, organization,
-    organization_setting, permission_set, question, result, setting, snippet, table, tag, team,
-    user, user_setting, variable, visualization,
+    organization_setting, permission_set, question, result, setting, snippet, system_variable,
+    table, tag, team, user, user_setting, variable, visualization,
 };
 
 use crate::errors::AGError;
@@ -465,6 +465,17 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
             web::resource("/saml/metadata")
                 .wrap(from_fn(authenticate))
                 .route(web::get().to(auth::saml_metadata)),
+        )
+        .service(
+            web::resource("/system_variables/{system_variable_id}")
+                .wrap(from_fn(authenticate))
+                .route(web::post().to(system_variable::update)),
+        )
+        .service(
+            web::resource("/system_variables")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(system_variable::index))
+                .route(web::post().to(system_variable::create)),
         );
 }
 

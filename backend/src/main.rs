@@ -76,7 +76,6 @@ fn run_migrations() {
 #[actix_web::main]
 async fn run_server() -> std::io::Result<()> {
     dotenv().ok();
-
     let port = std::env::var("AG_PORT").unwrap_or_else(|_| "4300".to_string());
     let log_level = std::env::var("AG_LOG_LEVEL").unwrap_or_else(|_| "debug".to_string());
 
