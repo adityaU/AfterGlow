@@ -1,10 +1,7 @@
 use diesel::PgConnection;
 
 use crate::app::{
-    results::{
-        payload_adapter::AdaptedPayload,
-        query_terms::filters::{DurationType},
-    },
+    results::{payload_adapter::AdaptedPayload, query_terms::filters::DurationType},
     settings::limit,
 };
 
@@ -43,11 +40,12 @@ impl QueryBuilder for Redshift {
             ),
         };
 
-        queries.final_query = Self::replace_variables(conn, queries.final_query, variables);
-        queries.final_query = Self::apply_limit(
-            queries.final_query,
+        queries.debug_query = Self::replace_variables(conn, queries.debug_query, variables);
+        queries.debug_query = Self::apply_limit(
+            queries.debug_query,
             limit::applicable_frontend_limit(conn, user_id, org_id),
         );
+        queries.db_query = Self::replace_system_variables(conn, queries.debug_query.clone());
         Ok(queries)
     }
 }

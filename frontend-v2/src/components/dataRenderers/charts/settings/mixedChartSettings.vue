@@ -14,13 +14,21 @@
 
     <div class="tw-grid tw-grid-cols-1 tw-divide-y" v-for="s, index in settingsLocal.series" :key="s">
       <div>
-
-        <div class=" tw-py-2 tw-px-2 tw-font-semibold tw-text-primary tw-text-sm" @click="s.show = !s.show">
-          <a href="#">
+        <div class="tw-flex tw-p-2 tw-justify-center tw-items-center">
+          <div class="tw-flex-1 tw-text-primary tw-font-semibold">
             Data Series {{ index + 1 }}
-            <ChevronDownIcon v-if="s.show" class="tw-float-right tw-h-5 tw-w-5" />
-            <ChevronRightIcon v-if="!s.show" class="tw-float-right tw-h-5 tw-w-5" />
-          </a>
+          </div>
+          <div class=" tw-py-2 tw-px-2 tw-font-semibold tw-text-primary tw-text-sm"
+            @click="(deleteSeries(index) || true) && (settingsLocal.manualUpdate = true)">
+            <XIcon v-if="settingsLocal.series.length > 1"
+              class="tw-float-right tw-cursor-pointer tw-h-5 tw-w-5 tw-text-red-500" />
+          </div>
+
+          <div class=" tw-py-2 tw-px-2 tw-font-semibold tw-text-primary tw-text-sm"
+            @click="((s.show = !s.show) || true) && (settingsLocal.manualUpdate = true)">
+            <ChevronDownIcon v-if="s.show" class="tw-float-right tw-cursor-pointer tw-h-5 tw-w-5" />
+            <ChevronRightIcon v-if="!s.show" class="tw-float-right tw-cursor-pointer tw-h-5 tw-w-5" />
+          </div>
         </div>
 
         <div class="" v-if="s.show">
@@ -56,11 +64,9 @@
               <div class="tw-grid tw-grid-cols-1">
                 <div class=" tw-py-2 tw-px-4 tw-font-semibold tw-text-primary tw-text-sm"
                   @click="dimOption.show = !dimOption.show">
-                  <a href="#">
-                    {{ dimOption.name }}
-                    <ChevronDownIcon v-if="dimOption.show" class="tw-float-right tw-h-5 tw-w-5" />
-                    <ChevronRightIcon v-if="!dimOption.show" class="tw-float-right tw-h-5 tw-w-5" />
-                  </a>
+                  {{ dimOption.name }}
+                  <ChevronDownIcon v-if="dimOption.show" class="tw-float-right tw-h-5 tw-w-5" />
+                  <ChevronRightIcon v-if="!dimOption.show" class="tw-float-right tw-h-5 tw-w-5" />
                 </div>
                 <div class="" v-if="dimOption.show">
                   <div class=" tw-py-2  tw-px-4">
@@ -109,11 +115,11 @@ import AGInput from 'components/base/agInput.vue';
 import AGBool from 'components/base/bool.vue';
 import AGButton from 'components/base/button.vue';
 
-import { ChevronDownIcon, ChevronRightIcon, PlusIcon } from 'vue-tabler-icons';
+import { ChevronDownIcon, ChevronRightIcon, PlusIcon, XIcon } from 'vue-tabler-icons';
 import { defaultColors, generateColors } from "../../../../helpers/colorGenerator.ts"
 
 export default {
-  components: { ColorSelector, AGSelect, AGButton, AGInput, AGBool, ChevronDownIcon, ChevronRightIcon, PlusIcon },
+  components: { ColorSelector, AGSelect, AGButton, AGInput, AGBool, ChevronDownIcon, ChevronRightIcon, PlusIcon, XIcon },
   props: ["columns", "settings", "additionalProps", "rows"],
 
   watch: {
@@ -239,6 +245,12 @@ export default {
       console.log(settings)
       return settings
 
+    },
+
+    deleteSeries(index) {
+      if (this.settingsLocal.series.length > 1) {
+        this.settingsLocal.series.splice(index, 1)
+      }
     },
 
 

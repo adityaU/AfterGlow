@@ -37,11 +37,12 @@ impl QueryBuilder for Postgres {
             ),
         };
 
-        queries.final_query = Self::replace_variables(conn, queries.final_query, variables);
-        queries.final_query = Self::apply_limit(
-            queries.final_query,
+        queries.debug_query = Self::replace_variables(conn, queries.debug_query, variables);
+        queries.debug_query = Self::apply_limit(
+            queries.debug_query,
             limit::applicable_frontend_limit(conn, user_id, org_id),
         );
+        queries.db_query = Self::replace_system_variables(conn, queries.debug_query.clone());
         Ok(queries)
     }
 }

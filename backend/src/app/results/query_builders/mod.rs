@@ -11,5 +11,6 @@ pub trait QueryBuilder {
 
 pub struct Queries {
     pub adapted_query: String,
-    pub final_query: String,
+    pub debug_query: String,
+    pub db_query: String,
 }

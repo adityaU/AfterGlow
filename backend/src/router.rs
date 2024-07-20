@@ -469,7 +469,8 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
         .service(
             web::resource("/system_variables/{system_variable_id}")
                 .wrap(from_fn(authenticate))
-                .route(web::post().to(system_variable::update)),
+                .route(web::put().to(system_variable::update))
+                .route(web::delete().to(system_variable::delete)),
         )
         .service(
             web::resource("/system_variables")

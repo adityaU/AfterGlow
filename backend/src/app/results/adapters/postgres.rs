@@ -61,7 +61,7 @@ impl DBAdapter for PostgresAdapter {
         let pool = self.get_pool(cps)?;
         let (rows, columns, column_details) = Self::fetch(
             pool,
-            query.final_query.clone(),
+            query.db_query.clone(),
             self.db_config.query_timeout.unwrap_or(60u64),
         )
         .await?;
@@ -70,7 +70,7 @@ impl DBAdapter for PostgresAdapter {
             columns: columns.into(),
             rows: rows.into(),
             column_details: column_details.into(),
-            final_query: query.final_query.clone().into(),
+            final_query: query.debug_query.clone().into(),
             adapted_query: query.adapted_query.into(),
         })
     }

@@ -40,7 +40,8 @@ pub(crate) async fn send_request(
     let api_action = ApiAction::find(&mut conn.unwrap(), api_action_id.into_inner())
         .map_err(|err| AGError::<String>::new(err))?;
     let variables = make_variable(&payload.variables);
-    api_actions::fetch_response(api_action.to_changeset(), variables)
+    let conn = pool.get();
+    api_actions::fetch_response(&mut conn.unwrap(), api_action.to_changeset(), variables)
         .await
         .map(|resp| HttpResponse::Ok().json(ResponseData { data: resp }))
         .map_err(|err| AGError::<String>::new(err))

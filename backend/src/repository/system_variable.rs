@@ -51,7 +51,8 @@ impl NonceSequence for CounterNonceSequence {
 impl SystemVariable {
     fn encrypt(value: String) -> Result<(Vec<u8>, Vec<u8>), io::Error> {
         // Retrieve the encryption key from the environment variable or use a default one
-        let key = std::env::var("AG_ENCRYPTION_KEY").unwrap_or_else(|_| "random".to_string());
+        let key = std::env::var("AG_ENCRYPTION_KEY")
+            .unwrap_or_else(|_| "37467a23239fcb518aa1f040aa42f3b8".to_string());
         let key_bytes = key.as_bytes();
 
         // Ensure the key length is appropriate for AES-256-GCM
@@ -82,6 +83,8 @@ impl SystemVariable {
         // Convert value to a mutable vector
         let mut in_out = value.into_bytes();
 
+        println!("into bytes: {:?}", in_out);
+
         // Encrypt the data
         let tag = sealing_key
             .seal_in_place_separate_tag(
@@ -95,6 +98,8 @@ impl SystemVariable {
                     format!("Could not encrypt value: {}", err),
                 )
             })?;
+
+        println!("in out {:?}", in_out);
 
         // Append the tag to the ciphertext
         in_out.extend_from_slice(tag.as_ref());
@@ -125,10 +130,68 @@ impl SystemVariable {
     //     Ok((in_out.into(), nonce_counter.to_be_bytes().to_vec()))
     // }
     //
-    fn decrypt(value: Vec<u8>, additional_data: Vec<u8>) -> Result<String, io::Error> {
+    // fn decrypt(value: Vec<u8>, additional_data: Vec<u8>) -> Result<String, io::Error> {
+    //     // Retrieve the encryption key from the environment variable or use a default one
+    //     let key = std::env::var("AG_ENCRYPTION_KEY")
+    //         .unwrap_or_else(|_| "37467a23239fcb518aa1f040aa42f3b8".to_string());
+    //     let key_bytes = key.as_bytes();
+
+    //     // Ensure the key length is appropriate for AES-256-GCM
+    //     if key_bytes.len() != 32 {
+    //         return Err(io::Error::new(
+    //             io::ErrorKind::InvalidInput,
+    //             "Key must be 32 bytes long",
+    //         ));
+    //     }
+
+    //     let unbound_key = aead::UnboundKey::new(&aead::AES_256_GCM, key_bytes).map_err(|err| {
+    //         io::Error::new(
+    //             io::ErrorKind::Other,
+    //             format!("Could not create unbound key: {}", err),
+    //         )
+    //     })?;
+    //     let opening_key = aead::LessSafeKey::new(unbound_key);
+
+    //     // Split the value into the ciphertext and the tag
+    //     let (ciphertext, tag) = value.split_at(value.len() - 16);
+
+    //     // Decrypt the data
+    //     let mut in_out = ciphertext.to_vec();
+    //     let nonce_array: [u8; 12] = additional_data.as_slice().try_into().map_err(|_| {
+    //         io::Error::new(
+    //             io::ErrorKind::InvalidInput,
+    //             "Nonce must be exactly 12 bytes",
+    //         )
+    //     })?;
+    //     opening_key
+    //         .open_in_place(
+    //             aead::Nonce::assume_unique_for_key(nonce_array),
+    //             aead::Aad::empty(),
+    //             &mut in_out,
+    //         )
+    //         .map_err(|err| {
+    //             io::Error::new(
+    //                 io::ErrorKind::Other,
+    //                 format!("Could not decrypt value: {}", err),
+    //             )
+    //         })?;
+
+    //     // Convert the decrypted data to a string
+    //     let decrypted = String::from_utf8(in_out).map_err(|err| {
+    //         io::Error::new(
+    //             io::ErrorKind::InvalidData,
+    //             format!("Could not convert decrypted data to string: {}", err),
+    //         )
+    //     })?;
+
+    //     println!("Decrypted message: {:?}", decrypted);
+    //     Ok(decrypted)
+    // }
+    fn decrypt(value: Vec<u8>, nonce: Vec<u8>) -> Result<String, io::Error> {
         // Retrieve the encryption key from the environment variable or use a default one
-        let key = std::env::var("AG_ENCRYPTION_KEY").unwrap_or_else(|_| "random".to_string());
-        let key_bytes = key.as_bytes();
+        let key = std::env::var("AG_ENCRYPTION_KEY")
+            .unwrap_or_else(|_| "37467a23239fcb518aa1f040aa42f3b8".to_string());
+        let key_bytes = key.into_bytes();
 
         // Ensure the key length is appropriate for AES-256-GCM
         if key_bytes.len() != 32 {
@@ -138,7 +201,7 @@ impl SystemVariable {
             ));
         }
 
-        let unbound_key = aead::UnboundKey::new(&aead::AES_256_GCM, key_bytes).map_err(|err| {
+        let unbound_key = aead::UnboundKey::new(&aead::AES_256_GCM, &key_bytes).map_err(|err| {
             io::Error::new(
                 io::ErrorKind::Other,
                 format!("Could not create unbound key: {}", err),
@@ -147,17 +210,28 @@ impl SystemVariable {
         let opening_key = aead::LessSafeKey::new(unbound_key);
 
         // Split the value into the ciphertext and the tag
+        if value.len() < 16 {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Ciphertext too short",
+            ));
+        }
         let (ciphertext, tag) = value.split_at(value.len() - 16);
 
-        // Decrypt the data
+        // Combine ciphertext and tag for in-place decryption
         let mut in_out = ciphertext.to_vec();
-        let nonce_array: [u8; 12] = additional_data.as_slice().try_into().map_err(|_| {
+        in_out.extend_from_slice(tag);
+
+        // Ensure the nonce length is 12 bytes
+        let nonce_array: [u8; 12] = nonce.as_slice().try_into().map_err(|_| {
             io::Error::new(
                 io::ErrorKind::InvalidInput,
                 "Nonce must be exactly 12 bytes",
             )
         })?;
-        opening_key
+
+        // Decrypt the data
+        let decrypted_data = opening_key
             .open_in_place(
                 aead::Nonce::assume_unique_for_key(nonce_array),
                 aead::Aad::empty(),
@@ -171,7 +245,7 @@ impl SystemVariable {
             })?;
 
         // Convert the decrypted data to a string
-        let decrypted = String::from_utf8(in_out).map_err(|err| {
+        let decrypted = String::from_utf8(decrypted_data.to_vec()).map_err(|err| {
             io::Error::new(
                 io::ErrorKind::InvalidData,
                 format!("Could not convert decrypted data to string: {}", err),
@@ -184,6 +258,7 @@ impl SystemVariable {
 
     pub fn index(conn: &mut PgConnection) -> Result<Vec<Self>, String> {
         let sys_vars = system_variables::table
+            .order(system_variables::name.asc())
             .load::<SystemVariable>(conn)
             .map_err(|_| "Error loading system variables".to_string())?;
         let mut results = vec![];
@@ -249,9 +324,10 @@ impl SystemVariable {
             Err(e) => Err(format!("Error creating System variable {:?}", e)),
         }
     }
-    pub fn delete(conn: &mut PgConnection, id: i64) -> bool {
+    pub fn delete(conn: &mut PgConnection, id: i64) -> Result<bool, String> {
         diesel::delete(system_variables::table.find(id))
             .execute(conn)
-            .is_ok()
+            .map(|_| true)
+            .map_err(|err| format!("Error deleting system variable: {:?}", err))
     }
 }

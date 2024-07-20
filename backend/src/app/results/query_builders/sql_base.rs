@@ -29,6 +29,11 @@ lazy_static! {
     pub static ref VARIABLE_REGEX: Regex = Regex::new(r"\{\{\s*([^{}]+)\s*\}\}").unwrap();
 }
 
+lazy_static! {
+    pub static ref SYSTEM_VARIABLE_REGEX: Regex =
+        Regex::new(r"\{\{\s*(SYS|sys)::([^{}]+)\s*\}\}").unwrap();
+}
+
 use crate::app::questions::config;
 
 use crate::app::results::payload_adapter::Variable;
@@ -43,7 +48,7 @@ use crate::app::results::{
         views::{Column, View},
     },
 };
-use crate::repository::models::{Question, Snippet, VariableType};
+use crate::repository::models::{Question, Snippet, SystemVariable, VariableType};
 
 use super::super::AdaptedPayload;
 
@@ -96,6 +101,30 @@ pub trait SQlBased {
                 .to_string();
         }
         format!("{} limit {}", query, limit)
+    }
+    fn replace_system_variables(conn: &mut PgConnection, query: String) -> String {
+        let mut replacements: HashMap<String, String> = HashMap::new();
+        let system_variables = SystemVariable::index(conn);
+        match system_variables {
+            Ok(system_variables) => {
+                for variable in system_variables {
+                    let value_string = String::from_utf8(variable.value).unwrap_or_default();
+                    replacements.insert(variable.name.trim().to_string(), value_string);
+                }
+            }
+            Err(_) => {
+                return query;
+            }
+        }
+        SYSTEM_VARIABLE_REGEX
+            .replace_all(query.as_str(), |captures: &fancy_regex::Captures| {
+                let variable_name = &captures[2];
+                match replacements.get(variable_name.trim()) {
+                    Some(value) => value.to_string(),
+                    None => captures[0].to_string(),
+                }
+            })
+            .to_string()
     }
     fn replace_variables(
         conn: &mut PgConnection,
@@ -154,10 +183,6 @@ pub trait SQlBased {
         } else {
             views
         };
-        println!(
-            "query terms ===================================: {:?}",
-            &query_terms
-        );
         Self::make_query(SQLQueryOptions {
             table: table_name.clone(),
             filters: Self::build_filters(&query_terms.filters, &table_alias),
@@ -192,16 +217,19 @@ pub trait SQlBased {
         if visualization_query_terms.is_empty() {
             return Ok(Queries {
                 adapted_query: query.clone(),
-                final_query: query.clone(),
+                debug_query: query.clone(),
+                db_query: query.clone(),
             });
         }
+        let debug_query = Self::build_query(
+            &format!(" ( {} )  as {}", &query, "rq".to_string()),
+            "rq".to_string(),
+            visualization_query_terms,
+        );
         Ok(Queries {
             adapted_query: query.clone(),
-            final_query: Self::build_query(
-                &format!(" ( {} )  as {}", &query, "rq".to_string()),
-                "rq".to_string(),
-                visualization_query_terms,
-            ),
+            debug_query: debug_query.clone(),
+            db_query: debug_query.clone(),
         })
     }
 
@@ -212,16 +240,20 @@ pub trait SQlBased {
         if visualization_query_terms.is_empty() {
             return Ok(Queries {
                 adapted_query: raw_query.clone(),
-                final_query: raw_query.clone(),
+                debug_query: raw_query.clone(),
+                db_query: raw_query.clone(),
             });
         }
+        let debug_query = Self::build_query(
+            &format!(" ( {} )  as {}", &raw_query, "rq".to_string()),
+            "rq".to_string(),
+            visualization_query_terms,
+        );
+
         Ok(Queries {
             adapted_query: raw_query.clone(),
-            final_query: Self::build_query(
-                &format!(" ( {} )  as {}", &raw_query, "rq".to_string()),
-                "rq".to_string(),
-                visualization_query_terms,
-            ),
+            db_query: debug_query.clone(),
+            debug_query,
         })
     }
 

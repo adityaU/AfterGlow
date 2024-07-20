@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
+use crate::repository::models::{ApiActionChangeset, SystemVariable};
+use diesel::PgConnection;
 use reqwest::{
     header::{HeaderMap, HeaderName, HeaderValue},
     Error, Response, StatusCode,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
-
-use crate::repository::models::ApiActionChangeset;
 
 use super::results::{payload_adapter::Variable, query_builders::sql_base::VARIABLE_REGEX};
 
@@ -32,6 +32,7 @@ pub enum ApiActionResponse {
 }
 
 fn replace_variables(
+    conn: &mut PgConnection,
     mut api_action: ApiActionChangeset,
     variables: Vec<Variable>,
 ) -> ApiActionChangeset {
@@ -45,6 +46,14 @@ fn replace_variables(
         };
         variable_map.insert(v.name, value);
     });
+
+    let sys_variables = SystemVariable::index(conn).unwrap_or_default();
+    sys_variables.into_iter().for_each(|v| {
+        let value = String::from_utf8(v.value).unwrap_or_default();
+        variable_map.insert(format!("sys::{}", v.name), value.clone());
+        variable_map.insert(format!("SYS::{}", v.name), value);
+    });
+
     let mut body = api_action.body.unwrap_or_default();
     let mut url = api_action.url;
 
@@ -86,10 +95,11 @@ fn replace_variable(replacements: &HashMap<String, String>, query: String) -> St
 }
 
 pub async fn fetch_response(
+    conn: &mut PgConnection,
     api_action: ApiActionChangeset,
     _variables: Vec<Variable>,
 ) -> Result<ApiActionResponse, String> {
-    let aa = replace_variables(api_action, _variables);
+    let aa = replace_variables(conn, api_action, _variables);
     let default_headers: Map<String, Value> = Map::new();
     let req_headers = make_reqwest_headers(aa.headers.unwrap_or(Value::Object(default_headers)))?;
 
@@ -153,6 +163,28 @@ fn make_reqwest_headers(api_action_headers: Value) -> Result<HeaderMap, String> 
     Ok(req_headers)
 }
 
+/// Sends a GET request to the specified URL with the provided headers.
+///
+/// # Arguments
+///
+/// * `url` - A string that holds the URL to which the GET request will be sent.
+/// * `headers` - A `HeaderMap` that contains the headers to be included in the GET request.
+///
+/// # Returns
+///
+/// * `Result<Response, Error>` - The function returns a `Result`. If the request is successful, it returns a `Response` object. If the request fails, it returns an `Error`.
+///
+/// # Asynchronous
+///
+/// This function is asynchronous. It must be awaited.
+///
+/// # Example
+///
+/// ```
+/// let url = "http://example.com".to_string();
+/// let headers = HeaderMap::new();
+/// let response = get(url, headers).await;
+/// ```
 async fn get(url: String, headers: HeaderMap) -> Result<Response, Error> {
     let client = reqwest::Client::new();
     client.get(url).headers(headers).send().await

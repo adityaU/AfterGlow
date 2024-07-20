@@ -67,3 +67,14 @@ pub(crate) async fn update(
     })
     .map_err(|err| AGError::<String>::new(err))
 }
+
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
+pub(crate) async fn delete(
+    pool: web::Data<Arc<DBPool>>,
+    item_id: web::Path<i64>,
+) -> impl Responder {
+    let conn = pool.get();
+    SystemVariable::delete(&mut conn.unwrap(), item_id.into_inner())
+        .map(|_| HttpResponse::NoContent())
+        .map_err(|err| AGError::<String>::new(err))
+}

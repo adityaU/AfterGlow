@@ -322,7 +322,7 @@ pub async fn fetch(
         variables,
     } = adapted_payload
     {
-        let api_action_response = api_actions::fetch_response(api_action, variables)
+        let api_action_response = api_actions::fetch_response(conn, api_action, variables)
             .await
             .map_err(|err| QueryError::new(err.to_string(), "".to_string()))?;
         return Ok((
@@ -343,7 +343,7 @@ pub async fn fetch(
             .await?;
         let results = ResultsCache::fetch_by_query(
             conn,
-            query.final_query.clone(),
+            query.debug_query.clone(),
             viz.id.unwrap_or_default(),
         )
         .ok();
@@ -662,6 +662,5 @@ fn match_regex(regex: Regex, col: &String, f: Formats, formats: &mut Vec<Format>
             column: col.to_string(),
             format: f,
         });
-        return;
     }
 }
