@@ -374,7 +374,8 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
             web::resource("/visualizations/{visualization_id}")
                 .wrap(from_fn(authenticate))
                 .route(web::patch().to(visualization::update))
-                .route(web::get().to(visualization::show)),
+                .route(web::get().to(visualization::show))
+                .route(web::delete().to(visualization::delete)),
         )
         .service(
             web::resource("/visualizations/{visualization_id}/results")

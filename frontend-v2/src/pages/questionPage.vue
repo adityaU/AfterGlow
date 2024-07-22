@@ -42,7 +42,7 @@ import AGLoader from 'components/utils/loader.vue';
 import AGToast from 'components/utils/toast.vue';
 import VariablePane from 'components/question/variables.vue';
 import { useRoute } from 'vue-router';
-import { api } from 'boot/axios';
+import { api, apiV2 } from 'boot/axios';
 import { resultsStore } from 'stores/results';
 import { apiActionStore } from 'stores/apiActions';
 import { queryStore } from 'stores/query';
@@ -652,7 +652,7 @@ export default {
       }
 
       if (toBeDeleted.id) {
-        api.delete(
+        apiV2.delete(
           'visualizations/' + toBeDeleted.id,
           apiConfig(this.query.token)
         );

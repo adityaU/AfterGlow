@@ -4,13 +4,13 @@ use super::{
     base,
     helpers::{get_current_user_email, get_current_user_id, get_current_user_ord_id},
 };
-use actix_web::http::StatusCode;
+use actix_web::{error, http::StatusCode};
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
 use chrono::Utc;
 use serde::Deserialize;
 
-use crate::repository::permissions::PermissionNames;
 use crate::repository::permissions::PermissionNames::*;
+use crate::repository::{models::Question, permissions::PermissionNames};
 use crate::{
     app::{
         bg_jobs::{jobs::send_csv::SendCSVJob, pg_queue::PostgresQueue, Queue},
@@ -45,6 +45,51 @@ pub struct SearchQueryParams {
 }
 
 base::generate_index!(index, Visualization, VisualizationView, "Any");
+#[has_permissions["QuestionEdit",type = "PermissionNames"]]
+pub(crate) async fn delete(
+    pool: web::Data<Arc<DBPool>>,
+    item_id: web::Path<i64>,
+
+    req: HttpRequest,
+    auth_details: AuthDetails<PermissionNames>,
+) -> impl Responder {
+    let conn = pool.get();
+    let viz_id = item_id.into_inner();
+
+    let user_id = get_current_user_id(&req);
+    let viz = Visualization::find(&mut conn.unwrap(), viz_id).map_err(|err| {
+        AGError::<String>::new_with_details(
+            error::ErrorNotFound("Unauthorized").to_string(),
+            Some(err.to_string()),
+            StatusCode::NOT_FOUND,
+        )
+    })?;
+
+    let conn = pool.get();
+    let question = Question::find(&mut conn.unwrap(), viz.question_id.unwrap()).map_err(|err| {
+        AGError::<String>::new_with_details(
+            error::ErrorNotFound("Unauthorized").to_string(),
+            Some(err.to_string()),
+            StatusCode::NOT_FOUND,
+        )
+    })?;
+
+    if question.owner_id.unwrap_or_default() != user_id
+        && !auth_details.has_permission(&PermissionNames::SettingsAll)
+    {
+        return Err(AGError::<String>::new_with_details(
+            error::ErrorUnauthorized("Unauthorized").to_string(),
+            Some("you do not have permission to delete this visualization. Only the owner of the question or Admins can delete this visualization".to_string()),
+            StatusCode::UNAUTHORIZED
+
+        ));
+    }
+
+    let conn = pool.get();
+    Visualization::delete(&mut conn.unwrap(), viz_id)
+        .map(|_item| HttpResponse::Ok().json(ResponseData { data: "success" }))
+        .map_err(|err| AGError::new(err))
+}
 base::generate_create!(
     create,
     Visualization,
