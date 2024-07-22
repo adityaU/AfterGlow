@@ -39,6 +39,8 @@ impl<T: Display> AGError<T> {
     }
 }
 
+impl std::error::Error for AGError<String> {}
+
 impl<T: Display + fmt::Debug + serde::Serialize> error::ResponseError for AGError<T> {
     fn error_response(&self) -> actix_web::HttpResponse {
         actix_web::HttpResponse::BadRequest().json(self)

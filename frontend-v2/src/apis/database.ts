@@ -196,6 +196,25 @@ const searchDatabases = async function(query, callback) {
     });
 };
 
+const createScopedDB = async function(payload, callback) {
+  const session = sessionStore();
+  apiV2.post('scoped_database', payload, apiConfig(session.token)).then((response) => {
+    callback(response.data.data, false);
+  }).catch((error) => {
+    console.error(error);
+    callback(null, false);
+  })
+};
+
+const updateScopedDB = async function(id, payload, callback) {
+  const session = sessionStore();
+  apiV2.put('scoped_database/' + id, payload, apiConfig(session.token)).then((response) => {
+    callback(response.data.data, false);
+  }).catch((error) => {
+    console.error(error);
+    callback(null, false);
+  })
+};
 export {
   searchTables,
   getColumns,
@@ -211,4 +230,6 @@ export {
   fetchTables,
   fetchDatabasesForTeam,
   searchDatabases,
+  createScopedDB,
+  updateScopedDB
 };

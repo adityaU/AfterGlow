@@ -76,6 +76,7 @@ rand = "0.8.5"
 postgres-types = { version = "0.2.6", features = ["derive"] }
 bytes = "1.6.0"
 ring = "0.17.8"
+hex = "0.4.3"
 
 [profile.release]
 opt-level = 's'   # Optimize for size

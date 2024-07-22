@@ -437,6 +437,7 @@ We've cooked up something special for you! 🎨 Your data is ready and waiting f
         html_body: String,
         smtp_conf: SMTPConfig,
     ) -> Result<(), SendCSVError> {
+        println!("smtp_conf: {:?}", &smtp_conf);
         let mailboxes: header::To = to_emails
             .join(",")
             .parse::<Mailboxes>()

@@ -114,6 +114,10 @@ body{
     .icon-primary{
       @apply tw-text-white tw-bg-primary tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-rounded-full tw-mr-1 hover:tw-text-default hover:tw-bg-white tw-rounded-full tw-border-secondary/50 tw-border-2;
     }
+
+    .icon-danger{
+      @apply tw-text-white tw-bg-red-500 tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-rounded-full tw-mr-1 hover:tw-text-default hover:tw-bg-white tw-rounded-full tw-border-secondary/50 tw-border-2;
+    }
     .icon-default{
       @apply tw-text-default tw-bg-white tw-border tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-rounded-full tw-mr-1 hover:tw-bg-primary hover:tw-text-white tw-rounded-full;
     }

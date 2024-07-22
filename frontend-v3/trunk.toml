@@ -1,0 +1,6 @@
+[[proxy]]
+rewrite = "/api/v2/"
+backend = "http://localhost:4300/api/v2/"
+
+[output]
+base = "/apps"

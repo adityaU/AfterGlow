@@ -2,7 +2,10 @@ use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::repository::models::{Database, SupportedDatabases};
+use crate::{
+    app::databases::DBConfig,
+    repository::models::{Database, SupportedDatabases},
+};
 #[derive(Debug, Deserialize, Serialize)]
 pub struct DatabaseView {
     pub id: i64,
@@ -15,10 +18,17 @@ pub struct DatabaseView {
     #[serde(skip_deserializing)]
     pub last_accessed_at: Option<NaiveDateTime>,
     pub unique_identifier: Option<Uuid>,
+    pub base_db_id: Option<i64>,
 }
 
 impl DatabaseView {
     pub fn from_model(db: &Database) -> Self {
+        let db_config = match &db.config {
+            Some(config) => serde_json::from_value(config.clone())
+                .ok()
+                .unwrap_or_default(),
+            None => DBConfig::default(),
+        };
         Self {
             id: db.id,
             name: db.name.clone(),
@@ -27,6 +37,7 @@ impl DatabaseView {
             updated_at: db.updated_at,
             last_accessed_at: db.last_accessed_at,
             unique_identifier: db.unique_identifier,
+            base_db_id: db_config.base_db_id,
         }
     }
 }
@@ -52,7 +63,7 @@ impl DetailedDatabaseView {
             inserted_at: db.inserted_at,
             updated_at: db.updated_at,
             last_accessed_at: db.last_accessed_at,
-            unique_identifier: db.unique_identifier.clone(),
+            unique_identifier: db.unique_identifier,
             config: db.config.clone(),
         }
     }

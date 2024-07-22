@@ -54,19 +54,18 @@
           <div v-if="expanded">New Question</div>
         </router-link>
       </li>
-      <li class="hover:tw-text-default tw-w-full" v-if="permissions.canCreateQuestion">
+      <li class="hover:tw-text-default tw-w-full" v-if="!permissions.canEditQuestion">
         <router-link to="/data_references/databases "
           :class="!expanded ? 'tw-flex tw-items-center tw-justify-center' : ''"
-          class="tw-flex tw-gap-2 tw-items-center menu-item tw-px-4 tw-py-2" v-if="!permissions.canEditQuestion">
+          class="tw-flex tw-gap-2 tw-items-center menu-item tw-px-4 tw-py-2">
           <DatabaseIcon :size="iconSize" :class="expanded ? 'icon-primary' : ''" />
           Data Reference
         </router-link>
       </li>
 
-      <li class="tw-w-full">
+      <li class="tw-w-full" v-else>
         <div class="tw-flex tw-items-center tw-gap-2 tw-cursor-pointer tw-px-4 tw-py-2 menu-item"
-          v-if="permissions.canCreateQuestion" :class="!expanded ? 'tw-flex tw-items-center tw-justify-center' : ''"
-          @click="moreMenuOpen = !moreMenuOpen">
+          :class="!expanded ? 'tw-flex tw-items-center tw-justify-center' : ''" @click="moreMenuOpen = !moreMenuOpen">
           <CategoryIcon :size="iconSize" :class="expanded ? 'icon-primary' : ''" />
           <div v-if="expanded">More</div>
           <ChevronDownIcon size="16" v-if="!moreMenuOpen && expanded" />
@@ -108,18 +107,13 @@
               </div>
             </router-link>
             <div class="menu-item tw-border-t tw-py-2 tw-min-w-[150px]" v-close-popup @click="logout">
-              <LogoutIcon size="28" class="icon-primary" />
               Logout
             </div>
           </div>
         </Transition>
         <div class="tw-flex tw-flex-col tw-items-center tw-gap-2 tw-px-2 tw-py-2 tw-cursor-pointer">
           <img class="tw-rounded-full tw-border-4" :class="expanded ? 'tw-h-[40px] tw-w-[40px]' : 'tw-h-[28px] tw-w-[28px]'
-            " :src="currentUser.profile_pic" v-if="currentUser.profile_pic" />
-          <div
-            class="tw-rounded-full tw-border-4 tw-flex tw-items-center tw-justify-center tw-bg-secondary tw-font-semibold tw-text-default"
-            :class="expanded ? 'tw-h-[40px] tw-w-[40px]' : 'tw-h-[28px] tw-w-[28px]'" v-if="!currentUser.profile_pic"> {{
-              currentUserInitials }}</div>
+            " :src="currentUser.profile_pic" />
           <div class="tw-flex tw-items-center tw-cursor-pointer" v-if="expanded">
             <div>{{ currentUser.full_name || currentUser.email }}</div>
 
@@ -149,7 +143,6 @@ import {
   StackIcon,
   CategoryIcon,
   CircleLetterQIcon,
-  LogoutIcon,
 } from 'vue-tabler-icons';
 const session = sessionStore();
 export default {
@@ -166,7 +159,6 @@ export default {
     ChevronRightIcon,
     UserIcon,
     CircleLetterQIcon,
-    LogoutIcon,
   },
 
   computed: {
@@ -175,9 +167,6 @@ export default {
     },
     iconSize() {
       return this.expanded ? 28 : window.screen.width > 1920 ? 28 : 24;
-    },
-    currentUserInitials() {
-      return this.currentUser?.email && this.currentUser.email[0].toUpperCase();
     },
   },
 
@@ -204,7 +193,7 @@ export default {
   mounted() {
     fetchDashboards(session.token, (dashboards, _loading) => {
       this.dashboards = dashboards;
-    }, 5);
+    });
   },
   methods: {
     logout() {

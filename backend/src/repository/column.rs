@@ -9,6 +9,12 @@ use diesel::prelude::*;
 use diesel::result::Error;
 
 impl Column {
+    pub fn find_by_ids(conn: &mut PgConnection, ids: Vec<i64>) -> Result<Vec<Self>, Error> {
+        columns_::table
+            .filter(columns_::id.eq_any(ids))
+            .select(columns_::all_columns)
+            .load::<Self>(conn)
+    }
     pub fn find_by_tablename_and_database_id(
         conn: &mut PgConnection,
         table_name: String,

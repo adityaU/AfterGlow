@@ -1,6 +1,7 @@
-use actix_web::{web, HttpRequest, HttpResponse, Responder};
+use actix_web::{error, web, HttpRequest, HttpResponse, Responder};
 
 use chrono::NaiveDateTime;
+use reqwest::StatusCode;
 use serde::Deserialize;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -10,7 +11,10 @@ use crate::{
         self,
         config::{QuestionConfig, QuestionHumanSql, Variable, Visualization},
     },
-    controllers::{common::ResponseData, helpers::get_current_user_email},
+    controllers::{
+        common::ResponseData,
+        helpers::{get_current_user_email, get_current_user_id},
+    },
     errors::AGError,
     repository::{
         models::{ActionLevel, HTTPMethod, QueryType, Question},
@@ -22,6 +26,8 @@ use actix_web_grants::{permissions::AuthDetails, proc_macro::has_permissions};
 
 use crate::repository::permissions::PermissionNames;
 use crate::repository::permissions::PermissionNames::*;
+
+use super::base;
 
 #[derive(Deserialize)]
 pub struct QueryParams {
@@ -149,4 +155,38 @@ pub(crate) async fn create(
     questions::save(&mut conn.unwrap(), qp, req)
         .map(|item| HttpResponse::Created().json(ResponseData { data: item }))
         .map_err(|err| AGError::<String>::new(err))
+}
+
+#[has_permissions["QuestionDelete",type = "PermissionNames"]]
+pub(crate) async fn delete(
+    pool: web::Data<Arc<DBPool>>,
+    item_id: web::Path<i64>,
+    req: HttpRequest,
+    auth_details: AuthDetails<PermissionNames>,
+) -> impl Responder {
+    let conn = pool.get();
+    let question_id = item_id.into_inner();
+
+    let user_id = get_current_user_id(&req);
+    let question = Question::find(&mut conn.unwrap(), question_id).map_err(|err| {
+        AGError::<String>::new_with_details(
+            error::ErrorNotFound("Unauthorized").to_string(),
+            Some(err.to_string()),
+            StatusCode::NOT_FOUND,
+        )
+    })?;
+    if question.owner_id.unwrap_or_default() != user_id
+        && !auth_details.has_permission(&PermissionNames::SettingsAll)
+    {
+        return Err(AGError::<String>::new_with_details(
+            error::ErrorUnauthorized("Unauthorized").to_string(),
+            Some("you do not have permission to delete this question. Only the owner or Admins can delete this question".to_string()),
+            StatusCode::UNAUTHORIZED
+
+        ));
+    }
+    let conn = pool.get();
+    questions::delete(&mut conn.unwrap(), question_id, req, auth_details)
+        .map(|_item| HttpResponse::Ok().json(ResponseData { data: "success" }))
+        .map_err(|err| AGError::new(err))
 }

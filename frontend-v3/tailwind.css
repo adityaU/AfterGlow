@@ -1,3 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root{
+  --color-primary: 85 64 198;
+  --color-secondary: 245 247 251;
+  --color-tertiary: 229 231 235;
+  --color-default: 32 33 36;
+  --color-white: 255 255 255;
+}
+
+*,:before,:after {
+  border-color: rgb(var(--color-tertiary) /1);
+}
+
+
+  .slide-transition {
+    transition: width 0.3s linear;
+  }
+
+  .menu-item{
+    width: 100%;
+    cursor: pointer;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border-bottom-width: 1px;
+  }
+
+  .menu-item:hover{
+    background-color: rgba(var(--color-primary)/ 1);
+    color: rgba(var(--color-white)/ 1);
+  }

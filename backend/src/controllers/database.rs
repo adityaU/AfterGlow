@@ -1,7 +1,8 @@
 use actix_web::{error, web, HttpRequest, HttpResponse, Responder};
 use actix_web_grants::permissions::AuthDetails;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
+use super::base;
 use super::helpers::get_current_user_email;
 use crate::app::bg_jobs::jobs::sync_db::SyncDBJob;
 use crate::app::bg_jobs::pg_queue::PostgresQueue;
@@ -14,13 +15,29 @@ use crate::{
     repository::{models::Database, models::DatabaseChangeset, DBPool},
 };
 
-use std::sync::Arc;
+use crate::app::{databases as DatabaseMethods, results};
+
+use std::sync::{Arc, Mutex};
 
 use actix_web_grants::proc_macro::has_permissions;
 // constanrt hashmap that has method to permissions mapping
 
 use crate::repository::permissions::PermissionNames;
 use crate::repository::permissions::PermissionNames::*;
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ScopedDBPayload {
+    pub name: String,
+    pub base_db_id: i64,
+    pub tables: Vec<Table>,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Table {
+    pub id: i64,
+    pub columns: Vec<i64>,
+    pub are_all_columns_selected: bool,
+}
 
 #[derive(Deserialize)]
 pub struct QueryParams {
@@ -29,6 +46,7 @@ pub struct QueryParams {
     include_config: Option<bool>,
 }
 
+base::generate_delete!(delete, Database, "SettingsAll");
 #[has_permissions["SettingsAll", type = "PermissionNames"]]
 pub(crate) async fn create(
     pool: web::Data<Arc<DBPool>>,
@@ -171,4 +189,53 @@ pub(crate) async fn search(
         HttpResponse::Ok().json(ResponseData { data: resp })
     })
     .map_err(|err| AGError::<String>::new(err))
+}
+
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
+pub(crate) async fn create_scoped_db(
+    pool: web::Data<Arc<DBPool>>,
+    data: web::Json<ScopedDBPayload>,
+    pg_queue: web::Data<Arc<PostgresQueue>>,
+    connection_pools: web::Data<Arc<Mutex<results::ConnectionPools>>>,
+    auth_details: AuthDetails<PermissionNames>,
+) -> impl Responder {
+    let conn = pool.get();
+    let resp =
+        DatabaseMethods::create_scoped_db(&mut conn.unwrap(), data.into_inner(), &connection_pools)
+            .await;
+    if let Err(err) = resp {
+        return Err(AGError::<String>::new(err));
+    }
+    let resp = resp.unwrap();
+    sync(auth_details, resp.id.into(), pg_queue).await;
+    Ok(HttpResponse::Created().json(ResponseData {
+        data: DatabaseView::from_model(&resp),
+    }))
+}
+
+#[has_permissions["SettingsAll", type = "PermissionNames"]]
+pub(crate) async fn update_scoped_db(
+    pool: web::Data<Arc<DBPool>>,
+    data: web::Json<ScopedDBPayload>,
+    pg_queue: web::Data<Arc<PostgresQueue>>,
+    item_id: web::Path<i64>,
+    connection_pools: web::Data<Arc<Mutex<results::ConnectionPools>>>,
+    auth_details: AuthDetails<PermissionNames>,
+) -> impl Responder {
+    let conn = pool.get();
+    let resp = DatabaseMethods::update_scoped_db(
+        &mut conn.unwrap(),
+        *item_id,
+        data.into_inner(),
+        &connection_pools,
+    )
+    .await;
+    if let Err(err) = resp {
+        return Err(AGError::<String>::new(err));
+    }
+    let resp = resp.unwrap();
+    sync(auth_details, resp.id.into(), pg_queue).await;
+    Ok(HttpResponse::Created().json(ResponseData {
+        data: DatabaseView::from_model(&resp),
+    }))
 }

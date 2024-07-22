@@ -73,6 +73,10 @@ impl visualizations::table {
 }
 
 impl Visualization {
+    pub fn delete_by_question_id(conn: &mut PgConnection, qid: i64) -> Result<usize, Error> {
+        diesel::delete(visualizations::table.filter(visualizations::question_id.eq(qid)))
+            .execute(conn)
+    }
     pub fn find_scoped(
         conn: &mut PgConnection,
         id: i64,

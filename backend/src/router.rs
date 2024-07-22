@@ -179,7 +179,8 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
             web::resource("/databases/{database_id}")
                 .wrap(from_fn(authenticate))
                 .route(web::patch().to(database::update))
-                .route(web::get().to(database::show)),
+                .route(web::get().to(database::show))
+                .route(web::delete().to(database::delete)),
         )
         .service(
             web::resource("/databases/{database_id}/sync")
@@ -307,7 +308,8 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
             web::resource("/questions/{question_id}")
                 .wrap(from_fn(authenticate))
                 .route(web::get().to(question::show))
-                .route(web::put().to(question::create)),
+                .route(web::put().to(question::create))
+                .route(web::delete().to(question::delete)),
         )
         .service(
             web::resource("/tags")
@@ -420,7 +422,8 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
             web::resource("/dashboards/{dashboard_id}")
                 .wrap(from_fn(authenticate))
                 .route(web::get().to(dashboard::show))
-                .route(web::put().to(dashboard::update)),
+                .route(web::put().to(dashboard::update))
+                .route(web::delete().to(dashboard::delete)),
         )
         .service(
             web::resource("/dashboards/{dashboard_id}/schedule")
@@ -471,6 +474,16 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
                 .wrap(from_fn(authenticate))
                 .route(web::put().to(system_variable::update))
                 .route(web::delete().to(system_variable::delete)),
+        )
+        .service(
+            web::resource("/scoped_database")
+                .wrap(from_fn(authenticate))
+                .route(web::post().to(database::create_scoped_db)),
+        )
+        .service(
+            web::resource("/scoped_database/{database_id}")
+                .wrap(from_fn(authenticate))
+                .route(web::put().to(database::update_scoped_db)),
         )
         .service(
             web::resource("/system_variables")

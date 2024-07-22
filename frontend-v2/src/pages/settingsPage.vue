@@ -1,15 +1,9 @@
 <template>
   <div v-if="!currentUser.loading">
     <div class="tw-flex tw-mr-6 tw-gap-4">
-      <AGSettingsTabs
-        v-model:currentTab="currentTab"
-        class="tw-w-[220px] tw-h-[calc(100vh-33px)] tw-fixed"
-      />
-      <component
-        :is="settingsComponents[currentTab]"
-        :key="currentTab"
-        class="tw-mr-6 tw-my-8 tw-ml-[240px]"
-      />
+      <AGSettingsTabs v-model:currentTab="currentTab" class="tw-w-[220px] tw-h-[calc(100vh-33px)] tw-fixed" />
+      <component :is="settingsComponents[currentTab]" :key="currentTab + queryParams"
+        class="tw-mr-6 tw-my-8 tw-ml-[240px]" v-model:currentTab="currentTab" v-model:queryParams="queryParams" />
     </div>
   </div>
   <AGLoader v-else />
@@ -28,6 +22,8 @@ import AGSystemVariables from 'components/settings/systemVariables.vue';
 import AGOpenAIConfiguration from 'components/settings/openai.vue';
 import AGLoginConfiguration from 'components/settings/loginConfiguration.vue';
 import AGLoader from 'components/utils/loader.vue';
+import ScopedDB from 'components/settings/scopedDB.vue';
+import EditScopedDB from 'components/settings/editScopedDB.vue';
 
 import { authMixin } from 'src/mixins/auth';
 
@@ -45,6 +41,8 @@ const settingsComponents = {
   openai: AGOpenAIConfiguration,
   loginConfig: AGLoginConfiguration,
   sysVars: AGSystemVariables,
+  scopedDB: ScopedDB,
+  editScopedDB: EditScopedDB,
 };
 
 export default {
@@ -59,7 +57,7 @@ export default {
       }
     },
     currentTab() {
-      this.$router.push({ query: { currentTab: this.currentTab } });
+      this.$router.push({ query: Object.assign({}, { currentTab: this.currentTab }, this.queryParams) });
     },
     currentUser: {
       deep: true,
@@ -75,6 +73,7 @@ export default {
       currentTab: this.$route?.query?.currentTab || 'databases',
       settingsComponents: settingsComponents,
       currentUser: currentUser,
+      queryParams: {},
     };
   },
 };

@@ -35,6 +35,11 @@ impl ApiAction {
             open_option: self.open_option.clone(),
         }
     }
+    pub fn delete_all_by_question_id(conn: &mut PgConnection, qid: i64) -> Result<(), Error> {
+        diesel::delete(api_actions::table.filter(api_actions::question_id.eq(qid)))
+            .execute(conn)?;
+        Ok(())
+    }
     pub fn find_direct_actions_by_question_id(
         conn: &mut PgConnection,
         qid: i64,

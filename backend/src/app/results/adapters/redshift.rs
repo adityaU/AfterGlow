@@ -19,7 +19,7 @@ use uuid::Uuid;
 
 use super::{
     super::query_builders::QueryBuilder, DBAdapter, DBAdapterResponse, DBColumn, DBTable, DBValue,
-    ForeignKey, PrimaryKey,
+    ForeignKey, PrimaryKey, RolePayload,
 };
 
 use crate::app::{
@@ -85,6 +85,76 @@ struct FlatSchema {
 
 #[async_trait::async_trait]
 impl DBAdapter for RedshiftAdapter {
+    async fn update_role(
+        &self,
+        payload: RolePayload,
+        cps: &Arc<Mutex<ConnectionPools>>,
+    ) -> Result<(), QueryError> {
+        let mut queries = vec![];
+        let query = format!(
+            "REVOKE ALL ON DATABASE {} FROM {};",
+            self.db_config.db_name, payload.role_name
+        );
+        queries.push(query);
+        for table in payload.permitted_tables.iter() {
+            let table_name = &table.name;
+            if table.columns.len() == 0 {
+                let query = format!(
+                    "GRANT SELECT ON TABLE {} TO {};",
+                    table_name, payload.role_name
+                );
+                queries.push(query);
+            } else {
+                let query = format!(
+                    "GRANT SELECT({})  ON TABLE {} TO {};",
+                    table.columns.join(", "),
+                    table_name,
+                    payload.role_name
+                );
+                queries.push(query);
+            }
+        }
+
+        let pool = self.get_pool(&cps)?;
+        Self::execute_in_transaction(pool, queries).await?;
+
+        Ok(())
+    }
+    async fn create_role(
+        &self,
+        payload: RolePayload,
+        cps: &Arc<Mutex<ConnectionPools>>,
+    ) -> Result<(), QueryError> {
+        let mut queries = vec![];
+        let query = format!(
+            "CREATE ROLE {} WITH LOGIN PASSWORD '{}';",
+            payload.role_name, payload.password
+        );
+        queries.push(query);
+        for table in payload.permitted_tables.iter() {
+            let table_name = &table.name;
+            if table.columns.len() == 0 {
+                let query = format!(
+                    "GRANT SELECT ON TABLE {} TO {};",
+                    table_name, payload.role_name
+                );
+                queries.push(query);
+            } else {
+                let query = format!(
+                    "GRANT SELECT({})  ON TABLE {} TO {};",
+                    table.columns.join(", "),
+                    table_name,
+                    payload.role_name
+                );
+                queries.push(query);
+            }
+        }
+
+        let pool = self.get_pool(&cps)?;
+        Self::execute_in_transaction(pool, queries).await?;
+
+        Ok(())
+    }
     async fn fetch_query_only(
         &self,
         conn: &mut PgConnection,
@@ -216,6 +286,36 @@ impl DBAdapter for RedshiftAdapter {
 }
 
 impl RedshiftAdapter {
+    pub async fn execute_in_transaction(
+        pool: Arc<Pool>,
+        queries: Vec<String>,
+    ) -> Result<(), QueryError> {
+        let mut pool_conn = match pool
+            .get()
+            .await
+            .map_err(|err| QueryError::new(err.to_string(), "".to_string()))
+        {
+            Ok(value) => value,
+            Err(err) => return Err(err),
+        };
+
+        let transaction = pool_conn
+            .transaction()
+            .await
+            .map_err(|err| QueryError::new(err.to_string(), "".to_string()))?;
+        for query in queries {
+            transaction
+                .execute(query.clone().as_str(), &[])
+                .await
+                .map_err(|err| QueryError::new(err.to_string(), query.clone()))?;
+        }
+
+        transaction
+            .commit()
+            .await
+            .map_err(|err| QueryError::new(err.to_string(), "".to_string()))?;
+        Ok(())
+    }
     pub fn new(db_config: DBConfig) -> Self {
         Self { db_config }
     }
@@ -431,9 +531,11 @@ impl RedshiftAdapter {
                 }
                 "bytea" => {
                     let value: Option<Vec<u8>> = row.try_get(i).unwrap_or(None);
-                    r.push(DBValue::Strings(
-                        String::from_utf8(value.unwrap_or_default()).ok(),
-                    ));
+                    println!("bytea value: {:?}", value);
+
+                    r.push(DBValue::Strings(Some(hex::encode(
+                        value.unwrap_or_default(),
+                    ))));
                 }
                 "date" => {
                     let value: Option<NaiveDate> = row.try_get(i).unwrap_or(None);

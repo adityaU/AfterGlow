@@ -1,36 +1,37 @@
 <template>
-        <div class="tw-ml-[-10px]">
-                <q-toggle :modelValue="valLocal" @update:modelValue="updateValLocal" color="primary" :label="label" />
-        </div>
+  <div class="tw-ml-[-10px]">
+    <q-toggle :modelValue="valLocal" @update:modelValue="updateValLocal" color="primary" :label="label"
+      :disable="disabled" />
+  </div>
 </template>
 
 <script>
 export default {
-        name: 'AGBool',
-        props: ['val', 'label', 'value'],
-        components: {},
+  name: 'AGBool',
+  props: ['val', 'label', 'value', 'disabled'],
+  components: {},
 
-        watch: {
-                val() {
-                        this.valLocal = this.val || this.value
-                }
-        },
+  watch: {
+    val() {
+      this.valLocal = this.val || this.value
+    }
+  },
 
-        methods: {
-                updateValLocal() {
-                        this.valLocal = !this.valLocal
-                        this.$emit('updated', this.valLocal)
-                        this.$emit('update:val', this.valLocal)
-                        this.$emit('update:value', this.valLocal)
-                }
-        },
+  methods: {
+    updateValLocal() {
+      this.valLocal = !this.valLocal
+      this.$emit('updated', this.valLocal)
+      this.$emit('update:val', this.valLocal)
+      this.$emit('update:value', this.valLocal)
+    }
+  },
 
-        data() {
-                const valLocal = typeof(this.value) === 'string' ? (this.value === 'true') : this.value
-                return {
-                        valLocal: this.val || valLocal || false
-                }
-        }
+  data() {
+    const valLocal = typeof (this.value) === 'string' ? (this.value === 'true') : this.value
+    return {
+      valLocal: this.val || valLocal || false
+    }
+  }
 
 }
 </script>

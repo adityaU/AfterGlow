@@ -11,6 +11,12 @@ use diesel::prelude::*;
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
 
 impl Table {
+    pub fn find_by_ids(conn: &mut PgConnection, ids: Vec<i64>) -> Result<Vec<Self>, Error> {
+        tables::table
+            .filter(tables::id.eq_any(ids))
+            .select(tables::all_columns)
+            .load::<Self>(conn)
+    }
     pub fn search(conn: &mut PgConnection, dbid: &i64, q: String) -> Result<Vec<Self>, Error> {
         tables::table
             .filter(

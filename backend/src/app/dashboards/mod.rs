@@ -115,6 +115,12 @@ pub fn update(
     Ok(DashboardView::from_model(&dashboard))
 }
 
+pub fn delete(conn: &mut PgConnection, id: i64) -> Result<(), diesel::result::Error> {
+    DashboardWidget::delete_by_dashboard_id(conn, id)?;
+    TeamShare::delete_dashboard_shares_by_id(conn, id)?;
+    Dashboard::delete(conn, id)
+}
+
 pub fn create(
     conn: &mut PgConnection,
     dc: &mut DashboardChangeset,

@@ -143,7 +143,7 @@ impl VisualizationMailerJob {
 
         let mut email_content = self.email_content.clone().unwrap();
 
-        if email_content == "" {
+        if email_content.is_empty() {
             return default_email;
         }
         email_content = email_content.replace("{{preview_data}}", preview_html.as_str());

@@ -17,18 +17,55 @@
           <div class="tw-leading-3 tw-font-semibold">{{ db.name }}</div>
           <div class="note tw-leading-2">type: {{ db.db_type }}</div>
         </div>
-        <div class="tw-flex tw-gap-2">
-          <div class="tw-cursor-pointer tw-font-semibold tw-text-primary tw-uppercase" @click="
-            ((editingDatabase = db) || true) && (openDatabaseEditModal = true)
-            ">
-            Edit
-          </div>
-          <div class="tw-cursor-pointer tw-font-semibold tw-text-red-700 tw-uppercase" @click="
-            ((deletingDatabase = db) || true) &&
-            (openDeleteDatabaseModal = true)
-            ">
-            Delete
-          </div>
+
+        <div
+          class="tw-py-1 tw-px-4 tw-flex tw-items-center tw-gap-1 tw-cursor-pointer tw-rounded-full tw-bg-red-500 tw-text-white"
+          v-if="db.base_db_id">
+          Restricted Schema Access</div>
+
+        <div class="tw-cursor-pointer tw-p-2">
+          <q-tooltip transition-show="scale" transition-hide="scale">
+            Actions
+          </q-tooltip>
+          <Menu2Icon size="24" class="icon-default" />
+          <q-menu flat="true" transition-show="scale" transition-hide="scale" max-height="900px" :offset="[0, 5]"
+            class="tw-rounded-2xl custom-shadow tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown"
+            auto-close>
+            <div
+              class="tw-cursor-pointer tw-whitespace-nowrap tw-uppercase tw-text-primary note tw-flex tw-items-center tw-gap-2 tw-py-1 tw-px-2 tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
+              @click="
+                ((scopedDB = db.id) || true)" v-if="!db?.base_db_id && db.db_type != 'api_client'">
+              <DatabaseExclamationIcon size="28" class="icon-primary" />
+              Create Restricted DB
+            </div>
+
+            <div
+              class="tw-cursor-pointer tw-whitespace-nowrap tw-uppercase tw-text-primary note tw-flex tw-items-center tw-gap-2 tw-py-1 tw-px-2 tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
+              @click="
+                ((editScopedBaseDB = db.base_db_id) || true) && ((editScopedDB = db.id))"
+              v-if="db?.base_db_id && db.db_type != 'api_client'">
+              <DatabaseEditIcon size="28" class="icon-primary" />
+              Edit Schema Access
+            </div>
+            <div
+              class="tw-cursor-pointer tw-whitespace-nowrap tw-uppercase tw-text-primary note tw-flex tw-items-center tw-gap-2 tw-py-1 tw-px-2 tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
+              @click="
+                ((editingDatabase = db) || true) && (openDatabaseEditModal = true)
+                ">
+              <EditIcon size="28" class="icon-primary" />
+
+              Edit
+            </div>
+            <div
+              class="tw-cursor-pointer tw-whitespace-nowrap tw-uppercase tw-text-red-500 note tw-flex tw-items-center tw-gap-2 tw-py-1 tw-px-2 tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
+              @click="
+                ((deletingDatabase = db) || true) &&
+                (openDeleteDatabaseModal = true)
+                ">
+              <XIcon size="28" class="icon-danger" />
+              Delete
+            </div>
+          </q-menu>
         </div>
 
         <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-bg-white tw-p-4 tw-rounded-2xl tw-border"
@@ -53,7 +90,7 @@
 import { sessionStore } from 'stores/session';
 import AGInput from 'components/base/input.vue';
 
-import { DatabaseIcon } from 'vue-tabler-icons';
+import { DatabaseIcon, Menu2Icon, DatabaseExclamationIcon, DatabaseEditIcon, EditIcon, XIcon } from 'vue-tabler-icons';
 import AGLoader from 'components/utils/loader.vue';
 import AGDeleteEntityModal from 'components/utils/deleteEntityModal.vue';
 import AGDatabaseModal from 'components/settings/databaseModal.vue';
@@ -61,7 +98,8 @@ const session = sessionStore();
 import { fetchDatabases, searchDatabases } from 'src/apis/database';
 export default {
   name: 'AGSettingsDatabases',
-  components: { AGLoader, DatabaseIcon, AGDeleteEntityModal, AGDatabaseModal, AGInput },
+  components: { AGLoader, DatabaseIcon, AGDeleteEntityModal, AGDatabaseModal, AGInput, Menu2Icon, DatabaseExclamationIcon, EditIcon, XIcon, DatabaseEditIcon },
+  pros: ['queryParams', 'currentTab'],
   mounted() {
     this.fetchDatabases();
   },
@@ -70,6 +108,14 @@ export default {
     query() {
       searchDatabases(this.query, this.setDatabases);
     },
+    editScopedDB() {
+      this.$emit('update:queryParams', { editScopedDB: this.editScopedDB, baseDB: this.editScopedBaseDB })
+      this.$emit('update:currentTab', 'editScopedDB')
+    },
+    scopedDB() {
+      this.$emit('update:queryParams', { baseDB: this.scopedDB })
+      this.$emit('update:currentTab', 'scopedDB')
+    }
   },
 
 
@@ -77,6 +123,9 @@ export default {
   data() {
     return {
       loading: false,
+      scopedDB: null,
+      editScopedDB: null,
+      editScopedBaseDB: null,
       databases: [],
       openDeleteDatabaseModal: false,
       editingDatabase: null,

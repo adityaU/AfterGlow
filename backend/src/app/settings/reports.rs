@@ -27,7 +27,7 @@ const SMTP_CONFIG_NAMES: [&str; 6] = [
     "SENDER_EMAIL_ID",
 ];
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct SMTPConfig {
     pub host: String,
     pub port: u16,

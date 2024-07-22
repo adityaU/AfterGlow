@@ -6,6 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+web-sys = { version = "0.3.69", features = ["console", "Storage"] }
 console_error_panic_hook = "0.1.7"
+icondata = "0.3.1"
 leptos = { version = "0.6.9", features = ["csr"] }
+leptos_icons = "0.3.1"
 leptos_router = { version = "0.6.11", features = ["csr"] }
+reqwest = { version = "0.12.5", features = ["json"] }
+serde = "1.0.204"
+serde_json = "1.0.120"
+serde_derive = "1.0.204"

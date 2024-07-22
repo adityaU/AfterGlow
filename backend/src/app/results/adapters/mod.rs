@@ -12,12 +12,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::{
-    app::databases::DBConfig,
-    repository::models::{SupportedDatabases},
-};
-
-
+use crate::{app::databases::DBConfig, repository::models::SupportedDatabases};
 
 use super::{
     payload_adapter::AdaptedPayload, query_builders::Queries, ColumnDetail, ConnectionPools,
@@ -168,8 +163,30 @@ pub struct PrimaryKey {
     pub column_name: String,
 }
 
+#[derive(Debug, Clone)]
+pub struct PermittedTables {
+    pub name: String,
+    pub columns: Vec<String>,
+}
+#[derive(Debug, Clone)]
+pub struct RolePayload {
+    pub role_name: String,
+    pub password: String,
+    pub permitted_tables: Vec<PermittedTables>,
+}
+
 #[async_trait::async_trait]
 pub trait DBAdapter: Send + Sync {
+    async fn update_role(
+        &self,
+        payload: RolePayload,
+        cps: &Arc<Mutex<ConnectionPools>>,
+    ) -> Result<(), QueryError>;
+    async fn create_role(
+        &self,
+        payload: RolePayload,
+        cps: &Arc<Mutex<ConnectionPools>>,
+    ) -> Result<(), QueryError>;
     async fn fetch_query_only(
         &self,
         conn: &mut PgConnection,

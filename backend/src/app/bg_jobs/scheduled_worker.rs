@@ -256,7 +256,7 @@ fn next_schedule_time_for_hour(
     if let TimeDetails::Hour { minute } = *time_details {
         let hours_past = hours_since(updated_at, tz);
         let mut next_time = if hours_past == 0 {
-            reset_time_to_hour(now) + Duration::from_secs(0)
+            reset_time_to_hour(now) + Duration::from_secs(60 * minute as u64)
         } else {
             reset_time_to_hour(now)
                 + Duration::from_secs(
@@ -266,7 +266,7 @@ fn next_schedule_time_for_hour(
         };
 
         if next_time < now {
-            next_time = next_time + Duration::from_secs(60 * 60 * 24);
+            next_time = next_time + Duration::from_secs(60 * 60);
         }
 
         return timezoned_datetime_to_utc(next_time, tz);
@@ -403,6 +403,7 @@ fn month_difference(start: &NaiveDateTime, end: &NaiveDateTime) -> i32 {
 
 fn hours_since(time: NaiveDateTime, tz: &chrono_tz::Tz) -> i64 {
     let now = chrono::Utc::now().with_timezone(tz).naive_utc();
+    println!("Now: {}, Time: {}", now, time);
     let duration = now - time;
     duration.num_hours()
 }

@@ -919,6 +919,7 @@ dependencies = [
  "fancy-regex",
  "futures",
  "handlebars",
+ "hex",
  "hmac",
  "jwt",
  "lazy_static",

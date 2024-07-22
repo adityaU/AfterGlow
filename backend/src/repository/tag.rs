@@ -8,8 +8,8 @@ use crud_derive::View;
 
 use diesel::dsl::sql;
 use diesel::pg::Pg;
+use diesel::prelude::*;
 use diesel::result::Error;
-use diesel::{prelude::*};
 
 use diesel::sql_types::{Nullable, Text};
 use serde::{Deserialize, Serialize};
@@ -141,6 +141,11 @@ impl Tag {
 }
 
 impl TagQuestion {
+    pub fn delete_by_question_id(conn: &mut PgConnection, question_id: i64) -> Result<(), Error> {
+        diesel::delete(tag_questions::table.filter(tag_questions::question_id.eq(question_id)))
+            .execute(conn)?;
+        Ok(())
+    }
     pub fn create_or_update(
         conn: &mut PgConnection,
         tq: &TagQuestionChangeset,

@@ -2,38 +2,21 @@
   <div class="tw-divide-y">
     <AGStagedContainer :stages="stages" :currentStage="currentStage">
       <template #header>
-        <div
-          class="tw-p-2 tw-text-primary tw-flex tw-items-center tw-gap-2"
-          v-if="currentStage == 1"
-        >
+        <div class="tw-p-2 tw-text-primary tw-flex tw-items-center tw-gap-2" v-if="currentStage == 1">
           <div class="tw-flex tw-items-center tw-gap-2 tw-flex-1">
-            <ArrowLeftIcon
-              size="16"
-              class="tw-cursor-pointer"
-              @click="((currentStage = 0) || true) && (editingColumn = null)"
-            />
-            <div
-              class="tw-text-primary tw-font-semibold"
-              @click="((currentStage = 0) || true) && (editingColumn = null)"
-            >
+            <ArrowLeftIcon size="16" class="tw-cursor-pointer"
+              @click="((currentStage = 0) || true) && (editingColumn = null)" />
+            <div class="tw-text-primary tw-font-semibold" @click="((currentStage = 0) || true) && (editingColumn = null)">
               {{ editingColumn.name }}
             </div>
           </div>
         </div>
-        <div
-          class="tw-p-2 tw-text-primary tw-flex tw-items-center tw-gap-2"
-          v-if="currentStage == 2"
-        >
+        <div class="tw-p-2 tw-text-primary tw-flex tw-items-center tw-gap-2" v-if="currentStage == 2">
           <div class="tw-flex tw-items-center tw-gap-2 tw-flex-1">
-            <ArrowLeftIcon
-              size="16"
-              class="tw-cursor-pointer"
-              @click="((currentStage = 0) || true) && (editingApiAction = null)"
-            />
-            <div
-              class="tw-text-primary tw-font-semibold"
-              @click="((currentStage = 0) || true) && (editingApiAction = null)"
-            >
+            <ArrowLeftIcon size="16" class="tw-cursor-pointer"
+              @click="((currentStage = 0) || true) && (editingApiAction = null)" />
+            <div class="tw-text-primary tw-font-semibold"
+              @click="((currentStage = 0) || true) && (editingApiAction = null)">
               {{ editingApiAction.name }}
             </div>
           </div>
@@ -41,294 +24,157 @@
       </template>
       <template #S1>
         <div class="tw-w-full" v-if="settingsLocal">
-          <draggable
-            class="tw-divide-y"
-            v-model="settingsLocal.columns"
-            v-bind="dragOptions"
-            @start="drag = true"
-            @end="drag = false"
-            item-key="order"
-          >
+          <draggable class="tw-divide-y" v-model="settingsLocal.columns" v-bind="dragOptions" @start="drag = true"
+            @end="drag = false" item-key="order">
             <template #item="{ element }">
               <div class="tw-flex tw-items-center tw-p-2 tw-gap-2">
                 <div class="">
                   <div class="tw-cursor-pointer" v-if="!allHidden">
                     <q-tooltip transition-show="scale" transition-hide="scale">
-                      Reorder</q-tooltip
-                    >
-                    <MenuIcon
-                      class="tw-w-5 tw-h-5 tw-stroke-primary tw-inline"
-                    />
+                      Reorder</q-tooltip>
+                    <MenuIcon class="tw-w-5 tw-h-5 tw-stroke-primary tw-inline" />
                   </div>
                 </div>
                 <div class="">
                   <div class="tw-flex tw-items-center">
-                    <div
-                      class="text-icon-primary tw-inline-block"
-                      v-if="!element.apiAction"
-                    >
+                    <div class="text-icon-primary tw-inline-block" v-if="!element.apiAction">
                       C
                     </div>
-                    <div
-                      class="text-icon-primary tw-inline-block tw-bg-red-900"
-                      v-if="element.apiAction"
-                    >
+                    <div class="text-icon-primary tw-inline-block tw-bg-red-900" v-if="element.apiAction">
                       A
                     </div>
                     <div class="tw-flex tw-items-center tw-gap-1 tw-flex-wrap">
                       {{ element.name }}
                       <div>as</div>
-                      <div
-                        class="tw-border tw-cursor-pointer tw-rounded-2xl tw-px-4 tw-py-1"
-                      >
+                      <div class="tw-border tw-cursor-pointer tw-rounded-2xl tw-px-4 tw-py-1">
                         {{ element.displayName || element.name }}
-                        <q-menu
-                          flat="true"
-                          transition-show="scale"
-                          transition-hide="scale"
-                          max-height="400px"
-                          :offset="[0, 5]"
-                          class="tw-rounded-full tw-border tw-overflow-hidden"
-                          @show="menuShow"
-                          @keydown="onKeydown"
-                        >
-                          <AGInput
-                            v-model:value="element.displayName"
-                            class="tw-block"
-                            invisible="true"
-                            debounce="300"
-                          />
+                        <q-menu flat="true" transition-show="scale" transition-hide="scale" max-height="400px"
+                          :offset="[0, 5]" class="tw-rounded-full tw-border tw-overflow-hidden" @show="menuShow"
+                          @keydown="onKeydown">
+                          <AGInput v-model:value="element.displayName" class="tw-block" invisible="true" debounce="300" />
                         </q-menu>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div
-                  class="tw-flex-1 tw-flex tw-justify-end tw-items-center tw-gap-1"
-                >
-                  <div
-                    class="tw-cursor-pointer"
-                    @click="
-                      ((editingApiAction = element.details) || true) &&
-                        (newApiActionModalOpen = true)
-                    "
-                    v-if="element.apiAction"
-                  >
+                <div class="tw-flex-1 tw-flex tw-justify-end tw-items-center tw-gap-1">
+                  <div class="tw-cursor-pointer" @click="
+                    ((editingApiAction = element.details) || true) &&
+                    (newApiActionModalOpen = true)
+                    " v-if="element.apiAction">
                     <q-tooltip transition-show="scale" transition-hide="scale">
                       Edit API Action
                     </q-tooltip>
                     <EditIcon class="tw-stroke-primary" size="16" />
                   </div>
-                  <div
-                    class="tw-cursor-pointer"
-                    @click="
-                      ((editingApiAction = element.details) || true) &&
-                        (deleteApiActionModalOpen = true)
-                    "
-                    v-if="element.apiAction"
-                  >
+                  <div class="tw-cursor-pointer" @click="
+                    ((editingApiAction = element.details) || true) &&
+                    (deleteApiActionModalOpen = true)
+                    " v-if="element.apiAction">
                     <q-tooltip transition-show="scale" transition-hide="scale">
                       Delete API Action
                     </q-tooltip>
                     <XIcon class="tw-stroke-red-500" size="16" />
                   </div>
 
-                  <div
-                    class="tw-cursor-pointer tw-text-primary"
-                    v-if="!element.apiAction"
-                  >
-                    <q-tooltip transition-show="scale" transition-hide="scale"
-                      >Copy Paste Formatting</q-tooltip
-                    >
+                  <div class="tw-cursor-pointer tw-text-primary" v-if="!element.apiAction">
+                    <q-tooltip transition-show="scale" transition-hide="scale">Copy Paste Formatting</q-tooltip>
                     <Menu2Icon size="16" />
-                    <q-menu
-                      flat="true"
-                      transition-show="scale"
-                      transition-hide="scale"
-                      max-height="400px"
-                      :offset="[0, 5]"
-                      class="tw-rounded-2xl tw-border tw-overflow-hidden"
-                      @show="menuShow"
-                      @keydown="onKeydown"
-                    >
-                      <div
-                        class="menu-item"
-                        @click="copyFormattingConfig(element)"
-                        v-close-popup
-                      >
+                    <q-menu flat="true" transition-show="scale" transition-hide="scale" max-height="400px"
+                      :offset="[0, 5]" class="tw-rounded-2xl tw-border tw-overflow-hidden" @show="menuShow"
+                      @keydown="onKeydown">
+                      <div class="menu-item" @click="copyFormattingConfig(element)" v-close-popup>
                         Copy Column Formatting
                       </div>
-                      <div
-                        class="menu-item"
-                        @click="pasteFormattingConfig(element)"
-                        v-close-popup
-                      >
+                      <div class="menu-item" @click="pasteFormattingConfig(element)" v-close-popup>
                         Paste Column Formatting
                       </div>
-                      <div
-                        class="menu-item"
-                        @click="resetFormatting(element)"
-                        v-close-popup
-                      >
+                      <div class="menu-item" @click="resetFormatting(element)" v-close-popup>
                         Reset Formatting
                       </div>
                     </q-menu>
                   </div>
 
-                  <div
-                    class="tw-cursor-pointer"
-                    @click="
-                      ((currentStage = 2) || true) &&
-                        (editingApiAction = element)
-                    "
-                    v-if="element.apiAction"
-                  >
+                  <div class="tw-cursor-pointer" @click="
+                    ((currentStage = 2) || true) &&
+                    (editingApiAction = element)
+                    " v-if="element.apiAction">
                     <q-tooltip transition-show="scale" transition-hide="scale">
                       Api Action Formatting
                     </q-tooltip>
-                    <BaselineIcon
-                      size="16"
-                      :class="
-                        element.show ? 'tw-stroke-primary' : 'tw-stroke-default'
-                      "
-                    />
+                    <BaselineIcon size="16" :class="element.show ? 'tw-stroke-primary' : 'tw-stroke-default'
+                      " />
                   </div>
 
-                  <div
-                    class="tw-cursor-pointer"
-                    @click="
-                      ((currentStage = 1) || true) && (editingColumn = element)
-                    "
-                    v-if="!element.apiAction"
-                  >
+                  <div class="tw-cursor-pointer" @click="
+                    ((currentStage = 1) || true) && (editingColumn = element)
+                    " v-if="!element.apiAction">
                     <q-tooltip transition-show="scale" transition-hide="scale">
                       Column Formatting
                     </q-tooltip>
-                    <BaselineIcon
-                      size="16"
-                      :class="
-                        element.show ? 'tw-stroke-primary' : 'tw-stroke-default'
-                      "
-                    />
+                    <BaselineIcon size="16" :class="element.show ? 'tw-stroke-primary' : 'tw-stroke-default'
+                      " />
                   </div>
-                  <div
-                    class="tw-cursor-pointer"
-                    @click="element.showLocalFilter = !element.showLocalFilter"
-                    v-if="!element.apiAction"
-                  >
+                  <div class="tw-cursor-pointer" @click="element.showLocalFilter = !element.showLocalFilter"
+                    v-if="!element.apiAction">
                     <q-tooltip transition-show="scale" transition-hide="scale">
                       {{
                         element.showLocalFilter
-                          ? 'Hide Local Filter'
-                          : 'Show Local Filter'
+                        ? 'Hide Local Filter'
+                        : 'Show Local Filter'
                       }}
                       - Local Filters are also visible on dashboards.
                     </q-tooltip>
-                    <FilterIcon
-                      size="16"
-                      class="tw-stroke-primary"
-                      v-if="element.showLocalFilter"
-                    />
-                    <FilterOffIcon
-                      size="16"
-                      class="tw-stroke-primary"
-                      v-if="!element.showLocalFilter"
-                    />
+                    <FilterIcon size="16" class="tw-stroke-primary" v-if="element.showLocalFilter" />
+                    <FilterOffIcon size="16" class="tw-stroke-primary" v-if="!element.showLocalFilter" />
                   </div>
-                  <div
-                    class="tw-cursor-pointer"
-                    @click="element.show = !element.show"
-                  >
+                  <div class="tw-cursor-pointer" @click="element.show = !element.show">
                     <q-tooltip transition-show="scale" transition-hide="scale">
                       {{ element.show ? 'Hide' : 'Show' }}
                     </q-tooltip>
-                    <EyeIcon
-                      size="16"
-                      v-if="element.show"
-                      :class="
-                        element.show ? 'tw-stroke-primary' : 'tw-stroke-default'
-                      "
-                    />
+                    <EyeIcon size="16" v-if="element.show" :class="element.show ? 'tw-stroke-primary' : 'tw-stroke-default'
+                      " />
 
-                    <EyeOffIcon
-                      size="16"
-                      v-if="!element.show"
-                      :class="
-                        element.show ? 'tw-stroke-primary' : 'tw-stroke-default'
-                      "
-                    />
+                    <EyeOffIcon size="16" v-if="!element.show" :class="element.show ? 'tw-stroke-primary' : 'tw-stroke-default'
+                      " />
                   </div>
                 </div>
               </div>
             </template>
           </draggable>
-          <NewApiAction
-            v-model:open="newApiActionModalOpen"
-            :apiAction="editingApiAction"
-            :queryKey="queryKey"
-            :visualizationID="visualizationID"
-            :questionID="questionID"
-            :key="{
+          <NewApiAction v-model:open="newApiActionModalOpen" :apiAction="editingApiAction" :queryKey="queryKey"
+            :visualizationID="visualizationID" :questionID="questionID" :key="{
               apiAction: editingApiAction,
               key: newApiActionFormModalOpen,
-            }"
-            @editForm="
-              (newApiActionFormModalOpen = true) &&
-                (newApiActionModalOpen = false)
-            "
-            @update:apiAction="$emit('updateApiActions')"
-          />
+            }" @editForm="
+  (newApiActionFormModalOpen = true) &&
+  (newApiActionModalOpen = false)
+  " @update:apiAction="$emit('updateApiActions')" />
 
-          <NewApiActionChoice
-            v-model:open="newApiActionChoiceModalOpen"
-            v-model:showForm="newApiActionFormModalOpen"
-            v-model:showNewApiAction="newApiActionModalOpen"
-            :key="editingApiAction"
-          />
-          <NewApiActionForm
-            v-model:open="newApiActionFormModalOpen"
-            :queryKey="queryKey"
-            v-model:showNewApiAction="newApiActionModalOpen"
-            v-model:form="editingApiAction.display_settings.form"
-            :columns="columns"
-            :colDetails="colDetails"
-            :key="newApiActionFormModalOpen"
-            v-if="editingApiAction?.display_settings"
-          />
-          <DeleteApiAction
-            v-model:open="deleteApiActionModalOpen"
-            :apiActionID="editingApiAction && editingApiAction.id"
-            :queryKey="queryKey"
-            :key="editingApiAction && editingApiAction.id"
-            @update:apiAction="$emit('updateApiActions')"
-          />
-          <AGButton
-            class="tw-border-0 tw-text-primary tw-font-semibold tw-float-right"
-            @clicked="
-              ((editingApiAction = cloneDeep(newApiAction)) || true) &&
-                (newApiActionChoiceModalOpen = true)
-            "
-            v-if="questionID != null && questionID != 'null'"
-          >
+          <NewApiActionChoice v-model:open="newApiActionChoiceModalOpen" v-model:showForm="newApiActionFormModalOpen"
+            v-model:showNewApiAction="newApiActionModalOpen" :key="editingApiAction" />
+          <NewApiActionForm v-model:open="newApiActionFormModalOpen" :queryKey="queryKey"
+            v-model:showNewApiAction="newApiActionModalOpen" v-model:form="editingApiAction.display_settings.form"
+            :columns="columns" :colDetails="colDetails" :key="newApiActionFormModalOpen"
+            v-if="editingApiAction?.display_settings" />
+          <DeleteApiAction v-model:open="deleteApiActionModalOpen" :apiActionID="editingApiAction && editingApiAction.id"
+            :queryKey="queryKey" :key="editingApiAction && editingApiAction.id"
+            @update:apiAction="$emit('updateApiActions')" />
+          <AGButton class="tw-border-0 tw-text-primary tw-font-semibold tw-float-right" @clicked="
+            ((editingApiAction = cloneDeep(newApiAction)) || true) &&
+            (newApiActionChoiceModalOpen = true)
+            " v-if="questionID != null && questionID != 'null'">
             <PlusIcon class="tw-inline" size="14" /> API Action
           </AGButton>
         </div>
       </template>
 
       <template #S2>
-        <AGConditionalFormattingSettings
-          v-model:settings="editingColumn.formattingSettings"
-          :columnName="editingColumn.name"
-          :key="editingColumn"
-          :colDetails="colDetails"
-        />
+        <AGConditionalFormattingSettings v-model:settings="editingColumn.formattingSettings"
+          :columnName="editingColumn.name" :key="editingColumn" :colDetails="colDetails" />
       </template>
       <template #S3>
-        <AGDataFormattingSetting
-          class="tw-mt-2"
-          v-model:settings="editingApiAction.formattingSettings"
-          dataType="text"
-        />
+        <AGDataFormattingSetting class="tw-mt-2" v-model:settings="editingApiAction.formattingSettings" dataType="text" />
       </template>
     </AGStagedContainer>
     <AGToast :type="toastType" v-model:show="toastShow">
@@ -846,7 +692,7 @@ export default {
             this.setUpRating(colSettings, col);
             this.setUpPhone(colSettings, col);
             this.setupEmail(colSettings, col);
-            settings.columns.push();
+            settings.columns.push(colSettings);
             order += 1;
           }
         });
@@ -854,14 +700,14 @@ export default {
         settings = {
           columns: this.columns
             ? this.columns.map((item, i) => {
-                let colSettings = { name: item, show: defaultShow, order: i };
-                this.setupTaggables(colSettings, item);
-                this.setUpUrl(colSettings, item);
-                this.setUpRating(colSettings, item);
-                this.setUpPhone(colSettings, item);
-                this.setupEmail(colSettings, item);
-                return colSettings;
-              })
+              let colSettings = { name: item, show: defaultShow, order: i };
+              this.setupTaggables(colSettings, item);
+              this.setUpUrl(colSettings, item);
+              this.setUpRating(colSettings, item);
+              this.setUpPhone(colSettings, item);
+              this.setupEmail(colSettings, item);
+              return colSettings;
+            })
             : [],
         };
       }

@@ -119,6 +119,33 @@ impl Team {
 }
 
 impl TeamShare {
+    pub fn delete_dashboard_shares_by_id(
+        conn: &mut PgConnection,
+        shared_id: i64,
+    ) -> Result<usize, Error> {
+        diesel::delete(
+            team_shares::table.filter(
+                team_shares::shared_id
+                    .eq(shared_id)
+                    .and(team_shares::shared_entity.eq(SharedEntity::Dashboard)),
+            ),
+        )
+        .execute(conn)
+    }
+
+    pub fn delete_question_shares_by_id(
+        conn: &mut PgConnection,
+        shared_id: i64,
+    ) -> Result<usize, Error> {
+        diesel::delete(
+            team_shares::table.filter(
+                team_shares::shared_id
+                    .eq(shared_id)
+                    .and(team_shares::shared_entity.eq(SharedEntity::Question)),
+            ),
+        )
+        .execute(conn)
+    }
     pub fn create_or_update(
         conn: &mut PgConnection,
         changeset: TeamShareChangeset,

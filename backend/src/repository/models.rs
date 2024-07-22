@@ -295,6 +295,7 @@ impl FromSql<VarChar, Pg> for WidgetTypes {
             "visualization" => Ok(WidgetTypes::Visualization),
             "variablePane" => Ok(WidgetTypes::VariablePane),
             "note" => Ok(WidgetTypes::Note),
+            "notes" => Ok(WidgetTypes::Note),
             "tabs" => Ok(WidgetTypes::Tabs),
             _ => Err(format!(
                 "Unrecognized enum value: {}",

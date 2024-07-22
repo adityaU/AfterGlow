@@ -1,9 +1,12 @@
 use std::fmt::{self, Formatter};
 
 use actix_web::HttpRequest;
+use actix_web_grants::permissions::{AuthDetails, PermissionsCheck};
 use chrono::Utc;
-use diesel::PgConnection;
+use diesel::{result::Error, PgConnection};
+use std::error::Error as StdError;
 
+use samael::schema::authn_request;
 use serde_json::to_value;
 use uuid::Uuid;
 
@@ -12,11 +15,15 @@ use crate::{
         helpers::get_current_user_id,
         question::{ApiAction, QuestionPayload},
     },
-    repository::models::{
-        ActionLevel, ApiAction as DBApiAction, ApiActionChangeset, Question, QuestionChangeset,
-        SharedEntity, Tag, TagChangeset, TagQuestion, TagQuestionChangeset, Team, TeamShare,
-        TeamShareChangeset, Variable as DBVariable, VariableChangeset,
-        Visualization as DBVisualization, VisualizationChangeset,
+    errors::AGError,
+    repository::{
+        models::{
+            ActionLevel, ApiAction as DBApiAction, ApiActionChangeset, Question, QuestionChangeset,
+            SharedEntity, Tag, TagChangeset, TagQuestion, TagQuestionChangeset, Team, TeamShare,
+            TeamShareChangeset, Variable as DBVariable, VariableChangeset,
+            Visualization as DBVisualization, VisualizationChangeset,
+        },
+        permissions::PermissionNames,
     },
     views::question::QuestionShowView,
 };
@@ -179,10 +186,24 @@ impl fmt::Display for QuestionCreateError {
 }
 impl std::error::Error for QuestionCreateError {}
 
-impl From<diesel::result::Error> for QuestionCreateError {
-    fn from(err: diesel::result::Error) -> Self {
+impl From<Error> for QuestionCreateError {
+    fn from(err: Error) -> Self {
         QuestionCreateError::ErrorRunningTransaction(err.to_string())
     }
+}
+
+pub fn delete(
+    conn: &mut PgConnection,
+    question_id: i64,
+    req: HttpRequest,
+    auth_details: AuthDetails<PermissionNames>,
+) -> Result<(), Error> {
+    DBApiAction::delete_all_by_question_id(conn, question_id)?;
+    DBVariable::delete_by_question_id(conn, question_id)?;
+    DBVisualization::delete_by_question_id(conn, question_id)?;
+    TagQuestion::delete_by_question_id(conn, question_id)?;
+    TeamShare::delete_question_shares_by_id(conn, question_id)?;
+    Question::delete(conn, question_id)
 }
 
 pub fn save(
@@ -308,7 +329,7 @@ fn sync_shares(
     conn: &mut PgConnection,
     qp: &QuestionPayload,
     question_id: i64,
-) -> Result<(), diesel::result::Error> {
+) -> Result<(), Error> {
     TeamShare::find_names_by_shared_id(conn, question_id, SharedEntity::Question)
         .unwrap_or(vec![])
         .iter()

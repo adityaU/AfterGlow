@@ -1,5 +1,6 @@
-use actix_web::{web, HttpRequest, HttpResponse, Responder};
+use actix_web::{error, web, HttpRequest, HttpResponse, Responder};
 use chrono::Utc;
+use reqwest::StatusCode;
 use serde::Deserialize;
 
 use std::sync::Arc;
@@ -12,7 +13,10 @@ use crate::{
     controllers::{common::ResponseData, helpers::get_current_user_id},
     errors::AGError,
     repository::{
-        models::{Dashboard, DashboardChangeset, DashboardView, Schedule, ScheduleChangeset},
+        models::{
+            Dashboard, DashboardChangeset, DashboardView, DashboardWidget, Schedule,
+            ScheduleChangeset, TeamShare,
+        },
         DBPool,
     },
     views::dashboard::DetailedDashboardView,
@@ -20,7 +24,7 @@ use crate::{
 
 use actix_web_grants::{permissions::AuthDetails, proc_macro::has_permissions};
 
-use super::helpers::get_current_user_email;
+use super::{base, helpers::get_current_user_email};
 use crate::repository::permissions::PermissionNames;
 use crate::repository::permissions::PermissionNames::*;
 
@@ -28,6 +32,41 @@ use crate::repository::permissions::PermissionNames::*;
 pub struct QueryParams {
     query: Option<String>,
     limit: Option<i64>,
+}
+
+#[has_permissions["DashboardEdit",type = "PermissionNames"]]
+pub(crate) async fn delete(
+    pool: web::Data<Arc<DBPool>>,
+    item_id: web::Path<i64>,
+    auth_details: AuthDetails<PermissionNames>,
+    req: HttpRequest,
+) -> impl Responder {
+    let dashboard_id = item_id.into_inner();
+
+    let conn = pool.get();
+    let user_id = get_current_user_id(&req);
+    let dashboard = Dashboard::find(&mut conn.unwrap(), dashboard_id).map_err(|err| {
+        AGError::<String>::new_with_details(
+            error::ErrorNotFound("Unauthorized").to_string(),
+            Some(err.to_string()),
+            StatusCode::NOT_FOUND,
+        )
+    })?;
+    if dashboard.owner_id.unwrap_or_default() != user_id
+        && !auth_details.has_permission(&PermissionNames::SettingsAll)
+    {
+        return Err(
+        AGError::<String>::new_with_details(
+            error::ErrorNotFound("Unauthorized").to_string(),
+            Some("you do not have permission to delete this dashboard. Only the owner or Admins can delete this dashboard".to_string()),
+            StatusCode::UNAUTHORIZED
+        )
+);
+    }
+    let conn = pool.get();
+    dashboards::delete(&mut conn.unwrap(), dashboard_id)
+        .map(|_item| HttpResponse::Ok().json(ResponseData { data: "success" }))
+        .map_err(|err| AGError::new(err))
 }
 
 #[has_permissions["DashboardShow", type = "PermissionNames"]]

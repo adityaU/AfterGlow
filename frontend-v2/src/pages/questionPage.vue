@@ -35,7 +35,8 @@
 
 <script>
 import AGQuestionEditor from 'components/question/editor.vue';
-import AGQuestionHeader from 'components/question/header.vue';
+import
+AGQuestionHeader from 'components/question/header.vue';
 import BaseDataRenderer from 'components/dataRenderers/base.vue';
 import AGLoader from 'components/utils/loader.vue';
 import AGToast from 'components/utils/toast.vue';
@@ -47,9 +48,9 @@ import { apiActionStore } from 'stores/apiActions';
 import { queryStore } from 'stores/query';
 import hash from '../helpers/hash';
 import apiConfig from '../helpers/apiConfig';
-import cloneDeep from 'lodash/cloneDeep';
 import { saveQuestion } from 'src/apis/questions';
 import { sidebarState } from 'src/stores/sidebarStore';
+
 
 import {
   fetchQuestionResults,
