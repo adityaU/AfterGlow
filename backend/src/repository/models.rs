@@ -24,7 +24,10 @@ use diesel::{
 use serde_json;
 
 use diesel::result::Error;
-use serde::{Deserialize, Serialize};
+use serde::{
+    de::{self, Deserializer, Visitor},
+    Deserialize, Serialize,
+};
 
 use crud_derive::{Changeset, DatabaseEnum, View};
 
@@ -260,9 +263,7 @@ pub struct Column {
     pub primary_key: Option<bool>,
 }
 
-#[derive(
-    Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Deserialize, Clone, Default,
-)]
+#[derive(Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Clone, Default)]
 #[diesel(sql_type = VarChar)]
 #[serde(rename_all = "snake_case")]
 pub enum WidgetTypes {
@@ -273,6 +274,42 @@ pub enum WidgetTypes {
     VariablePane,
     Note,
     Tabs,
+}
+impl<'de> Deserialize<'de> for WidgetTypes {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct MyEnumVisitor;
+
+        impl<'de> Visitor<'de> for MyEnumVisitor {
+            type Value = WidgetTypes;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("a valid enum variant")
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<WidgetTypes, E>
+            where
+                E: de::Error,
+            {
+                match value {
+                    "Visualization" | "Visualization" => Ok(WidgetTypes::Visualization),
+                    "variablePane" | "variable_pane" | "VariablePane" => {
+                        Ok(WidgetTypes::VariablePane)
+                    }
+                    "note" | "Note" | "notes" | "Notes" => Ok(WidgetTypes::Note),
+                    "tabs" | "Tabs" => Ok(WidgetTypes::Tabs),
+                    _ => Err(de::Error::unknown_variant(
+                        value,
+                        &["visualization", "note", "tabs", "variablePane"],
+                    )),
+                }
+            }
+        }
+
+        deserializer.deserialize_str(MyEnumVisitor)
+    }
 }
 
 impl ToSql<VarChar, Pg> for WidgetTypes {

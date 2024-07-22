@@ -156,6 +156,10 @@ body{
       z-index: 100000 !important;
       background-color: rgb(var(--color-white));
     }
+    .q-date, .q-time{
+
+      background-color: rgb(var(--color-white));
+    }
     .editor-content {
       h1 {
         font-size: 3em;
@@ -317,7 +321,7 @@ body{
   // }
 
   body *:hover::-webkit-scrollbar-thumb {
-    background: #adb5bd;
+    background: rgb(var(--color-tertiary));
   }
 
   body *:focus-visible{
@@ -325,7 +329,7 @@ body{
   }
 
   body *::-webkit-scrollbar-thumb {
-    background: #ced4da;
+    background: rgb(var(--color-tertiary)/90);
     border-radius: 100px;
   }
 

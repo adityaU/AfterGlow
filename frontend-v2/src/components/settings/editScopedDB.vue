@@ -140,7 +140,7 @@ export default {
         payload.tables.push(table)
       })
 
-      updateScopedDB(this.editingDB.id, payload, this.session.token, (data) => {
+      updateScopedDB(this.editingDB.id, payload, (data) => {
         this.$emit('update:currentTab', 'databases')
       })
     },

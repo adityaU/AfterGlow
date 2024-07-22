@@ -1,9 +1,11 @@
 <template>
-  <div class="tw-w-full tw-border tw-px-4 tw-py-2 tw-cursor-pointer">
-    {{ displayText }}
+  <div class="tw-w-full tw-border tw-px-4 tw-py-2 tw-cursor-pointer tw-bg-white">
+    {{ displayTextLocal }}
+    <div class="tw-text-default/40" v-if="!displayTextLocal"> Select Date & Time </div>
     <q-menu flat="true" transition-show="scale" transition-hide="scale" max-height="400px" :offset="[0, 5]"
       class="tw-rounded-2xl tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown">
-      <AGDatePicker v-model:value="valueLocal" v-model:displayText="displayText" :type="type" :clearCount="clearCount" />
+      <AGDatePicker :value="valueLocal" @update:value="updateValueLocal" v-model:displayText="displayTextLocal"
+        :type="type" :clearCount="clearCount" />
     </q-menu>
   </div>
 </template>
@@ -13,41 +15,55 @@ import AGDatePicker from 'components/base/datePicker.vue';
 import { formatDatetime } from 'src/helpers/datetimeFormatting';
 export default {
   name: 'AGDatePickerInput',
-  props: ['value', 'type', 'clearCount'],
+  props: ['value', 'type', 'clearCount', 'displayText'],
   components: { AGDatePicker },
   watch: {
     value() {
       if (this.value != this.valueLocal) {
         this.valueLocal = this.value;
-        this.displayText = this.makeDisplayText();
+        this.displayTextLocal = this.makeDisplayText(this.displayText);
       }
     },
-    valueLocal() {
-      this.$emit('update:value', this.valueLocal);
+
+    valueLocal: {
+      deep: true,
+      handler() {
+        this.$emit('update:value', this.valueLocal);
+        this.displayTextLocal = this.makeDisplayText(this.displayText);
+      }
+    },
+    displayText() {
+      this.displayTextLocal = this.makeDisplayText(this.displayText);
     },
     clearCount() {
       this.valueLocal = null;
-      this.displayText = this.makeDisplayText();
+      this.displayTextLocal = this.makeDisplayText(this.displayText)
     },
   },
   data() {
     return {
       valueLocal: this.value,
-      displayText: this.makeDisplayText(),
+      displayTextLocal: this.makeDisplayText(this.displayText),
     };
   },
   methods: {
-    makeDisplayText() {
-      if (!this.value) {
-        return 'Empty';
-      }
+    updateValueLocal(value) {
+      this.valueLocal = value;
+      this.$emit('update:value', this.valueLocal);
+    },
+    makeDisplayText(text) {
+      // if (!this.value) {
+      this.valueLocal = text;
+      this.$emit('update:value', this.valueLocal);
+      // }
       if (this.type === 'datetime') {
-        return formatDatetime(this.value, 'MMM DD, YYYY hh:mm A Z');
+        return formatDatetime(this.valueLocal, 'MMM DD, YYYY hh:mm A Z');
       } else if (this.type === 'date') {
-        return formatDatetime(this.value, 'MMM DD, YYYY');
+        return formatDatetime(this.valueLocal, 'MMM DD, YYYY');
       } else {
-        return formatDatetime(this.value, 'MMM DD, YYYY hh:mm A Z');
+        return formatDatetime(this.valueLocal, 'MMM DD, YYYY hh:mm A Z');
       }
+
     },
   },
 };

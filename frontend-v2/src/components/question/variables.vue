@@ -3,33 +3,29 @@
     <div class="tw-flex tw-items-center tw-flex-1">
       <template v-for="variable in variablesLocal" :key="variable">
         <div class="tw-flex tw-items-center tw-m-1">
-          <div class="tw-flex tw-items-center tw-cursor-pointer tw-leading-4">
-            <div class="tw-flex">
-              <div class="tw-bg-primary/90 tw-text-white tw-px-4 tw-py-2 tw-rounded-l-sm">
-                {{ variable.name }}
-              </div>
-              <div class="tw-bg-primary tw-text-white tw-px-4 tw-py-2"
-                :class="currentUser.canEditQuestion ? '' : 'tw-rounded-sm'" v-if="variable.var_type === 'String' ||
-                  variable.var_type === 'Integer'
-                  ">
-                {{ variable.value != null ? variable.value : variable.default }}
-              </div>
-              <AGDatetimePicker class="tw-bg-primary tw-text-white tw-px-4 tw-py-2 tw-border-0"
-                v-model:value="variable.value" type="datetime" :clearCount="variable.clearCount"
-                v-if="variable.var_type === 'Date'" />
-              <q-menu flat="true" transition-show="jump-down" transition-hide="jump-up" max-height="400px"
-                class="tw-rounded-2xl tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown" fit v-if="variable.var_type === 'String' ||
-                  variable.var_type === 'Integer'
-                  ">
-                <AGInput :placeholder="'Enter ' + variable.name" v-model:value="variable.value" />
-              </q-menu>
-            </div>
+          <div class="tw-bg-primary/90 tw-text-white tw-px-4 tw-py-2 tw-rounded-l-full">
+            {{ variable.name }}
           </div>
-          <div class="tw-rounded-r-sm tw-bg-primary/60 tw-py-2 tw-px-4 tw-cursor-pointer tw-h-[25.6px]"
+          <div class="tw-bg-primary tw-text-white tw-px-4 tw-py-2 note"
+            :class="currentUser.canEditQuestion ? '' : 'tw-rounded-full'" v-if="variable.var_type === 'String' ||
+              variable.var_type === 'Integer'
+              ">
+            {{ variable.value != null ? variable.value : variable.default }}
+          </div>
+          <AGDatetimePicker class="tw-bg-primary tw-text-white tw-px-4 tw-py-2 tw-border-0" v-model:value="variable.value"
+            :displayText="variable.value || variable.default" type="datepicker" :clearCount="variable.clearCount"
+            v-if="variable.var_type === 'Date'" />
+          <q-menu flat="true" transition-show="jump-down" transition-hide="jump-up" max-height="400px"
+            class="tw-rounded-2xl tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown" fit v-if="variable.var_type === 'String' ||
+              variable.var_type === 'Integer'
+              ">
+            <AGInput :placeholder="'Enter ' + variable.name" v-model:value="variable.value" />
+          </q-menu>
+          <div class="tw-rounded-r-full tw-bg-primary/60 tw-py-2 tw-px-4 tw-cursor-pointer"
             v-if="currentUser.canEditQuestion" @click="
               (openVariableEditingModal = true) && (editingVariable = variable)
               ">
-            <EditIcon size="12.5" class="tw-stroke-white" />
+            <EditIcon size="24" class="tw-stroke-white" />
           </div>
         </div>
       </template>

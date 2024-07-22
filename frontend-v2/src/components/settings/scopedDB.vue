@@ -128,8 +128,8 @@ export default {
         payload.tables.push(table)
       })
 
-      createScopedDB(payload, this.session.token, (data) => {
-        this.$emit('update:currentTab', 'database')
+      createScopedDB(payload, (data) => {
+        this.$emit('update:currentTab', 'databases')
       })
     },
     fetchColumns(table) {
@@ -185,7 +185,7 @@ export default {
     selectAll() {
       this.selectAllClicked = true
       this.deselectAllClicked = false
-      this.tables.forEach((t) => {
+      this.selectedTables.forEach((t) => {
         t.are_all_columns_selected = true
         t.columns?.forEach((c) => { c.is_selected = true })
       })
@@ -195,7 +195,7 @@ export default {
     deselectAll() {
       this.selectAllClicked = false
       this.deselectAllClicked = true
-      this.tables.forEach((t) => {
+      this.selectedTables.forEach((t) => {
         t.are_all_columns_selected = false
         t.columns?.forEach((c) => { c.is_selected = false })
       })
