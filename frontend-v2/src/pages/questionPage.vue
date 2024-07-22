@@ -384,7 +384,14 @@ export default {
         this.question = question;
         this.variables = question.variables;
         question.visualizations = question.visualizations.map((viz) => {
-          if (viz.query_terms.details) {
+          if (!viz.rendererType && viz.renderer_type) {
+            viz.rendererType = viz.renderer_type;
+          }
+          if (!viz.rendererType && !viz.renderer_type) {
+            viz.rendererType = 'table';
+            viz.renderer_type = 'table';
+          }
+          if (viz.query_terms?.details) {
             viz.queryTerms = viz.query_terms;
           } else {
             viz.queryTerms = {
