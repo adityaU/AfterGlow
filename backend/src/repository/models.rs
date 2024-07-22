@@ -294,7 +294,7 @@ impl<'de> Deserialize<'de> for WidgetTypes {
                 E: de::Error,
             {
                 match value {
-                    "Visualization" | "Visualization" => Ok(WidgetTypes::Visualization),
+                    "visualization" | "Visualization" => Ok(WidgetTypes::Visualization),
                     "variablePane" | "variable_pane" | "VariablePane" => {
                         Ok(WidgetTypes::VariablePane)
                     }
