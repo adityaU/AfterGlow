@@ -5,13 +5,14 @@
         <div class="tw-px-1 tw-py-1 tw-inline-flex tw-flex-nowrap">
           <FilterMenu @addFilter="prevent" addLabel="Done" @editFilter="(val) => (filter = val)" :filter="filter"
             :columns="columns" :colDetails="colDetails" :rows="rows" />
-          <div class="btn tw-cursor-pointer tw-text-white hover:tw-bg-primary/80 tw-border-2 tw-border-primary"
+          <div
+            class="btn tw-cursor-pointer tw-text-text-onprimary/80 hover:tw-bg-primary/80 tw-border-2 tw-border-primary"
             v-for="(dv, i) in getDisplayValues(filter, colDetails)" :key="dv" :class="i === 0 ? 'btn-left' : 'btn-center'"
             @click="filter.currentStage = dv[1]">
             {{ dv[0] }}
           </div>
           <div class="btn btn-right tw-cursor-pointer" @click="(event) => removeFilter(index)">
-            <XIcon class="tw-inline tw-h3 tw-w-3" size="18" />
+            <XIcon class="tw-inline tw-h3 tw-w-3 tw-stroke-text-onprimary/80" size="18" />
           </div>
         </div>
       </div>

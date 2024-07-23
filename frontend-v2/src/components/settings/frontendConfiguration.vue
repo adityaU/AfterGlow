@@ -74,6 +74,8 @@ import { fetchSettings, saveSettings } from 'src/apis/settings';
 import Multiselect from '@vueform/multiselect';
 import multiselectClasses from 'src/helpers/multiselectCss.ts';
 
+import { isColorLight } from 'src/helpers/colorGenerator';
+
 let themesConf = {
   Light: {
     'secondary': 'rgb(245 247 251)',
@@ -149,6 +151,12 @@ export default {
           saveSettings(this.themePrimaryColor, () => {
             'pass';
           });
+
+          if (isColorLight(this.themePrimaryColor.value.split(' ').join(','))) {
+            this.changeColor('--color-text-onprimary', "rgb(32 33 36)");
+          } else {
+            this.changeColor('--color-text-onprimary', "rgb(255 255 255)");
+          }
         }
       },
     },

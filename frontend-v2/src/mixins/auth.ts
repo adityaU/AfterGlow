@@ -2,6 +2,7 @@ import { verifyToken } from 'src/apis/auth';
 import { currentUserStore } from 'stores/currentUser';
 import { useRoute } from 'vue-router';
 import { sessionStore } from 'stores/session';
+import { isColorLight } from 'src/helpers/colorGenerator';
 
 const session = sessionStore();
 
@@ -40,6 +41,12 @@ const authMixin = {
       this.setColorVar(root_theme, '--color-tertiary', theme.tertiary_color);
       this.setColorVar(root_theme, '--color-white', theme.white_color);
       this.setColorVar(root_theme, '--color-default', theme.default_color);
+
+      if (isColorLight(theme.primary_color.split(' ').join(','))) {
+        this.setColorVar(root_theme, '--color-text-onprimary', "rgb(32 33 36)");
+      } else {
+        this.setColorVar(root_theme, '--color-text-onprimary', "rgb(255 255 255)");
+      }
     },
   },
 };

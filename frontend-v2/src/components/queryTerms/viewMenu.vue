@@ -1,43 +1,29 @@
 <template>
-  <staged-menu
-    :stages="stages"
-    :currentStage="viewLocal.currentStage"
-    :show="viewLocal.showMenu"
-  >
+  <staged-menu :stages="stages" :currentStage="viewLocal.currentStage" :show="viewLocal.showMenu">
     <template #header>
       <div class="tw-grid tw-grid-cols-6">
         <div class="tw-cursor-pointer tw-p-2 tw-col-span-5 tw-flex">
-          <div
-            class="btn tw-bg-primary tw-text-white hover:tw-bg-primary/80"
-            v-for="(dv, i) in displayValues"
-            :key="dv"
-            :class="
-              displayValues.length == 1
-                ? 'btn-full'
-                : i === 0
-                ? 'btn-left'
-                : displayValues.length === i + 1
+          <div class="btn tw-bg-primary hover:tw-bg-primary/80" v-for="(dv, i) in displayValues" :key="dv" :class="displayValues.length == 1
+            ? 'btn-full'
+            : i === 0
+              ? 'btn-left'
+              : displayValues.length === i + 1
                 ? 'btn-right'
                 : 'btn-center'
-            "
-            @click="viewLocal.currentStage = dv[1]"
-          >
+            " @click="viewLocal.currentStage = dv[1]">
             {{ dv[0] }}
           </div>
         </div>
         <div class="tw-p-2 tw-col-span-1 tw-text-right tw-text-default">
-          <div
-            class="tw-cursor-pointer tw-inline-flex tw-border tw-rounded-2xl tw-p-1 tw-bg-secondary"
-            @click="
-              ((viewLocal.raw = !viewLocal.raw) || true) &&
-                (viewLocal.currentStage = viewLocal.raw ? 2 : 0)
-            "
-          >
+          <div class="tw-cursor-pointer tw-inline-flex tw-border tw-rounded-2xl tw-p-1 tw-bg-secondary" @click="
+            ((viewLocal.raw = !viewLocal.raw) || true) &&
+            (viewLocal.currentStage = viewLocal.raw ? 2 : 0)
+            ">
             <q-tooltip transition-show="scale" transition-hide="scale">
               {{
                 !viewLocal.raw
-                  ? 'Switch to Raw Snippet'
-                  : 'Switch to query builder'
+                ? 'Switch to Raw Snippet'
+                : 'Switch to query builder'
               }}
             </q-tooltip>
             <CodeIcon v-if="!viewLocal.raw" class="tw-h-3 tw-w-3" />
@@ -46,105 +32,57 @@
         </div>
       </div>
       <div class="tw-py-1 tw-text-center" v-if="!viewLocal.raw">
-        <BoxSelect
-          :options="viewTypeOptions"
-          :selected="viewLocal.isAggregation ? 'aggregation' : 'columns'"
-          isTab="true"
-          @selected="
-            (val) =>
-              ((viewLocal.isAggregation =
-                val === 'aggregation' ? true : false) ||
-                true) &&
-              (viewLocal.currentStage = 0)
-          "
-        />
+        <BoxSelect :options="viewTypeOptions" :selected="viewLocal.isAggregation ? 'aggregation' : 'columns'" isTab="true"
+          @selected="(val) =>
+            ((viewLocal.isAggregation =
+              val === 'aggregation' ? true : false) ||
+              true) &&
+            (viewLocal.currentStage = 0)
+            " />
       </div>
     </template>
     <template #S1>
       <template v-if="!viewLocal.isAggregation">
-        <SelectOptions
-          :options="['All columns', ...columns]"
-          :selected="viewLocal.columns"
-          iconComponent="true"
-          multiselect="true"
-          @select="(val) => selectMultiple(viewLocal.columns, val)"
-        >
+        <SelectOptions :options="['All columns', ...columns]" :selected="viewLocal.columns" iconComponent="true"
+          multiselect="true" @select="(val) => selectMultiple(viewLocal.columns, val)">
           <Columns3Icon size="16" />
         </SelectOptions>
       </template>
       <div class="" v-if="viewLocal.isAggregation">
-        <BoxSelect
-          :options="aggregationOptions"
-          :selected="viewLocal.agg"
-          class="tw-max-w-[400px] tw-p-4"
-          @selected="
-            (val) =>
-              ((viewLocal.agg = val) || true) && (viewLocal.currentStage = 1)
-          "
-        />
+        <BoxSelect :options="aggregationOptions" :selected="viewLocal.agg" class="tw-max-w-[400px] tw-p-4" @selected="(val) =>
+          ((viewLocal.agg = val) || true) && (viewLocal.currentStage = 1)
+          " />
       </div>
     </template>
     <template #S2>
       <div class="tw-py-2 tw-px-2" v-if="viewLocal.agg === 'percentile of'">
         <div class="tw-text-sm tw-font-semibold">Percentile Value:</div>
-        <BaseInput
-          :value="viewLocal.value"
-          @inputed="(val) => (viewLocal.value = val)"
-          placeholder="Percentile value"
-          type="number"
-          ref="option_0"
-          class=""
-        />
+        <BaseInput :value="viewLocal.value" @inputed="(val) => (viewLocal.value = val)" placeholder="Percentile value"
+          type="number" ref="option_0" class="" />
       </div>
       <div class="tw-py-2">
-        <div
-          class="tw-px-2 tw-text-sm tw-font-semibold"
-          v-if="viewLocal.agg === 'percentile of'"
-        >
+        <div class="tw-px-2 tw-text-sm tw-font-semibold" v-if="viewLocal.agg === 'percentile of'">
           Column:
         </div>
-        <BoxSelect
-          :options="countOfRowsApplicableColumns"
-          :selected="viewLocal.column"
-          class="tw-max-w-[400px] tw-p-4"
-          @selected="(val) => (viewLocal.column = val) || true"
-          v-if="viewLocal.agg === 'count of rows'"
-        />
-        <BoxSelect
-          :options="numberColumns"
-          :selected="viewLocal.column"
-          class="tw-max-w-[400px] tw-p-4"
-          @selected="(val) => (viewLocal.column = val) || true"
-          v-if="viewLocal.agg != 'count of rows'"
-        />
+        <BoxSelect :options="countOfRowsApplicableColumns" :selected="viewLocal.column" class="tw-max-w-[400px] tw-p-4"
+          @selected="(val) => (viewLocal.column = val) || true" v-if="viewLocal.agg === 'count of rows'" />
+        <BoxSelect :options="numberColumns" :selected="viewLocal.column" class="tw-max-w-[400px] tw-p-4"
+          @selected="(val) => (viewLocal.column = val) || true" v-if="viewLocal.agg != 'count of rows'" />
       </div>
     </template>
     <template #S3>
       <div class="tw-py-2 tw-px-2">
-        <BaseInput
-          :value="viewLocal.value"
-          @inputed="(val) => (viewLocal.value = val)"
-          type="text"
-          ref="option_0"
-          placeholder="count(distinct id)"
-          class=""
-        />
+        <BaseInput :value="viewLocal.value" @inputed="(val) => (viewLocal.value = val)" type="text" ref="option_0"
+          placeholder="count(distinct id)" class="" />
       </div>
     </template>
     <template #footer>
-      <div
-        class="tw-py-2 tw-px-2 tw-border-t tw-text-right"
-        v-if="shouldShowAddView"
-      >
-        <AGButton
-          v-close-popup="10"
-          class="tw-bg-primary tw-border-primary tw-text-white hover:tw-bg-primary/80 hover:tw-text-white"
-          @clicked="
-            ((viewLocal.showMenu = false) || true) &&
-              $emit('addView', viewLocal) &&
-              stopPropagation
-          "
-        >
+      <div class="tw-py-2 tw-px-2 tw-border-t tw-text-right" v-if="shouldShowAddView">
+        <AGButton v-close-popup="10" class="tw-bg-primary tw-border-primary  hover:tw-bg-primary " @clicked="
+          ((viewLocal.showMenu = false) || true) &&
+          $emit('addView', viewLocal) &&
+          stopPropagation
+          ">
           {{ addLabel }}
         </AGButton>
       </div>

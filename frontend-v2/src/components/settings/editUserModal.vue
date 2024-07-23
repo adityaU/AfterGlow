@@ -11,8 +11,7 @@
             </div>
           </div>
 
-          <div class="tw-cursor-pointer tw-bg-primary tw-text-white tw-text-sm tw-px-4 tw-py-2 tw-rounded-full"
-            v-if="permissionSet">
+          <div class="tw-cursor-pointer tw-bg-primary  tw-text-sm tw-px-4 tw-py-2 tw-rounded-full" v-if="permissionSet">
             {{ permissionSet.name }}
 
             <q-menu flat="true" transition-show="scale" transition-hide="scale" max-height="800px"

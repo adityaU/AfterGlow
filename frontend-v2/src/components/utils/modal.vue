@@ -40,7 +40,7 @@
               <div class="tw-col-span-11"></div>
               <div class="tw-col-span-1 tw-text-right">
                 <AGButton @click="$emit('update:show', false)"
-                  class="tw-bg-primary tw-rounded-full tw-text-white hover:tw-bg-primary/80">Done</AGButton>
+                  class="tw-bg-primary tw-rounded-full  hover:tw-bg-primary/80">Done</AGButton>
               </div>
             </div>
           </slot>

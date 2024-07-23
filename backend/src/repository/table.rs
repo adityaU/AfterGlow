@@ -1,6 +1,6 @@
 use crate::app::results::adapters::{ForeignKey, PrimaryKey};
 
-use super::models::{FkType, ForeignKeyChangeset, Table};
+use super::models::{Column, FkType, ForeignKeyChangeset, Table};
 use super::schema::{columns_, foreign_keys, tables};
 use chrono::Utc;
 use diesel::dsl::not;
@@ -9,6 +9,11 @@ use diesel::result::Error;
 use diesel::prelude::*;
 
 use diesel::{expression_methods::ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
+#[derive(Debug, Clone)]
+pub struct TableWithColumns {
+    pub table: Table,
+    pub columns: Vec<Column>,
+}
 
 impl Table {
     pub fn find_by_ids(conn: &mut PgConnection, ids: Vec<i64>) -> Result<Vec<Self>, Error> {
@@ -17,6 +22,7 @@ impl Table {
             .select(tables::all_columns)
             .load::<Self>(conn)
     }
+
     pub fn search(conn: &mut PgConnection, dbid: &i64, q: String) -> Result<Vec<Self>, Error> {
         tables::table
             .filter(
@@ -27,6 +33,49 @@ impl Table {
             .order(tables::name.asc())
             .select(tables::all_columns)
             .load::<Self>(conn)
+    }
+
+    pub fn search_with_columns(
+        conn: &mut PgConnection,
+        dbid: &i64,
+        q: String,
+    ) -> Result<Vec<TableWithColumns>, Error> {
+        let results = tables::table
+            .inner_join(columns_::table.on(tables::id.nullable().eq(columns_::table_id)))
+            .filter(
+                tables::database_id
+                    .eq(dbid)
+                    .and(tables::name.ilike(format!("%{}%", q))),
+            )
+            .order(tables::name.asc())
+            .select((tables::all_columns, columns_::all_columns))
+            .load::<(Table, Column)>(conn)?;
+
+        let mut table_map: std::collections::HashMap<i64, TableWithColumns> =
+            std::collections::HashMap::new();
+
+        for row in results {
+            match table_map.get(&row.0.id) {
+                Some(table) => {
+                    let mut table = table.clone();
+                    table.columns.push(row.1);
+                    table_map.insert(row.0.id, table);
+                }
+                None => {
+                    table_map.insert(
+                        row.0.id,
+                        TableWithColumns {
+                            table: row.0,
+                            columns: vec![row.1],
+                        },
+                    );
+                }
+            }
+        }
+        Ok(table_map
+            .into_iter()
+            .map(|(_, v)| v)
+            .collect::<Vec<TableWithColumns>>())
     }
 
     pub fn find_matching_by_database_id(

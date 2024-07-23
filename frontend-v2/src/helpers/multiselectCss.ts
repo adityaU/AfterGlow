@@ -16,15 +16,15 @@ export default {
   search:
     ' tw-min-w-[50px] tw-w-full tw-absolute tw-inset-0 tw-outline-none tw-focus:tw-ring-0 tw-appearance-none tw-box-border tw-border-0 tw-text-base tw-font-sans tw-bg-white tw-rounded-full tw-pl-3.tw-5 tw-rtl:tw-pl-0 tw-rtl:tw-pr-3.tw-5',
   tags: 'tw-flex-grow tw-mt-1 tw-flex-shrink tw-flex tw-flex-wrap tw-items-center tw-min-w-0 tw-rtl:tw-pl-0 tw-rtl:tw-pr-2',
-  tag: 'tw-bg-primary/90 tw-text-white tw-font-semibold tw-py-1 tw-px-2 tw-rounded-full tw-mr-1 tw-mb-1 tw-flex tw-items-center tw-whitespace-nowrap tw-min-w-0 tw-rtl:tw-pl-0 tw-rtl:tw-pr-2 tw-rtl:tw-mr-0 tw-rtl:tw-ml-1',
+  tag: 'tw-bg-primary/90 tw-text-text-onprimary/80 tw-font-semibold tw-py-1 tw-px-2 tw-rounded-full tw-mr-1 tw-mb-1 tw-flex tw-items-center tw-whitespace-nowrap tw-min-w-0 tw-rtl:tw-pl-0 tw-rtl:tw-pr-2 tw-rtl:tw-mr-0 tw-rtl:tw-ml-1',
   tagDisabled: 'tw-pr-2 tw-opacity-50 tw-rtl:tw-pl-2',
   tagWrapper:
-    'tw-whitespace-nowrap tw-overflow-hidden tw-overflow-ellipsis tw-px-2',
+    'tw-whitespace-nowrap tw-overflow-hidden tw-overflow-ellipsis tw-px-2 tw-text-text-onprimary/80',
   tagWrapperBreak: 'tw-whitespace-normal tw-break-all',
   tagRemove:
-    'tw-flex tw-items-center tw-justify-center tw-p-1 tw-rounded-full tw-bg-secondary/90 tw-mx-auto tw-hover:tw-bg-black tw-hover:tw-bg-opacity-10 tw-group',
+    'tw-flex tw-items-center tw-justify-center tw-p-1 tw-rounded-full tw-bg-text-onprimary/60 tw-mx-auto tw-hover:tw-bg-primary/60 tw-hover:tw-bg-opacity-10 tw-group',
   tagRemoveIcon:
-    ' tw-bg-multiselect-remove tw-bg-center tw-bg-no-repeat tw-opacity-30 tw-inline-block tw-w-3 tw-h-3 tw-group-hover:tw-opacity-60',
+    ' tw-bg-multiselect-remove tw-text-text-onprimary/80 tw-bg-center tw-bg-no-repeat tw-opacity-30 tw-inline-block tw-w-3 tw-h-3 tw-group-hover:tw-opacity-60',
   tagsSearchWrapper:
     'tw-min-w-[50px]   tw-inline-block tw-relative tw-mx-1 tw-mb-1 tw-flex-grow tw-flex-shrink tw-h-full',
   tagsSearch:
@@ -38,7 +38,7 @@ export default {
   clear:
     'tw-pr-3.tw-5 tw-relative tw-z-10 tw-opacity-40 tw-transition tw-duration-300 tw-flex-shrink-0 tw-flex-grow-0 tw-flex tw-hover:tw-opacity-80 tw-rtl:tw-pr-0 tw-rtl:tw-pl-3.tw-5',
   clearIcon:
-    'tw-bg-multiselect-remove tw-bg-center tw-bg-no-repeat tw-w-2.tw-5 tw-h-4 tw-py-px tw-box-content tw-inline-block',
+    'tw-bg-multiselect-remove tw-text-text-onprimary tw-bg-center tw-bg-no-repeat tw-w-2.tw-5 tw-h-4 tw-py-px tw-box-content tw-inline-block',
   spinner:
     'tw-inline-block tw-h-4 tw-w-4 tw-animate-spin tw-rounded-full tw-border-2 tw-border-solid tw-border-current  tw-border-l-transparent tw-border-b-transparent tw-align-[-0.125em] tw-text-primary motion-reduce:tw-animate-[spin_1.5s_linear_infinite]',
   infinite: 'tw-flex tw-items-center tw-justify-center tw-w-full',
@@ -56,19 +56,19 @@ export default {
     'tw-flex tw-text-sm tw-box-border tw-items-center tw-justify-start tw-text-left tw-py-1 tw-px-3 tw-font-semibold tw-bg-gray-200 tw-cursor-secondary tw-leading-normal',
   groupLabelPointable: 'tw-cursor-pointer',
   groupLabelPointed: 'tw-bg-secondary/80 tw-text-gray-700',
-  groupLabelSelected: 'tw-bg-primary tw-text-white',
+  groupLabelSelected: 'tw-bg-primary ',
   groupLabelDisabled:
     'tw-bg-secondary/70 tw-text-default/80 tw-cursor-not-allowed',
-  groupLabelSelectedPointed: 'tw-bg-primary tw-text-white tw-opacity-90',
+  groupLabelSelectedPointed: 'tw-bg-primary tw-opacity-90',
   groupLabelSelectedDisabled:
     'tw-text-primary/50 tw-bg-primary tw-bg-opacity-50 tw-cursor-not-allowed',
   groupOptions: 'p-0 m-0',
   option:
     'tw-flex tw-items-center tw-justify-start tw-box-border tw-text-left tw-cursor-pointer tw-text-base tw-leading-snug tw-py-2 tw-px-4',
   optionPointed: 'tw-text-default tw-bg-secondary/70',
-  optionSelected: 'tw-text-white tw-bg-primary/90',
+  optionSelected: 'tw-text-text-onprimary/90 tw-bg-primary/90',
   optionDisabled: 'tw-text-default/80 tw-cursor-not-allowed',
-  optionSelectedPointed: 'tw-text-white tw-bg-primary/90 tw-opacity-90',
+  optionSelectedPointed: 'tw-text-text-onprimary/90 tw-bg-primary/90 tw-opacity-90',
   optionSelectedDisabled:
     'tw-text-primary/50 tw-bg-primary/90 tw-bg-opacity-50 tw-cursor-not-allowed',
   noOptions:

@@ -117,6 +117,7 @@ impl JobEssentials for SyncDBJob {
             .get_schema(&data.conn_pools)
             .await
             .map_err(|err| SyncDBError::UnableToFetchDBSchema(err.to_string()))?;
+        println!("Schema Fetched for database ID: {:?}", &schema);
 
         let mut conn = data
             .pool
@@ -180,6 +181,7 @@ impl SyncDBJob {
         table: &DBTable,
         database_id: i64,
     ) -> Result<(), SyncDBError> {
+        println!("Syncing Table: {:?}", &table);
         let existing =
             Table::find_by_name_and_database_id(conn, table.table_name.clone(), database_id).ok();
         let table_id = match existing {

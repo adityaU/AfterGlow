@@ -1,45 +1,24 @@
 <template>
   <div class="tw-w-full tw-h-full">
-    <AGLoader
-      text="Fetching Details"
-      v-if="loading || apiActionsLoading || quesLoading"
-    />
+    <AGLoader text="Fetching Details" v-if="loading || apiActionsLoading || quesLoading" />
     <div class="tw-flex tw-flex-col tw-w-full tw-h-full" v-else>
       <template v-if="showHeader">
-        <div
-          class="tw-flex tw-border-b tw-justify-between tw-items-center tw-py-2 tw-px-4"
-          :style="headerStyle"
-        >
+        <div class="tw-flex tw-border-b tw-justify-between tw-items-center tw-py-2 tw-px-4" :style="headerStyle">
           <div class="tw-text-lg tw-font-semibold" v-if="question">
             {{ question.title }}
           </div>
           <div class="tw-flex tw-items-center tw-whitespace-nowrap tw-gap-2">
             <div class="tw-cursor-pointer">
-              <q-menu
-                flat="true"
-                transition-show="scale"
-                transition-hide="scale"
-                max-height="400px"
-                :offset="[0, 5]"
-                class="tw-rounded-2xl tw-border tw-overflow-hidden"
-                @show="menuShow"
-                @keydown="onKeydown"
-              >
+              <q-menu flat="true" transition-show="scale" transition-hide="scale" max-height="400px" :offset="[0, 5]"
+                class="tw-rounded-2xl tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown">
                 <div class="card tw-grid tw-grid-cols-1 tw-divider-y">
-                  <a
-                    :href="'/questions/' + id"
-                    target="_blank"
-                    :tabindex="index + 1"
-                    class="tw-py-1 tw-px-2 tw-whitespace-nowrap tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
-                  >
+                  <a :href="'/questions/' + id" target="_blank" :tabindex="index + 1"
+                    class="tw-py-1 tw-px-2 tw-whitespace-nowrap tw-block tw-w-full hover:tw-bg-primary hover: tw-text-ellipsis focus:tw-bg-primary focus: tw-border-b last:tw-border-b-0">
                     <ArrowBearRightIcon size="16" class="icon-primary" />
                     <span class="">View Details</span>
                   </a>
-                  <div
-                    @click="refresh"
-                    :tabindex="index + 1"
-                    class="tw-cursor-pointer tw-whitespace-nowrap tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
-                  >
+                  <div @click="refresh" :tabindex="index + 1"
+                    class="tw-cursor-pointer tw-whitespace-nowrap tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover: tw-text-ellipsis focus:tw-bg-primary focus: tw-border-b last:tw-border-b-0">
                     <RefreshIcon size="16" class="icon-primary" />
                     <span class="">Refresh</span>
                   </div>
@@ -55,34 +34,18 @@
       <template v-else>
         <div
           class="tw-flex tw-items-center tw-whitespace-nowrap tw-gap-2 tw-absolute tw-p-2 tw-right-1 tw-top-1 tw-z-10 tw-bg-white tw-rounded-2xl tw-border"
-          v-if="editMode"
-        >
+          v-if="editMode">
           <div class="tw-cursor-pointer">
-            <q-menu
-              flat="true"
-              transition-show="scale"
-              transition-hide="scale"
-              max-height="400px"
-              :offset="[0, 5]"
-              class="tw-rounded-2xl tw-border tw-overflow-hidden"
-              @show="menuShow"
-              @keydown="onKeydown"
-            >
+            <q-menu flat="true" transition-show="scale" transition-hide="scale" max-height="400px" :offset="[0, 5]"
+              class="tw-rounded-2xl tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown">
               <div class="card tw-grid tw-grid-cols-1 tw-divider-y">
-                <a
-                  :href="'/questions/' + id"
-                  target="_blank"
-                  :tabindex="index + 1"
-                  class="tw-py-1 tw-px-2 tw-whitespace-nowrap tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
-                >
+                <a :href="'/questions/' + id" target="_blank" :tabindex="index + 1"
+                  class="tw-py-1 tw-px-2 tw-whitespace-nowrap tw-block tw-w-full hover:tw-bg-primary hover: tw-text-ellipsis focus:tw-bg-primary focus: tw-border-b last:tw-border-b-0">
                   <ArrowBearRightIcon size="16" class="icon-primary" />
                   <span class="">View Details</span>
                 </a>
-                <div
-                  @click="refresh"
-                  :tabindex="index + 1"
-                  class="tw-cursor-pointer tw-whitespace-nowrap tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
-                >
+                <div @click="refresh" :tabindex="index + 1"
+                  class="tw-cursor-pointer tw-whitespace-nowrap tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover: tw-text-ellipsis focus:tw-bg-primary focus: tw-border-b last:tw-border-b-0">
                   <RefreshIcon size="16" class="icon-primary" />
                   <span class="">Refresh</span>
                 </div>
@@ -94,17 +57,9 @@
           <slot />
         </div>
       </template>
-      <VizComponent
-        :onDashboard="true"
-        :results="results"
-        :resultsKey="resultskey"
-        :queryKey="queryKey"
-        :visualization="emptyViz"
-        :apiActionsQuesLevel="apiActions"
-        :questionID="id"
-        :size="settingsPanesize"
-        class="tw-h-full tw-overflow-auto"
-      />
+      <VizComponent :onDashboard="true" :results="results" :resultsKey="resultskey" :queryKey="queryKey"
+        :visualization="emptyViz" :apiActionsQuesLevel="apiActions" :questionID="id" :size="settingsPanesize"
+        class="tw-h-full tw-overflow-auto" />
     </div>
   </div>
 </template>

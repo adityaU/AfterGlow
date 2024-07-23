@@ -159,9 +159,6 @@ fn find_signature_nodes(node: &libxml::tree::Node) -> Vec<libxml::tree::Node> {
         let mut children = find_signature_nodes(&child);
         ret.append(&mut children);
     }
-    for r in &ret {
-        println!("\n r=================: {:?}", r);
-    }
     ret
 }
 

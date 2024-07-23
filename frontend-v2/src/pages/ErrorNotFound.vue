@@ -1,5 +1,5 @@
 <template>
-  <div class="fullscreen tw-bg-primary text-white text-center q-pa-md flex flex-center">
+  <div class="fullscreen tw-bg-primary text-center q-pa-md flex flex-center">
     <div>
       <div style="font-size: 30vh">
         404
@@ -9,15 +9,7 @@
         Oops. Nothing here...
       </div>
 
-      <q-btn
-        class="q-mt-xl"
-        color="white"
-        text-color="blue"
-        unelevated
-        to="/"
-        label="Go Home"
-        no-caps
-      />
+      <q-btn class="q-mt-xl" color="white" text-color="blue" unelevated to="/" label="Go Home" no-caps />
     </div>
   </div>
 </template>

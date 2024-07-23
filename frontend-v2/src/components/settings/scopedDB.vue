@@ -32,11 +32,13 @@
       <div class="  tw-flex tw-flex-col tw-justify-center " v-for="table in selectedTables"
         :key="table.name + table.are_all_columns_selected">
         <div class="tw-flex tw-justify-center tw-items-center tw-px-4 tw-gap-2 ">
-          <div class="tw-cursor-pointer" @click="((table.open = !table.open) || true) && fetchColumns(table)">
+          <div class="tw-cursor-pointer" @click="((table.open = !table.open) || true)">
             <ChevronDownIcon size="24" v-if="table.open" />
             <ChevronRightIcon size="24" v-if="!table.open" />
           </div>
           <div class=" tw-flex-1">{{ table.name }}</div>
+          <div class="tw-bg-primary tw-px-4 tw-py-1 tw-rounded-full tw-text-default note tw-uppercase"
+            v-if="table.partiallyAccessible">Partial Access</div>
           <AGBool :value="table.are_all_columns_selected" @update:value="(v) => selectColumns(v, table)" />
 
         </div>
@@ -73,6 +75,8 @@ import { ChevronRightIcon, ChevronDownIcon } from 'vue-tabler-icons';
 import AGBool from 'components/base/bool.vue';
 import AGInput from 'components/base/agInput.vue';
 import AGButton from 'components/base/button.vue';
+import every from 'lodash/every';
+import some from 'lodash/some';
 
 
 import { sessionStore } from 'stores/session';
@@ -132,31 +136,6 @@ export default {
         this.$emit('update:currentTab', 'databases')
       })
     },
-    fetchColumns(table) {
-      if (!table.open) {
-        return;
-      }
-
-      if (table.columns?.length > 0) {
-        return;
-      }
-
-      getColumns(table.id, this.session.token, (data, loading) => {
-        table.columns = data?.columns || [];
-        table.loading = loading;
-        if (table.columns.length > 0) {
-          if (table.are_all_columns_selected) {
-            table.columns.forEach((c) => { c.is_selected = true })
-          } else {
-
-            table.columns.forEach((c) => { c.is_selected = false })
-          }
-
-        }
-
-      });
-
-    },
     setDatabases(database, loading) {
       this.database = database || null;
       this.loading = loading;
@@ -167,7 +146,10 @@ export default {
       this.selectedTables = this.tables;
       this.loading = loading;
       if (this.tables.length > 0) {
-        this.tables.forEach((t) => { t.are_all_columns_selected = true })
+        this.tables.forEach((t) => {
+          t.are_all_columns_selected = true;
+          t.columns.forEach((c) => { c.is_selected = true })
+        })
       }
     },
 
@@ -203,20 +185,17 @@ export default {
 
     setAllColumnsFlag(v, column, table) {
       column.is_selected = v
-      let allSelected = false;
-      for (let i = 0; i < table.columns.length; i++) {
-        if (table.columns[i].is_selected) {
-          allSelected = true;
-        } else {
-          allSelected = false;
-          break;
-        }
-      }
 
-      if (allSelected) {
+      if (every(table.columns, { is_selected: true })) {
         table.are_all_columns_selected = true
+        table.partiallyAccessible = false
       } else {
         table.are_all_columns_selected = false
+        if (some(table.columns, { is_selected: true })) {
+          table.partiallyAccessible = true
+        } else {
+          table.partiallyAccessible = false
+        }
       }
 
 

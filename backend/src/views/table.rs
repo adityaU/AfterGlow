@@ -1,8 +1,13 @@
 use chrono::NaiveDateTime;
 use diesel::PgConnection;
 use serde::{Deserialize, Serialize};
+use serde_json::map;
 
-use crate::repository::models::{Column, Table};
+use crate::repository::{
+    models::{Column, Table},
+    schema::column_values,
+    table::TableWithColumns,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Unimplemented;
@@ -20,6 +25,24 @@ pub struct DetailedTableView {
 }
 
 impl DetailedTableView {
+    pub fn from_preloaded_model(model: &TableWithColumns) -> Self {
+        let table = model.table.clone();
+        let column_views = model
+            .columns
+            .iter()
+            .map(|column| StrippedColumnView::from_model(&column))
+            .collect();
+        Self {
+            id: table.id,
+            name: table.name.clone(),
+            database_id: table.database_id,
+            inserted_at: table.inserted_at,
+            updated_at: table.updated_at,
+            readable_table_name: table.readable_table_name.clone(),
+            description: table.description.clone(),
+            columns: column_views,
+        }
+    }
     pub fn from_model(conn: &mut PgConnection, table: &Table) -> Self {
         let columns = Column::find_by_table_id(conn, table.id).unwrap_or(vec![]);
         let column_views = columns

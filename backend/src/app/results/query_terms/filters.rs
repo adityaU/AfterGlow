@@ -150,7 +150,6 @@ pub fn make_filters(filters: Vec<config::Filter>) -> Vec<Filter> {
                 Filter::Raw { value }
             }
             false => {
-                println!("filter==========================: {:?}", &filter);
                 let column = if let Some(v) = filter.column {
                     v
                 } else {

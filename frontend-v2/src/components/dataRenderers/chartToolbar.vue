@@ -4,41 +4,21 @@
       Select a Visualisation
     </div>
     <div class="tw-flex tw-flex-wrap tw-gap-1">
-      <div
-        class="tw-cursor-pointer tw-border-2"
-        :class="[rendererType === rt ? iconActiveClass : iconClass]"
-        v-for="[rt, obj] in Object.entries(rendererTypeIcons)"
-        :key="rt"
-        @click="emitSetRendererType(rt)"
-      >
+      <div class="tw-cursor-pointer tw-border-2" :class="[rendererType === rt ? iconActiveClass : iconClass]"
+        v-for="[rt, obj] in Object.entries(rendererTypeIcons)" :key="rt" @click="emitSetRendererType(rt)">
         <q-tooltip transition-show="scale" transition-hide="scale">
           {{ obj.tooltipText }}
         </q-tooltip>
-        <component
-          :is="obj.icon"
-          size="16"
-          :class="obj.isIconRotated ? 'tw-rotate-90' : ''"
-          :key="rt"
-        />
+        <component :is="obj.icon" size="16" :class="obj.isIconRotated ? 'tw-rotate-90' : ''" :key="rt" />
       </div>
       <div class="tw-flex-1 tw-flex tw-items-center tw-gap-1 tw-justify-end">
         <div class="label">Custom:</div>
-        <div
-          class="tw-cursor-pointer"
-          :class="[rendererType === rt ? iconActiveClass : iconClass]"
-          v-for="[rt, obj] in Object.entries(customRendererIcons)"
-          :key="rt"
-          @click="emitSetRendererType(rt)"
-        >
+        <div class="tw-cursor-pointer" :class="[rendererType === rt ? iconActiveClass : iconClass]"
+          v-for="[rt, obj] in Object.entries(customRendererIcons)" :key="rt" @click="emitSetRendererType(rt)">
           <q-tooltip transition-show="scale" transition-hide="scale">
             {{ obj.tooltipText }}
           </q-tooltip>
-          <component
-            :is="obj.icon"
-            size="16"
-            :class="obj.isIconRotated ? 'tw-rotate-90' : ''"
-            :key="rt"
-          />
+          <component :is="obj.icon" size="16" :class="obj.isIconRotated ? 'tw-rotate-90' : ''" :key="rt" />
         </div>
       </div>
     </div>
@@ -78,7 +58,7 @@ export default {
     let baseIconClass = 'icon-default tw-p-1 tw-rounded-full';
     let iconClass = baseIconClass;
     let iconActiveClass =
-      baseIconClass + ' tw-border-primary tw-bg-primary tw-text-white';
+      baseIconClass + ' tw-border-primary tw-bg-primary ';
 
     return {
       iconClass,

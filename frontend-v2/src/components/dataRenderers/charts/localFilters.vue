@@ -1,38 +1,19 @@
 <template>
   <div class="tw-flex tw-p-2">
     <template v-for="f in filters" :key="f">
-      <div
-        class="tw-flex tw-items-center tw-m-1 tw-cursor-pointer tw-leading-4"
-      >
+      <div class="tw-flex tw-items-center tw-m-1 tw-cursor-pointer tw-leading-4">
         <div class="tw-flex">
-          <div
-            class="tw-bg-primary/90 tw-text-white tw-px-2 tw-py-1 tw-rounded-l-sm tw-flex tw-gap-2"
-            :class="f.value ? 'tw-rounded-l-sm' : 'tw-rounded-sm'"
-          >
+          <div class="tw-bg-primary/90  tw-px-2 tw-py-1 tw-rounded-l-sm tw-flex tw-gap-2"
+            :class="f.value ? 'tw-rounded-l-sm' : 'tw-rounded-sm'">
             <SearchIcon size="16" />
             {{ f.displayName || f.name }}
           </div>
-          <div
-            class="tw-bg-primary tw-text-white tw-px-2 tw-py-1 tw-rounded-r-sm"
-            v-if="f.value"
-          >
+          <div class="tw-bg-primary  tw-px-2 tw-py-1 tw-rounded-r-sm" v-if="f.value">
             {{ f.value }}
           </div>
-          <q-menu
-            flat="true"
-            transition-show="jump-down"
-            transition-hide="jump-up"
-            max-height="400px"
-            class="tw-rounded-2xl tw-border tw-overflow-hidden"
-            @show="menuShow"
-            @keydown="onKeydown"
-            fit
-          >
-            <AGInput
-              :placeholder="'Enter ' + (f.displayName || f.name)"
-              v-model:value="f.value"
-              debounce="300"
-            />
+          <q-menu flat="true" transition-show="jump-down" transition-hide="jump-up" max-height="400px"
+            class="tw-rounded-2xl tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown" fit>
+            <AGInput :placeholder="'Enter ' + (f.displayName || f.name)" v-model:value="f.value" debounce="300" />
           </q-menu>
         </div>
       </div>

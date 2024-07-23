@@ -363,6 +363,53 @@ const rgbToHex = function(rgb) {
   return '#' + hex;
 }
 
+const isColorLight = function(color) {
+  // Function to convert hex color to RGB
+  function hexToRgb(hex) {
+    // Remove the hash symbol if present
+    hex = hex.replace('#', '');
+    // Parse the hex values
+    const bigint = parseInt(hex, 16);
+    return {
+      r: (bigint >> 16) & 255,
+      g: (bigint >> 8) & 255,
+      b: bigint & 255
+    };
+  }
+
+  // Function to calculate the luminance of an RGB color
+  const luminance = function(r, g, b) {
+    // Convert RGB to a value between 0 and 1
+    const a = [r, g, b].map(function(v) {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    // Calculate the luminance
+    return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+  }
+
+  // Check if the color is in hex format
+  if (color.charAt(0) === '#') {
+    const { r, g, b } = hexToRgb(color);
+    // Calculate the luminance
+    const lum = luminance(r, g, b);
+    // Return true if luminance is greater than 0.5 (light color), otherwise false (dark color)
+    return lum > 0.5;
+  } else {
+    // Handle other color formats (e.g., rgb)
+    const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+      const r = parseInt(match[1]);
+      const g = parseInt(match[2]);
+      const b = parseInt(match[3]);
+      const lum = luminance(r, g, b);
+      return lum > 0.5;
+    } else {
+      throw new Error('Invalid color format');
+    }
+  }
+}
+
 export {
   generateColors,
   defaultColors,
@@ -370,4 +417,5 @@ export {
   getRandomColor,
   getComplementaryColor,
   rgbToHex,
+  isColorLight,
 };

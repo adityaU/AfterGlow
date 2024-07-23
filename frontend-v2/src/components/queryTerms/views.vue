@@ -7,13 +7,12 @@
         <div class="tw-px-0.5 tw-py-1 tw-inline-flex tw-flex-nowrap">
           <ViewMenu @addView="prevent" addLabel="Done" @editView="(val) => view = val" :view="view" :columns="columns"
             :colDetails="colDetails" />
-          <div class="btn tw-cursor-pointer tw-bg-primary tw-text-white hover:tw-bg-primary/80"
-            v-for="dv, i in getDisplayValues(view)" :key="dv" :class="i === 0 ? 'btn-left' : 'btn-center'"
-            @click="view.currentStage = dv[1]">{{
+          <div class="btn tw-cursor-pointer tw-bg-primary  hover:tw-bg-primary/80" v-for="dv, i in getDisplayValues(view)"
+            :key="dv" :class="i === 0 ? 'btn-left' : 'btn-center'" @click="view.currentStage = dv[1]">{{
               dv[0]
             }}</div>
           <div class="btn tw-cursor-pointer btn-right" @click="removeView(index)">
-            <XIcon class="tw-inline tw-h3 tw-w-3" size=18 />
+            <XIcon class="tw-inline tw-h3 tw-w-3 tw-stroke-text-onprimary/80" size=18 />
           </div>
         </div>
 

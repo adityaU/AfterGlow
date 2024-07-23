@@ -19,7 +19,7 @@
         <div class="note tw-text-red-700 tw-text-center" v-if="error">
           {{ passwordLoginError }}
         </div>
-        <AGButton class="tw-mt-2 tw-w-full tw-bg-primary tw-text-white tw-uppercase" @click="login"
+        <AGButton class="tw-mt-2 tw-w-full tw-bg-primary  tw-uppercase" @click="login"
           :class="email && password ? '' : 'disabled'">
           Login
         </AGButton>
@@ -53,6 +53,7 @@ import { fetchInitConfigurations, login, loginWithGoogle, loginWithSAML, loginCa
 import { sessionStore } from 'src/stores/session';
 import { BrandGoogleIcon, KeyIcon } from 'vue-tabler-icons';
 import { currentUserStore } from 'src/stores/currentUser';
+import { isColorLight } from 'src/helpers/colorGenerator';
 
 const session = sessionStore();
 const currentUser = currentUserStore();
@@ -122,6 +123,11 @@ export default {
       this.setColorVar(root_theme, '--color-tertiary', theme.tertiary_color);
       this.setColorVar(root_theme, '--color-white', theme.white_color);
       this.setColorVar(root_theme, '--color-default', theme.default_color);
+      if (isColorLight("rgb(" + theme.primary_color.split(' ').join(',') + ")")) {
+        this.setColorVar(root_theme, '--color-text-onprimary', "32 33 36");
+      } else {
+        this.setColorVar(root_theme, '--color-text-onprimary', "255 255 255");
+      }
     },
 
     rgbToColorString(rgb) {

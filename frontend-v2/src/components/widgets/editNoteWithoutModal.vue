@@ -4,285 +4,179 @@
       <div class="tw-w-full tw-flex tw-p-2">
         <div class="tw-flex tw-flex-wrap tw-gap-1 tw-w-full tw-justify-between">
           <div class="tw-text-center">
-            <AGButton
-              class="tw-rounded-l-full tw-rounded-r-none"
-              @clicked="editor.chain().focus().toggleBold().run()"
-              :class="
-                editor.isActive('bold')
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
+            <AGButton class="tw-rounded-l-full tw-rounded-r-none" @clicked="editor.chain().focus().toggleBold().run()"
+              :class="editor.isActive('bold')
+                  ? 'tw-bg-primary  tw-border-primary'
                   : 'tw-bg-white tw-text-default'
-              "
-            >
+                ">
               <BoldIcon size="14" />
             </AGButton>
-            <AGButton
-              @clicked="editor.chain().focus().toggleItalic().run()"
-              class="tw-rounded-none tw-border-l-0"
-              :class="
-                editor.isActive('italic')
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
-                  : 'tw-bg-white tw-text-default'
-              "
-            >
+            <AGButton @clicked="editor.chain().focus().toggleItalic().run()" class="tw-rounded-none tw-border-l-0" :class="editor.isActive('italic')
+                ? 'tw-bg-primary  tw-border-primary'
+                : 'tw-bg-white tw-text-default'
+              ">
               <ItalicIcon size="14" />
             </AGButton>
-            <AGButton
-              class="tw-rounded-none tw-border-l-0"
-              @clicked="editor.chain().focus().toggleStrike().run()"
-              :class="
-                editor.isActive('strike')
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
-                  : 'tw-bg-white tw-text-default'
-              "
-            >
+            <AGButton class="tw-rounded-none tw-border-l-0" @clicked="editor.chain().focus().toggleStrike().run()" :class="editor.isActive('strike')
+                ? 'tw-bg-primary  tw-border-primary'
+                : 'tw-bg-white tw-text-default'
+              ">
               <StrikethroughIcon size="14" />
             </AGButton>
-            <AGButton
-              class="tw-rounded-none tw-border-l-0"
-              @click="editor.chain().focus().toggleCode().run()"
-              :class="
-                editor.isActive('code')
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
-                  : 'tw-bg-white tw-text-default'
-              "
-            >
+            <AGButton class="tw-rounded-none tw-border-l-0" @click="editor.chain().focus().toggleCode().run()" :class="editor.isActive('code')
+                ? 'tw-bg-primary  tw-border-primary'
+                : 'tw-bg-white tw-text-default'
+              ">
               <CodeIcon size="14" />
             </AGButton>
-            <AGButton
-              class="tw-rounded-none tw-border-l-0"
-              @clicked="editor.chain().focus().toggleBlockquote().run()"
-              :class="
-                editor.isActive('blockquote')
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
+            <AGButton class="tw-rounded-none tw-border-l-0" @clicked="editor.chain().focus().toggleBlockquote().run()"
+              :class="editor.isActive('blockquote')
+                  ? 'tw-bg-primary  tw-border-primary'
                   : 'tw-bg-white tw-text-default'
-              "
-            >
+                ">
               <BlockquoteIcon size="14" />
             </AGButton>
-            <AGButton
-              class="tw-rounded-none tw-border-l-0"
-              @click="setLink"
-              :class="
-                editor.isActive('link')
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
-                  : 'tw-bg-white tw-text-default'
-              "
-            >
+            <AGButton class="tw-rounded-none tw-border-l-0" @click="setLink" :class="editor.isActive('link')
+                ? 'tw-bg-primary  tw-border-primary'
+                : 'tw-bg-white tw-text-default'
+              ">
               <LinkIcon size="14" />
             </AGButton>
-            <AGButton
-              class="tw-rounded-none tw-border-l-0"
-              @click="editor.chain().focus().unsetLink().run()"
-              :disabled="!editor.isActive('link')"
-            >
+            <AGButton class="tw-rounded-none tw-border-l-0" @click="editor.chain().focus().unsetLink().run()"
+              :disabled="!editor.isActive('link')">
               <UnlinkIcon size="14" />
             </AGButton>
-            <AGButton
-              class="tw-rounded-none tw-border-l-0"
-              @click="editor.chain().focus().setTextAlign('left').run()"
-              :class="
-                editor.isActive({ textAlign: 'left' })
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
+            <AGButton class="tw-rounded-none tw-border-l-0" @click="editor.chain().focus().setTextAlign('left').run()"
+              :class="editor.isActive({ textAlign: 'left' })
+                  ? 'tw-bg-primary  tw-border-primary'
                   : 'tw-bg-white tw-text-default'
-              "
-            >
+                ">
               <AlignLeftIcon size="14" />
             </AGButton>
-            <AGButton
-              class="tw-rounded-none tw-border-l-0"
-              @click="editor.chain().focus().setTextAlign('center').run()"
-              :class="
-                editor.isActive({ textAlign: 'center' })
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
+            <AGButton class="tw-rounded-none tw-border-l-0" @click="editor.chain().focus().setTextAlign('center').run()"
+              :class="editor.isActive({ textAlign: 'center' })
+                  ? 'tw-bg-primary  tw-border-primary'
                   : 'tw-bg-white tw-text-default'
-              "
-            >
+                ">
               <AlignCenterIcon size="14" />
             </AGButton>
-            <AGButton
-              class="tw-rounded-none tw-border-l-0"
-              @click="editor.chain().focus().setTextAlign('right').run()"
-              :class="
-                editor.isActive({ textAlign: 'right' })
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
+            <AGButton class="tw-rounded-none tw-border-l-0" @click="editor.chain().focus().setTextAlign('right').run()"
+              :class="editor.isActive({ textAlign: 'right' })
+                  ? 'tw-bg-primary  tw-border-primary'
                   : 'tw-bg-white tw-text-default'
-              "
-            >
+                ">
               <AlignRightIcon size="14" />
             </AGButton>
-            <AGButton
-              class="tw-rounded-r-full tw-rounded-l-none tw-border-l-0"
-              @click="editor.chain().focus().setTextAlign('justify').run()"
-              :class="
-                editor.isActive({ textAlign: 'justify' })
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
+            <AGButton class="tw-rounded-r-full tw-rounded-l-none tw-border-l-0"
+              @click="editor.chain().focus().setTextAlign('justify').run()" :class="editor.isActive({ textAlign: 'justify' })
+                  ? 'tw-bg-primary  tw-border-primary'
                   : 'tw-bg-white tw-text-default'
-              "
-            >
+                ">
               <AlignJustifiedIcon size="14" />
             </AGButton>
           </div>
           <div class="tw-text-center">
-            <AGButton
-              class="tw-rounded-l-full tw-rounded-r-none tw-inline-flex"
-              @clicked="
-                editor.chain().focus().toggleHeading({ level: 1 }).run()
-              "
-              :class="
-                editor.isActive('heading', { level: 1 })
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
-                  : 'tw-bg-white tw-text-default'
-              "
-            >
+            <AGButton class="tw-rounded-l-full tw-rounded-r-none tw-inline-flex" @clicked="
+              editor.chain().focus().toggleHeading({ level: 1 }).run()
+              " :class="editor.isActive('heading', { level: 1 })
+      ? 'tw-bg-primary  tw-border-primary'
+      : 'tw-bg-white tw-text-default'
+    ">
               <HeadingIcon size="14" />
               <Number1Icon class="tw-ml-[-5px]" size="14" />
             </AGButton>
 
-            <AGButton
-              @clicked="
-                editor.chain().focus().toggleHeading({ level: 2 }).run()
-              "
-              :class="
-                editor.isActive('heading', { level: 2 })
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
-                  : 'tw-bg-white tw-text-default'
-              "
-              class="tw-rounded-none tw-border-l-0 tw-inline-flex"
-            >
+            <AGButton @clicked="
+              editor.chain().focus().toggleHeading({ level: 2 }).run()
+              " :class="editor.isActive('heading', { level: 2 })
+      ? 'tw-bg-primary  tw-border-primary'
+      : 'tw-bg-white tw-text-default'
+    " class="tw-rounded-none tw-border-l-0 tw-inline-flex">
               <HeadingIcon size="14" />
               <Number2Icon class="tw-ml-[-5px]" size="14" />
             </AGButton>
-            <AGButton
-              @clicked="
-                editor.chain().focus().toggleHeading({ level: 3 }).run()
-              "
-              :class="
-                editor.isActive('heading', { level: 3 })
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
-                  : 'tw-bg-white tw-text-default'
-              "
-              class="tw-rounded-none tw-border-l-0 tw-inline-flex"
-            >
+            <AGButton @clicked="
+              editor.chain().focus().toggleHeading({ level: 3 }).run()
+              " :class="editor.isActive('heading', { level: 3 })
+      ? 'tw-bg-primary  tw-border-primary'
+      : 'tw-bg-white tw-text-default'
+    " class="tw-rounded-none tw-border-l-0 tw-inline-flex">
               <HeadingIcon size="14" />
               <Number3Icon class="tw-ml-[-5px]" size="14" />
             </AGButton>
-            <AGButton
-              @clicked="
-                editor.chain().focus().toggleHeading({ level: 4 }).run()
-              "
-              :class="
-                editor.isActive('heading', { level: 4 })
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
-                  : 'tw-bg-white tw-text-default'
-              "
-              class="tw-rounded-none tw-border-l-0 tw-inline-flex"
-            >
+            <AGButton @clicked="
+              editor.chain().focus().toggleHeading({ level: 4 }).run()
+              " :class="editor.isActive('heading', { level: 4 })
+      ? 'tw-bg-primary  tw-border-primary'
+      : 'tw-bg-white tw-text-default'
+    " class="tw-rounded-none tw-border-l-0 tw-inline-flex">
               <HeadingIcon size="14" />
               <Number4Icon class="tw-ml-[-5px]" size="14" />
             </AGButton>
-            <AGButton
-              @clicked="
-                editor.chain().focus().toggleHeading({ level: 5 }).run()
-              "
-              :class="
-                editor.isActive('heading', { level: 5 })
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
-                  : 'tw-bg-white tw-text-default'
-              "
-              class="tw-rounded-none tw-border-l-0 tw-inline-flex"
-            >
+            <AGButton @clicked="
+              editor.chain().focus().toggleHeading({ level: 5 }).run()
+              " :class="editor.isActive('heading', { level: 5 })
+      ? 'tw-bg-primary  tw-border-primary'
+      : 'tw-bg-white tw-text-default'
+    " class="tw-rounded-none tw-border-l-0 tw-inline-flex">
               <HeadingIcon size="14" />
               <Number5Icon class="tw-ml-[-5px]" size="14" />
             </AGButton>
-            <AGButton
-              @clicked="
-                editor.chain().focus().toggleHeading({ level: 6 }).run()
-              "
-              :class="
-                editor.isActive('heading', { level: 6 })
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
-                  : 'tw-bg-white tw-text-default'
-              "
-              class="tw-rounded-r-full tw-rounded-l-none tw-border-l-0 tw-inline-flex"
-            >
+            <AGButton @clicked="
+              editor.chain().focus().toggleHeading({ level: 6 }).run()
+              " :class="editor.isActive('heading', { level: 6 })
+      ? 'tw-bg-primary  tw-border-primary'
+      : 'tw-bg-white tw-text-default'
+    " class="tw-rounded-r-full tw-rounded-l-none tw-border-l-0 tw-inline-flex">
               <HeadingIcon size="14" />
               <Number6Icon class="tw-ml-[-5px]" size="14" />
             </AGButton>
           </div>
           <div class="tw-text-center">
-            <AGButton
-              @clicked="editor.chain().focus().toggleBulletList().run()"
-              class="tw-rounded-l-full tw-rounded-r-none tw-border-l-0"
-              :class="
-                editor.isActive('bulletList')
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
+            <AGButton @clicked="editor.chain().focus().toggleBulletList().run()"
+              class="tw-rounded-l-full tw-rounded-r-none tw-border-l-0" :class="editor.isActive('bulletList')
+                  ? 'tw-bg-primary  tw-border-primary'
                   : 'tw-bg-white tw-text-default'
-              "
-            >
+                ">
               <ListIcon size="14" />
             </AGButton>
-            <AGButton
-              class="tw-rounded-none tw-border-l-0"
-              @clicked="editor.chain().focus().toggleOrderedList().run()"
-              :class="
-                editor.isActive('orderedList')
-                  ? 'tw-bg-primary tw-text-white tw-border-primary'
+            <AGButton class="tw-rounded-none tw-border-l-0" @clicked="editor.chain().focus().toggleOrderedList().run()"
+              :class="editor.isActive('orderedList')
+                  ? 'tw-bg-primary  tw-border-primary'
                   : 'tw-bg-white tw-text-default'
-              "
-            >
+                ">
               <ListNumbersIcon size="14" />
             </AGButton>
-            <AGButton
-              @click="editor.chain().focus().splitListItem('listItem').run()"
-              :disabled="!editor.can().splitListItem('listItem')"
-              class="tw-rounded-none tw-border-l-0"
-            >
+            <AGButton @click="editor.chain().focus().splitListItem('listItem').run()"
+              :disabled="!editor.can().splitListItem('listItem')" class="tw-rounded-none tw-border-l-0">
               <ArrowsSplitIcon size="14" />
             </AGButton>
-            <AGButton
-              @click="editor.chain().focus().sinkListItem('listItem').run()"
-              :disabled="!editor.can().sinkListItem('listItem')"
-              class="tw-rounded-none tw-border-l-0"
-            >
+            <AGButton @click="editor.chain().focus().sinkListItem('listItem').run()"
+              :disabled="!editor.can().sinkListItem('listItem')" class="tw-rounded-none tw-border-l-0">
               <IndentIncreaseIcon size="14" />
             </AGButton>
-            <AGButton
-              @click="editor.chain().focus().liftListItem('listItem').run()"
-              :disabled="!editor.can().liftListItem('listItem')"
-              class="tw-rounded-none tw-border-l-0"
-            >
+            <AGButton @click="editor.chain().focus().liftListItem('listItem').run()"
+              :disabled="!editor.can().liftListItem('listItem')" class="tw-rounded-none tw-border-l-0">
               <IndentDecreaseIcon size="14" />
             </AGButton>
-            <AGButton
-              @clicked="editor.chain().focus().setHorizontalRule().run()"
-              class="tw-rounded-r-full tw-rounded-l-none tw-border-l-0"
-            >
+            <AGButton @clicked="editor.chain().focus().setHorizontalRule().run()"
+              class="tw-rounded-r-full tw-rounded-l-none tw-border-l-0">
               <SeparatorIcon size="14" />
             </AGButton>
           </div>
           <div class="tw-text-center">
-            <AGColorSelector
-              :selectedColor="editor.getAttributes('textStyle').color"
-              @selectColor="(val) => editor.chain().focus().setColor(val).run()"
-              naked="true"
-              class="tw-text-xs tw-mt-[5px]"
-            />
+            <AGColorSelector :selectedColor="editor.getAttributes('textStyle').color"
+              @selectColor="(val) => editor.chain().focus().setColor(val).run()" naked="true"
+              class="tw-text-xs tw-mt-[5px]" />
           </div>
         </div>
       </div>
     </div>
 
-    <editor-content
-      :editor="editor"
-      :style="containerStyle"
-      class="editor-content tw-overflow-auto tw-p-2 tw-min-h-[300px] tw-min-w-[80vw]"
-    />
-    <AGEditorLink
-      v-model:open="showLinkModal"
-      v-model:linkUrl="linkUrl"
-      v-model:openNewTab="openNewTab"
-      @updateLink="updateLink"
-    />
+    <editor-content :editor="editor" :style="containerStyle"
+      class="editor-content tw-overflow-auto tw-p-2 tw-min-h-[300px] tw-min-w-[80vw]" />
+    <AGEditorLink v-model:open="showLinkModal" v-model:linkUrl="linkUrl" v-model:openNewTab="openNewTab"
+      @updateLink="updateLink" />
   </div>
 </template>
 

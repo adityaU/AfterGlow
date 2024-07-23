@@ -1,19 +1,15 @@
 <template>
   <div :class="isTab ? 'tw-border-b' : 'tw-flex tw-flex-wrap tw-gap-2'">
-    <div
-      :class="klass(item.value)"
-      class="tw-border tw-inline-flex tw-px-4 tw-py-2 tw-text-sm tw-capitalize"
-      v-for="item in options"
-      :key="item"
-    >
+    <div :class="klass(item.value)" class="tw-border tw-inline-flex tw-px-4 tw-py-2 tw-text-sm tw-capitalize"
+      v-for="item in options" :key="item">
       <div class="tw-cursor-pointer" @click="select(item)">
         {{ item.name }}
       </div>
     </div>
 
     <div
-      class="tw-bg-primary tw-text-white tw-border-colapse tw-border-b-0 !tw-border-primary hover:tw-bg-primary/80 tw-border-collapse tw-hidden hover:tw-bg-secondary"
-    ></div>
+      class="tw-bg-primary  tw-border-colapse tw-border-b-0 !tw-border-primary hover:tw-bg-primary/80 tw-border-collapse tw-hidden hover:tw-bg-secondary">
+    </div>
   </div>
 </template>
 
@@ -54,7 +50,7 @@ export default {
       let klass = '';
       if (selected) {
         klass +=
-          'tw-bg-primary tw-text-white !tw-border-primary hover:tw-bg-primary/80';
+          'tw-bg-primary  !tw-border-primary hover:tw-bg-primary/80';
       }
 
       if (this.isTab) {

@@ -75,17 +75,17 @@
                 auto-close>
                 <div class="card tw-grid tw-grid-cols-1 tw-divider-y">
                   <div @click="$emit('download')" v-if="currentUser.canDownload"
-                    class="tw-py-1 tw-cursor-pointer tw-whitespace-nowrap tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0">
+                    class="tw-py-1 tw-cursor-pointer tw-whitespace-nowrap tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover: tw-text-ellipsis focus:tw-bg-primary focus: tw-border-b last:tw-border-b-0">
                     <DownloadIcon size="24" class="icon-primary" />
                     <span class="">Download</span>
                   </div>
                   <div @click="openAddToDashboard = true" v-if="currentUser.canCreateDashboard"
-                    class="tw-cursor-pointer tw-whitespace-nowrap tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0">
+                    class="tw-cursor-pointer tw-whitespace-nowrap tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover: tw-text-ellipsis focus:tw-bg-primary focus: tw-border-b last:tw-border-b-0">
                     <DashboardIcon size="24" class="icon-primary" />
                     <span class="">Add To Dashboard</span>
                   </div>
                   <div @click="openSchedule = true" v-if="currentUser.canCreateDashboard && currentViz?.id"
-                    class="tw-cursor-pointer tw-whitespace-nowrap tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0">
+                    class="tw-cursor-pointer tw-whitespace-nowrap tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover: tw-text-ellipsis focus:tw-bg-primary focus: tw-border-b last:tw-border-b-0">
                     <ReportAnalyticsIcon size="24" class="icon-primary" />
                     <span class="">Schedule Report</span>
                   </div>
@@ -467,7 +467,7 @@ export default {
       details: vizs,
     });
 
-    let iconActiveClass = ' tw-border-primary tw-bg-primary tw-text-white';
+    let iconActiveClass = ' tw-border-primary tw-bg-primary ';
     let settingsCategories = ['visualization', 'general'];
     return {
       iconActiveClass: iconActiveClass,

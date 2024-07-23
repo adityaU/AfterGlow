@@ -403,7 +403,6 @@ fn month_difference(start: &NaiveDateTime, end: &NaiveDateTime) -> i32 {
 
 fn hours_since(time: NaiveDateTime, tz: &chrono_tz::Tz) -> i64 {
     let now = chrono::Utc::now().with_timezone(tz).naive_utc();
-    println!("Now: {}, Time: {}", now, time);
     let duration = now - time;
     duration.num_hours()
 }

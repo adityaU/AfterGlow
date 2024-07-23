@@ -71,11 +71,11 @@
               <template v-for="field in fields" :key="field">
                 <template v-if="field.show && field.type != 'Button'">
                   <GridWidget v-bind="field" v-model:widID="field.label" :id="field.label" class="grid-widget" :class="editingField === field
-                      ? 'tw-border-primary tw-border-2'
-                      : 'nahi'
+                    ? 'tw-border-primary tw-border-2'
+                    : 'nahi'
                     ">
                     <div
-                      class="overlay tw-z-10 tw-font-semibold tw-absolute tw-left-0 tw-right-0 tw-bottom-0 tw-top-0 tw-flex tw-items-center tw-justify-center tw-gap-2 tw-bg-primary/80 tw-cursor-pointer tw-text-white">
+                      class="overlay tw-z-10 tw-font-semibold tw-absolute tw-left-0 tw-right-0 tw-bottom-0 tw-top-0 tw-flex tw-items-center tw-justify-center tw-gap-2 tw-bg-primary/80 tw-cursor-pointer ">
                       {{ field.label }}
                       <ArrowsMoveIcon size="16" />
                     </div>
@@ -137,11 +137,11 @@
               <template v-for="field in fields" :key="field">
                 <template v-if="field.show && field.type === 'Button'">
                   <GridWidget v-bind="field" v-model:widID="field.label" :id="field.label" class="grid-widget" :class="editingField === field
-                      ? 'tw-border-primary tw-border-2'
-                      : 'nahi'
+                    ? 'tw-border-primary tw-border-2'
+                    : 'nahi'
                     ">
                     <div
-                      class="overlay tw-z-10 tw-font-semibold tw-absolute tw-left-0 tw-right-0 tw-bottom-0 tw-top-0 tw-flex tw-items-center tw-justify-center tw-gap-2 tw-bg-primary/80 tw-cursor-pointer tw-text-white">
+                      class="overlay tw-z-10 tw-font-semibold tw-absolute tw-left-0 tw-right-0 tw-bottom-0 tw-top-0 tw-flex tw-items-center tw-justify-center tw-gap-2 tw-bg-primary/80 tw-cursor-pointer ">
                       {{ field.label }}
                       <ArrowsMoveIcon size="16" />
                     </div>
@@ -224,8 +224,8 @@
                             @keydown="onKeydown" auto-close>
                             <AGSelectOptions :options="typeBasedPossibleInputMapping[field.dataType]
                               " :selected="field.inputType" @select="(val) =>
-      ((field.inputType = val) || true) &&
-      updateInputConfiguration(field, val)
+    ((field.inputType = val) || true) &&
+    updateInputConfiguration(field, val)
     " hideSearch="true" />
                           </q-menu>
                         </div>

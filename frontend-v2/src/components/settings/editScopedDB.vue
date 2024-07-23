@@ -32,17 +32,21 @@
       <div class="  tw-flex tw-flex-col tw-justify-center " v-for="table in selectedTables"
         :key="[table.name, table.are_all_columns_selected]">
         <div class="tw-flex tw-justify-center tw-items-center tw-px-4 tw-gap-2 ">
-          <div class="tw-cursor-pointer" @click="((table.open = !table.open) || true) && fetchColumns(table)">
+          <div class="tw-cursor-pointer" @click="((table.open = !table.open) || true)">
             <ChevronDownIcon size="24" v-if="table.open" />
             <ChevronRightIcon size="24" v-if="!table.open" />
           </div>
           <div class=" tw-flex-1">{{ table.name }}</div>
-          <AGBool :value="table.are_all_columns_selected" @update:value="(v) => selectColumns(v, table)" />
+          <div class="tw-bg-primary tw-px-4 tw-py-1 tw-rounded-full tw-text-default/80 note tw-uppercase"
+            v-if="table.partiallyAccessible">Partial Access</div>
+          <AGBool :value="table.are_all_columns_selected" @update:value="(v) => selectColumns(v, table)"
+            :disabled="table.disableSelect" />
 
         </div>
         <template v-if="table.open">
           <div class="tw-mx-8 tw-mb-2">
-            <span class="note">Warning:</span><span>If you select specific columns from the table, select * query on this
+            <span class="note">Warning:</span><span>If you select specific columns from the table, select * query on
+              this
               table won't
               work for this new DB. However you can still select specific columns from table.</span>
           </div>
@@ -69,6 +73,7 @@
 import { fetchDatabase } from 'src/apis/database';
 import { searchTables, getColumns, updateScopedDB } from 'src/apis/database';
 import every from 'lodash/every';
+import some from 'lodash/some';
 
 import { ChevronRightIcon, ChevronDownIcon } from 'vue-tabler-icons';
 
@@ -100,6 +105,7 @@ export default {
       if (this.database?.id && this.editingDB?.id) {
         this.selectedTables = [];
         this.query = "";
+        console.log("I ran 1")
         searchTables(this.database.id, "", false, this.session.token, this.setTables)
       }
     },
@@ -107,6 +113,7 @@ export default {
       if (this.database?.id && this.editingDB?.id) {
         this.selectedTables = [];
         this.query = "";
+        console.log("I ran 2")
         searchTables(this.database.id, "", false, this.session.token, this.setTables)
       }
     },
@@ -144,30 +151,6 @@ export default {
         this.$emit('update:currentTab', 'databases')
       })
     },
-    fetchColumns(table) {
-      if (!table.open) {
-        return;
-      }
-
-      if (table.columns?.length > 0) {
-        return;
-      }
-
-      getColumns(table.id, this.session.token, (data, loading) => {
-        table.columns = data?.columns || [];
-        table.loading = loading;
-        if (table.columns.length > 0) {
-          if (table.are_all_columns_selected) {
-            table.columns.forEach((c) => { c.is_selected = true })
-          } else {
-            table.columns.forEach((c) => { c.is_selected = false })
-          }
-
-        }
-
-      });
-
-    },
     setDatabases(database, loading) {
       this.database = database || null;
       this.loading = loading;
@@ -179,40 +162,36 @@ export default {
     },
 
     setTables(tables, loading) {
-      this.tables = tables || [];
-      this.selectedTables = this.tables;
-      this.loading = loading;
-      this.tables.forEach((t) => { t.are_all_columns_selected = false })
-      searchTables(this.editingDB.id, "", false, this.session.token, (tables, loading) => {
-        if (!loading) {
-          tables.forEach((t) => {
-            getColumns(t.id, this.session.token, (data, loading) => {
-              let scopedColumnData = data;
-              if (!loading) {
-                let originalTable = this.tables.find((table) => table.name === t.name)
-                if (!originalTable.columns || originalTable.columns.length == 0) {
-                  getColumns(originalTable.id, this.session.token, (data, loading) => {
-                    if (!loading) {
-                      originalTable.columns = data.columns;
-                      originalTable.columns.forEach((c) => {
-                        c.is_selected = scopedColumnData.columns.find((col) => col.name === c.name) ? true : false;
-                        if (c.is_selected) {
-                          c.disableSelect = true
-                        }
-                      })
-                      if (every(originalTable.columns, { is_selected: true })) {
-                        originalTable.are_all_columns_selected = true
-                      } else {
-                        originalTable.are_all_columns_selected = false
-                      }
-                    }
-                  })
+      if (!loading) {
+        this.tables = tables || [];
+        this.selectedTables = this.tables;
+        this.loading = loading;
+        this.tables.forEach((t) => { t.are_all_columns_selected = false })
+        searchTables(this.editingDB.id, "", false, this.session.token, (tables, loading) => {
+          if (!loading) {
+            tables.forEach((t) => {
+              let originalTable = this.tables.find((table) => table.name === t.name)
+              originalTable.columns.forEach((c) => {
+                c.is_selected = t.columns.find((col) => col.name === c.name) ? true : false;
+                if (c.is_selected) {
+                  c.disableSelect = true
+                }
+              })
+              if (every(originalTable.columns, { is_selected: true })) {
+                originalTable.are_all_columns_selected = true
+                originalTable.disableSelect = true
+              } else {
+                originalTable.are_all_columns_selected = false
+                if (some(originalTable.columns, { is_selected: true })) {
+                  originalTable.partiallyAccessible = true
+                } else {
+                  originalTable.partiallyAccessible = false
                 }
               }
             })
-          })
-        }
-      })
+          }
+        })
+      }
     },
 
     findTableByName(name) {
@@ -277,8 +256,14 @@ export default {
 
       if (allSelected) {
         table.are_all_columns_selected = true
+        table.partiallyAccessible = false
       } else {
         table.are_all_columns_selected = false
+        if (some(table.columns, { is_selected: true })) {
+          table.partiallyAccessible = true
+        } else {
+          table.partiallyAccessible = false
+        }
       }
 
     }

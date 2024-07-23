@@ -6,23 +6,12 @@
 <template>
   <div class="tw-h-full" @keydown="onKeydown" tabindex="0">
     <div class="tw-py-2 tw-px-4 tw-border-b" v-if="!hideSearch">
-      <BaseInput
-        :value="query"
-        @inputed="(val) => (query = val)"
-        placeholder="Search"
-        ref="option_0"
-      />
+      <BaseInput :value="query" @inputed="(val) => (query = val)" placeholder="Search" ref="option_0" />
     </div>
     <div class="card tw-grid tw-grid-cols-1 tw-divider-y">
-      <div
-        @click="select(el)"
-        :tabindex="index + 1"
-        class="tw-cursor-pointer group tw-flex tw-gap-2 tw-items-center tw-py-2 tw-px-4 tw-w-full hover:tw-bg-primary hover:!tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
-        v-for="(el, index) in optionsLocal"
-        :key="el"
-        :ref="'option_' + (index + 1)"
-        v-close-popup="hideOnClick ? -1 : 0"
-      >
+      <div @click="select(el)" :tabindex="index + 1"
+        class="tw-cursor-pointer group tw-flex tw-gap-2 tw-items-center tw-py-2 tw-px-4 tw-w-full hover:tw-bg-primary hover:! tw-text-ellipsis focus:tw-bg-primary focus: tw-border-b last:tw-border-b-0"
+        v-for="(el, index) in optionsLocal" :key="el" :ref="'option_' + (index + 1)" v-close-popup="hideOnClick ? -1 : 0">
         <span class="text-icon-primary" v-if="iconLetter">
           {{ iconLetter }}
         </span>
@@ -31,24 +20,18 @@
         </span>
         <span class="tw-grid tw-grid-cols-12" v-if="areOptionObjects">
           <span class="tw-col-span-6">{{ el[this.displayKey || 'name'] }}</span>
-          <span
-            class="tw-text-xs tw-text-default/80 tw-text-right tw-col-span-6 tw-mt-1.5 group:hover:tw-text-white"
-            v-if="el.subtitle"
-            >{{ el.subtitle }}</span
-          >
+          <span class="tw-text-xs tw-text-default/80 tw-text-right tw-col-span-6 tw-mt-1.5 group:hover:tw-text-white"
+            v-if="el.subtitle">{{ el.subtitle }}</span>
         </span>
         <template v-if="!areOptionObjects">
           <span>{{ el }}</span>
         </template>
-        <CheckIcon
-          v-if="multiselect ? selected.indexOf(el) >= 0 : selected === el"
-          class="tw-w-5 tw-h-5 tw-stroke-primary tw-inline tw-float-right"
-        />
+        <CheckIcon v-if="multiselect ? selected.indexOf(el) >= 0 : selected === el"
+          class="tw-w-5 tw-h-5 tw-stroke-primary tw-inline tw-float-right" />
       </div>
       <div
-        class="tw-border-b last:tw-border-none tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis"
-        v-if="optionsLocal && optionsLocal.length === 0"
-      >
+        class="tw-border-b last:tw-border-none tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover: tw-text-ellipsis"
+        v-if="optionsLocal && optionsLocal.length === 0">
         No Results
       </div>
     </div>

@@ -1,14 +1,7 @@
 <template>
   <teleport to="body">
-    <AGModal
-      class="!tw-fixed"
-      size="small"
-      :show="open"
-      @update:show="(val) => $emit('update:show', val)"
-      :loading="loading"
-      :loadingMessage="loadingMessage"
-      bodyClass="tw"
-    >
+    <AGModal class="!tw-fixed" size="small" :show="open" @update:show="(val) => $emit('update:show', val)"
+      :loading="loading" :loadingMessage="loadingMessage" bodyClass="tw">
       <template #header>
         <div class="tw-p-2 tw-text-2xl tw-font-semibold">
           Share {{ entityName }}
@@ -20,40 +13,23 @@
             Select email ids and/or teams to share this {{ entityName }} with:
           </div>
 
-          <Multiselect
-            :classes="multiselectCss"
-            mode="tags"
-            :object="true"
-            :modelValue="
-              entityLocal?.shared_to?.map((item) => ({
-                value: item,
-                label: item,
-              })) || []
-            "
-            @update:modelValue="
-              entityLocal.shared_to = $event.map((option) => option.label)
-            "
-            placeholder="Search emails or teams"
-            :close-on-select="false"
-            :filter-results="false"
-            :min-chars="1"
-            :resolve-on-load="false"
-            :delay="0"
-            :searchable="true"
-            :options="searchUsers"
-            createOption
-            @create="addNewEmail"
-          />
+          <Multiselect :classes="multiselectCss" mode="tags" :object="true" :modelValue="entityLocal?.shared_to?.map((item) => ({
+            value: item,
+            label: item,
+          })) || []
+            " @update:modelValue="
+    entityLocal.shared_to = $event.map((option) => option.label)
+    " placeholder="Search emails or teams" :close-on-select="false" :filter-results="false" :min-chars="1"
+            :resolve-on-load="false" :delay="0" :searchable="true" :options="searchUsers" createOption
+            @create="addNewEmail" />
 
           <div class="note tw-pb-2 tw-pt-4">or Share the link below:</div>
           <div class="tw-flex tw-w-full">
             <div class="tw-py-2 tw-px-4 tw-border tw-rounded-l-full tw-flex-1">
               {{ shareableLink }}
             </div>
-            <div
-              class="tw-py-2 tw-px-4 tw-border tw-border-l-0 tw-rounded-r-full tw-bg-primary tw-text-white tw-cursor-pointer"
-              @click="copyToClipboard"
-            >
+            <div class="tw-py-2 tw-px-4 tw-border tw-border-l-0 tw-rounded-r-full tw-bg-primary  tw-cursor-pointer"
+              @click="copyToClipboard">
               Copy
             </div>
           </div>
@@ -61,16 +37,12 @@
       </template>
       <template #footer>
         <div class="tw-flex tw-justify-end tw-gap-1 tw-p-2">
-          <AGButton
-            class="tw-text-default hover:tw-bg-secondary tw-p-2"
-            @clicked="$emit('update:open', false)"
-          >
+          <AGButton class="tw-text-default hover:tw-bg-secondary tw-p-2" @clicked="$emit('update:open', false)">
             Cancel
           </AGButton>
           <AGButton
             class="tw-text-white hover:tw-bg-primary/80 disabled:tw-bg-secondary disabled:tw-text-default tw-bg-primary tw-p-2"
-            @clicked="($emit('save') || true) && $emit('update:open', false)"
-          >
+            @clicked="($emit('save') || true) && $emit('update:open', false)">
             Share
           </AGButton>
         </div>
@@ -133,9 +105,8 @@ export default {
       return window.location.protocol + '//' + window.location.host;
     },
     shareableLink() {
-      return `${this.hostName}/${this.entityName.toLowerCase()}s/${
-        this.entity.id
-      }?share_id=${this.entityLocal.shareable_link}`;
+      return `${this.hostName}/${this.entityName.toLowerCase()}s/${this.entity.id
+        }?share_id=${this.entityLocal.shareable_link}`;
     },
   },
 

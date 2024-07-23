@@ -1,5 +1,3 @@
-
-
 use super::models::Question;
 
 use super::permissions::PermissionNames;
@@ -206,7 +204,6 @@ impl Question {
             .order(questions::updated_at.desc())
             .limit(INDEX_LIMIT)
             .load::<Self>(conn);
-        println!("{:?}", query);
         query
     }
 }

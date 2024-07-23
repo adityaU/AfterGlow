@@ -32,7 +32,7 @@
             class="tw-rounded-2xl custom-shadow tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown"
             auto-close>
             <div
-              class="tw-cursor-pointer tw-whitespace-nowrap tw-uppercase tw-text-primary note tw-flex tw-items-center tw-gap-2 tw-py-1 tw-px-2 tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
+              class="tw-cursor-pointer tw-whitespace-nowrap tw-uppercase tw-text-primary note tw-flex tw-items-center tw-gap-2 tw-py-1 tw-px-2 tw-w-full hover:tw-bg-primary hover: tw-text-ellipsis focus:tw-bg-primary focus: tw-border-b last:tw-border-b-0"
               @click="
                 ((scopedDB = db.id) || true)" v-if="!db?.base_db_id && db.db_type != 'api_client'">
               <DatabaseExclamationIcon size="28" class="icon-primary" />
@@ -40,7 +40,7 @@
             </div>
 
             <div
-              class="tw-cursor-pointer tw-whitespace-nowrap tw-uppercase tw-text-primary note tw-flex tw-items-center tw-gap-2 tw-py-1 tw-px-2 tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
+              class="tw-cursor-pointer tw-whitespace-nowrap tw-uppercase tw-text-primary note tw-flex tw-items-center tw-gap-2 tw-py-1 tw-px-2 tw-w-full hover:tw-bg-primary hover: tw-text-ellipsis focus:tw-bg-primary focus: tw-border-b last:tw-border-b-0"
               @click="
                 ((editScopedBaseDB = db.base_db_id) || true) && ((editScopedDB = db.id))"
               v-if="db?.base_db_id && db.db_type != 'api_client'">
@@ -48,7 +48,7 @@
               Edit Schema Access
             </div>
             <div
-              class="tw-cursor-pointer tw-whitespace-nowrap tw-uppercase tw-text-primary note tw-flex tw-items-center tw-gap-2 tw-py-1 tw-px-2 tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
+              class="tw-cursor-pointer tw-whitespace-nowrap tw-uppercase tw-text-primary note tw-flex tw-items-center tw-gap-2 tw-py-1 tw-px-2 tw-w-full hover:tw-bg-primary hover: tw-text-ellipsis focus:tw-bg-primary focus: tw-border-b last:tw-border-b-0"
               @click="
                 ((editingDatabase = db) || true) && (openDatabaseEditModal = true)
                 ">
@@ -57,7 +57,7 @@
               Edit
             </div>
             <div
-              class="tw-cursor-pointer tw-whitespace-nowrap tw-uppercase tw-text-red-500 note tw-flex tw-items-center tw-gap-2 tw-py-1 tw-px-2 tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
+              class="tw-cursor-pointer tw-whitespace-nowrap tw-uppercase tw-text-red-500 note tw-flex tw-items-center tw-gap-2 tw-py-1 tw-px-2 tw-w-full hover:tw-bg-primary hover: tw-text-ellipsis focus:tw-bg-primary focus: tw-border-b last:tw-border-b-0"
               @click="
                 ((deletingDatabase = db) || true) &&
                 (openDeleteDatabaseModal = true)

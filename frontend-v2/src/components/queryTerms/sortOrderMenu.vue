@@ -1,43 +1,30 @@
 <template>
-  <staged-menu
-    :stages="stages"
-    :currentStage="sortingLocal.currentStage"
-    :show="sortingLocal.showMenu"
-  >
+  <staged-menu :stages="stages" :currentStage="sortingLocal.currentStage" :show="sortingLocal.showMenu">
     <template #header>
       <div class="tw-grid tw-grid-cols-6">
         <div class="tw-p-2 tw-col-span-5 tw-flex">
-          <div
-            class="btn tw-bg-primary tw-cursor-pointer tw-text-white hover:tw-bg-primary/80"
-            v-for="(dv, i) in displayValues"
-            :key="dv"
-            :class="
-              displayValues.length == 1
-                ? 'btn-full'
-                : i === 0
+          <div class="btn tw-bg-primary tw-cursor-pointer  hover:tw-bg-primary/80" v-for="(dv, i) in displayValues"
+            :key="dv" :class="displayValues.length == 1
+              ? 'btn-full'
+              : i === 0
                 ? 'btn-left'
                 : displayValues.length === i + 1
-                ? 'btn-right'
-                : 'btn-center'
-            "
-            @click="sortingLocal.currentStage = dv[1]"
-          >
+                  ? 'btn-right'
+                  : 'btn-center'
+              " @click="sortingLocal.currentStage = dv[1]">
             {{ dv[0] }}
           </div>
         </div>
         <div class="tw-p-2 tw-col-span-1 tw-text-right tw-text-default">
-          <div
-            class="tw-inline-flex tw-cursor-pointer tw-border tw-rounded-2xl tw-p-1 tw-bg-secondary"
-            @click="
-              ((sortingLocal.raw = !sortingLocal.raw) || true) &&
-                (sortingLocal.currentStage = sortingLocal.raw ? 2 : 0)
-            "
-          >
+          <div class="tw-inline-flex tw-cursor-pointer tw-border tw-rounded-2xl tw-p-1 tw-bg-secondary" @click="
+            ((sortingLocal.raw = !sortingLocal.raw) || true) &&
+            (sortingLocal.currentStage = sortingLocal.raw ? 2 : 0)
+            ">
             <q-tooltip transition-show="scale" transition-hide="scale">
               {{
                 !sortingLocal.raw
-                  ? 'Switch to Raw Snippet'
-                  : 'Switch to query builder'
+                ? 'Switch to Raw Snippet'
+                : 'Switch to query builder'
               }}
             </q-tooltip>
             <CodeIcon v-if="!sortingLocal.raw" class="tw-h-3 tw-w-3" />
@@ -48,54 +35,31 @@
     </template>
     <template #S1>
       <div class="">
-        <SelectOptions
-          :options="columns"
-          :selected="sortingLocal.column"
-          iconComponent="true"
-          @select="
-            (val) =>
-              ((sortingLocal.column = val) || true) &&
-              (sortingLocal.currentStage = 1)
-          "
-        >
+        <SelectOptions :options="columns" :selected="sortingLocal.column" iconComponent="true" @select="(val) =>
+          ((sortingLocal.column = val) || true) &&
+          (sortingLocal.currentStage = 1)
+          ">
           <Columns3Icon size="16" />
         </SelectOptions>
       </div>
     </template>
     <template #S2>
-      <BoxSelect
-        :options="directionOptions"
-        :selected="sortingLocal.direction"
-        @selected="(val) => (sortingLocal.direction = val) || true"
-        class="tw-p-4"
-      />
+      <BoxSelect :options="directionOptions" :selected="sortingLocal.direction"
+        @selected="(val) => (sortingLocal.direction = val) || true" class="tw-p-4" />
     </template>
     <template #S3>
       <div class="tw-py-2 tw-px-2">
-        <BaseInput
-          :value="sortingLocal.value"
-          @inputed="(val) => (sortingLocal.value = val)"
-          type="text"
-          ref="option_0"
-          placeholder="1 desc"
-          class=""
-        />
+        <BaseInput :value="sortingLocal.value" @inputed="(val) => (sortingLocal.value = val)" type="text" ref="option_0"
+          placeholder="1 desc" class="" />
       </div>
     </template>
     <template #footer>
-      <div
-        class="tw-py-2 tw-px-2 tw-border-t tw-text-right"
-        v-if="shouldShowAddsorting"
-      >
-        <AGButton
-          v-close-popup="10"
-          class="tw-bg-primary tw-border-primary tw-text-white hover:tw-bg-primary/80 hover:tw-text-white"
-          @clicked="
-            ((sortingLocal.showMenu = false) || true) &&
-              $emit('addsorting', sortingLocal) &&
-              stopPropagation
-          "
-        >
+      <div class="tw-py-2 tw-px-2 tw-border-t tw-text-right" v-if="shouldShowAddsorting">
+        <AGButton v-close-popup="10" class="tw-bg-primary tw-border-primary  hover:tw-bg-primary/80 hover:" @clicked="
+          ((sortingLocal.showMenu = false) || true) &&
+          $emit('addsorting', sortingLocal) &&
+          stopPropagation
+          ">
           {{ addLabel }}
         </AGButton>
       </div>

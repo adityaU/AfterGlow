@@ -513,7 +513,6 @@ impl PostgresAdapter {
                 }
                 "bytea" => {
                     let value: Option<Vec<u8>> = row.try_get(i).unwrap_or(None);
-                    println!("bytea value: {:?}", value);
 
                     r.push(DBValue::Strings(Some(hex::encode(
                         value.unwrap_or_default(),

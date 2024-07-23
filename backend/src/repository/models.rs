@@ -247,7 +247,7 @@ pub struct ColumnValue {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
+#[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View, Clone)]
 #[table_name = "columns_"]
 pub struct Column {
     #[skip_in_changeset]
@@ -797,7 +797,7 @@ pub struct Snippet {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View)]
+#[derive(Queryable, Debug, Serialize, Deserialize, Changeset, View, Clone)]
 pub struct Table {
     #[skip_in_changeset]
     pub id: i64,

@@ -1,46 +1,26 @@
 <template>
   <div class="tw-h-full">
-    <div
-      class="tw-flex tw-gap-1 tw-border-b-2 tw-h-fit tw-items-center"
-      :style="tabsStyle"
-      v-if="!tabsConfigLocal.hideTabs"
-    >
+    <div class="tw-flex tw-gap-1 tw-border-b-2 tw-h-fit tw-items-center" :style="tabsStyle"
+      v-if="!tabsConfigLocal.hideTabs">
       <template v-for="(tab, i) in tabsConfigLocal.tabs" :key="tab">
-        <div
-          class="tw-px-4 tw-py-2 tw-border-r tw-font-semibold tw-cursor-pointer tw-flex-1"
-          @click="currentTabIndex = i"
-          :style="currentTabStyle(i)"
-        >
+        <div class="tw-px-4 tw-py-2 tw-border-r tw-font-semibold tw-cursor-pointer tw-flex-1" @click="currentTabIndex = i"
+          :style="currentTabStyle(i)">
           {{ tab.name }}
         </div>
       </template>
-      <div
-        class="tw-flex tw-items-center tw-whitespace-nowrap tw-gap-2 tw-ml-3 tw-mr-4"
-      >
+      <div class="tw-flex tw-items-center tw-whitespace-nowrap tw-gap-2 tw-ml-3 tw-mr-4">
         <div class="tw-cursor-pointer">
-          <q-menu
-            flat="true"
-            transition-show="scale"
-            transition-hide="scale"
-            max-height="400px"
-            :offset="[0, 5]"
-            class="tw-rounded-2xl tw-border tw-overflow-hidden"
-            @show="menuShow"
-            @keydown="onKeydown"
-          >
+          <q-menu flat="true" transition-show="scale" transition-hide="scale" max-height="400px" :offset="[0, 5]"
+            class="tw-rounded-2xl tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown">
             <div class="card tw-grid tw-grid-cols-1 tw-divider-y">
               <div
-                class="tw-py-1 tw-px-2 tw-whitespace-nowrap tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0 tw-cursor-pointer"
-                v-if="currentUser.canEditDashboard"
-                @click="openEditTabsModal = true"
-              >
+                class="tw-py-1 tw-px-2 tw-whitespace-nowrap tw-block tw-w-full hover:tw-bg-primary hover: tw-text-ellipsis focus:tw-bg-primary focus: tw-border-b last:tw-border-b-0 tw-cursor-pointer"
+                v-if="currentUser.canEditDashboard" @click="openEditTabsModal = true">
                 <TableOptionsIcon size="16" class="icon-primary tw-mr-2" />
                 <span class="">Configure Tabs</span>
               </div>
-              <div
-                @click="refreshKey += 1"
-                class="tw-cursor-pointer tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0"
-              >
+              <div @click="refreshKey += 1"
+                class="tw-cursor-pointer tw-py-1 tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover: tw-text-ellipsis focus:tw-bg-primary focus: tw-border-b last:tw-border-b-0">
                 <RefreshIcon size="16" class="icon-primary tw-mr-2" />
                 <span class="">Refresh</span>
               </div>
@@ -52,27 +32,15 @@
       </div>
     </div>
     <div class="tw-overflow-auto tw-p-2">
-      <AGDGrid
-        :dashboardKey="dashboardKey"
-        :gridClass="'tabs_' + widID"
-        :key="{ d: dashboardKey, r: refreshKey }"
-        isNested="true"
-        class="tw-overflow-auto"
-        v-if="currentTab?.dashboardID"
-      />
-      <div
-        class="tw-flex tw-justify-center tw-items-center tw-h-full"
-        v-if="!currentTab?.dashboardID"
-      >
+      <AGDGrid :dashboardKey="dashboardKey" :gridClass="'tabs_' + widID" :key="{ d: dashboardKey, r: refreshKey }"
+        isNested="true" class="tw-overflow-auto" v-if="currentTab?.dashboardID" />
+      <div class="tw-flex tw-justify-center tw-items-center tw-h-full" v-if="!currentTab?.dashboardID">
         No Dashboard is configured to show for this tab. Please configure it
         from tabs Configuration
       </div>
     </div>
 
-    <AGEditTabsModal
-      v-model:open="openEditTabsModal"
-      v-model:tabsConfig="tabsConfigLocal"
-    />
+    <AGEditTabsModal v-model:open="openEditTabsModal" v-model:tabsConfig="tabsConfigLocal" />
   </div>
 </template>
 <script>

@@ -4,15 +4,15 @@
       <template v-for="variable in variables" :key="variable">
         <div class="tw-flex tw-items-center tw-m-1 tw-cursor-pointer tw-leading-4">
           <div class="tw-flex">
-            <div class="tw-bg-primary/90 tw-text-white tw-px-4 tw-py-2 tw-rounded-l-sm">
+            <div class="tw-bg-primary/90  tw-px-4 tw-py-2 tw-rounded-l-sm">
               {{ variable.name }}
             </div>
-            <div class="tw-bg-primary tw-text-white tw-px-4 tw-py-2 tw-rounded-r-sm" v-if="variable.var_type === 'String' ||
+            <div class="tw-bg-primary  tw-px-4 tw-py-2 tw-rounded-r-sm" v-if="variable.var_type === 'String' ||
               variable.var_type === 'Integer'
               ">
               {{ variable.value != null ? variable.value : variable.default }}
             </div>
-            <AGDatetimePicker class="tw-bg-primary tw-text-white tw-px-4 tw-py-2 tw-rounded-r-sm tw-border-0"
+            <AGDatetimePicker class="tw-bg-primary  tw-px-4 tw-py-2 tw-rounded-r-sm tw-border-0"
               v-model:value="variable.value" type="datetime" :clearCount="variable.clearCount"
               v-if="variable.var_type === 'Date'" />
             <q-menu flat="true" transition-show="jump-down" transition-hide="jump-up" max-height="400px"

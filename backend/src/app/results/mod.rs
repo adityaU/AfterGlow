@@ -432,10 +432,6 @@ async fn fetch_results_from_db(
         .fetch_response(conn, cps, adapted_payload, user_id, org_id)
         .await?;
     let formats = find_formattable_columns(&db_adapter_response.column_details.clone());
-    match Arc::try_unwrap(db_adapter_response.final_query.clone()) {
-        Ok(q) => println!("final_query is unique: {}", q),
-        Err(e) => println!("final_query is shared: {}", e),
-    }
 
     let mut query_results = QueryResults {
         columns: db_adapter_response.columns.clone(),
@@ -527,7 +523,6 @@ fn find_column_details(
             for (k, v) in &*db_adapter_response.column_details {
                 col_details.insert(k.clone(), v.clone());
             }
-            println!("col_details: {:?}", col_details);
             Arc::new(col_details)
         }
     }

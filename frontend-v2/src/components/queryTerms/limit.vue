@@ -1,28 +1,14 @@
 <template>
   <div class="tw-mx-2 tw-inline-flex tw-flex-nowrap">
-    <span
-      class="btn tw-border-primary tw-text-primary tw-font-semibold"
-      :class="limit ? 'btn-left tw-bg-white' : 'btn-full'"
-    >
+    <span class="btn tw-border-primary tw-text-primary tw-font-semibold"
+      :class="limit ? 'btn-left tw-bg-white' : 'btn-full'">
       Limit
     </span>
-    <span class="btn-right" v-if="limit"> {{ limit }} </span>
-    <q-menu
-      flat="true"
-      transition-show="scale"
-      transition-hide="scale"
-      max-height="400px"
-      class="tw-rounded-full tw-overflow-hidden"
-      @show="menuShow"
-      @keydown="onKeydown"
-    >
-      <AGInput
-        invisible="true"
-        @inputed="(val) => $emit('update:limit', val)"
-        :value="limit"
-        placeholder="Limit"
-        type="number"
-      />
+    <span class="btn-right tw-text-text-onprimary/80" v-if="limit"> {{ limit }} </span>
+    <q-menu flat="true" transition-show="scale" transition-hide="scale" max-height="400px"
+      class="tw-rounded-full tw-overflow-hidden" @show="menuShow" @keydown="onKeydown">
+      <AGInput invisible="true" @inputed="(val) => $emit('update:limit', val)" :value="limit" placeholder="Limit"
+        type="number" />
     </q-menu>
   </div>
 </template>

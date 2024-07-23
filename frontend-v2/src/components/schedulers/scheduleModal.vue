@@ -53,7 +53,7 @@
         <!-- <AGButton class=""> -->
         <!--   <a :href="previewUrl" target="_" class=""> Preview </a> -->
         <!-- </AGButton> -->
-        <AGButton class="tw-bg-primary tw-text-white" @click="save">Save</AGButton>
+        <AGButton class="tw-bg-primary" @click="save">Save</AGButton>
       </div>
     </template>
   </AGModal>

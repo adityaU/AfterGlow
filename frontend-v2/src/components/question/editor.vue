@@ -1,57 +1,35 @@
 <template>
   <div class="tw-bg-white">
-    <div
-      class="tw-flex tw-p-2 tw-items-center tw-gap-2 tw-flex-nowrap tw-w-full"
-    >
-      <div
-        class="tw-py-1 tw-flex tw-gap-2 tw-justify-start tw-items-center tw-flex-wrap tw-w-full"
-        :class="rawQuery || !table ? 'tw-flex-1' : ''"
-      >
+    <div class="tw-flex tw-p-2 tw-items-center tw-gap-2 tw-flex-nowrap tw-w-full">
+      <div class="tw-py-1 tw-flex tw-gap-2 tw-justify-start tw-items-center tw-flex-wrap tw-w-full"
+        :class="rawQuery || !table ? 'tw-flex-1' : ''">
         <AGDBSelector v-model:selectedDatabase="database" />
-        <AGTableSelector
-          v-model:selectedTable="table"
-          v-if="!rawQuery && database && showDatabaseEditor"
-          :database="database"
-        />
+        <AGTableSelector v-model:selectedTable="table" v-if="!rawQuery && database && showDatabaseEditor"
+          :database="database" />
 
-        <QBHorizontalLayout
-          :columns="columns"
-          :colDetails="colDetails"
-          class="tw-flex-1"
-          v-model:queryTerms="queryTerms"
-          naked="true"
-          v-if="!rawQuery && table && showDatabaseEditor"
-        >
+        <QBHorizontalLayout :columns="columns" :colDetails="colDetails" class="tw-flex-1" v-model:queryTerms="queryTerms"
+          naked="true" v-if="!rawQuery && table && showDatabaseEditor">
         </QBHorizontalLayout>
 
         <div v-if="showDatabaseEditor && databaseSupportsQueryBuilderQueries">
           <span
             class="tw-cursor-pointer tw-border tw-flex tw-items-center tw-leading-4 tw-py-1 tw-px-1.5 tw-rounded-full tw-mx-0.5 tw-border-default/20 tw-bg-secondary tw-text-default tw-border-2"
-            v-if="!rawQuery"
-            @click="((rawQuery = !rawQuery) || true) && (resizeKey += 1)"
-          >
+            v-if="!rawQuery" @click="((rawQuery = !rawQuery) || true) && (resizeKey += 1)">
             <CodeIcon size="20" />
           </span>
         </div>
-        <div
-          class="tw-text-right"
-          v-if="showDatabaseEditor && databaseSupportsQueryBuilderQueries"
-        >
+        <div class="tw-text-right" v-if="showDatabaseEditor && databaseSupportsQueryBuilderQueries">
           <span
             class="tw-cursor-pointer tw-border tw-flex tw-items-center tw-leading-4 tw-py-1 tw-px-1.5 tw-rounded-2xl tw-mx-0.5 tw-border-default/20 tw-bg-secondary tw-text-default tw-border-2"
-            v-if="rawQuery"
-            @click="rawQuery = !rawQuery"
-          >
+            v-if="rawQuery" @click="rawQuery = !rawQuery">
             <BoxModel2Icon size="20" />
           </span>
           <div v-if="showDatabaseEditor && databaseSupportsQueryBuilderQueries">
             <span
               class="tw-cursor-pointer tw-border tw-flex tw-items-center tw-leading-4 tw-py-1 tw-px-1.5 tw-rounded-full tw-mx-0.5 tw-border-default/20 tw-bg-primary tw-text-default tw-border-2"
-              v-if="!rawQuery && database && table"
-              @click="
+              v-if="!rawQuery && database && table" @click="
                 (updateQuestionHumanSql() || true) && this.$emit('runQuery')
-              "
-            >
+                ">
               <PlayerPlayIcon class="tw-stroke-white" size="20" />
             </span>
           </div>
@@ -60,62 +38,24 @@
     </div>
 
     <div class="tw-px-4 tw-py-2" v-if="showApiEditor">
-      <AGApiActionEditor
-        :link="link"
-        :row="row"
-        :columns="columns"
-        :queryKey="queryKey"
-        :questionID="question.id"
-        :visualizationID="visualizationID"
-        v-model:apiAction="apiAction"
-        questionLevel="true"
-      />
+      <AGApiActionEditor :link="link" :row="row" :columns="columns" :queryKey="queryKey" :questionID="question.id"
+        :visualizationID="visualizationID" v-model:apiAction="apiAction" questionLevel="true" />
     </div>
 
-    <VueResizable
-      class="!tw-w-full"
-      h="700"
-      minH="500"
-      :active="['b']"
-      @resize:move="resizeKey += 1"
-      @mount="resizeKey += 1"
-      v-if="rawQuery && showDatabaseEditor"
-    >
+    <VueResizable class="!tw-w-full" h="700" minH="500" :active="['b']" @resize:move="resizeKey += 1"
+      @mount="resizeKey += 1" v-if="rawQuery && showDatabaseEditor">
       <div class="tw-h-full tw-bg-white tw-rounded-2xl tw-border-t">
-        <splitpanes
-          class="pane-wrapper default-theme tw-flex !tw-h-full tw-transition-none"
-          ref="chart-parent"
-          @resize="
-            ((editorSize = 100 - $event[0].size) || true) && (resizeKey += 1)
-          "
-          @ready="resizeKey += 1"
-        >
-          <pane
-            :size="25"
-            class="pane !tw-overflow-y-auto pane-left"
-            v-if="databaseSupportsTables"
-          >
-            <AGDbTree
-              class="tw-h-full tw-bg-white"
-              :database="database"
-              v-model:tableList="tableList"
-              @pasteAtCursor="(v) => (pasteAtCursor = v)"
-            />
+        <splitpanes class="pane-wrapper default-theme tw-flex !tw-h-full tw-transition-none" ref="chart-parent" @resize="
+          ((editorSize = 100 - $event[0].size) || true) && (resizeKey += 1)
+          " @ready="resizeKey += 1">
+          <pane :size="25" class="pane !tw-overflow-y-auto pane-left" v-if="databaseSupportsTables">
+            <AGDbTree class="tw-h-full tw-bg-white" :database="database" v-model:tableList="tableList"
+              @pasteAtCursor="(v) => (pasteAtCursor = v)" />
           </pane>
-          <pane
-            :size="editorSize"
-            ref="chart"
-            class="pane pane-right !tw-border"
-          >
-            <AGSQLEditor
-              :databaseID="database?.id"
-              v-model:pasteAtCursor="pasteAtCursor"
-              v-model:code="code"
-              @runQuery="
-                (updateQuestionHumanSql() || true) && this.$emit('runQuery')
-              "
-              :key="resizeKey"
-            />
+          <pane :size="editorSize" ref="chart" class="pane pane-right !tw-border">
+            <AGSQLEditor :databaseID="database?.id" v-model:pasteAtCursor="pasteAtCursor" v-model:code="code" @runQuery="
+              (updateQuestionHumanSql() || true) && this.$emit('runQuery')
+              " :key="resizeKey" />
             <div class="note tw-py-2 tw-float-right tw-px-2 tw-w-fit">
               Please use Ctrl/Cmd + Enter to run query. Use Ctrl + P to checkout
               more editor commands
@@ -124,14 +64,10 @@
         </splitpanes>
       </div>
     </VueResizable>
-    <div
-      class="tw-flex tw-items-center tw-justify-center tw-p-2 tw-border-t-2 tw-border-primary"
-      v-if="rawQuery || showApiEditor"
-    >
-      <AGButton
-        class="tw-bg-primary tw-text-white tw-py-2 tw-flex tw-gap-1 tw-items-center tw-rounded-full"
-        @click="(updateQuestionHumanSql() || true) && this.$emit('runQuery')"
-      >
+    <div class="tw-flex tw-items-center tw-justify-center tw-p-2 tw-border-t-2 tw-border-primary"
+      v-if="rawQuery || showApiEditor">
+      <AGButton class="tw-bg-primary  tw-py-2 tw-flex tw-gap-1 tw-items-center tw-rounded-full"
+        @click="(updateQuestionHumanSql() || true) && this.$emit('runQuery')">
         Get Results
         <ArrowRightIcon size="16" />
       </AGButton>

@@ -3,16 +3,16 @@
     <div class="tw-flex tw-items-center tw-flex-1">
       <template v-for="variable in variablesLocal" :key="variable">
         <div class="tw-flex tw-items-center tw-m-1">
-          <div class="tw-bg-primary/90 tw-text-white tw-px-4 tw-py-2 tw-rounded-l-full">
+          <div class="tw-bg-primary/90  tw-px-4 tw-py-2 tw-rounded-l-full">
             {{ variable.name }}
           </div>
-          <div class="tw-bg-primary tw-text-white tw-px-4 tw-py-2 note"
-            :class="currentUser.canEditQuestion ? '' : 'tw-rounded-full'" v-if="variable.var_type === 'String' ||
+          <div class="tw-bg-primary  tw-px-4 tw-py-2 note" :class="currentUser.canEditQuestion ? '' : 'tw-rounded-full'"
+            v-if="variable.var_type === 'String' ||
               variable.var_type === 'Integer'
               ">
             {{ variable.value != null ? variable.value : variable.default }}
           </div>
-          <AGDatetimePicker class="tw-bg-primary tw-text-white tw-px-4 tw-py-2 tw-border-0" v-model:value="variable.value"
+          <AGDatetimePicker class="tw-bg-primary  tw-px-4 tw-py-2 tw-border-0" v-model:value="variable.value"
             :displayText="variable.value || variable.default" type="datepicker" :clearCount="variable.clearCount"
             v-if="variable.var_type === 'Date'" />
           <q-menu flat="true" transition-show="jump-down" transition-hide="jump-up" max-height="400px"
@@ -25,7 +25,7 @@
             v-if="currentUser.canEditQuestion" @click="
               (openVariableEditingModal = true) && (editingVariable = variable)
               ">
-            <EditIcon size="24" class="tw-stroke-white" />
+            <EditIcon size="24" class="tw-stroke-text-onprimary/80" />
           </div>
         </div>
       </template>

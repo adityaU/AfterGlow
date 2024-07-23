@@ -6,13 +6,13 @@
         <div class="tw-px-0.5 tw-py-1 tw-inline-flex tw-flex-nowrap">
           <sortingMenu @addsorting="prevent" addLabel="Done" @editsorting="(val) => sorting = val" :sorting="sorting"
             :columns="columns" :colDetails="colDetails" />
-          <div class="tw-cursor-pointer btn tw-bg-primary tw-text-white hover:tw-bg-primary/80"
+          <div class="tw-cursor-pointer btn tw-bg-primary  hover:tw-bg-primary/80"
             v-for="dv, i in getDisplayValues(sorting, colDetails)" :key="dv" :class="i === 0 ? 'btn-left' : 'btn-center'"
             @click="sorting.currentStage = dv[1]">{{
               dv[0]
             }}</div>
           <div class="tw-cursor-pointer btn btn-right" @click="removesorting(index)">
-            <XIcon class="tw-inline tw-h3 tw-w-3" size=18 />
+            <XIcon class="tw-inline tw-h3 tw-w-3 tw-stroke-text-onprimary" size=18 />
           </div>
         </div>
 

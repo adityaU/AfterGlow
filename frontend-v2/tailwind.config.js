@@ -25,6 +25,7 @@ module.exports = {
         tertiary: 'rgb(var(--color-tertiary) / <alpha-value>)',
         default: 'rgb(var(--color-default) / <alpha-value>)',
         white: 'rgb(var(--color-white) / <alpha-value>)',
+        "text-onprimary": 'rgb(var(--color-text-onprimary) / <alpha-value>)',
       },
     },
   },

@@ -1,16 +1,10 @@
 <template>
   <div v-if="!currentUser.loading">
     <div class="tw-flex tw-mx-6 tw-my-3 tw-flex-col tw-gap-2">
-      <div
-        class="tw-py-2 tw-px-4 tw-bg-white tw-border tw-rounded-2xl tw-w-full"
-      >
-        <div
-          class="tw-flex tw-border tw-border-primary tw-rounded-2xl tw-w-fit"
-        >
+      <div class="tw-py-2 tw-px-4 tw-bg-white tw-border tw-rounded-2xl tw-w-full">
+        <div class="tw-flex tw-border tw-border-primary tw-rounded-2xl tw-w-fit">
           <div class="tw-px-2 tw-border tw-border-primary">Database:</div>
-          <div
-            class="tw-px-2 tw-border tw-border-primary tw-bg-primary tw-text-white"
-          >
+          <div class="tw-px-2 tw-border tw-border-primary tw-bg-primary ">
             {{ database?.name }}
           </div>
         </div>

@@ -22,6 +22,7 @@
   --color-tertiary: 229 231 235;
   --color-default: 32 33 36;
   --color-white: 255 255 255;
+  --color-text-onprimary: 255 255 255;
 }
 
 *,:before,:after {
@@ -42,6 +43,10 @@ body{
 }
 .ag-main-container{
   @apply tw-mt-[45px]
+}
+
+.tw-bg-primary {
+  color: rgb(var(--color-text-onprimary)/0.8) !important;
 }
 
 .btn-full {
@@ -87,7 +92,7 @@ body{
 
     .input-no-border:focus-visible { @apply tw-outline-0;}
     .q-tooltip{
-      @apply tw-text-sm tw-font-semibold tw-bg-primary tw-text-white tw-rounded-lg
+      @apply tw-text-sm tw-font-semibold tw-bg-primary tw-rounded-lg
     }
 
 
@@ -108,18 +113,18 @@ body{
       @apply tw-bg-secondary #{!important};
     }
     .text-icon-primary{
-      @apply tw-text-white tw-bg-primary tw-py-0.5 tw-px-2 tw-text-sm tw-font-semibold tw-rounded-2xl tw-mr-1 hover:tw-text-default hover:tw-bg-white tw-rounded-full
+      @apply tw-bg-primary tw-py-0.5 tw-px-2 tw-text-sm tw-font-semibold tw-rounded-2xl tw-mr-1 hover:tw-text-text-onprimary hover:tw-bg-primary/80 tw-rounded-full
     }
 
     .icon-primary{
-      @apply tw-text-white tw-bg-primary tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-rounded-full tw-mr-1 hover:tw-text-default hover:tw-bg-white tw-rounded-full tw-border-secondary/50 tw-border-2;
+      @apply tw-bg-primary tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-rounded-full tw-mr-1 hover:tw-text-text-onprimary/80 hover:tw-bg-primary/80 tw-rounded-full tw-border-secondary/50 tw-border-2;
     }
 
     .icon-danger{
       @apply tw-text-white tw-bg-red-500 tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-rounded-full tw-mr-1 hover:tw-text-default hover:tw-bg-white tw-rounded-full tw-border-secondary/50 tw-border-2;
     }
     .icon-default{
-      @apply tw-text-default tw-bg-white tw-border tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-rounded-full tw-mr-1 hover:tw-bg-primary hover:tw-text-white tw-rounded-full;
+      @apply tw-text-default tw-bg-white tw-border tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-rounded-full tw-mr-1 hover:tw-bg-primary  tw-rounded-full;
     }
     .grid-stack {
       @apply tw-bg-transparent tw-h-full tw-bg-repeat tw-bg-[length:80px_80px] ;
@@ -149,7 +154,7 @@ body{
     }
 
     .menu-item{
-      @apply tw-py-1 tw-cursor-pointer tw-whitespace-nowrap tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-white tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0;
+      @apply tw-py-1 tw-cursor-pointer tw-whitespace-nowrap tw-px-2 tw-block tw-w-full hover:tw-bg-primary  tw-text-ellipsis focus:tw-bg-primary focus:tw-text-white tw-border-b last:tw-border-b-0;
     }
     .q-menu {
       @apply tw-shadow;
@@ -221,6 +226,7 @@ body{
       border-radius: 2rem !important;
       padding: 0.5rem 2rem !important;
     }
+
 
 
     ::-moz-selection {/* Code for Firefox */

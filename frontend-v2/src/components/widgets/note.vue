@@ -2,6 +2,7 @@
 .group:hover .action-buttons {
   display: block;
 }
+
 .group .action-buttons {
   display: none;
 }
@@ -9,36 +10,18 @@
 <template>
   <div class="group tw-h-full tw-w-full">
     <AGLoader :text="loaderText" v-if="loading" />
-    <div
-      class="editor-content tw-p-2 tw-overflow-auto tw-w-full"
-      v-html="parsedContent"
-      v-if="!loading && note"
-    />
-    <div
-      class="action-buttons tw-absolute tw-right-0 tw-top-0 tw-left-0 tw-bottom-0 tw-bg-primary/80 tw-text-white"
-      v-if="!loading && note && editMode"
-    >
+    <div class="editor-content tw-p-2 tw-overflow-auto tw-w-full" v-html="parsedContent" v-if="!loading && note" />
+    <div class="action-buttons tw-absolute tw-right-0 tw-top-0 tw-left-0 tw-bottom-0 tw-bg-primary/80 "
+      v-if="!loading && note && editMode">
       <div class="tw-flex tw-justify-center tw-h-full tw-items-center tw-gap-1">
-        <EditIcon
-          size="16"
-          @click="showEditorLocal = true"
-          class="tw-cursor-pointer"
-        />
+        <EditIcon size="16" @click="showEditorLocal = true" class="tw-cursor-pointer" />
         <slot />
       </div>
     </div>
   </div>
 
-  <Editor
-    v-model:content="note.content"
-    v-model:open="showEditorLocal"
-    :id="id"
-    :query="query"
-    :containerStyle="containerStyle"
-    @save="save"
-    :key="note.content"
-    v-if="note"
-  />
+  <Editor v-model:content="note.content" v-model:open="showEditorLocal" :id="id" :query="query"
+    :containerStyle="containerStyle" @save="save" :key="note.content" v-if="note" />
 </template>
 
 <script>

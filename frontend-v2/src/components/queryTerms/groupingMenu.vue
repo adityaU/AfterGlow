@@ -1,45 +1,29 @@
 <template>
-  <staged-menu
-    :stages="stages"
-    :currentStage="groupingLocal.currentStage"
-    :show="groupingLocal.showMenu"
-  >
+  <staged-menu :stages="stages" :currentStage="groupingLocal.currentStage" :show="groupingLocal.showMenu">
     <template #header>
       <div class="tw-grid tw-grid-cols-6">
         <div class="tw-cursor-pointer tw-p-2 tw-col-span-5 tw-flex">
-          <div
-            class="btn tw-bg-primary tw-text-white hover:tw-bg-primary/80"
-            v-for="(dv, i) in displayValues"
-            :key="dv"
-            :class="
-              displayValues.length == 1
-                ? 'btn-full'
-                : i === 0
-                ? 'btn-left'
-                : displayValues.length === i + 1
+          <div class="btn tw-bg-primary  hover:tw-bg-primary/80" v-for="(dv, i) in displayValues" :key="dv" :class="displayValues.length == 1
+            ? 'btn-full'
+            : i === 0
+              ? 'btn-left'
+              : displayValues.length === i + 1
                 ? 'btn-right'
                 : 'btn-center'
-            "
-            @click="groupingLocal.currentStage = dv[1]"
-          >
+            " @click="groupingLocal.currentStage = dv[1]">
             {{ dv[0] }}
           </div>
         </div>
-        <div
-          class="tw-cursor-pointer tw-p-2 tw-col-span-1 tw-text-right tw-text-default"
-        >
-          <div
-            class="tw-inline-flex tw-border tw-rounded-2xl tw-p-1 tw-bg-secondary"
-            @click="
-              ((groupingLocal.raw = !groupingLocal.raw) || true) &&
-                (groupingLocal.currentStage = groupingLocal.raw ? 2 : 0)
-            "
-          >
+        <div class="tw-cursor-pointer tw-p-2 tw-col-span-1 tw-text-right tw-text-default">
+          <div class="tw-inline-flex tw-border tw-rounded-2xl tw-p-1 tw-bg-secondary" @click="
+            ((groupingLocal.raw = !groupingLocal.raw) || true) &&
+            (groupingLocal.currentStage = groupingLocal.raw ? 2 : 0)
+            ">
             <q-tooltip transition-show="scale" transition-hide="scale">
               {{
                 !groupingLocal.raw
-                  ? 'Switch to Raw Snippet'
-                  : 'Switch to query builder'
+                ? 'Switch to Raw Snippet'
+                : 'Switch to query builder'
               }}
             </q-tooltip>
             <CodeIcon v-if="!groupingLocal.raw" class="tw-h-3 tw-w-3" />
@@ -50,56 +34,34 @@
     </template>
     <template #S1>
       <div class="tw-h-full">
-        <SelectOptions
-          :options="columns"
-          :selected="groupingLocal.column"
-          iconComponent="true"
-          @select="
-            (val) =>
-              ((groupingLocal.column = val) || true) &&
-              (groupingLocal.currentStage =
-                columnDataType == 'datetime' ? 1 : 0)
-          "
-        >
+        <SelectOptions :options="columns" :selected="groupingLocal.column" iconComponent="true" @select="(val) =>
+          ((groupingLocal.column = val) || true) &&
+          (groupingLocal.currentStage =
+            columnDataType == 'datetime' ? 1 : 0)
+          ">
           <Columns3Icon size="16" />
         </SelectOptions>
       </div>
     </template>
     <template #S2>
       <div class="tw-py-2">
-        <SelectOptions
-          :options="durationOptions"
-          :selected="groupingLocal.duration"
-          @select="(val) => (groupingLocal.duration = val) || true"
-        />
+        <SelectOptions :options="durationOptions" :selected="groupingLocal.duration"
+          @select="(val) => (groupingLocal.duration = val) || true" />
       </div>
     </template>
     <template #S3>
       <div class="tw-py-2 tw-px-2">
-        <BaseInput
-          :value="groupingLocal.value"
-          @inputed="(val) => (groupingLocal.value = val)"
-          type="text"
-          ref="option_0"
-          placeholder="1, 2"
-          class=""
-        />
+        <BaseInput :value="groupingLocal.value" @inputed="(val) => (groupingLocal.value = val)" type="text" ref="option_0"
+          placeholder="1, 2" class="" />
       </div>
     </template>
     <template #footer>
-      <div
-        class="tw-py-2 tw-px-2 tw-border-t tw-text-right"
-        v-if="shouldShowAddgrouping"
-      >
-        <AGButton
-          v-close-popup="10"
-          class="tw-bg-primary tw-border-primary tw-text-white hover:tw-bg-primary/80 hover:tw-text-white"
-          @clicked="
-            ((groupingLocal.showMenu = false) || true) &&
-              $emit('addgrouping', groupingLocal) &&
-              stopPropagation
-          "
-        >
+      <div class="tw-py-2 tw-px-2 tw-border-t tw-text-right" v-if="shouldShowAddgrouping">
+        <AGButton v-close-popup="10" class="tw-bg-primary tw-border-primary  hover:tw-bg-primary/80 hover:" @clicked="
+          ((groupingLocal.showMenu = false) || true) &&
+          $emit('addgrouping', groupingLocal) &&
+          stopPropagation
+          ">
           {{ addLabel }}
         </AGButton>
       </div>
@@ -202,7 +164,7 @@ export default {
       if (
         this.groupingLocal.column &&
         this.getColumnDataType(this.groupingLocal, this.colDetails) ==
-          'datetime'
+        'datetime'
       ) {
         return this.groupingLocal.column && this.groupingLocal.duration;
       }

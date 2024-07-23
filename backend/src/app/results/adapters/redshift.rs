@@ -531,7 +531,6 @@ impl RedshiftAdapter {
                 }
                 "bytea" => {
                     let value: Option<Vec<u8>> = row.try_get(i).unwrap_or(None);
-                    println!("bytea value: {:?}", value);
 
                     r.push(DBValue::Strings(Some(hex::encode(
                         value.unwrap_or_default(),
@@ -587,7 +586,6 @@ impl RedshiftAdapter {
                 }
                 "super" => {
                     let value: Option<Super> = row.try_get(i).unwrap_or(None);
-                    println!("super value: {:?}", value);
                     match value {
                         None => r.push(DBValue::Json(None)),
                         Some(v) => r.push(DBValue::Json(Some(v.0))),

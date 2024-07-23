@@ -341,10 +341,6 @@ impl ServiceProvider {
         } else {
             String::from(response_xml)
         };
-        println!(
-            "reduced_xml:==================================== {:?}",
-            reduced_xml
-        );
         let response: Response = reduced_xml
             .parse()
             .map_err(|_e| Error::FailedToParseSamlResponse)?;
