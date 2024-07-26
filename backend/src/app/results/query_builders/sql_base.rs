@@ -5,9 +5,10 @@ use fancy_regex::Regex;
 use diesel::PgConnection;
 
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{json, to_value, Value};
 
 use lazy_static::lazy_static;
+use tera::{Context, Tera};
 
 lazy_static! {
     static ref SNIPPET_RE: Regex = Regex::new(r"\{\{ *sn:.*?(?<snippet_id>\d+) *\}\}").unwrap();
@@ -34,7 +35,12 @@ lazy_static! {
         Regex::new(r"\{\{\s*(SYS|sys)::([^{}]+)\s*\}\}").unwrap();
 }
 
-use crate::app::questions::config;
+lazy_static! {
+    pub static ref ALLOWED_VAR_NAMES_REGEX: Regex = Regex::new(r"[^\w]").unwrap();
+}
+
+use crate::app::gen_ai;
+use crate::app::questions::config::{self, GenAIPrompt};
 
 use crate::app::results::payload_adapter::Variable;
 use crate::app::results::query_terms::filters::{DateObjectInner, DurationType};
@@ -48,7 +54,9 @@ use crate::app::results::{
         views::{Column, View},
     },
 };
-use crate::repository::models::{Question, Snippet, SystemVariable, VariableType};
+use crate::repository::models::{
+    Question, Snippet, SupportedDatabases, SystemVariable, VariableType,
+};
 
 use super::super::AdaptedPayload;
 
@@ -76,6 +84,34 @@ pub struct Postgres {
 }
 
 pub trait SQlBased {
+    async fn generate_from_gen_ai(
+        conn: &mut PgConnection,
+        query: String,
+        prompt: GenAIPrompt,
+        db_type: SupportedDatabases,
+        user_id: i64,
+        org_id: i64,
+    ) -> String {
+        if prompt.request.is_none() || prompt.request.clone().unwrap_or_default().is_empty() {
+            return query;
+        }
+        let prompt = format!(
+            "wrap following {:?} query:\n {} to accomplish following\n{}\n my original query returns following columns:\n{}",
+            db_type, query, prompt.request.unwrap_or_default(), prompt.columns.unwrap_or_default().join(",")
+        );
+        match gen_ai::call(
+            conn,
+            user_id,
+            org_id,
+            prompt,
+            gen_ai::DATABASE_EXPERT_SYSTEM_PROMPT,
+        )
+        .await
+        {
+            Ok(resp) => resp,
+            Err(err) => query,
+        }
+    }
     fn new(adapted_payload: AdaptedPayload) -> Self;
     fn apply_limit(query: String, limit: i64) -> String {
         if LIMIT_OFFSET_REGEX.is_match(query.as_str()).is_ok() {
@@ -103,28 +139,46 @@ pub trait SQlBased {
         format!("{} limit {}", query, limit)
     }
     fn replace_system_variables(conn: &mut PgConnection, query: String) -> String {
-        let mut replacements: HashMap<String, String> = HashMap::new();
+        let mut replacements = Context::new();
         let system_variables = SystemVariable::index(conn);
+
+        let mut variable_sanitized_query = query.clone();
+
+        VARIABLE_REGEX
+            .captures_iter(query.as_str())
+            .for_each(|captures| {
+                sanitize_query(
+                    captures,
+                    &mut replacements,
+                    &mut variable_sanitized_query,
+                    &query,
+                );
+            });
         match system_variables {
             Ok(system_variables) => {
                 for variable in system_variables {
                     let value_string = String::from_utf8(variable.value).unwrap_or_default();
-                    replacements.insert(variable.name.trim().to_string(), value_string);
+                    let value_string = if value_string.is_empty() {
+                        None
+                    } else {
+                        Some(value_string)
+                    };
+
+                    let variable_name = ALLOWED_VAR_NAMES_REGEX
+                        .replace_all(variable.name.trim(), "_")
+                        .to_string();
+                    let var_name1 = format!("sys__{}", variable_name);
+                    let var_name2 = format!("SYS__{}", variable_name);
+                    replacements.insert(var_name1, &value_string);
+                    replacements.insert(var_name2, &value_string);
                 }
             }
-            Err(_) => {
+            Err(err) => {
                 return query;
             }
         }
-        SYSTEM_VARIABLE_REGEX
-            .replace_all(query.as_str(), |captures: &fancy_regex::Captures| {
-                let variable_name = &captures[2];
-                match replacements.get(variable_name.trim()) {
-                    Some(value) => value.to_string(),
-                    None => captures[0].to_string(),
-                }
-            })
-            .to_string()
+
+        render_template(variable_sanitized_query, replacements, query)
     }
     fn replace_variables(
         conn: &mut PgConnection,
@@ -132,7 +186,20 @@ pub trait SQlBased {
         variables: &Vec<Variable>,
     ) -> String {
         let query = Self::replace_snippets_and_ques_defs(conn, query.clone());
-        let mut replacements: HashMap<String, String> = HashMap::new();
+        let mut replacements = Context::new();
+
+        let mut variable_sanitized_query = query.clone();
+
+        VARIABLE_REGEX
+            .captures_iter(query.as_str())
+            .for_each(|captures| {
+                sanitize_query(
+                    captures,
+                    &mut replacements,
+                    &mut variable_sanitized_query,
+                    &query,
+                );
+            });
         for variable in variables {
             let mut value = match &variable.value {
                 Value::Bool(b) => b.to_string(),
@@ -141,24 +208,37 @@ pub trait SQlBased {
                 _ => "".to_string(),
             };
 
-            value = match &variable.var_type {
-                VariableType::String => format!(r#"'{}'"#, value),
-                VariableType::Integer => value,
-                VariableType::Date => format!(r#"'{}'"#, value),
+            let value = match &variable.var_type {
+                VariableType::String => {
+                    if value.is_empty() {
+                        None
+                    } else {
+                        Some(format!(r#"'{}'"#, value))
+                    }
+                }
+                VariableType::Integer => {
+                    if value.is_empty() {
+                        None
+                    } else {
+                        Some(format!(r#"'{}'"#, value))
+                    }
+                }
+                VariableType::Date => {
+                    if value.is_empty() {
+                        None
+                    } else {
+                        Some(format!(r#"'{}'"#, value))
+                    }
+                }
             };
 
-            replacements.insert(variable.name.trim().to_string(), value);
+            let variable_name = ALLOWED_VAR_NAMES_REGEX
+                .replace_all(variable.name.trim(), "_")
+                .to_string();
+            replacements.insert(variable_name, &value);
         }
 
-        VARIABLE_REGEX
-            .replace_all(query.as_str(), |captures: &fancy_regex::Captures| {
-                let variable_name = &captures[1];
-                match replacements.get(variable_name.trim()) {
-                    Some(value) => value.to_string(),
-                    None => captures[0].to_string(),
-                }
-            })
-            .to_string()
+        render_template(variable_sanitized_query, replacements, query)
     }
     fn build_query(table_name: &String, table_alias: String, query_terms: &QueryTerms) -> String {
         let groupings = Self::build_groupings(&query_terms.groupings, &table_alias);
@@ -661,5 +741,43 @@ pub trait SQlBased {
             Column::Column(v) => Self::aliased_column(v.as_str(), table_alias),
             Column::AllColumns => format!("\"{}\".*", table_alias),
         }
+    }
+}
+
+fn render_template(
+    variable_sanitized_query: String,
+    replacements: Context,
+    query: String,
+) -> String {
+    let mut tera = Tera::default();
+    match tera.add_raw_template("query", variable_sanitized_query.as_str()) {
+        Ok(_) => match tera.render("query", &replacements) {
+            Ok(q) => q,
+            Err(err) => query,
+        },
+        Err(err) => query,
+    }
+}
+
+fn sanitize_query(
+    captures: Result<fancy_regex::Captures<'_>, fancy_regex::Error>,
+    replacements: &mut Context,
+    variable_sanitized_query: &mut String,
+    query: &String,
+) {
+    if let Ok(captures) = captures {
+        let orig_variable_name = &captures[1];
+        let temp_var = ALLOWED_VAR_NAMES_REGEX
+            .replace_all(orig_variable_name.trim(), "_")
+            .to_string();
+        let variable_name = temp_var.as_str();
+        replacements.insert(
+            variable_name.trim(),
+            &("{{".to_string() + variable_name.trim() + "}}"),
+        );
+        *variable_sanitized_query = query
+            .as_str()
+            .replace(orig_variable_name, variable_name)
+            .to_string();
     }
 }

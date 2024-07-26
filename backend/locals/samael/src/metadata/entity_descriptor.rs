@@ -130,7 +130,7 @@ mod test {
             env!("CARGO_MANIFEST_DIR"),
             "/test_vectors/sp_metadata.xml"
         ));
-        println!("{}", &input_xml);
+
         let entity_descriptor: EntityDescriptor = input_xml
             .parse()
             .expect("Failed to parse sp_metadata.xml into an EntityDescriptor");

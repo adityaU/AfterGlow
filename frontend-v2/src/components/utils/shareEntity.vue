@@ -30,7 +30,7 @@
             </div>
             <div class="tw-py-2 tw-px-4 tw-border tw-border-l-0 tw-rounded-r-full tw-bg-primary  tw-cursor-pointer"
               @click="copyToClipboard">
-              Copy
+              <CopyIcon size="24" />
             </div>
           </div>
         </div>
@@ -64,10 +64,11 @@ import multiselectClasses from 'src/helpers/multiselectCss.ts';
 import { sessionStore } from 'stores/session';
 import cloneDeep from 'lodash/cloneDeep';
 
+import { CopyIcon } from 'vue-tabler-icons';
 import { fetchRecipients } from 'src/apis/recipients';
 export default {
   name: 'AGShareEntity',
-  components: { AGModal, AGButton, AGToast, Multiselect },
+  components: { AGModal, AGButton, AGToast, Multiselect, CopyIcon },
   props: ['open', 'entity', 'entityName'],
 
   watch: {

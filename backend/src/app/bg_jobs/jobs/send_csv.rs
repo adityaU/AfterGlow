@@ -142,7 +142,6 @@ pub struct SendCSVJob {
 #[async_trait::async_trait]
 impl JobEssentials for SendCSVJob {
     async fn execute(&self, data: Arc<LongLivedData>) -> Result<(), BGJobError> {
-        println!("SendCSVJob: {:?}", &self);
         let user_id = self.user_id;
         let org_id = self.org_id;
         let (renderer, config) = Self::fetch_renderer_and_config(&self.payload);
@@ -363,7 +362,6 @@ impl SendCSVJob {
                 .await
                 .map_err(|err| SendCSVError::CouldNotUploadToS3(err.to_string()))?;
 
-        println!("presigned_request: {:?}", presigned_request);
         Ok(presigned_request.uri().to_string())
     }
 
@@ -437,7 +435,6 @@ We've cooked up something special for you! 🎨 Your data is ready and waiting f
         html_body: String,
         smtp_conf: SMTPConfig,
     ) -> Result<(), SendCSVError> {
-        println!("smtp_conf: {:?}", &smtp_conf);
         let mailboxes: header::To = to_emails
             .join(",")
             .parse::<Mailboxes>()

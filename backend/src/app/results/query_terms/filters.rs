@@ -177,7 +177,7 @@ pub fn make_filters(filters: Vec<config::Filter>) -> Vec<Filter> {
                         let val = match value {
                             Some(v) => {
                                 let value: Result<DateObject, _> = serde_json::from_value(v);
-                                println!("value=======================: {:?}", &value);
+
                                 match value {
                                     Ok(t) => t,
                                     Err(_) => return Filter::Invalid,

@@ -5,10 +5,15 @@ pub mod redshift;
 pub mod sql_base;
 
 pub trait QueryBuilder {
-    fn build(&self, conn: &mut PgConnection, user_id: i64, org_id: i64) -> Result<Queries, String>;
+    async fn build(
+        &self,
+        conn: &mut PgConnection,
+        user_id: i64,
+        org_id: i64,
+    ) -> Result<Queries, String>;
     // fn get_connection(Database) -> Pool<>
 }
-
+#[derive(Debug)]
 pub struct Queries {
     pub adapted_query: String,
     pub debug_query: String,

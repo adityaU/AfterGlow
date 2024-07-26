@@ -19,7 +19,7 @@ import AGSettingsTabs from 'components/settings/tabs.vue';
 import AGOrganizations from 'components/settings/organizations.vue';
 import AGSystemVariables from 'components/settings/systemVariables.vue';
 
-import AGOpenAIConfiguration from 'components/settings/openai.vue';
+import AGGenAIConfiguration from 'components/settings/genai.vue';
 import AGLoginConfiguration from 'components/settings/loginConfiguration.vue';
 import AGLoader from 'components/utils/loader.vue';
 import ScopedDB from 'components/settings/scopedDB.vue';
@@ -38,7 +38,7 @@ const settingsComponents = {
   permissions: AGPermissions,
   users: AGUsers,
   organizations: AGOrganizations,
-  openai: AGOpenAIConfiguration,
+  genai: AGGenAIConfiguration,
   loginConfig: AGLoginConfiguration,
   sysVars: AGSystemVariables,
   scopedDB: ScopedDB,

@@ -9,6 +9,8 @@ export const currentUserStore = defineStore('currentUser', {
     databases: reactive([]),
     viewerMode: false,
     loading: false,
+    isGenAIEnabled: false,
+    canUserOverrideGenAIConfig: false,
   }),
 
   getters: {
@@ -76,11 +78,19 @@ export const currentUserStore = defineStore('currentUser', {
         this.permissions.indexOf('Settings.all') >= 0
       );
     },
+
     getDetails() {
       return this.details;
     },
     getTheme() {
       return this.theme;
+    },
+    getIfGenAIEnabled() {
+      return this.isGenAIEnabled;
+    },
+
+    getCanUserOverrideGenAIConfig() {
+      return this.canUserOverrideGenAIConfig
     },
   },
 
@@ -95,6 +105,8 @@ export const currentUserStore = defineStore('currentUser', {
       this.permissions = det.permissions;
       this.details = det.user;
       this.theme = det.theme;
+      this.isGenAIEnabled = det.is_genai_enabled;
+      this.canUserOverrideGenAIConfig = det.can_user_override_genai_config;
       this.databases = det.databases;
     },
     setTheme(theme) {

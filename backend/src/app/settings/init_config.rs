@@ -3,7 +3,9 @@ use serde::Serialize;
 
 use crate::{repository::models::Setting, response_text::INIT_CONFIG_FETCH_ERROR};
 
-use super::theme::{self, Theme};
+use super::{
+    theme::{self, Theme},
+};
 
 const INIT_CONFIGS: [&str; 2] = ["GOOGLE_LOGIN_ENABLED", "SAML_LOGIN_ENABLED"];
 

@@ -1,6 +1,6 @@
 use actix_web::HttpRequest;
 
-pub(crate) fn get_current_user_ord_id(req: &HttpRequest) -> i64 {
+pub(crate) fn get_current_user_org_id(req: &HttpRequest) -> i64 {
     let current_users_org = req
         .headers()
         .get("organization_id")

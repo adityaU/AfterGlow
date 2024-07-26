@@ -1,6 +1,7 @@
 use actix_web::{error, web, HttpRequest, HttpResponse, Responder};
 
 use chrono::NaiveDateTime;
+use jwt::ToBase64;
 use reqwest::StatusCode;
 use serde::Deserialize;
 use std::sync::Arc;
@@ -17,7 +18,7 @@ use crate::{
     },
     errors::AGError,
     repository::{
-        models::{ActionLevel, HTTPMethod, QueryType, Question},
+        models::{ActionLevel, HTTPMethod, QueryType, Question, QuestionChangeset},
         DBPool,
     },
     views::question::{QuestionIndexView, QuestionShowView},
@@ -33,6 +34,11 @@ use super::base;
 pub struct QueryParams {
     tag: Option<String>,
     q: Option<String>,
+}
+
+#[derive(Deserialize)]
+pub struct ShowParams {
+    share_id: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -95,14 +101,69 @@ pub(crate) async fn show(
     pool: web::Data<Arc<DBPool>>,
     item_id: web::Path<i64>,
     req: HttpRequest,
+    qp: web::Query<ShowParams>,
     auth_details: AuthDetails<PermissionNames>,
 ) -> impl Responder {
     let conn = pool.get();
     let permissions = auth_details.permissions;
     let current_user_email = get_current_user_email(&req);
+    let question_id = item_id.into_inner();
+
+    if qp.share_id.clone().is_some() {
+        let question = Question::find(&mut conn.unwrap(), question_id).map_err(|err| {
+            AGError::<String>::new_with_details(
+                error::ErrorNotFound("Unauthorized").to_string(),
+                Some(err.to_string()),
+                StatusCode::NOT_FOUND,
+            )
+        })?;
+        let share_id = question.shareable_link.unwrap_or_default().to_string();
+
+        if share_id == qp.share_id.clone().unwrap_or_default()
+            && !question
+                .shared_to
+                .clone()
+                .unwrap_or_default()
+                .contains(&Some(current_user_email.clone()))
+        {
+            let mut shared_to = question.shared_to.unwrap_or_default().clone();
+            shared_to.push(Some(current_user_email));
+            let conn = pool.get();
+            return Question::update(
+                &mut conn.unwrap(),
+                question_id,
+                QuestionChangeset {
+                    title: question.title,
+                    last_updated: question.last_updated,
+                    sql: question.sql,
+                    human_sql: question.human_sql,
+                    inserted_at: question.inserted_at,
+                    updated_at: question.updated_at,
+                    query_type: question.query_type,
+                    shareable_link: question.shareable_link,
+                    is_shareable_link_public: question.is_shareable_link_public,
+                    results_view_settings: question.results_view_settings,
+                    columns_: question.columns_,
+                    cached_results: question.cached_results,
+                    shared_to: Some(shared_to),
+                    owner_id: question.owner_id,
+                    config: question.config,
+                },
+            )
+            .map(|item| {
+                let conn = pool.get();
+                HttpResponse::Ok().json(ResponseData {
+                    data: QuestionShowView::from_model(&mut conn.unwrap(), &item),
+                })
+            })
+            .map_err(|err| AGError::<String>::new(err));
+        }
+    }
+
+    let conn = pool.get();
     Question::find_shared(
         &mut conn.unwrap(),
-        item_id.into_inner(),
+        question_id,
         current_user_email,
         permissions,
     )

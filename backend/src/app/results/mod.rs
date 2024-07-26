@@ -46,10 +46,79 @@ lazy_static! {
     static ref CURRENCY: Regex = Regex::new(r"(?i)(amount|price)").unwrap();
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct QueryErrorDetails {
     pub message: String,
     pub final_query: String,
+    pub original_query_columns: OriginalQueryColumns,
+}
+
+// Type alias for OriginalQueryColumns
+pub type OriginalQueryColumns = Option<Arc<Vec<String>>>;
+
+// Newtype wrapper around the alias
+#[derive(Debug)]
+struct OriginalQueryColumnsWrapper(OriginalQueryColumns);
+
+impl Serialize for OriginalQueryColumnsWrapper {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match &self.0 {
+            Some(arc_vec) => arc_vec.serialize(serializer),
+            None => serializer.serialize_none(),
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for OriginalQueryColumnsWrapper {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let vec: Option<Vec<String>> = Option::deserialize(deserializer)?;
+        Ok(OriginalQueryColumnsWrapper(vec.map(Arc::new)))
+    }
+}
+
+impl Serialize for QueryErrorDetails {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("QueryErrorDetails", 3)?;
+        state.serialize_field("message", &self.message)?;
+        state.serialize_field("final_query", &self.final_query)?;
+        state.serialize_field(
+            "original_query_columns",
+            &OriginalQueryColumnsWrapper(self.original_query_columns.clone()),
+        )?;
+        state.end()
+    }
+}
+
+impl<'de> Deserialize<'de> for QueryErrorDetails {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        struct QueryErrorDetailsHelper {
+            message: String,
+            final_query: String,
+            original_query_columns: Option<Vec<String>>,
+        }
+
+        let helper = QueryErrorDetailsHelper::deserialize(deserializer)?;
+        let original_query_columns = helper.original_query_columns.map(Arc::new);
+
+        Ok(QueryErrorDetails {
+            message: helper.message,
+            final_query: helper.final_query,
+            original_query_columns,
+        })
+    }
 }
 
 impl QueryErrorDetails {
@@ -57,6 +126,7 @@ impl QueryErrorDetails {
         Self {
             message,
             final_query,
+            original_query_columns: None,
         }
     }
 }
@@ -78,6 +148,24 @@ impl QueryError {
             error: QueryErrorDetails {
                 message,
                 final_query,
+                original_query_columns: None,
+            },
+        }
+    }
+
+    pub fn add_original_query_columns(
+        &self,
+        original_query_columns: Option<Arc<Vec<String>>>,
+    ) -> Self {
+        println!(
+            "llllllllllloriginal_query_columns============================================================: {:?}",
+            &original_query_columns
+        );
+        Self {
+            error: QueryErrorDetails {
+                message: self.error.message.clone(),
+                final_query: self.error.final_query.clone(),
+                original_query_columns,
             },
         }
     }
@@ -428,9 +516,15 @@ async fn fetch_results_from_db(
         fetch_original_query_columns(&adapted_payload, &adapter, conn, cps, user_id, org_id)
             .await?;
 
+    println!(
+        "original_query_columns============================================================: {:?}",
+        original_query_columns
+    );
+
     let db_adapter_response = adapter
         .fetch_response(conn, cps, adapted_payload, user_id, org_id)
-        .await?;
+        .await
+        .map_err(|err| err.add_original_query_columns(original_query_columns.clone()))?;
     let formats = find_formattable_columns(&db_adapter_response.column_details.clone());
 
     let mut query_results = QueryResults {
@@ -547,6 +641,7 @@ async fn fetch_original_query_columns(
             true => {
                 let mut limit_one_payload = adapted_payload.clone();
                 set_limit_on_payload(&mut limit_one_payload, 1);
+
                 let res = adapter
                     .fetch_response(conn, cps, limit_one_payload, user_id, org_id)
                     .await?;
@@ -572,6 +667,7 @@ fn set_limit_on_payload(adapted_payload: &mut AdaptedPayload, limit: i64) {
         } => {
             visualization_query_terms.groupings = vec![];
             visualization_query_terms.views = vec![];
+            visualization_query_terms.genai_prompt = None;
             visualization_query_terms.limit = Some(limit);
         }
         AdaptedPayload::QB {
@@ -583,6 +679,7 @@ fn set_limit_on_payload(adapted_payload: &mut AdaptedPayload, limit: i64) {
         } => {
             visualization_query_terms.groupings = vec![];
             visualization_query_terms.views = vec![];
+            visualization_query_terms.genai_prompt = None;
             visualization_query_terms.limit = Some(limit);
         }
     }
@@ -601,8 +698,15 @@ fn should_fetch_for_original_query_colums(adapted_payload: &AdaptedPayload) -> b
             variables: _,
             visualization_query_terms,
         } => {
-            !(visualization_query_terms.groupings.is_empty()
-                && visualization_query_terms.views.is_empty())
+            !(visualization_query_terms.groupings.clone().is_empty()
+                && visualization_query_terms.views.clone().is_empty()
+                && visualization_query_terms
+                    .genai_prompt
+                    .clone()
+                    .unwrap_or_default()
+                    .request
+                    .unwrap_or_default()
+                    .is_empty())
         }
         AdaptedPayload::QB {
             database: _,
@@ -611,8 +715,15 @@ fn should_fetch_for_original_query_colums(adapted_payload: &AdaptedPayload) -> b
             variables: _,
             visualization_query_terms,
         } => {
-            !(visualization_query_terms.groupings.is_empty()
-                && visualization_query_terms.views.is_empty())
+            !(visualization_query_terms.groupings.clone().is_empty()
+                && visualization_query_terms.views.clone().is_empty()
+                && visualization_query_terms
+                    .genai_prompt
+                    .clone()
+                    .unwrap_or_default()
+                    .request
+                    .unwrap_or_default()
+                    .is_empty())
         }
     }
 }

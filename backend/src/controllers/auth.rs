@@ -104,10 +104,7 @@ pub async fn saml_metadata(pool: web::Data<Arc<DBPool>>) -> impl Responder {
 pub async fn initiate_saml(pool: web::Data<Arc<DBPool>>) -> impl Responder {
     let mut conn = pool.get().unwrap();
     auth::initiate_saml_request(&mut conn)
-        .map(|resp| {
-            println!("Initiate SAML Response: {:?}", &resp);
-            HttpResponse::Ok().content_type("text/html").body(resp)
-        })
+        .map(|resp| HttpResponse::Ok().content_type("text/html").body(resp))
         .map_err(|err| AGError::<String>::new(err))
 }
 

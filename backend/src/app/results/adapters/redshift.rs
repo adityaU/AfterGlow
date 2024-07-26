@@ -4,6 +4,7 @@ use std::{
     time::Duration,
 };
 
+
 use bytes::BytesMut;
 
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
@@ -164,6 +165,7 @@ impl DBAdapter for RedshiftAdapter {
     ) -> Result<Queries, QueryError> {
         Redshift::new(adapted_payload)
             .build(conn, user_id, org_id)
+            .await
             .map_err(|err| QueryError::new(err, "".to_string()))
     }
     async fn fetch_response(
@@ -176,11 +178,13 @@ impl DBAdapter for RedshiftAdapter {
     ) -> Result<DBAdapterResponse, QueryError> {
         let query = Redshift::new(adapted_payload)
             .build(conn, user_id, org_id)
+            .await
             .map_err(|err| QueryError::new(err, "".to_string()))?;
         let pool = Self::get_pool(&self, cps)?;
         let (rows, columns, column_details) = Self::fetch(
             pool,
             query.db_query.clone(),
+            query.debug_query.clone(),
             self.db_config.query_timeout.unwrap_or(60u64),
         )
         .await?;
@@ -210,7 +214,7 @@ impl DBAdapter for RedshiftAdapter {
        AND indisprimary"#;
 
         let pool = self.get_pool(cps)?;
-        let rows = Self::fetch_raw(pool, query.to_string()).await?;
+        let rows = Self::fetch_raw(pool, query.to_string(), query.to_string()).await?;
 
         let mut res: Vec<PrimaryKey> = vec![];
         for row in &rows {
@@ -244,7 +248,7 @@ impl DBAdapter for RedshiftAdapter {
         from information_schema.columns where table_schema not in ('information_schema', 'pg_catalog')
         order by ordinal_position"#;
         let pool = Self::get_pool(&self, cps)?;
-        let rows = Self::fetch_raw(pool, query.to_string()).await?;
+        let rows = Self::fetch_raw(pool, query.to_string(), query.to_string()).await?;
 
         let mut schema: HashMap<String, DBTable> = HashMap::new();
         for row in &rows {
@@ -322,6 +326,7 @@ impl RedshiftAdapter {
     async fn fetch(
         pool: Arc<Pool>,
         query: String,
+        debug_query: String,
         timeout_duration: u64,
     ) -> Result<
         (
@@ -334,7 +339,7 @@ impl RedshiftAdapter {
         let duration = Duration::from_secs(timeout_duration);
         let (str_rows, columns, column_details) = {
             timeout(duration, async {
-                let res = match Self::fetch_raw(pool, query.clone()).await {
+                let res = match Self::fetch_raw(pool, query.clone(), debug_query.clone()).await {
                     Ok(value) => value,
                     Err(err) => return Err(err),
                 };
@@ -343,16 +348,20 @@ impl RedshiftAdapter {
             })
         }
         .await
-        .map_err(|err| QueryError::new(err.to_string(), query.clone()))?
-        .map_err(|err| QueryError::new(err.to_string(), query.clone()))?;
+        .map_err(|err| QueryError::new(err.to_string(), debug_query.clone()))?
+        .map_err(|err| QueryError::new(err.to_string(), debug_query.clone()))?;
         Ok((str_rows, columns, column_details))
     }
 
-    async fn fetch_raw(pool: Arc<Pool>, query: String) -> Result<Vec<Row>, QueryError> {
+    async fn fetch_raw(
+        pool: Arc<Pool>,
+        query: String,
+        debug_query: String,
+    ) -> Result<Vec<Row>, QueryError> {
         let pool_conn = match pool
             .get()
             .await
-            .map_err(|err| QueryError::new(err.to_string(), query.clone()))
+            .map_err(|err| QueryError::new(err.to_string(), debug_query.clone()))
         {
             Ok(value) => value,
             Err(err) => return Err(err),
@@ -360,7 +369,7 @@ impl RedshiftAdapter {
         let res = match pool_conn
             .query(query.clone().as_str(), &[])
             .await
-            .map_err(|err| QueryError::new(err.to_string(), query.clone()))
+            .map_err(|err| QueryError::new(err.to_string(), debug_query.clone()))
         {
             Ok(value) => value,
             Err(err) => return Err(err),

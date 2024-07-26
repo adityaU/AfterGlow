@@ -61,7 +61,6 @@ fn main() -> std::io::Result<()> {
 }
 
 fn run_migrations() {
-    println!("Running migrations...");
     let pool = Database::new().pool;
     let mut conn = pool.clone().get().unwrap();
     conn.run_pending_migrations(MIGRATIONS)
@@ -69,7 +68,9 @@ fn run_migrations() {
     seeds::create_default_users(pool.clone());
     seeds::create_default_settings(pool.clone());
     seeds::setup_google_credentials(pool.clone());
-    seeds::create_default_api_client(pool);
+    seeds::create_default_api_client(pool.clone());
+    seeds::ensure_user_settings(pool.clone());
+    seeds::ensure_organization_settings(pool);
     // You would typically call diesel_migrations::run_pending_migrations here
 }
 

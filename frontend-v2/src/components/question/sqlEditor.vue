@@ -474,7 +474,7 @@ export default {
               text:
                 prompt +
                 '\n' +
-                response.body.choices[0].text.replace(';', '').trim(),
+                response.data.replace(';', '').trim(),
             },
           ]);
         }

@@ -12,7 +12,12 @@ pub struct Redshift {
 }
 
 impl QueryBuilder for Redshift {
-    fn build(&self, conn: &mut PgConnection, user_id: i64, org_id: i64) -> Result<Queries, String> {
+    async fn build(
+        &self,
+        conn: &mut PgConnection,
+        user_id: i64,
+        org_id: i64,
+    ) -> Result<Queries, String> {
         let (mut queries, variables) = match &self.inner {
             AdaptedPayload::ApiAction {
                 database: _database,

@@ -4,6 +4,7 @@ pub mod autocomplete;
 pub mod bg_jobs;
 pub mod dashboards;
 pub mod databases;
+pub mod gen_ai;
 pub mod questions;
 pub mod results;
 pub mod schedule;

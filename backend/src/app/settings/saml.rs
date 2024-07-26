@@ -1,4 +1,10 @@
 use diesel::PgConnection;
+use rand::rngs::OsRng;
+use rcgen::{Certificate, CertificateParams, KeyPair};
+use rsa::{
+    pkcs8::{EncodePrivateKey, LineEnding},
+    RsaPrivateKey,
+};
 
 use crate::{repository::models::Setting, response_text::SAML_CONFIG_FETCH_ERROR};
 
@@ -41,4 +47,34 @@ pub fn get(conn: &mut PgConnection) -> Result<SAMLConfig, String> {
     }
 
     Ok(config)
+}
+
+pub fn generate_saml_keys() -> Result<(String, String), String> {
+    let mut rng = OsRng;
+    let bits = 2048; // Key size
+    let private_key = RsaPrivateKey::new(&mut rng, bits)
+        .map_err(|err| format!("failed to initiate private key: {}", err))?;
+    let private_key_pem = private_key
+        .to_pkcs8_pem(LineEnding::LF)
+        .map_err(|err| format!("failed to initiate private key: {}", err))?;
+
+    // Convert RSA Private Key to a format rcgen can use
+    let key_pair = KeyPair::from_pem(private_key_pem.as_ref())
+        .map_err(|err| format!("failed to create private key: {}", err))?;
+
+    // Set up certificate parameters
+    let mut params = CertificateParams::new(vec!["*".to_string()]);
+    params.key_pair = Some(key_pair);
+    let signature_algorithm = &rcgen::PKCS_RSA_SHA256;
+    params.alg = signature_algorithm;
+
+    // Generate the certificate
+    let cert = Certificate::from_params(params)
+        .map_err(|err| format!("failed to create certificate key: {}", err))?;
+    // Output the generated private key and certificate
+    let cert_pem = cert
+        .serialize_pem()
+        .map_err(|err| format!("failed to serialize certificate key: {}", err))?;
+
+    Ok((private_key_pem.to_string(), cert_pem))
 }

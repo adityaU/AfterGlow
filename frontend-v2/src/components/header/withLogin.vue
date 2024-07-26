@@ -1,6 +1,6 @@
 <template>
   <nav
-    class="slide-transition tw-flex tw-flex-col tw-bg-white tw-text-default/80 tw-justify-between tw-leading-4 tw-border-r"
+    class="slide-transition tw-flex tw-flex-col tw-bg-white tw-text-default/80 tw-justify-between tw-leading-4 tw-border-r tw-font-semibold"
     v-if="session.token != '' && !permissions.loading" @mouseenter="expanded = true" @mouseleave="expanded = false"
     :class="expanded ? 'tw-w-[254px]' : 'tw-w-[50px]'">
     <ul class="tw-flex tw-flex-col tw-items-start tw-justify-center tw-divide-y">
@@ -100,13 +100,15 @@
                 Settings
               </div>
             </router-link>
-            <router-link to="/user/configuration">
+            <router-link to="/user/configuration" v-if="permissions.getCanUserOverrideGenAIConfig">
               <div class="menu-item tw-border-t tw-py-2 tw-min-w-[150px]" v-close-popup
                 v-if="permissions.canEditQuestion">
                 <UserIcon size="28" class="icon-primary" /> User Configurations
               </div>
             </router-link>
             <div class="menu-item tw-border-t tw-py-2 tw-min-w-[150px]" v-close-popup @click="logout">
+
+              <LogoutIcon size="28" class="icon-primary" />
               Logout
             </div>
           </div>
@@ -143,6 +145,7 @@ import {
   StackIcon,
   CategoryIcon,
   CircleLetterQIcon,
+  LogoutIcon,
 } from 'vue-tabler-icons';
 const session = sessionStore();
 export default {
@@ -159,6 +162,7 @@ export default {
     ChevronRightIcon,
     UserIcon,
     CircleLetterQIcon,
+    LogoutIcon
   },
 
   computed: {

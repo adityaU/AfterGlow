@@ -22,7 +22,6 @@ fn main() {
             .iter()
             .any(|s| s == "-DXMLSEC_CRYPTO_DYNAMIC_LOADING=1")
         {
-            println!("cargo:rustc-cfg=xmlsec_dynamic");
             true
         } else {
             println!("cargo:rustc-cfg=xmlsec_static");

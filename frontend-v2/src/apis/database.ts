@@ -84,7 +84,7 @@ const fetchDatabaseWithConfig = async function(id, token, callback) {
 const fetchTables = async function(database_id, token, callback) {
   callback(null, true);
   apiV2
-    .get('/search_tables?database_id=' + database_id, apiConfig(token))
+    .get('/search_tables?database_id=' + database_id + "&q=&only_tables=true", apiConfig(token))
     .then((response) => {
       callback(response.data.data, false);
     });

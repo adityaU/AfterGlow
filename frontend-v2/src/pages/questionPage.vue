@@ -576,7 +576,7 @@ export default {
       this.payload.variables = this.variables.map((v) => {
         return {
           name: v.name,
-          value: v.value != '' ? v.value || v.default : v.value,
+          value: v.value != 'Empty' ? v.value || v.default : "",
           default_options: [],
           var_type: v.var_type,
         };

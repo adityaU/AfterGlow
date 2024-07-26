@@ -1,39 +1,38 @@
 <template>
   <div class="tw-bg-white">
     <div class="tw-flex tw-p-2 tw-items-center tw-gap-2 tw-flex-nowrap tw-w-full">
-      <div class="tw-py-1 tw-flex tw-gap-2 tw-justify-start tw-items-center tw-flex-wrap tw-w-full"
+      <div class="tw-py-1 tw-flex tw-items-center tw-gap-2 tw-justify-start  tw-flex-wrap tw-w-full"
         :class="rawQuery || !table ? 'tw-flex-1' : ''">
         <AGDBSelector v-model:selectedDatabase="database" />
         <AGTableSelector v-model:selectedTable="table" v-if="!rawQuery && database && showDatabaseEditor"
           :database="database" />
 
         <QBHorizontalLayout :columns="columns" :colDetails="colDetails" class="tw-flex-1" v-model:queryTerms="queryTerms"
-          naked="true" v-if="!rawQuery && table && showDatabaseEditor">
+          naked="true" v-if="!rawQuery && table && showDatabaseEditor" hideAskAI=false>
         </QBHorizontalLayout>
 
-        <div v-if="showDatabaseEditor && databaseSupportsQueryBuilderQueries">
-          <span
-            class="tw-cursor-pointer tw-border tw-flex tw-items-center tw-leading-4 tw-py-1 tw-px-1.5 tw-rounded-full tw-mx-0.5 tw-border-default/20 tw-bg-secondary tw-text-default tw-border-2"
-            v-if="!rawQuery" @click="((rawQuery = !rawQuery) || true) && (resizeKey += 1)">
+        <template v-if="showDatabaseEditor && databaseSupportsQueryBuilderQueries">
+          <div class="icon-default" v-if="!rawQuery" @click="((rawQuery = !rawQuery) || true) && (resizeKey += 1)">
             <CodeIcon size="20" />
-          </span>
-        </div>
-        <div class="tw-text-right" v-if="showDatabaseEditor && databaseSupportsQueryBuilderQueries">
-          <span
+          </div>
+        </template>
+
+        <template v-if="showDatabaseEditor && databaseSupportsQueryBuilderQueries">
+          <div
             class="tw-cursor-pointer tw-border tw-flex tw-items-center tw-leading-4 tw-py-1 tw-px-1.5 tw-rounded-2xl tw-mx-0.5 tw-border-default/20 tw-bg-secondary tw-text-default tw-border-2"
             v-if="rawQuery" @click="rawQuery = !rawQuery">
             <BoxModel2Icon size="20" />
-          </span>
+          </div>
           <div v-if="showDatabaseEditor && databaseSupportsQueryBuilderQueries">
-            <span
+            <div
               class="tw-cursor-pointer tw-border tw-flex tw-items-center tw-leading-4 tw-py-1 tw-px-1.5 tw-rounded-full tw-mx-0.5 tw-border-default/20 tw-bg-primary tw-text-default tw-border-2"
               v-if="!rawQuery && database && table" @click="
                 (updateQuestionHumanSql() || true) && this.$emit('runQuery')
                 ">
               <PlayerPlayIcon class="tw-stroke-white" size="20" />
-            </span>
+            </div>
           </div>
-        </div>
+        </template>
       </div>
     </div>
 

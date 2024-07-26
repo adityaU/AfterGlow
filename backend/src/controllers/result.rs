@@ -12,7 +12,7 @@ use crate::{
     repository::{models::AuditLog, DBPool},
 };
 
-use super::helpers::{get_current_user_id, get_current_user_ord_id};
+use super::helpers::{get_current_user_id, get_current_user_org_id};
 use actix_web_grants::proc_macro::has_permissions;
 
 use crate::repository::permissions::PermissionNames;
@@ -79,7 +79,7 @@ async fn fetch_results(
     let conn = pool.get();
 
     let current_user_id = get_current_user_id(&req);
-    let current_users_org = get_current_user_ord_id(&req);
+    let current_users_org = get_current_user_org_id(&req);
     let mut conn_pools = Arc::clone(&*connection_pools.into_inner());
     let resp = fetch(
         &mut conn.unwrap(),

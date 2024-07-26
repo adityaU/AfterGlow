@@ -16,10 +16,10 @@
       <div class="tw-flex tw-items-center tw-bg-white tw-py-2 tw-border-x"
         :class="!showDebugInfo ? 'tw-border-b tw-rounded-b-2xl' : ''">
         <QBHorizontalLayout :columns="results?.original_query_columns || results?.columns" :rows="results?.rows"
-          :colDetails="results?.column_details" :resultsKey="resultskey"
-          class="tw-mb-[10px] custom-shadow tw-border tw-rounded-sm" v-model:queryTerms="currentViz.queryTerms"
-          :key="rerenderKey" :vizConfig="currentViz?.settings?.general" :quesConfig="question && question?.config"
-          :hideQueryTerms="apiResponse || !databaseSupportsFilters" v-if="currentViz">
+          :colDetails="results?.column_details" :resultsKey="resultskey" class="custom-shadow tw-border tw-rounded-sm"
+          v-model:queryTerms="currentViz.queryTerms" :key="rerenderKey" :vizConfig="currentViz?.settings?.general"
+          :quesConfig="question && question?.config" :hideQueryTerms="apiResponse || !databaseSupportsFilters"
+          v-if="currentViz">
           <template #actions>
             <div class="tw-cursor-pointer icon-primary tw-p-2" @click="
               resetFetchingDataMessage() && $emit('updateViz', currentViz)

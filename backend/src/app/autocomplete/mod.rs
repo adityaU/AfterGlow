@@ -6,8 +6,12 @@ use lazy_static::lazy_static;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::app::gen_ai;
 use crate::repository::models::Column;
 
+use crate::repository::models::Database;
+use crate::repository::models::SupportedDatabases;
+use crate::repository::models::Table;
 use crate::repository::models::Team;
 use crate::repository::models::User;
 
@@ -126,4 +130,76 @@ pub fn recipients(conn: &mut PgConnection, query: String) -> Vec<String> {
 
     teams.append(&mut users);
     teams
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct NounsAndVerbs {
+    pub nouns: Vec<String>,
+    pub verbs: Vec<String>,
+}
+
+pub async fn ai_complete(
+    conn: &mut PgConnection,
+    database_id: i64,
+    user_id: i64,
+    org_id: i64,
+    prompt: String,
+) -> Result<String, String> {
+    let database = Database::find(conn, database_id).map_err(|e| e.to_string())?;
+    let resp = gen_ai::call(
+        conn,
+        user_id,
+        org_id,
+        prompt.clone(),
+        gen_ai::NOUN_AND_VERBS_SYSTEM_PROMPT,
+    )
+    .await;
+
+    let resp = resp?;
+    let nouns_and_verbs =
+        serde_json::from_str::<NounsAndVerbs>(&resp).map_err(|e| e.to_string())?;
+    let mut tables = vec![];
+    for noun in nouns_and_verbs.nouns {
+        let mut tables_with_columns = Table::search_with_columns(conn, &database.id, noun.clone())
+            .map_err(|e| e.to_string())?;
+        tables.append(&mut tables_with_columns);
+    }
+
+    for verb in nouns_and_verbs.verbs {
+        let mut tables_with_columns = Table::search_with_columns(conn, &database.id, verb.clone())
+            .map_err(|e| e.to_string())?;
+        tables.append(&mut tables_with_columns);
+    }
+
+    let mut schema = "Schema:\n".to_string();
+    for table in tables {
+        schema += format!(
+            "{}({})\n",
+            table.table.name.unwrap_or_default(),
+            table
+                .columns
+                .iter()
+                .map(|c| c.name.clone().unwrap_or_default())
+                .collect::<Vec<String>>()
+                .join(",")
+        )
+        .as_str();
+    }
+
+    let database_type_prompt = format!(
+        "Database Type: {:?}",
+        database.db_type.unwrap_or(SupportedDatabases::Postgres)
+    );
+
+    let prompt = schema + format!("\n\n{}\n\n{}", prompt.clone(), database_type_prompt).as_str();
+    let resp = gen_ai::call(
+        conn,
+        user_id,
+        org_id,
+        prompt,
+        gen_ai::DATABASE_EXPERT_SYSTEM_PROMPT,
+    )
+    .await?;
+
+    Ok(resp)
 }

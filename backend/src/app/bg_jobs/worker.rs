@@ -12,7 +12,6 @@ pub async fn run(queue: Arc<dyn Queue>, data: Arc<LongLivedData>) {
             Ok(jobs) => jobs,
 
             Err(err) => {
-                println!("Worker Error: {}", err);
                 tokio::time::sleep(Duration::from_millis(500)).await;
 
                 Vec::new()

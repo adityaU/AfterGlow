@@ -183,7 +183,7 @@ export default {
 
     clear() {
       this.variables.forEach((v) => {
-        v.value = '';
+        v.value = 'Empty';
         if (v.var_type == 'Date') {
           v.clearCount = v.hasOwnProperty('clearCount') ? v.clearCount + 1 : 0;
         }

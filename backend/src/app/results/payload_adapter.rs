@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    app::questions::config,
+    app::questions::config::{self, GenAIPrompt},
     repository::models::{ApiActionChangeset, VariableType},
 };
 
@@ -89,6 +89,7 @@ impl AdaptedPayload {
                     views: payload.views.unwrap_or_default(),
                     limit: payload.limit,
                     offset: payload.offset,
+                    genai_prompt: None,
                 }),
                 table: payload.table,
                 variables: make_variable(&payload.variables.unwrap_or_default()),
@@ -130,6 +131,7 @@ pub struct QueryTerms {
     pub views: Vec<View>,
     pub limit: Option<i64>,
     pub offset: Option<i64>,
+    pub genai_prompt: Option<GenAIPrompt>,
 }
 
 impl QueryTerms {
@@ -140,6 +142,7 @@ impl QueryTerms {
             && self.views.is_empty()
             && self.limit.is_none()
             && self.offset.is_none()
+            && self.genai_prompt.is_none()
     }
     pub fn new(query_terms: config::QueryTerms) -> QueryTerms {
         Self {
@@ -149,6 +152,7 @@ impl QueryTerms {
             views: make_views(query_terms.views.get_details()),
             limit: query_terms.limit.unwrap_or_default().to_int64(),
             offset: query_terms.offset.unwrap_or_default().to_int64(),
+            genai_prompt: query_terms.genai_prompt,
         }
     }
 }

@@ -487,6 +487,11 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
                 .route(web::put().to(database::update_scoped_db)),
         )
         .service(
+            web::resource("ai_complete")
+                .wrap(from_fn(authenticate))
+                .route(web::post().to(autocomplete::ai_complete)),
+        )
+        .service(
             web::resource("/system_variables")
                 .wrap(from_fn(authenticate))
                 .route(web::get().to(system_variable::index))

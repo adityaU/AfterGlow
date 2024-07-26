@@ -1,12 +1,12 @@
 use std::fmt::{self, Formatter};
 
 use actix_web::HttpRequest;
-use actix_web_grants::permissions::{AuthDetails, PermissionsCheck};
+use actix_web_grants::permissions::{AuthDetails};
 use chrono::Utc;
 use diesel::{result::Error, PgConnection};
 use std::error::Error as StdError;
 
-use samael::schema::authn_request;
+
 use serde_json::to_value;
 use uuid::Uuid;
 
@@ -15,7 +15,6 @@ use crate::{
         helpers::get_current_user_id,
         question::{ApiAction, QuestionPayload},
     },
-    errors::AGError,
     repository::{
         models::{
             ActionLevel, ApiAction as DBApiAction, ApiActionChangeset, Question, QuestionChangeset,
@@ -195,8 +194,8 @@ impl From<Error> for QuestionCreateError {
 pub fn delete(
     conn: &mut PgConnection,
     question_id: i64,
-    req: HttpRequest,
-    auth_details: AuthDetails<PermissionNames>,
+    _req: HttpRequest,
+    _auth_details: AuthDetails<PermissionNames>,
 ) -> Result<(), Error> {
     DBApiAction::delete_all_by_question_id(conn, question_id)?;
     DBVariable::delete_by_question_id(conn, question_id)?;

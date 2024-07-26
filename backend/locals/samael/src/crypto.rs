@@ -410,7 +410,8 @@ pub(crate) fn reduce_xml_to_signed(
     // collect ID attribute values and tell libxml about them
     collect_id_attributes(&mut xml)?;
 
-    // println!("certs: {:?}", certs);
+    //
+
     // println!("xml: {:?}", xml_str);
     // println!("root_elem: {:?}", root_elem.clone());
 
@@ -449,7 +450,6 @@ pub(crate) fn reduce_xml_to_signed(
         }
         // }
     }
-    println!("sig verification step was done");
 
     // define the "signature verified" namespace
     let sig_ver_ns = libxml::tree::Namespace::new("sv", XMLNS_SIGVER, &mut root_elem)

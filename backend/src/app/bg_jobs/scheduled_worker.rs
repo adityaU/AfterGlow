@@ -39,7 +39,6 @@ pub async fn run(queue: Arc<dyn Queue>, data: Arc<LongLivedData>) {
         let jobs = match queue.next_named_jobs().await {
             Ok(jobs) => jobs,
             Err(err) => {
-                println!("Scheduled Worker Error: {}", err);
                 tokio::time::sleep(Duration::from_millis(500)).await;
                 Vec::new()
             }

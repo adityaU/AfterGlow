@@ -1,11 +1,10 @@
 use chrono::NaiveDateTime;
 use diesel::PgConnection;
 use serde::{Deserialize, Serialize};
-use serde_json::map;
+
 
 use crate::repository::{
     models::{Column, Table},
-    schema::column_values,
     table::TableWithColumns,
 };
 

@@ -1,27 +1,49 @@
 use chrono::Utc;
 
-use chrono_tz::UTC;
 use dotenv::dotenv;
 
-use rand::rngs::OsRng;
-use rcgen::{Certificate, CertificateParams, KeyPair};
-use rsa::pkcs8::{EncodePrivateKey, LineEnding};
-use rsa::RsaPrivateKey;
 use serde_json::json;
-use sqlparser::keywords::UUID;
+
 use uuid::Uuid;
 
-use crate::repository::models::{Database as DBModel, DatabaseChangeset, SupportedDatabases};
-use crate::repository::permissions::{EDITOR_PERMISSIONS, VIEWER_PERMISSIONS};
-use crate::repository::Database;
-use crate::{
-    app::settings::reports::REPORT_CONFIG_NAMES,
-    repository::{
-        models::{Permission, PermissionSet, Setting, User, UserChangeset, UserPermissionSet},
-        permissions::ADMIN_PERMISSIONS,
-        DBPool,
-    },
+use crate::repository::models::{
+    Database as DBModel, DatabaseChangeset, Organization, OrganizationSetting, SupportedDatabases,
+    UserSetting,
 };
+use crate::repository::permissions::{EDITOR_PERMISSIONS, VIEWER_PERMISSIONS};
+
+use crate::repository::{
+    models::{Permission, PermissionSet, Setting, User, UserChangeset, UserPermissionSet},
+    permissions::ADMIN_PERMISSIONS,
+    DBPool,
+};
+
+pub fn ensure_user_settings(pool: DBPool) {
+    let conn = pool.get();
+    let orgs = Organization::index(&mut conn.unwrap());
+    if orgs.is_err() {
+        return;
+    }
+    let orgs = orgs.unwrap();
+    orgs.iter().for_each(|org| {
+        let conn = pool.get();
+        OrganizationSetting::create_defaults(&mut conn.unwrap(), org.id);
+    });
+}
+
+pub fn ensure_organization_settings(pool: DBPool) {
+    let conn = pool.get();
+    let users = User::index(&mut conn.unwrap());
+    if users.is_err() {
+        println!("Not able to fetch organizations");
+        return;
+    }
+    let users = users.unwrap();
+    users.iter().for_each(|user| {
+        let conn = pool.get();
+        UserSetting::create_defaults(&mut conn.unwrap(), user.id);
+    });
+}
 
 pub fn setup_google_credentials(pool: DBPool) {
     dotenv().ok();
@@ -53,148 +75,8 @@ pub fn setup_google_credentials(pool: DBPool) {
 }
 
 pub fn create_default_settings(pool: DBPool) {
-    for setting in REPORT_CONFIG_NAMES {
-        let conn = pool.get();
-        let _ = Setting::find_by_name_or_create(
-            &mut conn.unwrap(),
-            setting.to_string(),
-            "".to_string(),
-        );
-    }
-
     let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "THEME_PRIMARY_COLOR".to_string(),
-        "rgb(85 64 198)".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "THEME_TERTIARY_COLOR".to_string(),
-        "rgb(229 231 235)".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "THEME_WHITE_COLOR".to_string(),
-        "rgb(255 255 255)".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "THEME_SECONDARY_COLOR".to_string(),
-        "rgb(245 247 251)".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "THEME_DEFAULT_COLOR".to_string(),
-        "rgb(32 33 36)".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "MAX_FRONTEND_LIMIT".to_string(),
-        "2000".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "DOWNLOAD_ALLOWED".to_string(),
-        "true".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "MAX_DOWNLOAD_LIMIT".to_string(),
-        "".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "OPENAI_MODEL_NAME".to_string(),
-        "".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "OPENAI_ENABLED".to_string(),
-        "false".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "OPENAI_API_KEY".to_string(),
-        "".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "USERS_CAN_OVERRIDE_OPENAI_KEY ".to_string(),
-        "false".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "GLOBAL_OPENAI_KEY".to_string(),
-        "".to_string(),
-    );
-
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "GOOGLE_LOGIN_ENABLED".to_string(),
-        "".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "GOOGLE_CLIENT_KEY".to_string(),
-        "".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "GOOGLE_CLIENT_SECRET".to_string(),
-        "".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "SAML_LOGIN_ENABLED".to_string(),
-        "".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "SAML_IDP_METADATA_XML".to_string(),
-        "".to_string(),
-    );
-    let conn = pool.get();
-    let _ = Setting::find_by_name_or_create(
-        &mut conn.unwrap(),
-        "SAML_ENTITY_ID".to_string(),
-        "".to_string(),
-    );
-
-    let resp = generate_saml_keys();
-
-    if let Ok((private_key, public_key)) = resp {
-        let conn = pool.get();
-        let _ = Setting::find_by_name_or_create(
-            &mut conn.unwrap(),
-            "SAML_PRIVATE_KEY".to_string(),
-            private_key,
-        );
-
-        let conn = pool.get();
-        let _ = Setting::find_by_name_or_create(
-            &mut conn.unwrap(),
-            "SAML_PUBLIC_KEY".to_string(),
-            public_key,
-        );
-    }
+    Setting::create_defaults(&mut conn.unwrap());
 }
 
 pub fn create_default_users(pool: DBPool) {
@@ -347,59 +229,4 @@ pub fn create_default_api_client(pool: DBPool) {
         }
         Ok(_) => return,
     }
-}
-
-fn generate_saml_keys() -> Result<(String, String), String> {
-    // // Generate a 2048-bit RSA key pair
-    // let rsa = Rsa::generate(2048).map_err(|_| "Failed to generate RSA key".to_string())?;
-    //
-    //
-    // // Extract the private key as PEM
-    // let private_key_pem = format!(
-    //     "{}",
-    //     String::from_utf8_lossy(
-    //         rsa.private_key_to_pem()
-    //             .map_err(|_| "Failed to get Private key".to_string())?
-    //             .as_slice()
-    //     )
-    // );
-    //
-    // // Extract the public key as PEM
-    // let public_key_pem = format!(
-    //     "{}",
-    //     String::from_utf8_lossy(
-    //         rsa.public_key_to_pem()
-    //             .map_err(|_| "Failed to Public key".to_string())?
-    //             .as_slice()
-    //     )
-    // );
-    //
-    // // Output the keys
-    let mut rng = OsRng;
-    let bits = 2048; // Key size
-    let private_key = RsaPrivateKey::new(&mut rng, bits)
-        .map_err(|err| format!("failed to initiate private key: {}", err))?;
-    let private_key_pem = private_key
-        .to_pkcs8_pem(LineEnding::LF)
-        .map_err(|err| format!("failed to initiate private key: {}", err))?;
-
-    // Convert RSA Private Key to a format rcgen can use
-    let key_pair = KeyPair::from_pem(private_key_pem.as_ref())
-        .map_err(|err| format!("failed to create private key: {}", err))?;
-
-    // Set up certificate parameters
-    let mut params = CertificateParams::new(vec!["*".to_string()]);
-    params.key_pair = Some(key_pair);
-    let signature_algorithm = &rcgen::PKCS_RSA_SHA256;
-    params.alg = signature_algorithm;
-
-    // Generate the certificate
-    let cert = Certificate::from_params(params)
-        .map_err(|err| format!("failed to create certificate key: {}", err))?;
-    // Output the generated private key and certificate
-    let cert_pem = cert
-        .serialize_pem()
-        .map_err(|err| format!("failed to serialize certificate key: {}", err))?;
-
-    Ok((private_key_pem.to_string(), cert_pem))
 }

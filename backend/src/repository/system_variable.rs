@@ -1,4 +1,3 @@
-use std::fmt::format;
 use std::io;
 
 use chrono::Utc;
@@ -13,7 +12,7 @@ use ring::aead::NonceSequence;
 use ring::aead::NONCE_LEN;
 use ring::error::Unspecified;
 use ring::{
-    aead::{self, Aad, BoundKey},
+    aead::{self, BoundKey},
     rand::{SecureRandom, SystemRandom},
 };
 use serde::Deserialize;
@@ -83,8 +82,6 @@ impl SystemVariable {
         // Convert value to a mutable vector
         let mut in_out = value.into_bytes();
 
-        println!("into bytes: {:?}", in_out);
-
         // Encrypt the data
         let tag = sealing_key
             .seal_in_place_separate_tag(
@@ -99,12 +96,9 @@ impl SystemVariable {
                 )
             })?;
 
-        println!("in out {:?}", in_out);
-
         // Append the tag to the ciphertext
         in_out.extend_from_slice(tag.as_ref());
 
-        println!("Encrypted message: {:?}", in_out);
         Ok((in_out, nonce.to_vec()))
     }
 
@@ -252,7 +246,6 @@ impl SystemVariable {
             )
         })?;
 
-        println!("Decrypted message: {:?}", decrypted);
         Ok(decrypted)
     }
 

@@ -1,6 +1,9 @@
 use diesel::PgConnection;
 
-use crate::app::{results::payload_adapter::AdaptedPayload, settings::limit};
+use crate::{
+    app::{results::payload_adapter::AdaptedPayload, settings::limit},
+    repository::models::SupportedDatabases,
+};
 
 use super::{sql_base::SQlBased, Queries, QueryBuilder};
 
@@ -9,7 +12,12 @@ pub struct Postgres {
 }
 
 impl QueryBuilder for Postgres {
-    fn build(&self, conn: &mut PgConnection, user_id: i64, org_id: i64) -> Result<Queries, String> {
+    async fn build(
+        &self,
+        conn: &mut PgConnection,
+        user_id: i64,
+        org_id: i64,
+    ) -> Result<Queries, String> {
         let (mut queries, variables) = match &self.inner {
             AdaptedPayload::ApiAction {
                 database: _database,
@@ -42,6 +50,53 @@ impl QueryBuilder for Postgres {
             queries.debug_query,
             limit::applicable_frontend_limit(conn, user_id, org_id),
         );
+
+        queries.debug_query = match &self.inner {
+            AdaptedPayload::ApiAction {
+                database: _,
+                api_action: _,
+                variables: _,
+            } => queries.db_query.clone(),
+            AdaptedPayload::Raw {
+                database: _,
+                raw_query: _,
+                variables: _,
+                visualization_query_terms,
+            } => {
+                Self::generate_from_gen_ai(
+                    conn,
+                    queries.debug_query.clone(),
+                    visualization_query_terms
+                        .genai_prompt
+                        .clone()
+                        .unwrap_or_default(),
+                    SupportedDatabases::Postgres,
+                    user_id,
+                    org_id,
+                )
+                .await
+            }
+            AdaptedPayload::QB {
+                database: _,
+                question_query_terms: _,
+                table: _,
+                variables: _,
+                visualization_query_terms,
+            } => {
+                Self::generate_from_gen_ai(
+                    conn,
+                    queries.debug_query.clone(),
+                    visualization_query_terms
+                        .genai_prompt
+                        .clone()
+                        .unwrap_or_default(),
+                    SupportedDatabases::Postgres,
+                    user_id,
+                    org_id,
+                )
+                .await
+            }
+        };
         queries.db_query = Self::replace_system_variables(conn, queries.debug_query.clone());
         Ok(queries)
     }

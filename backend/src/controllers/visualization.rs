@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use super::{
     base,
-    helpers::{get_current_user_email, get_current_user_id, get_current_user_ord_id},
+    helpers::{get_current_user_email, get_current_user_id, get_current_user_org_id},
 };
 use actix_web::{error, http::StatusCode};
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
@@ -144,7 +144,7 @@ pub(crate) async fn create_csv(
     let conn = pool.get();
 
     let current_user_id = get_current_user_id(&req);
-    let current_users_org = get_current_user_ord_id(&req);
+    let current_users_org = get_current_user_org_id(&req);
 
     if !is_report_config_complete(&mut conn.unwrap()) {
         return Err(AGError::<String>::new(REPORTS_NOT_SET_FAILURE.to_string()));

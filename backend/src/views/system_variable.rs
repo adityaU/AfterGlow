@@ -12,7 +12,7 @@ impl SystemVariableView {
     pub fn from_model(sv: &SystemVariable) -> Self {
         let value = match String::from_utf8(sv.clone().value) {
             Ok(string) => string,
-            Err(e) => "Invalid Value".to_string(),
+            Err(_e) => "Invalid Value".to_string(),
         };
         Self {
             id: sv.id,

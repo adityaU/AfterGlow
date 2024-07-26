@@ -89,6 +89,15 @@ pub struct QueryTerms {
     pub views: Views,
     pub limit: Option<StringOrInt64>,
     pub offset: Option<StringOrInt64>,
+    pub genai_prompt: Option<GenAIPrompt>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct GenAIPrompt {
+    pub request: Option<String>,
+    pub response: Option<String>,
+    pub columns: Option<Vec<String>>,
+    pub request_hash: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

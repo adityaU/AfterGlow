@@ -14,8 +14,8 @@ use crate::{
     errors::AGError,
     repository::{
         models::{
-            Dashboard, DashboardChangeset, DashboardView, DashboardWidget, Schedule,
-            ScheduleChangeset, TeamShare,
+            Dashboard, DashboardChangeset, DashboardView, Schedule,
+            ScheduleChangeset,
         },
         DBPool,
     },
@@ -24,7 +24,7 @@ use crate::{
 
 use actix_web_grants::{permissions::AuthDetails, proc_macro::has_permissions};
 
-use super::{base, helpers::get_current_user_email};
+use super::{helpers::get_current_user_email};
 use crate::repository::permissions::PermissionNames;
 use crate::repository::permissions::PermissionNames::*;
 
@@ -32,6 +32,11 @@ use crate::repository::permissions::PermissionNames::*;
 pub struct QueryParams {
     query: Option<String>,
     limit: Option<i64>,
+}
+
+#[derive(Deserialize)]
+pub struct ShowParams {
+    pub share_id: Option<String>,
 }
 
 #[has_permissions["DashboardEdit",type = "PermissionNames"]]
@@ -102,14 +107,66 @@ pub(crate) async fn show(
     pool: web::Data<Arc<DBPool>>,
     item_id: web::Path<i64>,
     req: HttpRequest,
+    qp: web::Query<ShowParams>,
     auth_details: AuthDetails<PermissionNames>,
 ) -> impl Responder {
     let conn = pool.get();
     let current_user_email = get_current_user_email(&req);
     let permissions = auth_details.permissions;
+
+    let dashboard_id = item_id.into_inner();
+
+    if qp.share_id.clone().is_some() {
+        let dashboard = Dashboard::find(&mut conn.unwrap(), dashboard_id).map_err(|err| {
+            AGError::<String>::new_with_details(
+                error::ErrorNotFound("Unauthorized").to_string(),
+                Some(err.to_string()),
+                StatusCode::NOT_FOUND,
+            )
+        })?;
+        let share_id = dashboard.shareable_link.unwrap_or_default().to_string();
+
+        if share_id == qp.share_id.clone().unwrap_or_default()
+            && !dashboard
+                .shared_to
+                .clone()
+                .unwrap_or_default()
+                .contains(&Some(current_user_email.clone()))
+        {
+            let mut shared_to = dashboard.shared_to.unwrap_or_default().clone();
+            shared_to.push(Some(current_user_email));
+            let conn = pool.get();
+            return Dashboard::update(
+                &mut conn.unwrap(),
+                dashboard_id,
+                DashboardChangeset {
+                    title: dashboard.title,
+                    update_interval: dashboard.update_interval,
+                    last_updated: dashboard.last_updated,
+                    inserted_at: dashboard.inserted_at,
+                    updated_at: dashboard.updated_at,
+                    description: dashboard.description,
+                    shareable_link: dashboard.shareable_link,
+                    is_shareable_link_public: dashboard.is_shareable_link_public,
+                    settings: dashboard.settings,
+                    shared_to: Some(shared_to),
+                    owner_id: dashboard.owner_id,
+                    notes_settings: dashboard.notes_settings,
+                },
+            )
+            .map(|item| {
+                let conn = pool.get();
+                HttpResponse::Ok().json(ResponseData {
+                    data: DetailedDashboardView::from_model(&mut conn.unwrap(), &item),
+                })
+            })
+            .map_err(|err| AGError::<String>::new(err));
+        }
+    }
+    let conn = pool.get();
     Dashboard::scoped_find(
         &mut conn.unwrap(),
-        item_id.into_inner(),
+        dashboard_id,
         current_user_email,
         permissions,
     )

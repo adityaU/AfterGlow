@@ -314,7 +314,8 @@ impl ServiceProvider {
         possible_request_ids: Option<&[&str]>,
     ) -> Result<Assertion, Box<dyn std::error::Error>> {
         let bytes = general_purpose::STANDARD.decode(encoded_resp)?;
-        // println!("before inflated: {:?}", bytes);
+        //
+
         // let inflated = inflate::inflate_bytes(&bytes)?;
         // println!("inflated: {:?}", inflated);
         let decoded = std::str::from_utf8(&bytes)?;

@@ -43,9 +43,12 @@ impl Table {
         let results = tables::table
             .inner_join(columns_::table.on(tables::id.nullable().eq(columns_::table_id)))
             .filter(
-                tables::database_id
-                    .eq(dbid)
-                    .and(tables::name.ilike(format!("%{}%", q))),
+                tables::database_id.eq(dbid).and(
+                    tables::name
+                        .ilike(format!("%{}%", q))
+                        .or(tables::name.ilike(format!("{}%", q)))
+                        .or(tables::name.ilike(format!("{}%", q))),
+                ),
             )
             .order(tables::name.asc())
             .select((tables::all_columns, columns_::all_columns))

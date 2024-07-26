@@ -1,5 +1,5 @@
 <template>
-  <div class="tw-w-full tw-border tw-px-4 tw-py-2 tw-cursor-pointer tw-bg-white">
+  <div class="tw-w-full tw-border tw-px-4 tw-py-2 tw-cursor-pointer">
     {{ displayTextLocal }}
     <div class="tw-text-default/40" v-if="!displayTextLocal"> Select Date & Time </div>
     <q-menu flat="true" transition-show="scale" transition-hide="scale" max-height="400px" :offset="[0, 5]"
@@ -36,8 +36,9 @@ export default {
       this.displayTextLocal = this.makeDisplayText(this.displayText);
     },
     clearCount() {
-      this.valueLocal = null;
-      this.displayTextLocal = this.makeDisplayText(this.displayText)
+      this.valueLocal = "Empty";
+      this.displayTextLocal = "Empty"
+      this.displayTextLocal = this.makeDisplayText("Empty")
     },
   },
   data() {
@@ -52,6 +53,9 @@ export default {
       this.$emit('update:value', this.valueLocal);
     },
     makeDisplayText(text) {
+      if (text === "Empty") {
+        return "Empty";
+      }
       // if (!this.value) {
       this.valueLocal = text;
       this.$emit('update:value', this.valueLocal);

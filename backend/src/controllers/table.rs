@@ -52,7 +52,6 @@ pub async fn search(
     pool: web::Data<Arc<DBPool>>,
     params: web::Query<QueryParams>,
 ) -> impl Responder {
-    println!("searching for tables: {:?}", params);
     match &params.only_tables {
         true => {
             let conn = pool.get();

@@ -1,5 +1,4 @@
 use std::{
-    error::Error,
     sync::{Arc, Mutex},
 };
 
@@ -73,7 +72,7 @@ pub async fn update_scoped_db(
     base_db_adapter
         .update_role(role_payload.clone(), cps)
         .await?;
-    let mut db_config = db_config.clone();
+    let _db_config = db_config.clone();
 
     Ok(db)
 }

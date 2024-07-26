@@ -2,26 +2,27 @@
   <div class="tw-flex-1 tw-flex tw-items-center">
     <div class="tw-flex tw-items-center tw-flex-1">
       <template v-for="variable in variablesLocal" :key="variable">
-        <div class="tw-flex tw-items-center tw-m-1">
-          <div class="tw-bg-primary/90  tw-px-4 tw-py-2 tw-rounded-l-full">
+        <div class="tw-flex tw-m-1 tw-items-stretch">
+          <div
+            class="tw-bg-primary/90 tw-text-text-onprimary/80  tw-px-4 tw-py-2 tw-rounded-l-full tw-flex tw-items-center">
             {{ variable.name }}
           </div>
-          <div class="tw-bg-primary  tw-px-4 tw-py-2 note" :class="currentUser.canEditQuestion ? '' : 'tw-rounded-full'"
-            v-if="variable.var_type === 'String' ||
+          <div class="tw-bg-primary tw-py-auto  tw-px-4 tw-py-2 note tw-flex tw-items-center"
+            :class="currentUser.canEditQuestion ? '' : 'tw-rounded-full'" v-if="variable.var_type === 'String' ||
               variable.var_type === 'Integer'
               ">
             {{ variable.value != null ? variable.value : variable.default }}
           </div>
-          <AGDatetimePicker class="tw-bg-primary  tw-px-4 tw-py-2 tw-border-0" v-model:value="variable.value"
-            :displayText="variable.value || variable.default" type="datepicker" :clearCount="variable.clearCount"
-            v-if="variable.var_type === 'Date'" />
+          <AGDatetimePicker class="tw-bg-primary  tw-px-4 tw-py-2 tw-border-0 tw-flex tw-items-center"
+            v-model:value="variable.value" :displayText="variable.value || variable.default" type="datepicker"
+            :clearCount="variable.clearCount" v-if="variable.var_type === 'Date'" />
           <q-menu flat="true" transition-show="jump-down" transition-hide="jump-up" max-height="400px"
             class="tw-rounded-2xl tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown" fit v-if="variable.var_type === 'String' ||
               variable.var_type === 'Integer'
               ">
             <AGInput :placeholder="'Enter ' + variable.name" v-model:value="variable.value" />
           </q-menu>
-          <div class="tw-rounded-r-full tw-bg-primary/60 tw-py-2 tw-px-4 tw-cursor-pointer"
+          <div class="tw-rounded-r-full tw-bg-primary/60 tw-py-2 tw-px-4 tw-cursor-pointer tw-flex tw-items-center"
             v-if="currentUser.canEditQuestion" @click="
               (openVariableEditingModal = true) && (editingVariable = variable)
               ">
@@ -255,7 +256,7 @@ export default {
 
     clearVars() {
       this.variablesLocal.forEach((v) => {
-        v.value = '';
+        v.value = 'Empty';
       });
     },
   },

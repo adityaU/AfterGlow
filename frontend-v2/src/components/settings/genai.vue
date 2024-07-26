@@ -1,5 +1,5 @@
 <template>
-  <div class="" v-if="currentUser.getCanUserOverrideGenAIConfig">
+  <div class="tw-flex tw-flex-col tw-mx-3 tw-bg-white tw-rounded-2xl tw-w-full tw-py-2 tw-border">
     <div class="tw-p-2 divide-y tw-px-4">
       <div class="label tw-mt-4 tw-mb-1">Select GenAI SQL Generation Provider</div>
 
@@ -10,7 +10,7 @@
 
         <div class="note tw-mt-4">
           GenAI SQL Generation is disabled for this Afterglow installation. However, Organizations <template
-            v-if="usersCanOverrideGenAIConfig?.value != 'false'"> and users </template>
+            v-if="usersCanOverrideGenAIConfig.value != 'false'"> and users </template>
           can enable it by providing their own configuration.
         </div>
 
@@ -65,10 +65,6 @@ import AGInput from 'components/base/input.vue';
 import AGBool from 'components/base/bool.vue';
 import AGSelect from 'components/base/select.vue';
 import { fetchSettings, saveSettings } from 'src/apis/settings';
-import { fetchUserSettings, saveUserSettings } from 'src/apis/user';
-import { currentUserStore } from 'stores/currentUser';
-
-
 export default {
   name: 'AGSettingsOpenAIConfiguration',
   components: { AGInput, AGBool, AGSelect },
@@ -78,7 +74,7 @@ export default {
       deep: true,
       handler() {
         if (this.openAIModelName) {
-          saveUserSettings(this.openAIModelName, () => {
+          saveSettings(this.openAIModelName, () => {
             'pass';
           });
         }
@@ -88,7 +84,7 @@ export default {
       deep: true,
       handler() {
         if (this.openAIAPIKey) {
-          saveUserSettings(this.openAIAPIKey, () => {
+          saveSettings(this.openAIAPIKey, () => {
             'pass';
           });
         }
@@ -98,7 +94,7 @@ export default {
       deep: true,
       handler() {
         if (this.openAIAPIURL) {
-          saveUserSettings(this.openAIAPIURL, () => {
+          saveSettings(this.openAIAPIURL, () => {
             'pass';
           });
         }
@@ -108,7 +104,7 @@ export default {
       deep: true,
       handler() {
         if (this.ollamaModelName) {
-          saveUserSettings(this.ollamaModelName, () => {
+          saveSettings(this.ollamaModelName, () => {
             'pass';
           });
         }
@@ -118,7 +114,7 @@ export default {
       deep: true,
       handler() {
         if (this.ollamaAPIKey) {
-          saveUserSettings(this.ollamaAPIKey, () => {
+          saveSettings(this.ollamaAPIKey, () => {
             'pass';
           });
         }
@@ -128,7 +124,7 @@ export default {
       deep: true,
       handler() {
         if (this.ollamaAPIURL) {
-          saveUserSettings(this.ollamaAPIURL, () => {
+          saveSettings(this.ollamaAPIURL, () => {
             'pass';
           });
         }
@@ -138,7 +134,7 @@ export default {
       deep: true,
       handler() {
         if (this.claudeModelName) {
-          saveUserSettings(this.claudeModelName, () => {
+          saveSettings(this.claudeModelName, () => {
             'pass';
           });
         }
@@ -148,7 +144,7 @@ export default {
       deep: true,
       handler() {
         if (this.claudeAPIKey) {
-          saveUserSettings(this.claudeAPIKey, () => {
+          saveSettings(this.claudeAPIKey, () => {
             'pass';
           });
         }
@@ -158,7 +154,7 @@ export default {
       deep: true,
       handler() {
         if (this.claudeAPIURL) {
-          saveUserSettings(this.claudeAPIURL, () => {
+          saveSettings(this.claudeAPIURL, () => {
             'pass';
           });
         }
@@ -168,7 +164,7 @@ export default {
       deep: true,
       handler() {
         if (this.genAIProvider) {
-          saveUserSettings(this.genAIProvider, () => {
+          saveSettings(this.genAIProvider, () => {
             'pass';
           });
         }
@@ -178,7 +174,7 @@ export default {
       deep: true,
       handler() {
         if (this.usersCanOverrideGenAIConfig) {
-          saveUserSettings(this.usersCanOverrideGenAIConfig, () => {
+          saveSettings(this.usersCanOverrideGenAIConfig, () => {
             'pass';
           });
         }
@@ -206,14 +202,11 @@ export default {
 
 
       usersCanOverrideGenAIConfig: null,
-
-      currentUser: currentUserStore()
-
     };
   },
 
   mounted() {
-    fetchUserSettings(this.currentUser.getDetails.id, this.setSettings);
+    fetchSettings(this.setSettings);
   },
   methods: {
     setSettings(settings, _loading) {

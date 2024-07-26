@@ -115,6 +115,7 @@ impl DBAdapter for PostgresAdapter {
     ) -> Result<Queries, QueryError> {
         Postgres::new(adapted_payload)
             .build(conn, user_id, org_id)
+            .await
             .map_err(|err| QueryError::new(err, "".to_string()))
     }
     async fn fetch_response(
@@ -127,11 +128,13 @@ impl DBAdapter for PostgresAdapter {
     ) -> Result<DBAdapterResponse, QueryError> {
         let query = Postgres::new(adapted_payload)
             .build(conn, user_id, org_id)
+            .await
             .map_err(|err| QueryError::new(err, "".to_string()))?;
         let pool = self.get_pool(cps)?;
         let (rows, columns, column_details) = Self::fetch(
             pool,
             query.db_query.clone(),
+            query.debug_query.clone(),
             self.db_config.query_timeout.unwrap_or(60u64),
         )
         .await?;
@@ -161,7 +164,7 @@ impl DBAdapter for PostgresAdapter {
            AND indisprimary"#;
 
         let pool = self.get_pool(cps)?;
-        let rows = Self::fetch_raw(pool, query.to_string()).await?;
+        let rows = Self::fetch_raw(pool, query.to_string(), query.to_string()).await?;
 
         let mut res: Vec<PrimaryKey> = vec![];
         for row in &rows {
@@ -196,7 +199,7 @@ impl DBAdapter for PostgresAdapter {
         ORDER  BY pg_get_constraintdef(c.oid), conrelid::regclass::text, contype DESC"#;
 
         let pool = self.get_pool(cps)?;
-        let rows = Self::fetch_raw(pool, query.to_string()).await?;
+        let rows = Self::fetch_raw(pool, query.to_string(), query.to_string()).await?;
 
         let mut res: Vec<ForeignKey> = vec![];
         for row in &rows {
@@ -241,7 +244,7 @@ impl DBAdapter for PostgresAdapter {
       where information_schema.columns.table_schema not in ('information_schema', 'pg_catalog')
         group by table_catalog,table_schema, table_name"#;
         let pool = self.get_pool(cps)?;
-        let rows = Self::fetch_raw(pool, query.to_string()).await?;
+        let rows = Self::fetch_raw(pool, query.to_string(), query.to_string()).await?;
 
         let mut res: Vec<DBTable> = vec![];
         for row in &rows {
@@ -304,6 +307,7 @@ impl PostgresAdapter {
     async fn fetch(
         pool: Arc<Pool>,
         query: String,
+        debug_query: String,
         timeout_duration: u64,
     ) -> Result<
         (
@@ -316,7 +320,7 @@ impl PostgresAdapter {
         let duration = Duration::from_secs(timeout_duration);
         let (str_rows, columns, column_details) = {
             timeout(duration, async {
-                let res = match Self::fetch_raw(pool, query.clone()).await {
+                let res = match Self::fetch_raw(pool, query.clone(), debug_query.clone()).await {
                     Ok(value) => value,
                     Err(err) => return Err(err),
                 };
@@ -325,16 +329,20 @@ impl PostgresAdapter {
             })
         }
         .await
-        .map_err(|err| QueryError::new(err.to_string(), query.clone()))?
-        .map_err(|err| QueryError::new(err.to_string(), query.clone()))?;
+        .map_err(|err| QueryError::new(err.to_string(), debug_query.clone()))?
+        .map_err(|err| QueryError::new(err.to_string(), debug_query.clone()))?;
         Ok((str_rows, columns, column_details))
     }
 
-    async fn fetch_raw(pool: Arc<Pool>, query: String) -> Result<Vec<Row>, QueryError> {
+    async fn fetch_raw(
+        pool: Arc<Pool>,
+        query: String,
+        debug_query: String,
+    ) -> Result<Vec<Row>, QueryError> {
         let pool_conn = match pool
             .get()
             .await
-            .map_err(|err| QueryError::new(err.to_string(), query.clone()))
+            .map_err(|err| QueryError::new(err.to_string(), debug_query.clone()))
         {
             Ok(value) => value,
             Err(err) => return Err(err),
@@ -342,7 +350,7 @@ impl PostgresAdapter {
         let res = match pool_conn
             .query(query.clone().as_str(), &[])
             .await
-            .map_err(|err| QueryError::new(err.to_string(), query.clone()))
+            .map_err(|err| QueryError::new(err.to_string(), debug_query.clone()))
         {
             Ok(value) => value,
             Err(err) => return Err(err),
@@ -567,7 +575,6 @@ impl PostgresAdapter {
                     r.push(DBValue::VecJSON(value));
                 }
                 _ => {
-                    println!("Unsupported type: {}", column.type_().name());
                     let value = Some(String::from("unsupported type"));
                     r.push(DBValue::Strings(value));
                 }

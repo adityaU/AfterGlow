@@ -23,11 +23,9 @@
 
       <div class="">
         <div class=" tw-py-2 tw-px-2 tw-font-semibold tw-text-primary tw-text-sm" @click="s.show = !s.show">
-          <a href="#">
-            Data Series {{ index + 1 }}
-            <ChevronDownIcon v-if="s.show" class="tw-float-right tw-h-5 tw-w-5" />
-            <ChevronRightIcon v-if="!s.show" class="tw-float-right tw-h-5 tw-w-5" />
-          </a>
+          Data Series {{ index + 1 }}
+          <ChevronDownIcon v-if="s.show" class="tw-float-right tw-h-5 tw-w-5" />
+          <ChevronRightIcon v-if="!s.show" class="tw-float-right tw-h-5 tw-w-5" />
         </div>
 
 
@@ -55,11 +53,9 @@
               <div class=" tw-divide-y">
                 <div class=" tw-py-2 tw-px-4 tw-font-semibold tw-text-primary tw-text-sm"
                   @click="dimOption.show = !dimOption.show">
-                  <a href="#">
-                    {{ dimOption.name }}
-                    <ChevronDownIcon v-if="dimOption.show" class="tw-float-right tw-h-5 tw-w-5" />
-                    <ChevronRightIcon v-if="!dimOption.show" class="tw-float-right tw-h-5 tw-w-5" />
-                  </a>
+                  {{ dimOption.name }}
+                  <ChevronDownIcon v-if="dimOption.show" class="tw-float-right tw-h-5 tw-w-5" />
+                  <ChevronRightIcon v-if="!dimOption.show" class="tw-float-right tw-h-5 tw-w-5" />
                 </div>
 
 

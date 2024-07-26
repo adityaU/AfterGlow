@@ -5,7 +5,7 @@ import apiConfig from '../helpers/apiConfig';
 import { sessionStore } from 'stores/session';
 
 const results = resultsStore();
-const fetchQuestionResults = async function (payload, token, callback) {
+const fetchQuestionResults = async function(payload, token, callback) {
   callback(null, null, true);
   const key = await hash(JSON.stringify(payload));
   apiV2
@@ -26,7 +26,7 @@ const fetchQuestionResults = async function (payload, token, callback) {
     });
 };
 
-const searchQuestions = async function (query, tag, token, callback) {
+const searchQuestions = async function(query, tag, token, callback) {
   callback(null, true);
   apiV2
     .get('questions?q=' + query + '&tag=' + tag, apiConfig(token))
@@ -39,7 +39,7 @@ const searchQuestions = async function (query, tag, token, callback) {
     });
 };
 
-const fetchQuestions = async function (token, callback) {
+const fetchQuestions = async function(token, callback) {
   callback(null, true);
   apiV2
     .get('questions/', apiConfig(token))
@@ -52,7 +52,7 @@ const fetchQuestions = async function (token, callback) {
     });
 };
 
-const fetchQuestion = async function (id, token, callback) {
+const fetchQuestion = async function(id, token, callback) {
   callback(null, true);
   apiV2
     .get('questions/' + id + '?version=1&share_id=', apiConfig(token))
@@ -61,12 +61,16 @@ const fetchQuestion = async function (id, token, callback) {
     });
 };
 
-const fetchQuestionWithShareID = async function (id, shareID, token, callback) {
-  await fetchQuestion(id, token, callback);
-  return;
+const fetchQuestionWithShareID = async function(id, shareID, token, callback) {
+  callback(null, true);
+  apiV2
+    .get('questions/' + id + '?version=1&share_id=' + shareID, apiConfig(token))
+    .then((response) => {
+      callback(response.data.data, false);
+    });
 };
 
-const saveQuestion = async function (id, payload, token, callback) {
+const saveQuestion = async function(id, payload, token, callback) {
   callback(null, true);
   if (id) {
     apiV2
@@ -114,7 +118,7 @@ const saveQuestion = async function (id, payload, token, callback) {
 //     });
 // };
 
-const fetchQuestionVariables = async function (id, callback) {
+const fetchQuestionVariables = async function(id, callback) {
   const session = sessionStore();
   callback(null, true);
   apiV2

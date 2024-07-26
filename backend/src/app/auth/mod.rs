@@ -34,6 +34,8 @@ use crate::repository::permissions::PermissionNames;
 use crate::views::user::RestrictedUserView;
 use lazy_static::lazy_static;
 
+use super::settings::gen_ai::gen_ai_configuration;
+use super::settings::gen_ai::is_user_allowed_to_change_gen_ai_config;
 use super::settings::saml;
 use super::settings::theme;
 use super::settings::theme::Theme;
@@ -63,8 +65,10 @@ pub struct AGCallbackResponse {
     pub token: String,
     pub user: RestrictedUserView,
     pub permissions: Vec<PermissionNames>,
-    databases: Vec<Uuid>,
+    pub databases: Vec<Uuid>,
     pub theme: Theme,
+    pub can_user_override_genai_config: bool,
+    pub is_genai_enabled: bool,
 }
 
 lazy_static! {
@@ -106,12 +110,17 @@ pub fn verify_token(
     .into_iter()
     .map(|db| db.unique_identifier.unwrap_or_default())
     .collect::<Vec<Uuid>>();
+    let org_id = user.organization_id.unwrap_or_default();
+    let gen_ai_flag = is_user_allowed_to_change_gen_ai_config(conn, user_id, org_id);
+    let is_genai_enabled = gen_ai_configuration(conn, user.id, org_id).ok().is_some();
     Ok(AGCallbackResponse {
         theme: th,
         token: token_str,
         user: RestrictedUserView::from_model(&user),
         databases,
         permissions,
+        can_user_override_genai_config: gen_ai_flag,
+        is_genai_enabled,
     })
 }
 
@@ -236,12 +245,17 @@ pub async fn google_callback(
     .map(|db| db.unique_identifier.unwrap_or_default())
     .collect::<Vec<Uuid>>();
 
+    let org_id = user.organization_id.unwrap_or_default();
+    let gen_ai_flag = is_user_allowed_to_change_gen_ai_config(conn, user.id, org_id);
+    let is_genai_enabled = gen_ai_configuration(conn, user.id, org_id).ok().is_some();
     Ok(AGCallbackResponse {
         token,
         user: RestrictedUserView::from_model(&user),
         permissions,
         databases,
         theme: th,
+        can_user_override_genai_config: gen_ai_flag,
+        is_genai_enabled,
     })
 }
 

@@ -51,6 +51,8 @@ import AGDatetimePicker from 'components/base/inputDatePicker.vue';
 
 import AGInput from 'components/base/input.vue';
 
+import { formatDatetime } from 'src/helpers/datetimeFormatting';
+
 import { sessionStore } from 'stores/session';
 import cloneDeep from 'lodash/cloneDeep';
 import isDate from 'lodash/isDate';
@@ -80,8 +82,9 @@ export default {
     },
     variableType() {
       if (this.variableLocal.var_type === 'Date') {
-        if (this.isNotDate(this.variableLocal.default)) {
-          this.variableLocal.default = new Date();
+        if (this.isNotDate(this.variableLocal.default) || this.variableLocal.default == 0) {
+          this.variableLocal.default = formatDatetime(new Date(), 'MMM DD, YYYY hh:mm A Z');
+
         }
       } else {
         if (!this.isNotDate(this.variableLocal.default) || !this.variableLocal.default) {
