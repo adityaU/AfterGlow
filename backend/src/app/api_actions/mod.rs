@@ -197,6 +197,7 @@ async fn post(url: String, headers: HeaderMap, body: String) -> Result<Response,
 
 async fn patch(url: String, headers: HeaderMap, body: String) -> Result<Response, Error> {
     let client = reqwest::Client::new();
+    println!("PATCH");
     client.patch(url).headers(headers).body(body).send().await
 }
 

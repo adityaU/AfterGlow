@@ -225,8 +225,7 @@ pub fn create_default_api_client(pool: DBPool) {
                     unique_identifier: Some(Uuid::new_v4()),
                 },
             );
-            return;
         }
-        Ok(_) => return,
+        Ok(_) => (),
     }
 }

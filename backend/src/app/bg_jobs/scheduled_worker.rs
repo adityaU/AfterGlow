@@ -38,7 +38,7 @@ pub async fn run(queue: Arc<dyn Queue>, data: Arc<LongLivedData>) {
         let queue = queue.clone();
         let jobs = match queue.next_named_jobs().await {
             Ok(jobs) => jobs,
-            Err(err) => {
+            Err(_err) => {
                 tokio::time::sleep(Duration::from_millis(500)).await;
                 Vec::new()
             }
@@ -233,7 +233,7 @@ fn next_schedule_time_for_day(
                 )
         };
 
-        next_day = next_day.with_hour(hour.clone() as u32).unwrap_or(next_day);
+        next_day = next_day.with_hour(*hour as u32).unwrap_or(next_day);
         next_day = next_day.with_minute(*minute as u32).unwrap_or(next_day);
         next_day = set_meridiem(next_day, am.clone());
 
@@ -242,7 +242,7 @@ fn next_schedule_time_for_day(
         }
         return timezoned_datetime_to_utc(next_day, tz);
     }
-    return None;
+    None
 }
 
 fn next_schedule_time_for_hour(
@@ -265,12 +265,12 @@ fn next_schedule_time_for_hour(
         };
 
         if next_time < now {
-            next_time = next_time + Duration::from_secs(60 * 60);
+            next_time += Duration::from_secs(60 * 60);
         }
 
         return timezoned_datetime_to_utc(next_time, tz);
     }
-    return None;
+    None
 }
 
 fn next_schedule_time_for_week(
@@ -302,7 +302,7 @@ fn next_schedule_time_for_week(
                 )
         };
 
-        let desired_day = DAY_ENUM_MAPPING.get(&day).unwrap();
+        let desired_day = DAY_ENUM_MAPPING.get(day).unwrap();
 
         // Current day of the week
         let current_day = next_week.weekday();
@@ -312,20 +312,16 @@ fn next_schedule_time_for_week(
             - (current_day.num_days_from_monday() as i64);
         let diff = if diff < 0 { diff + 7 } else { diff };
 
-        next_week = next_week + Duration::from_secs((diff * 60 * 60 * 24) as u64);
-        next_week = next_week
-            .with_hour(hour.clone() as u32)
-            .unwrap_or(next_week);
-        next_week = next_week
-            .with_minute(minute.clone() as u32)
-            .unwrap_or(next_week);
+        next_week += Duration::from_secs((diff * 60 * 60 * 24) as u64);
+        next_week = next_week.with_hour(*hour as u32).unwrap_or(next_week);
+        next_week = next_week.with_minute(*minute as u32).unwrap_or(next_week);
         next_week = set_meridiem(next_week, am.clone());
         if next_week < now {
-            next_week = next_week + Duration::from_secs(60 * 60 * 24 * 7);
+            next_week += Duration::from_secs(60 * 60 * 24 * 7);
         }
         return timezoned_datetime_to_utc(next_week, tz);
     }
-    return None;
+    None
 }
 
 fn timezoned_datetime_to_utc(datetime: NaiveDateTime, tz: &chrono_tz::Tz) -> Option<NaiveDateTime> {
@@ -363,12 +359,12 @@ fn next_schedule_time_for_month(
         next_month = reset_time_to_month_start(next_month);
         set_date_and_time_for_month(&mut next_month, date, hour, minute, am);
         if next_month < now {
-            next_month = next_month + Duration::from_secs(60 * 60 * 24 * 30);
+            next_month += Duration::from_secs(60 * 60 * 24 * 30);
             set_date_and_time_for_month(&mut next_month, date, hour, minute, am);
         }
         return timezoned_datetime_to_utc(next_month, tz);
     }
-    return None;
+    None
 }
 
 fn set_date_and_time_for_month(
@@ -378,13 +374,9 @@ fn set_date_and_time_for_month(
     minute: &u8,
     am: &Meridiem,
 ) {
-    let mut datetime = next_month
-        .with_day(date.clone() as u32)
-        .unwrap_or(*next_month);
-    datetime = datetime.with_hour(hour.clone() as u32).unwrap_or(datetime);
-    datetime = datetime
-        .with_minute(minute.clone() as u32)
-        .unwrap_or(datetime);
+    let mut datetime = next_month.with_day(*date as u32).unwrap_or(*next_month);
+    datetime = datetime.with_hour(*hour as u32).unwrap_or(datetime);
+    datetime = datetime.with_minute(*minute as u32).unwrap_or(datetime);
     datetime = set_meridiem(datetime, am.clone());
     *next_month = datetime;
 }

@@ -1,2 +1,11 @@
-pub mod header;
+mod app_home;
+pub mod apps;
+pub mod base;
+pub mod chevron;
+pub mod columns;
+pub mod footer;
+mod header;
+pub mod helpers;
 pub mod home;
+pub mod sidebar;
+pub mod views;

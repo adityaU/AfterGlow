@@ -8,3 +8,4 @@ Session.vim
 backend/target/
 backend/crud_derive/target/
 frontend-v3/target/
+frontend-v3/node_modules/

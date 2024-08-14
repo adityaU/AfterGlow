@@ -4,7 +4,6 @@ use std::{
     time::Duration,
 };
 
-
 use bytes::BytesMut;
 
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
@@ -99,7 +98,7 @@ impl DBAdapter for RedshiftAdapter {
         queries.push(query);
         for table in payload.permitted_tables.iter() {
             let table_name = &table.name;
-            if table.columns.len() == 0 {
+            if table.columns.is_empty() {
                 let query = format!(
                     "GRANT SELECT ON TABLE {} TO {};",
                     table_name, payload.role_name
@@ -116,7 +115,7 @@ impl DBAdapter for RedshiftAdapter {
             }
         }
 
-        let pool = self.get_pool(&cps)?;
+        let pool = self.get_pool(cps)?;
         Self::execute_in_transaction(pool, queries).await?;
 
         Ok(())
@@ -134,7 +133,7 @@ impl DBAdapter for RedshiftAdapter {
         queries.push(query);
         for table in payload.permitted_tables.iter() {
             let table_name = &table.name;
-            if table.columns.len() == 0 {
+            if table.columns.is_empty() {
                 let query = format!(
                     "GRANT SELECT ON TABLE {} TO {};",
                     table_name, payload.role_name
@@ -151,7 +150,7 @@ impl DBAdapter for RedshiftAdapter {
             }
         }
 
-        let pool = self.get_pool(&cps)?;
+        let pool = self.get_pool(cps)?;
         Self::execute_in_transaction(pool, queries).await?;
 
         Ok(())
@@ -180,7 +179,7 @@ impl DBAdapter for RedshiftAdapter {
             .build(conn, user_id, org_id)
             .await
             .map_err(|err| QueryError::new(err, "".to_string()))?;
-        let pool = Self::get_pool(&self, cps)?;
+        let pool = Self::get_pool(self, cps)?;
         let (rows, columns, column_details) = Self::fetch(
             pool,
             query.db_query.clone(),
@@ -247,7 +246,7 @@ impl DBAdapter for RedshiftAdapter {
         , column_name, data_type
         from information_schema.columns where table_schema not in ('information_schema', 'pg_catalog')
         order by ordinal_position"#;
-        let pool = Self::get_pool(&self, cps)?;
+        let pool = Self::get_pool(self, cps)?;
         let rows = Self::fetch_raw(pool, query.to_string(), query.to_string()).await?;
 
         let mut schema: HashMap<String, DBTable> = HashMap::new();

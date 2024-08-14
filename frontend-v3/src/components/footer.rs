@@ -1,0 +1,19 @@
+use leptos::*;
+
+#[component]
+pub fn Footer() -> impl IntoView {
+    view! {
+        <div class="tw-flex tw-justify-between tw-z-10 tw-bg-white tw-border-t tw-items-center tw-px-4 tw-py-2">
+            <div class="">
+                "© 2024 " <a class="tw-text-primary" target="_" href="https://getafterglow.co">
+                    getafterglow.co
+                </a>
+            </div>
+            <div>
+                <a class="tw-text-primary" target="_" href="https://getafterglow.co/docs">
+                    Documentation
+                </a>
+            </div>
+        </div>
+    }
+}

@@ -79,7 +79,7 @@ impl ToSql<VarChar, Pg> for PermissionNames {
 
 impl FromSql<VarChar, Pg> for PermissionNames {
     fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
-        match String::from_sql(bytes)?.as_str() {
+        match <String as FromSql<VarChar, Pg>>::from_sql(bytes)?.as_str() {
             "Dashboard.show" => Ok(PermissionNames::DashboardShow),
             "Question.show" => Ok(PermissionNames::QuestionShow),
             "Dashboard.edit" => Ok(PermissionNames::DashboardEdit),
@@ -92,7 +92,7 @@ impl FromSql<VarChar, Pg> for PermissionNames {
             "Any" => Ok(PermissionNames::Any),
             _ => Err(format!(
                 "Unrecognized enum value: {}",
-                String::from_sql(bytes)?.as_str()
+                <String as FromSql<VarChar, Pg>>::from_sql(bytes)?.as_str()
             )
             .into()),
         }

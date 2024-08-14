@@ -74,9 +74,7 @@ fn applicable_gen_settings(
 
     from_org_settings(conn, org_id, &mut gen_ai_settings)?;
 
-    let a = from_global_settings(conn, gen_ai_settings);
-
-    a
+    from_global_settings(conn, gen_ai_settings)
 }
 
 fn from_global_settings(
@@ -87,7 +85,7 @@ fn from_global_settings(
         conn,
         GEN_AI_CONFIG_NAMES.iter().map(|u| u.to_string()).collect(),
     )
-    .map_err(|err| format!("Could not find Settings.Error: {}", err.to_string()))?;
+    .map_err(|err| format!("Could not find Settings.Error: {}", err))?;
     let mut gen_ai_settings = GenAISettings::default();
 
     for setting in settings {
@@ -129,7 +127,7 @@ fn from_org_settings(
         GEN_AI_CONFIG_NAMES.iter().map(|u| u.to_string()).collect(),
         org_id,
     )
-    .map_err(|err| format!("Could not find org Settings.Error: {}", err.to_string()))?;
+    .map_err(|err| format!("Could not find org Settings.Error: {}", err))?;
     for org_setting in org_settings {
         match org_setting.name.as_str() {
             "OPENAI_API_KEY" => {
@@ -181,7 +179,7 @@ fn from_user_settings(conn: &mut PgConnection, user_id: i64) -> Result<GenAISett
         GEN_AI_CONFIG_NAMES.iter().map(|u| u.to_string()).collect(),
         user_id,
     )
-    .map_err(|err| format!("Could not find user Settings.Error: {}", err.to_string()))?;
+    .map_err(|err| format!("Could not find user Settings.Error: {}", err))?;
     let mut gen_ai_settings = GenAISettings::default();
     for user_setting in user_settings {
         match user_setting.name.as_str() {

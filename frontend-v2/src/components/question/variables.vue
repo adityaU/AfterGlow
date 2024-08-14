@@ -8,14 +8,15 @@
             {{ variable.name }}
           </div>
           <div class="tw-bg-primary tw-py-auto  tw-px-4 tw-py-2 note tw-flex tw-items-center"
-            :class="currentUser.canEditQuestion ? '' : 'tw-rounded-full'" v-if="variable.var_type === 'String' ||
+            :class="currentUser.canEditQuestion ? '' : 'tw-rounded-r-full'" v-if="variable.var_type === 'String' ||
               variable.var_type === 'Integer'
               ">
             {{ variable.value != null ? variable.value : variable.default }}
           </div>
           <AGDatetimePicker class="tw-bg-primary  tw-px-4 tw-py-2 tw-border-0 tw-flex tw-items-center"
-            v-model:value="variable.value" :displayText="variable.value || variable.default" type="datepicker"
-            :clearCount="variable.clearCount" v-if="variable.var_type === 'Date'" />
+            :class="currentUser.canEditQuestion ? '' : 'tw-rounded-r-full'" v-model:value="variable.value"
+            :displayText="variable.value || variable.default" type="datepicker" :clearCount="variable.clearCount"
+            v-if="variable.var_type === 'Date'" />
           <q-menu flat="true" transition-show="jump-down" transition-hide="jump-up" max-height="400px"
             class="tw-rounded-2xl tw-border tw-overflow-hidden" @show="menuShow" @keydown="onKeydown" fit v-if="variable.var_type === 'String' ||
               variable.var_type === 'Integer'

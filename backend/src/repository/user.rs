@@ -38,6 +38,7 @@ impl User {
             )
             .order(users::email.asc())
             .select(users::all_columns)
+            .distinct()
             .load::<Self>(conn)
     }
     pub fn find_by_ids(conn: &mut PgConnection, ids: Vec<i64>) -> Result<Vec<Self>, Error> {

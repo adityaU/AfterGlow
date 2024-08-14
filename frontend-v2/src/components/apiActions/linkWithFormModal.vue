@@ -1,18 +1,7 @@
 <template>
-  <AGApiActionLink
-    :link="link"
-    :queryKey="queryKey"
-    :variables="variables"
-    v-model:showForm="showForm"
-  />
-  <AGFormModal
-    v-model:open="showForm"
-    :variables="variables"
-    :queryKey="queryKey"
-    :form="link?.details?.display_settings?.form"
-    :apiAction="link"
-    v-if="link?.details?.display_settings?.renderForm"
-  />
+  <AGApiActionLink :link="link" :queryKey="queryKey" :variables="variables" v-model:showForm="showForm" />
+  <AGFormModal v-model:open="showForm" :variables="variables" :queryKey="queryKey"
+    :form="link?.details?.display_settings?.form" :apiAction="link" v-if="link?.details?.display_settings?.renderForm" />
 </template>
 <script>
 import AGApiActionLink from 'components/apiActions/link.vue';
@@ -44,7 +33,10 @@ export default {
           })) ||
         [];
       this.queryVariables?.forEach((vari) => {
-        console.log(vari);
+        variables.push({
+          name: vari.name,
+          value: vari.value || vari.default,
+        });
       });
 
       this.link.vars &&

@@ -1,0 +1,33 @@
+extern crate pkg_config;
+fn main() {
+    println!("cargo:rerun-if-changed=./migrations/");
+    pkg_config::Config::new()
+        .statik(true)
+        .probe("libxslt")
+        .unwrap();
+
+    pkg_config::Config::new()
+        .statik(true)
+        .probe("libpq")
+        .unwrap();
+
+    // pkg_config::Config::new()
+    //     .statik(true)
+    //     .probe("xml2")
+    //     .unwrap();
+
+    pkg_config::Config::new()
+        .statik(true)
+        .probe("libssl")
+        .unwrap();
+
+    pkg_config::Config::new()
+        .statik(true)
+        .probe("xmlsec1")
+        .unwrap();
+    println!("cargo:rustc-link-lib=static=libxslt");
+    println!("cargo:rustc-link-lib=static=xml2");
+    println!("cargo:rustc-link-lib=static=libpq");
+    println!("cargo:rustc-link-lib=static=libssl");
+    println!("cargo:rustc-link-lib=static=xmlsec1");
+}

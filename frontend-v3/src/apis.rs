@@ -1,7 +1,9 @@
+pub mod apps;
+pub mod dashboards;
 pub mod session;
+pub mod user;
 
 use reqwest::{Client, RequestBuilder, Response, StatusCode};
-use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{collections::HashMap, error::Error};
 use web_sys::window;
@@ -46,7 +48,7 @@ impl ApiClient {
         base_url = format!("{}{}", base_url, BASE_PATH);
 
         Self {
-            client: Client::new(),
+            client,
             headers,
             base_url,
         }

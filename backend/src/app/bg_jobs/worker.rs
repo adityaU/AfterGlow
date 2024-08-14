@@ -11,7 +11,7 @@ pub async fn run(queue: Arc<dyn Queue>, data: Arc<LongLivedData>) {
         let jobs = match queue.pull(CONCURRENCY).await {
             Ok(jobs) => jobs,
 
-            Err(err) => {
+            Err(_err) => {
                 tokio::time::sleep(Duration::from_millis(500)).await;
 
                 Vec::new()

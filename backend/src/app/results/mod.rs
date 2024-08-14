@@ -157,10 +157,6 @@ impl QueryError {
         &self,
         original_query_columns: Option<Arc<Vec<String>>>,
     ) -> Self {
-        println!(
-            "llllllllllloriginal_query_columns============================================================: {:?}",
-            &original_query_columns
-        );
         Self {
             error: QueryErrorDetails {
                 message: self.error.message.clone(),
@@ -515,11 +511,6 @@ async fn fetch_results_from_db(
     let (original_query_columns, column_details) =
         fetch_original_query_columns(&adapted_payload, &adapter, conn, cps, user_id, org_id)
             .await?;
-
-    println!(
-        "original_query_columns============================================================: {:?}",
-        original_query_columns
-    );
 
     let db_adapter_response = adapter
         .fetch_response(conn, cps, adapted_payload, user_id, org_id)

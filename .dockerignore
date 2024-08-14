@@ -12,6 +12,8 @@ frontend/package.json
 frontend/public/
 frontend/testem.js
 frontend/tmp/
+frontend/*
+frontend-v2/node_modules
 deps/
 erl_crash.dump
 lib/
@@ -28,3 +30,5 @@ _build/dev/
 .git/
 frontend/.*
 .vscode/
+backend/target/
+frontend-v3/target/

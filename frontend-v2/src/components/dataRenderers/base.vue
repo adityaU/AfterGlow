@@ -124,10 +124,9 @@
               <pane :size="100" ref="chart" class="pane" :class="apiResponse && showApiResponse ? 'pane-right' : ''">
                 <VizComponent :results="results" :resultsKey="resultskey" :queryKey="queryKey"
                   v-model:visualization="currentViz" :apiActionsQuesLevel="apiActionsQuesLevel" :hideFilters="apiResponse"
-                  :questionID="questionID" :size="settingsPanesize"
+                  :questionID="questionID" :size="settingsPanesize" :variables="variables"
                   class="tw-overflow-auto tw-bg-white tw-flex-[1_1_100%] tw-min-h-[400px] ag-card tw-h-full"
-                  @addFilter="(filter) => addFilter(filter)" @addSorting="(sorting) => addSorting(sorting)"
-                  :variables="variables" :showSettings="showSettings &&
+                  @addFilter="(filter) => addFilter(filter)" @addSorting="(sorting) => addSorting(sorting)" :showSettings="showSettings &&
                     results.rows &&
                     results.rows.length > 0 &&
                     !loading &&

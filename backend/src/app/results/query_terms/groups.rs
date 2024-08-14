@@ -45,8 +45,6 @@ impl Serialize for GroupDuration {
             ByMonthOfYear => "by month of year",
             ByQuarterOfYear => "by quarter of year",
             Invalid => "invalid",
-            // ... match other variants
-            _ => unimplemented!(), // Add other matches before this line
         };
         serializer.serialize_str(value)
     }
@@ -100,14 +98,12 @@ pub fn make_groupings(groupings: Vec<config::Grouping>) -> Vec<Grouping> {
         .into_iter()
         .map(|grouping| match grouping.raw {
             true => {
-                let value = if let Some(v) = grouping.value {
-                    if let serde_json::value::Value::String(s) = v {
-                        s
-                    } else {
-                        return Grouping::Invalid;
-                    }
-                } else {
-                    return Grouping::Invalid;
+                let value = match grouping.value {
+                    Some(v) => match v {
+                        serde_json::value::Value::String(s) => s,
+                        _ => return Grouping::Invalid,
+                    },
+                    None => return Grouping::Invalid,
                 };
                 Grouping::Raw { value }
             }
@@ -125,9 +121,6 @@ pub fn make_groupings(groupings: Vec<config::Grouping>) -> Vec<Grouping> {
                 }
             }
         })
-        .filter(|f| match f {
-            Grouping::Invalid => false,
-            _ => true,
-        })
+        .filter(|f| !matches!(f, Grouping::Invalid))
         .collect()
 }

@@ -17,7 +17,7 @@ impl SystemVariableView {
         Self {
             id: sv.id,
             name: sv.name.clone(),
-            value: value,
+            value,
         }
     }
 }

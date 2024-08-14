@@ -1,8 +1,9 @@
-use leptos::{create_signal, ReadSignal, SignalGet, SignalUpdate, WriteSignal};
+use leptos::{
+    create_signal, ReadSignal, WriteSignal,
+};
 use web_sys::window;
 
 use crate::apis::{
-    self,
     session::{verify_token, Session},
 };
 
@@ -10,7 +11,7 @@ const ACCESS_TOKEN_KEY: &str = "ag_access_token";
 
 #[derive(Debug, Clone)]
 pub struct SessionStore {
-    reader: ReadSignal<Option<Session>>,
+    pub reader: ReadSignal<Option<Session>>,
     writer: WriteSignal<Option<Session>>,
     local_storage: web_sys::Storage,
 }
@@ -28,25 +29,14 @@ impl Default for SessionStore {
 }
 
 impl SessionStore {
-    pub fn update(&self, session: Session) {
-        self.writer.update(|wr| *wr = Some(session));
-    }
-    pub fn get(&self) -> Option<Session> {
-        self.reader.get()
-    }
-
-    pub async fn initialize(&self) {
-        let token = self
-            .local_storage
+    pub async fn initialize() -> Session {
+        let token = Self::local_storage()
             .get_item(ACCESS_TOKEN_KEY)
             .unwrap_or_default()
             .unwrap_or_default();
 
-        if let Ok(session) = verify_token(token).await {
-            self.update(session)
-        }
+        verify_token(token).await.unwrap_or_default()
     }
-
     fn local_storage() -> web_sys::Storage {
         let window = window().expect("no global `window` exists");
         window

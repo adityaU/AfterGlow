@@ -54,7 +54,6 @@ impl Serialize for ViewAggregations {
             StandardDeviation => "standard deviation",
             StandardVariance => "standard variance",
             Invalid => "invalid",
-            _ => "invalid", // Add other matches before this line
         };
         serializer.serialize_str(value)
     }
@@ -85,14 +84,12 @@ pub fn make_views(views: Vec<config::View>) -> Vec<View> {
         .into_iter()
         .map(|view| match view.raw {
             true => {
-                let value = if let Some(v) = view.value {
-                    if let serde_json::value::Value::String(s) = v {
-                        s
-                    } else {
-                        return View::Invalid;
-                    }
-                } else {
-                    return View::Invalid;
+                let value = match view.value {
+                    Some(v) => match v {
+                        serde_json::value::Value::String(s) => s,
+                        _ => return View::Invalid,
+                    },
+                    None => return View::Invalid,
                 };
                 View::Raw { value }
             }
@@ -134,9 +131,6 @@ pub fn make_views(views: Vec<config::View>) -> Vec<View> {
                 },
             },
         })
-        .filter(|f| match f {
-            View::Invalid => false,
-            _ => true,
-        })
+        .filter(|f| !matches!(f, View::Invalid))
         .collect()
 }

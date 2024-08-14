@@ -52,9 +52,6 @@ pub fn make_sorts(sorts: Vec<config::Sort>) -> Vec<Sort> {
                 Sort::QB { column, direction }
             }
         })
-        .filter(|f| match f {
-            Sort::Invalid => false,
-            _ => true,
-        })
+        .filter(|f| !matches!(f, Sort::Invalid))
         .collect()
 }

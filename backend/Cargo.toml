@@ -57,7 +57,6 @@ lettre = { version = "0.11.1", features = [
   "builder",
 ], default-features = false }
 mime = "0.3.17"
-handlebars = "4.4.0"
 askama = "0.12.1"
 rust_decimal = { version = "1.33.1", features = ["db-tokio-postgres"] }
 fancy-regex = "0.12.0"
@@ -69,6 +68,7 @@ actix-files = "0.6.2"
 strum = { version = "0.25.0", features = ["derive"] }
 serde_with = "3.4.0"
 samael = { version = "0.0.14", features = ["xmlsec"], path = "locals/samael" }
+common = { version = "0.1", path = "../common" }
 openssl = "0.10.62"
 rcgen = "0.12.1"
 rsa = "0.9.6" # 
@@ -79,9 +79,19 @@ ring = "0.17.8"
 hex = "0.4.3"
 tera = "1.20.0"
 
+# [build-dependencies]
+# pkg-config = "0.3.30"
+
+
 [profile.release]
 opt-level = 's'   # Optimize for size
 lto = true        # Enable link-time optimization
 codegen-units = 1 # Reduce number of codegen units to increase optimizations
 panic = 'abort'   # Abort on panic
 strip = true      # Strip symbols from binary*
+
+[workspace.metadata.cross.target.aarch64-unknown-linux-gnu]
+pre-build = [ # additional commands to run prior to building the package
+  "dpkg --add-architecture $CROSS_DEB_ARCH",
+  "apt-get update && apt-get --assume-yes install libpq-dev:$CROSS_DEB_ARCH libxml2-dev:$CROSS_DEB_ARCH libxslt1-dev:$CROSS_DEB_ARCH libclang-15-dev:$CROSS_DEB_ARCH libxmlsec1-dev:$CROSS_DEB_ARCH openssl:$CROSS_DEB_ARCH ca-certificates:$CROSS_DEB_ARCH && apt-get clean && rm -rf /var/lib/apt/lists/*",
+]

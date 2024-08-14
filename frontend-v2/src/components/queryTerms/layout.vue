@@ -1,44 +1,46 @@
 <template>
-  <div class="tw-w-full tw-flex tw-gap-2 tw-items-center tw-border-0" v-if="!hideQueryTerms">
-    <div class="tw-flex tw-flex-col tw-rounded-full tw-overflow-hidden tw-w-full"
-      v-if="showAskAI && (currentUser.canEditQuestion || showQTs)">
-      <AGInput v-model:value="queryTermsLocal.genai_prompt.request" placeholder="Ask AI anything about this data"
-        class="tw-w-full" debounce="500" />
-    </div>
-    <template v-if="!showAskAI">
-      <div class="" v-if="currentUser.canEditQuestion || showQTs">
-        <AGFilters v-model:filters="queryTermsLocal.filters" :columns="columns" :colDetails="colDetails" :rows="rows" />
+  <div class="tw-w-full tw-flex tw-gap-2 tw-items-center tw-border-0">
+    <template v-if="!hideQueryTerms">
+      <div class="tw-flex tw-flex-col tw-rounded-full tw-overflow-hidden tw-w-full"
+        v-if="showAskAI && (currentUser.canEditQuestion || showQTs)">
+        <AGInput v-model:value="queryTermsLocal.genai_prompt.request" placeholder="Ask AI anything about this data"
+          class="tw-w-full" debounce="500" />
       </div>
-      <div class="" v-if="currentUser.canEditQuestion || showQTs">
-        <AGViews v-model:views="queryTermsLocal.views" :columns="columns" :colDetails="colDetails" />
-      </div>
-      <div class="" v-if="currentUser.canEditQuestion || showQTs">
-        <AGGroupings v-model:groupings="queryTermsLocal.groupings" :columns="columns" :colDetails="colDetails" />
-      </div>
-      <div class="" v-if="currentUser.canEditQuestion || showQTs">
-        <AGSortOrders v-model:sortings="queryTermsLocal.sortings" :columns="columns" :colDetails="colDetails" />
-      </div>
-      <div class="" v-if="currentUser.canEditQuestion || showQTs">
-        <AGLimit v-model:limit="queryTermsLocal.limit" />
-      </div>
+      <template v-if="!showAskAI">
+        <div class="" v-if="currentUser.canEditQuestion || showQTs">
+          <AGFilters v-model:filters="queryTermsLocal.filters" :columns="columns" :colDetails="colDetails" :rows="rows" />
+        </div>
+        <div class="" v-if="currentUser.canEditQuestion || showQTs">
+          <AGViews v-model:views="queryTermsLocal.views" :columns="columns" :colDetails="colDetails" />
+        </div>
+        <div class="" v-if="currentUser.canEditQuestion || showQTs">
+          <AGGroupings v-model:groupings="queryTermsLocal.groupings" :columns="columns" :colDetails="colDetails" />
+        </div>
+        <div class="" v-if="currentUser.canEditQuestion || showQTs">
+          <AGSortOrders v-model:sortings="queryTermsLocal.sortings" :columns="columns" :colDetails="colDetails" />
+        </div>
+        <div class="" v-if="currentUser.canEditQuestion || showQTs">
+          <AGLimit v-model:limit="queryTermsLocal.limit" />
+        </div>
 
-      <div class="" v-if="currentUser.canEditQuestion || showQTs">
-        <AGOffset v-model:offset="queryTermsLocal.offset" />
-      </div>
+        <div class="" v-if="currentUser.canEditQuestion || showQTs">
+          <AGOffset v-model:offset="queryTermsLocal.offset" />
+        </div>
+      </template>
     </template>
     <!-- <div class=""> -->
     <!-- <AGLimit/> -->
     <!-- </div> -->
     <div class="tw-whitespace-nowrap tw-flex-1 tw-flex tw-justify-end tw-items-center tw-gap-2">
 
-      <div class="tw-bg-primary tw-rounded-full">
+      <div class="tw-bg-primary tw-rounded-full" v-if="!hideQueryTerms">
         <div class="tw-flex tw-items-center tw-px-4 tw-py-1 tw-cursor-pointer tw-font-semibold tw-gap-1"
           v-if="!hideAskAI && !showAskAI && currentUser?.getIfGenAIEnabled && (currentUser.canEditQuestion || showQTs)"
           @click="toggleAskAI">
           <BrainIcon />
           Ask AI
           <div class="tw-w-[15px] tw-h-[15px] tw-bg-yellow-500 tw-rounded-full"
-            v-if="queryTermsLocal?.genai_prompt.request"></div>
+            v-if="queryTermsLocal?.genai_prompt?.request"></div>
         </div>
         <div class="tw-flex tw-items-center tw-px-4 tw-py-1 tw-cursor-pointer tw-font-semibold"
           v-if="showAskAI && !hideAskAI && currentUser?.getIfGenAIEnabled && (currentUser.canEditQuestion || showQTs)"
@@ -114,7 +116,7 @@ export default {
       deep: true,
       handler() {
         let genAIPrompt = this.queryTermsLocal?.genai_prompt;
-        if (genAIPrompt?.request) {
+        if (genAIPrompt?.request && (genAIPrompt?.request != this.queryTermsLocal?.genai_prompt?.request)) {
           let request = genAIPrompt.request;
           this.clearQueryTerms()
           this.queryTermsLocal.genai_prompt.request = request;

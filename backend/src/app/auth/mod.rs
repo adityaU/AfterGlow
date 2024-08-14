@@ -154,10 +154,10 @@ pub async fn get_oauth_response(code: String) -> Result<OAuthResponse, Box<dyn E
 
     let params = [
         ("grant_type", "authorization_code"),
-        ("redirect_uri", &REDIRECT_URL.as_str()),
-        ("client_id", &GOOGLE_CLIENT_ID.as_str()),
+        ("redirect_uri", REDIRECT_URL.as_str()),
+        ("client_id", GOOGLE_CLIENT_ID.as_str()),
         ("code", authorization_code.as_str()),
-        ("client_secret", &GOOGLE_CLIENT_SECRET.as_str()),
+        ("client_secret", GOOGLE_CLIENT_SECRET.as_str()),
     ];
     let response = client
         .post(root_url)
@@ -294,8 +294,7 @@ pub fn initiate_saml_request(conn: &mut PgConnection) -> Result<String, String> 
     Ok(auth_req
         .post("relay_start")
         .map_err(|err| format!("Error Initiating SAML Request: {}", err))?
-        .unwrap()
-        .into())
+        .unwrap())
 }
 
 pub fn password_login(
@@ -324,9 +323,9 @@ pub fn password_login(
 pub fn saml_metadata(conn: &mut PgConnection) -> Result<String, String> {
     get_service_provider_config(conn)?
         .metadata()
-        .map_err(|err| format!("Error Building SAML SP Config XML: {}", err.to_string()))?
+        .map_err(|err| format!("Error Building SAML SP Config XML: {}", err))?
         .to_xml()
-        .map_err(|err| format!("Error Building SAML SP Config XML: {}", err.to_string()))
+        .map_err(|err| format!("Error Building SAML SP Config XML: {}", err))
 }
 
 pub fn saml_acs(
@@ -402,5 +401,5 @@ fn get_service_provider_config(conn: &mut PgConnection) -> Result<ServiceProvide
         .slo_url(saml_config.slo_url)
         .metadata_valid_duration(Duration::days(1000))
         .build()
-        .map_err(|err| format!("Error Building SAML SP Config XML: {}", err.to_string()))
+        .map_err(|err| format!("Error Building SAML SP Config XML: {}", err))
 }

@@ -99,8 +99,6 @@ impl Serialize for FilterOperator {
             StartsWith => "starts with",
             EndsWith => "ends with",
             Invalid => "invalid",
-            // ... match other variants
-            _ => unimplemented!(), // Add other matches before this line
         };
         serializer.serialize_str(value)
     }
@@ -199,9 +197,6 @@ pub fn make_filters(filters: Vec<config::Filter>) -> Vec<Filter> {
                 }
             }
         })
-        .filter(|f| match f {
-            Filter::Invalid => false,
-            _ => true,
-        })
+        .filter(|f| !matches!(f, Filter::Invalid))
         .collect()
 }

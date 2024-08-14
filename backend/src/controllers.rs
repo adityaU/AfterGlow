@@ -1,4 +1,5 @@
 pub mod api_action;
+pub mod apps;
 pub mod auth;
 pub mod autocomplete;
 pub mod base;

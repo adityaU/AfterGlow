@@ -13,7 +13,7 @@ use crate::app::auth::verify_token;
 use crate::app::settings::theme;
 
 use crate::controllers::{
-    api_action, auth, autocomplete, column, dashboard, database, note, organization,
+    api_action, apps, auth, autocomplete, column, dashboard, database, note, organization,
     organization_setting, permission_set, question, result, setting, snippet, system_variable,
     table, tag, team, user, user_setting, variable, visualization,
 };
@@ -480,6 +480,37 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
             web::resource("/scoped_database")
                 .wrap(from_fn(authenticate))
                 .route(web::post().to(database::create_scoped_db)),
+        )
+        .service(
+            web::resource("/apps")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(apps::index))
+                .route(web::post().to(apps::create)),
+        )
+        .service(
+            web::resource("/apps/{id}")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(apps::show)),
+        )
+        .service(
+            web::resource("/app_tables")
+                .wrap(from_fn(authenticate))
+                .route(web::post().to(apps::create_table)),
+        )
+        .service(
+            web::resource("app_tables/{table_id}/columns")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(apps::find_columns_by_table_id)),
+        )
+        .service(
+            web::resource("/app_columns")
+                .wrap(from_fn(authenticate))
+                .route(web::post().to(apps::create_column)),
+        )
+        .service(
+            web::resource("/apps/{id}/tables")
+                .wrap(from_fn(authenticate))
+                .route(web::get().to(apps::find_tables_by_app_id)),
         )
         .service(
             web::resource("/scoped_database/{database_id}")

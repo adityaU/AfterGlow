@@ -3,4 +3,13 @@ rewrite = "/api/v2/"
 backend = "http://localhost:4300/api/v2/"
 
 [output]
-base = "/apps"
+base = "/apps/"
+
+[pipeline.stylus]
+command = "npx postcss styles.scss -o dist/styles.css"
+watch_files = ["tailwind.scss", "tailwind.config.js"]
+
+[[pipelines]]
+name = "scss"
+command = "npm run build:css"
+watch_files = ["tailwind.scss", "tailwind.config.js", "postcss.config.js"]

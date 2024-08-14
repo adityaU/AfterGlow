@@ -1,33 +1,182 @@
+@import url('https://fonts.googleapis.com/css2?family=Martel+Sans:wght@200;300;400;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root{
+* {
+  box-sizing: border-box;
+}
+
+
+
+:root {
   --color-primary: 85 64 198;
   --color-secondary: 245 247 251;
   --color-tertiary: 229 231 235;
   --color-default: 32 33 36;
   --color-white: 255 255 255;
+  --color-text-onprimary: 255 255 255;
 }
 
-*,:before,:after {
+*,
+:before,
+:after {
   border-color: rgb(var(--color-tertiary) /1);
 }
 
+html {
+  font-family: 'Lato', 'Martel Sans', sans-serif !important;
+  color: rgb(var(--color-default)/80%);
+}
+
+.tw-bg-primary {
+  color: rgb(var(--color-text-onprimary));
+}
+
+@layer base {
+  body {
+    @apply tw-bg-secondary;
+  }
+
+  button:disabled,
+  button[disabled] {
+    @apply tw-cursor-not-allowed tw-opacity-50;
+  }
+
+  .tw-text-text-onprimary {
+    color: rgb(var(--color-text-onprimary));
+  }
+
+  .tw-text-text-onprimary\/80 {
+    color: rgb(var(--color-text-onprimary), 0.8);
+  }
+
+  .menu-item {
+    @apply tw-py-1 tw-cursor-pointer tw-whitespace-nowrap tw-px-2 tw-block tw-w-full hover:tw-bg-primary hover:tw-text-text-onprimary tw-text-ellipsis focus:tw-bg-primary tw-border-b last:tw-border-b-0;
+  }
+
+  .text-icon-primary {
+    @apply tw-bg-primary tw-py-0.5 tw-px-2 tw-text-sm tw-font-semibold tw-rounded-2xl tw-mr-1 hover:tw-text-text-onprimary hover:tw-bg-primary/80 tw-rounded-full
+  }
+
+  .icon-primary {
+    @apply tw-bg-primary tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-rounded-full tw-mr-1 hover:tw-text-text-onprimary/80 hover:tw-bg-primary/80 tw-rounded-full tw-border-secondary/50 tw-border-2;
+  }
+
+  .icon-danger {
+    @apply tw-text-white tw-bg-red-500 tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-rounded-full tw-mr-1 hover:tw-text-default hover:tw-bg-white tw-rounded-full tw-border-secondary/50 tw-border-2;
+  }
+
+  .icon-default {
+    @apply tw-text-default tw-bg-white tw-border tw-inline tw-px-1 tw-py-0.5 tw-text-sm tw-font-semibold tw-w-full tw-h-full tw-mr-1 hover:tw-bg-primary tw-rounded-full;
+  }
+
+  .note {
+    @apply tw-text-sm tw-font-semibold
+  }
+
+  .menu-item:hover {
+    color: rgb(var(--color-text-onprimary));
+  }
+
+  .menu-item:focus {
+    color: rgb(var(--color-text-onprimary));
+  }
 
   .slide-transition {
     transition: width 0.3s linear;
   }
 
-  .menu-item{
-    width: 100%;
-    cursor: pointer;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    border-bottom-width: 1px;
+  h1 {
+    font-size: 3em;
+    @apply tw-font-semibold;
   }
 
-  .menu-item:hover{
-    background-color: rgba(var(--color-primary)/ 1);
-    color: rgba(var(--color-white)/ 1);
+  h2 {
+    font-size: 2em;
+    @apply tw-font-semibold;
   }
+
+  h3 {
+    font-size: 1.5em;
+    @apply tw-font-semibold;
+  }
+
+  h4 {
+    font-size: 1.25em;
+    @apply tw-font-semibold;
+  }
+
+  h5 {
+    font-size: 1em;
+    @apply tw-font-semibold;
+  }
+
+  h6 {
+    font-size: 0.75em;
+    @apply tw-font-semibold;
+  }
+
+  blockquote {
+    @apply tw-ml-2 tw-pl-2 tw-italic tw-font-semibold tw-border-l-2 tw-border-default/50
+  }
+
+  code {
+    @apply tw-bg-secondary tw-rounded
+  }
+
+  a {
+    @apply tw-text-primary
+  }
+
+
+}
+
+body *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  transition: .3s background;
+}
+
+body *:hover::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-tertiary));
+}
+
+body *:focus-visible {
+  outline-width: 0;
+}
+
+body *::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-tertiary)/90);
+  border-radius: 100px;
+}
+
+@media only screen and (max-width: 1920px) {
+  html {
+    font-size: 0.8rem;
+  }
+}
+
+@media only screen and (min-width: 1920px) {
+  html {
+    font-size: 1rem;
+  }
+}
+
+.slide-up {
+  transform: translateY(-20px);
+  transition: all 3s;
+}
+
+.slide-down {
+  transform: translateY(-20px);
+  transition: all 0.3s;
+}
+
+input {
+  @apply tw-bg-secondary tw-border tw-border-secondary/50 tw-rounded tw-py-1 tw-px-2 tw-w-full tw-h-full;
+}

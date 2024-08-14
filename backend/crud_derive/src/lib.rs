@@ -68,7 +68,7 @@ pub fn derive_changeset(input: TokenStream) -> TokenStream {
                     continue;
                 }
 
-                let serde_quote = if serde_attrs.len() > 0 {
+                let serde_quote = if !serde_attrs.is_empty() {
                     quote! {
 
                     #[#(#serde_attrs)*]
@@ -214,7 +214,7 @@ pub fn derive_view(input: TokenStream) -> TokenStream {
     }
 
     let expanded = quote! {
-        #[derive(Debug, Serialize, Deserialize, Clone, Default)]
+        #[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
         pub struct #view_name {
             #(#view_fields),*
         }

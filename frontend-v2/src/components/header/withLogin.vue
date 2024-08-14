@@ -54,16 +54,8 @@
           <div v-if="expanded">New Question</div>
         </router-link>
       </li>
-      <li class="hover:tw-text-default tw-w-full" v-if="!permissions.canEditQuestion">
-        <router-link to="/data_references/databases "
-          :class="!expanded ? 'tw-flex tw-items-center tw-justify-center' : ''"
-          class="tw-flex tw-gap-2 tw-items-center menu-item tw-px-4 tw-py-2">
-          <DatabaseIcon :size="iconSize" :class="expanded ? 'icon-primary' : ''" />
-          Data Reference
-        </router-link>
-      </li>
 
-      <li class="tw-w-full" v-else>
+      <li class="tw-w-full" v-if="permissions.canCreateQuestion">
         <div class="tw-flex tw-items-center tw-gap-2 tw-cursor-pointer tw-px-4 tw-py-2 menu-item"
           :class="!expanded ? 'tw-flex tw-items-center tw-justify-center' : ''" @click="moreMenuOpen = !moreMenuOpen">
           <CategoryIcon :size="iconSize" :class="expanded ? 'icon-primary' : ''" />

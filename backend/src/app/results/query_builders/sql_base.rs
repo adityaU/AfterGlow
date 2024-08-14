@@ -1,11 +1,9 @@
-use std::collections::HashMap;
-
 use fancy_regex::Regex;
 
 use diesel::PgConnection;
 
 use serde::{Deserialize, Serialize};
-use serde_json::{json, to_value, Value};
+use serde_json::Value;
 
 use lazy_static::lazy_static;
 use tera::{Context, Tera};
@@ -109,7 +107,7 @@ pub trait SQlBased {
         .await
         {
             Ok(resp) => resp,
-            Err(err) => query,
+            Err(_err) => query,
         }
     }
     fn new(adapted_payload: AdaptedPayload) -> Self;
@@ -173,7 +171,7 @@ pub trait SQlBased {
                     replacements.insert(var_name2, &value_string);
                 }
             }
-            Err(err) => {
+            Err(_err) => {
                 return query;
             }
         }
@@ -201,7 +199,7 @@ pub trait SQlBased {
                 );
             });
         for variable in variables {
-            let mut value = match &variable.value {
+            let value = match &variable.value {
                 Value::Bool(b) => b.to_string(),
                 Value::Number(n) => n.to_string(),
                 Value::String(s) => s.to_string(),
@@ -243,8 +241,8 @@ pub trait SQlBased {
     fn build_query(table_name: &String, table_alias: String, query_terms: &QueryTerms) -> String {
         let groupings = Self::build_groupings(&query_terms.groupings, &table_alias);
         let views = Self::build_views(&query_terms.views, &table_alias);
-        let groupings_with_views = if groupings.len() > 0 {
-            vec![
+        let groupings_with_views = if !groupings.is_empty() {
+            [
                 views,
                 groupings
                     .iter()
@@ -256,7 +254,7 @@ pub trait SQlBased {
                     .join(", "),
             ]
             .iter()
-            .filter(|s| s.len() > 0)
+            .filter(|s| !s.is_empty())
             .map(|s| s.to_owned())
             .collect::<Vec<String>>()
             .join(", ")
@@ -302,7 +300,7 @@ pub trait SQlBased {
             });
         }
         let debug_query = Self::build_query(
-            &format!(" ( {} )  as {}", &query, "rq".to_string()),
+            &format!(" ( {} )  as {}", &query, "rq"),
             "rq".to_string(),
             visualization_query_terms,
         );
@@ -325,7 +323,7 @@ pub trait SQlBased {
             });
         }
         let debug_query = Self::build_query(
-            &format!(" ( {} )  as {}", &raw_query, "rq".to_string()),
+            &format!(" ( {} )  as {}", &raw_query, "rq"),
             "rq".to_string(),
             visualization_query_terms,
         );
@@ -544,7 +542,7 @@ pub trait SQlBased {
                 Bool(b) => format!("{}", b),
                 Number(n) => format!("{}", n),
                 String(s) => match operator {
-                    Matches | StartsWith | EndsWith => format!("{}", s),
+                    Matches | StartsWith | EndsWith => s.to_string(),
                     _ => format!("'{}'", s),
                 },
                 _ => return "".to_string(),
@@ -700,34 +698,34 @@ pub trait SQlBased {
         if !views.is_empty() {
             query.push_str(views.as_str());
         } else {
-            query.push_str("*");
+            query.push('*');
         };
         query.push_str(" FROM ");
 
         query.push_str(table.as_str());
         if !filters.is_empty() {
             query.push_str(" WHERE ");
-            query.push_str(&filters.as_str());
+            query.push_str(filters.as_str());
         }
 
         if !groupings.is_empty() {
             query.push_str(" GROUP BY ");
-            query.push_str(&groupings.as_str());
+            query.push_str(groupings.as_str());
         }
 
         if !sorts.is_empty() {
             query.push_str(" ORDER BY ");
-            query.push_str(&sorts.as_str());
+            query.push_str(sorts.as_str());
         }
 
-        if limit.is_some() {
+        if let Some(limit) = limit {
             query.push_str(" LIMIT ");
-            query.push_str(format!("{}", &limit.unwrap().to_string()).as_str());
+            query.push_str(limit.to_string().as_str());
         }
 
-        if offset.is_some() {
+        if let Some(offset) = offset {
             query.push_str(" OFFSET ");
-            query.push_str(format!("{}", &offset.unwrap().to_string()).as_str());
+            query.push_str(offset.to_string().as_str());
         }
 
         query
@@ -753,9 +751,9 @@ fn render_template(
     match tera.add_raw_template("query", variable_sanitized_query.as_str()) {
         Ok(_) => match tera.render("query", &replacements) {
             Ok(q) => q,
-            Err(err) => query,
+            Err(_err) => query,
         },
-        Err(err) => query,
+        Err(_err) => query,
     }
 }
 

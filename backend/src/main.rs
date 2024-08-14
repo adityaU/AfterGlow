@@ -16,7 +16,6 @@ use app::bg_jobs::{pg_queue::PostgresQueue, scheduled_worker, worker, LongLivedD
 // use diesel::prelude::*;
 use actix_web_lab::middleware::CatchPanic;
 use clap::{self, Command};
-use diesel::migration::Migration;
 use diesel_migrations::embed_migrations;
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness};
 use dotenv::dotenv;

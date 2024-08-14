@@ -1,7 +1,6 @@
 use actix_web::{error, web, HttpRequest, HttpResponse, Responder};
 
 use chrono::NaiveDateTime;
-use jwt::ToBase64;
 use reqwest::StatusCode;
 use serde::Deserialize;
 use std::sync::Arc;
@@ -156,7 +155,7 @@ pub(crate) async fn show(
                     data: QuestionShowView::from_model(&mut conn.unwrap(), &item),
                 })
             })
-            .map_err(|err| AGError::<String>::new(err));
+            .map_err(AGError::<String>::new);
         }
     }
 
@@ -173,7 +172,7 @@ pub(crate) async fn show(
             data: QuestionShowView::from_model(&mut conn.unwrap(), &item),
         })
     })
-    .map_err(|err| AGError::<String>::new(err))
+    .map_err(AGError::<String>::new)
 }
 
 #[has_permissions["QuestionShow", type = "PermissionNames"]]
@@ -200,9 +199,9 @@ pub(crate) async fn index(
         let conn = pool.get();
         QuestionIndexView::from_models(&mut conn.unwrap(), &items)
             .map(|items| HttpResponse::Ok().json(ResponseData { data: items }))
-            .map_err(|err| AGError::<String>::new(err))
+            .map_err(AGError::<String>::new)
     })
-    .map_err(|err| AGError::<String>::new(err))
+    .map_err(AGError::<String>::new)
 }
 
 #[has_permissions["QuestionCreate", type = "PermissionNames"]]
@@ -215,7 +214,7 @@ pub(crate) async fn create(
     let qp = data.into_inner();
     questions::save(&mut conn.unwrap(), qp, req)
         .map(|item| HttpResponse::Created().json(ResponseData { data: item }))
-        .map_err(|err| AGError::<String>::new(err))
+        .map_err(AGError::<String>::new)
 }
 
 #[has_permissions["QuestionDelete",type = "PermissionNames"]]
@@ -249,5 +248,5 @@ pub(crate) async fn delete(
     let conn = pool.get();
     questions::delete(&mut conn.unwrap(), question_id, req, auth_details)
         .map(|_item| HttpResponse::Ok().json(ResponseData { data: "success" }))
-        .map_err(|err| AGError::new(err))
+        .map_err(AGError::new)
 }

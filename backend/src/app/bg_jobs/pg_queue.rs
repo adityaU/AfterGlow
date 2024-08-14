@@ -18,12 +18,10 @@ pub struct PostgresQueue {
 
 impl PostgresQueue {
     pub fn new(pool: DBPool) -> PostgresQueue {
-        let queue = PostgresQueue {
+        PostgresQueue {
             pool,
             max_attempts: 5,
-        };
-
-        queue
+        }
     }
 }
 

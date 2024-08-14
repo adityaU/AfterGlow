@@ -49,7 +49,7 @@ impl AdaptedPayload {
             .as_ref()
             .unwrap_or(&config::Database::default())
             .db_type
-            == "api_client".to_string()
+            == *"api_client"
         {
             return AdaptedPayload::ApiAction {
                 database: payload.database.unwrap_or_default(),
@@ -67,11 +67,7 @@ impl AdaptedPayload {
                     .to_string(),
                 variables: make_variable(&payload.variables.unwrap_or_default()),
                 visualization_query_terms: QueryTerms::new(
-                    match payload
-                        .visualization
-                        .unwrap_or(config::Visualization::default())
-                        .query_terms
-                    {
+                    match payload.visualization.unwrap_or_default().query_terms {
                         Some(config::QueryTermDetails::QueryTermsUnderDetails {
                             details: Some(qt),
                         }) => qt,
@@ -94,11 +90,7 @@ impl AdaptedPayload {
                 table: payload.table,
                 variables: make_variable(&payload.variables.unwrap_or_default()),
                 visualization_query_terms: QueryTerms::new(
-                    match payload
-                        .visualization
-                        .unwrap_or(config::Visualization::default())
-                        .query_terms
-                    {
+                    match payload.visualization.unwrap_or_default().query_terms {
                         Some(config::QueryTermDetails::QueryTermsUnderDetails {
                             details: Some(qt),
                         }) => qt,

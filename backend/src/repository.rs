@@ -22,6 +22,8 @@ impl Database {
 }
 
 pub mod api_action;
+pub mod app_column;
+pub mod app_table;
 pub mod audit_log;
 pub mod bg_job;
 pub mod column;

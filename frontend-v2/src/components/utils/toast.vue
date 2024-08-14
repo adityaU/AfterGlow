@@ -1,6 +1,8 @@
 <template>
   <!-- <teleport to="body"> -->
-  <div class="tw-flex tw-basis-8 tw-fixed tw-top-2 tw-right-2 ag-card tw-max-w-[400px] tw-z-50" v-if="show">
+  <div
+    class="tw-flex tw-basis-8 tw-fixed tw-top-9 tw-right-2 tw-bg-white tw-rounded-lg tw-max-w-[400px] tw-z-[999999] tw-border-0"
+    v-if="show">
     <div class="tw-bg-green-700 tw-flex tw-items-center tw-text-white tw-px-4 tw-rounded-l-lg" v-if="type == 'ok'">
       <ChecksIcon size="48" />
     </div>
@@ -10,12 +12,15 @@
     <div class="tw-bg-red-700 tw-flex tw-items-center tw-text-white tw-px-4 tw-rounded-l-lg" v-if="type == 'critical'">
       <AlertCircleFilledIcon size="48" />
     </div>
-    <div class="tw-border-l-red-600 tw-border-l-green-600 tw-border-l-yellow-600 tw-hidden"></div>
-    <div class="col tw-p-3 tw-pr-6">
-      <slot />
+    <div class="tw-border-l-red-600 tw-border-l-green-600 tw-border-l-yellow-600 tw-hidden ">
     </div>
-    <div class="tw-absolute tw-float-right tw-top-1 tw-right-1 tw-cursor-pointer">
-      <XIcon @click="$emit('update:show', false)" size="24" />
+    <div class="tw-border tw-border-l-0 tw-flex tw-rounded-r-lg ">
+      <div class="col tw-p-3 tw-pr-6 ">
+        <slot />
+      </div>
+      <div class=" tw-cursor-pointer tw-p-2">
+        <XIcon @click="$emit('update:show', false)" size="24" />
+      </div>
     </div>
   </div>
   <!-- </teleport> -->
@@ -43,7 +48,7 @@ export default {
       if (this.show) {
         setTimeout(() => {
           this.$emit('update:show', false);
-        }, 5000);
+        }, 5000000);
       }
     },
   },

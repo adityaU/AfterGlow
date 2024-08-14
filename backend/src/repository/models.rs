@@ -209,13 +209,6 @@ pub struct ApiAction {
     pub open_option: Option<String>,
 }
 
-#[derive(Queryable, Debug)]
-pub struct Application {
-    pub id: i64,
-    pub name: String,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
 #[derive(
     Debug, PartialEq, FromSqlRow, AsExpression, Eq, Serialize, Deserialize, Clone, DatabaseEnum,
 )]
@@ -328,17 +321,14 @@ impl ToSql<VarChar, Pg> for WidgetTypes {
 
 impl FromSql<VarChar, Pg> for WidgetTypes {
     fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
-        match String::from_sql(bytes)?.as_str() {
+        let s = <String as FromSql<VarChar, Pg>>::from_sql(bytes)?;
+        match s.as_str() {
             "visualization" => Ok(WidgetTypes::Visualization),
             "variablePane" => Ok(WidgetTypes::VariablePane),
             "note" => Ok(WidgetTypes::Note),
             "notes" => Ok(WidgetTypes::Note),
             "tabs" => Ok(WidgetTypes::Tabs),
-            _ => Err(format!(
-                "Unrecognized enum value: {}",
-                String::from_sql(bytes)?.as_str()
-            )
-            .into()),
+            _ => Err(format!("Unrecognized enum value: {}", s).into()),
         }
     }
 }
@@ -409,7 +399,7 @@ impl ToSql<VarChar, Pg> for SupportedDatabases {
 
 impl FromSql<VarChar, Pg> for SupportedDatabases {
     fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
-        match String::from_sql(bytes)?.as_str() {
+        match <String as FromSql<VarChar, Pg>>::from_sql(bytes)?.as_str() {
             "postgres" => Ok(SupportedDatabases::Postgres),
             "mysql" => Ok(SupportedDatabases::Mysql),
             "clickhouse" => Ok(SupportedDatabases::Clickhouse),
@@ -420,7 +410,7 @@ impl FromSql<VarChar, Pg> for SupportedDatabases {
             "api_client" => Ok(SupportedDatabases::ApiClient),
             _ => Err(format!(
                 "Unrecognized enum value: {}",
-                String::from_sql(bytes)?.as_str()
+                <String as FromSql<VarChar, Pg>>::from_sql(bytes)?.as_str()
             )
             .into()),
         }
@@ -664,14 +654,14 @@ impl ToSql<VarChar, Pg> for TimeUnit {
 
 impl FromSql<VarChar, Pg> for TimeUnit {
     fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
-        match String::from_sql(bytes)?.as_str() {
+        match <String as FromSql<VarChar, Pg>>::from_sql(bytes)?.as_str() {
             "Hour" => Ok(TimeUnit::Hour),
             "Day" => Ok(TimeUnit::Day),
             "Week" => Ok(TimeUnit::Week),
             "Month" => Ok(TimeUnit::Month),
             _ => Err(format!(
                 "Unrecognized enum value: {}",
-                String::from_sql(bytes)?.as_str()
+                <String as FromSql<VarChar, Pg>>::from_sql(bytes)?.as_str()
             )
             .into()),
         }
@@ -972,13 +962,13 @@ impl ToSql<VarChar, Pg> for VariableType {
 
 impl FromSql<VarChar, Pg> for VariableType {
     fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
-        match String::from_sql(bytes)?.as_str() {
+        match <String as FromSql<VarChar, Pg>>::from_sql(bytes)?.as_str() {
             "String" => Ok(VariableType::String),
             "Integer" => Ok(VariableType::Integer),
             "Date" => Ok(VariableType::Date),
             _ => Err(format!(
                 "Unrecognized enum value: {}",
-                String::from_sql(bytes)?.as_str()
+                <String as FromSql<VarChar, Pg>>::from_sql(bytes)?.as_str()
             )
             .into()),
         }
@@ -1062,7 +1052,7 @@ impl ToSql<VarChar, Pg> for RendererTypes {
 
 impl FromSql<VarChar, Pg> for RendererTypes {
     fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
-        match String::from_sql(bytes)?.as_str() {
+        match <String as FromSql<VarChar, Pg>>::from_sql(bytes)?.as_str() {
             "area" => Ok(RendererTypes::Area),
             "bar" => Ok(RendererTypes::Bar),
             "bubble" => Ok(RendererTypes::Bubble),
@@ -1076,7 +1066,7 @@ impl FromSql<VarChar, Pg> for RendererTypes {
             "transposed_table" => Ok(RendererTypes::TransposedTable),
             _ => Err(format!(
                 "Unrecognized enum value: {}",
-                String::from_sql(bytes)?.as_str()
+                <String as FromSql<VarChar, Pg>>::from_sql(bytes)?.as_str()
             )
             .into()),
         }
