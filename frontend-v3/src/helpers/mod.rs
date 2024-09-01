@@ -1,3 +1,4 @@
+pub mod click_outside;
 pub mod colors;
 pub mod columns;
 pub mod email;

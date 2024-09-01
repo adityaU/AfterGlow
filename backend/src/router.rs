@@ -503,6 +503,11 @@ fn scoped_config(cfg: &mut web::ServiceConfig) {
                 .route(web::get().to(apps::find_columns_by_table_id)),
         )
         .service(
+            web::resource("app_tables/{table_id}/create_new_row")
+                .wrap(from_fn(authenticate))
+                .route(web::post().to(apps::create_new_row)),
+        )
+        .service(
             web::resource("/app_columns")
                 .wrap(from_fn(authenticate))
                 .route(web::post().to(apps::create_column)),

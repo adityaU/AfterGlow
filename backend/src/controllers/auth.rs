@@ -47,7 +47,7 @@ pub(crate) async fn veriy_token(
     let conn = pool.get();
 
     auth::verify_token(&mut conn.unwrap(), token_str.to_string())
-        .map(|resp| HttpResponse::Ok().json(resp))
+        .map(|resp| HttpResponse::Ok().json(ResponseData { data: resp }))
         .map_err(|err| error::ErrorUnauthorized(err))
 }
 

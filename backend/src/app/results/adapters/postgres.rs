@@ -67,6 +67,7 @@ impl DBAdapter for PostgresAdapter {
         }
 
         let pool = self.get_pool(cps)?;
+        println!("queries: {:?}", &queries);
         Self::execute_in_transaction(pool, queries).await?;
 
         Ok(())
@@ -339,27 +340,19 @@ impl PostgresAdapter {
         query: String,
         debug_query: String,
     ) -> Result<Vec<Row>, QueryError> {
-        let pool_conn = match pool
+        let pool_conn = pool
             .get()
             .await
-            .map_err(|err| QueryError::new(err.to_string(), debug_query.clone()))
-        {
-            Ok(value) => value,
-            Err(err) => return Err(err),
-        };
-        let res = match pool_conn
+            .map_err(|err| QueryError::new(err.to_string(), debug_query.clone()))?;
+        let res = pool_conn
             .query(query.clone().as_str(), &[])
             .await
-            .map_err(|err| QueryError::new(err.to_string(), debug_query.clone()))
-        {
-            Ok(value) => value,
-            Err(err) => return Err(err),
-        };
+            .map_err(|err| QueryError::new(err.to_string(), debug_query.clone()))?;
 
         Ok(res)
     }
 
-    fn convert_rows(
+    pub fn convert_rows(
         row_results: &Vec<Row>,
     ) -> (
         Vec<Vec<DBValue>>,

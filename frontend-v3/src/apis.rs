@@ -4,14 +4,54 @@ pub mod session;
 pub mod user;
 
 use reqwest::{Client, RequestBuilder, Response, StatusCode};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::Value;
 use std::{collections::HashMap, error::Error};
 use web_sys::window;
 
+use std::fmt::Debug as DebugTrait;
 const BASE_PATH: &str = "/api/v2";
 
+pub trait ApiResponseData: Clone + Default + Serialize + PartialEq + DebugTrait {}
+
+// Blanket implementation for all types that satisfy the trait bounds
+impl<T> ApiResponseData for T where
+    T: Clone + Default + Serialize + DeserializeOwned + PartialEq + DebugTrait
+{
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+enum ResponseEnum<T>
+where
+    T: ApiResponseData,
+{
+    Success { data: T },
+    Error { error: String },
+}
+
+impl<T> Default for ResponseEnum<T>
+where
+    T: ApiResponseData,
+{
+    fn default() -> Self {
+        ResponseEnum::Success { data: T::default() }
+    }
+}
+
+pub fn handle_response<T: ApiResponseData + DeserializeOwned>(
+    response: ApiResponse,
+) -> Result<T, String> {
+    let response: ResponseEnum<T> =
+        serde_json::from_value(response.message).map_err(|e| e.to_string())?;
+    match response {
+        ResponseEnum::Success { data } => Ok(data),
+        ResponseEnum::Error { error } => Err(error),
+    }
+}
+
 #[derive(Debug)]
-struct ApiResponse {
+pub struct ApiResponse {
     status: StatusCode,
     message: serde_json::Value,
 }
@@ -78,18 +118,21 @@ impl ApiClient {
         new_request_builder
     }
 
-    async fn get(&self, path: &str) -> Result<ApiResponse, Box<dyn Error>> {
+    async fn get<T: ApiResponseData + DeserializeOwned>(
+        &self,
+        path: &str,
+    ) -> Result<T, Box<dyn Error>> {
         let url = format!("{}{}", self.base_url, path);
         let response = self.with_headers(self.client.get(&url)).send().await?;
         let api_response = Self::make_api_response(response).await?;
-        Ok(api_response)
+        Ok(handle_response::<T>(api_response)?)
     }
 
-    async fn post(
+    async fn post<T: ApiResponseData + DeserializeOwned>(
         &self,
         path: &str,
         body: serde_json::Value,
-    ) -> Result<ApiResponse, Box<dyn Error>> {
+    ) -> Result<T, Box<dyn Error>> {
         let url = format!("{}{}", self.base_url, path);
         let response = self
             .with_headers(self.client.post(&url))
@@ -97,14 +140,14 @@ impl ApiClient {
             .send()
             .await?;
         let api_response = Self::make_api_response(response).await?;
-        Ok(api_response)
+        Ok(handle_response::<T>(api_response)?)
     }
 
-    async fn put(
+    async fn put<T: ApiResponseData + DeserializeOwned>(
         &self,
         path: &str,
         body: serde_json::Value,
-    ) -> Result<ApiResponse, Box<dyn Error>> {
+    ) -> Result<T, Box<dyn Error>> {
         let url = format!("{}{}", self.base_url, path);
         let response = self
             .with_headers(self.client.put(&url))
@@ -112,13 +155,16 @@ impl ApiClient {
             .send()
             .await?;
         let api_response = Self::make_api_response(response).await?;
-        Ok(api_response)
+        Ok(handle_response::<T>(api_response)?)
     }
 
-    async fn delete(&self, path: &str) -> Result<ApiResponse, Box<dyn Error>> {
+    async fn delete<T: ApiResponseData + DeserializeOwned>(
+        &self,
+        path: &str,
+    ) -> Result<T, Box<dyn Error>> {
         let url = format!("{}{}", self.base_url, path);
         let response = self.with_headers(self.client.delete(&url)).send().await?;
         let api_response = Self::make_api_response(response).await?;
-        Ok(api_response)
+        Ok(handle_response::<T>(api_response)?)
     }
 }

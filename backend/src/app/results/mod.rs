@@ -20,6 +20,8 @@ use serde::{
     Deserialize, Deserializer, Serialize, Serializer,
 };
 
+use mysql_async::Pool as MysqlPool;
+
 use serde::ser::SerializeStruct;
 use serde_json::from_value;
 
@@ -27,7 +29,7 @@ use crate::app::api_actions;
 use crate::app::results::payload_adapter::AdaptedPayload;
 use crate::{app::results::adapters::DBAdapter, repository::models::ResultsCache};
 
-use self::adapters::DBValue;
+use self::{adapters::DBValue, payload_adapter::QueryTerms};
 
 use super::{
     api_actions::ApiActionResponse,
@@ -170,6 +172,7 @@ impl QueryError {
 #[derive(Debug, Clone)]
 pub struct ConnectionPools {
     pub postgres: HashMap<String, Arc<Pool>>,
+    pub mysql: HashMap<String, Arc<MysqlPool>>,
 }
 
 #[derive(Debug, Serialize)]
@@ -496,6 +499,36 @@ pub async fn fetch(
     .await
 }
 
+fn set_gen_ai_request_columns(
+    columns: Option<Arc<Vec<String>>>,
+    adapted_payload: &mut AdaptedPayload,
+) {
+    match adapted_payload {
+        AdaptedPayload::ApiAction { .. } => (),
+        AdaptedPayload::Raw {
+            visualization_query_terms,
+            ..
+        }
+        | AdaptedPayload::QB {
+            visualization_query_terms,
+            ..
+        } => {
+            update_genai_prompt(columns, visualization_query_terms);
+        }
+    }
+}
+
+fn update_genai_prompt(
+    columns: Option<Arc<Vec<String>>>,
+    visualization_query_terms: &mut QueryTerms,
+) {
+    if let Some(mut genai_prompt_value) = visualization_query_terms.genai_prompt.clone() {
+        genai_prompt_value.columns =
+            Some(columns.map_or_else(Default::default, |cols| (*cols).clone()));
+        visualization_query_terms.genai_prompt = Some(genai_prompt_value);
+    }
+}
+
 async fn fetch_results_from_db(
     adapter: Arc<dyn DBAdapter>,
     conn: &mut PgConnection,
@@ -511,6 +544,10 @@ async fn fetch_results_from_db(
     let (original_query_columns, column_details) =
         fetch_original_query_columns(&adapted_payload, &adapter, conn, cps, user_id, org_id)
             .await?;
+
+    let mut adapted_payload = adapted_payload.clone();
+
+    set_gen_ai_request_columns(original_query_columns.clone(), &mut adapted_payload);
 
     let db_adapter_response = adapter
         .fetch_response(conn, cps, adapted_payload, user_id, org_id)

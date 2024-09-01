@@ -12,16 +12,19 @@ use diesel::result::Error;
 use diesel::serialize::{self, IsNull, Output, ToSql};
 use diesel::sql_types::Jsonb;
 use diesel::AsChangeset;
+use diesel::ExpressionMethods;
 use diesel::Insertable;
 use diesel::PgConnection;
 use diesel::QueryDsl;
 use diesel::RunQueryDsl;
-use num_format::Locale;
+use num_format::{Locale, ToFormattedString};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::io::Write;
 use std::num::ParseIntError;
 
+use super::row::IntOrFloat;
+use super::row::RowElement;
 use super::schema::app_columns;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Eq, Hash, Deserialize)]
@@ -42,15 +45,15 @@ pub enum NumberFormats {
     NoSeperator, //1234567.89
 }
 impl NumberFormats {
-    // pub fn locale(&self) -> Locale {
-    //     match self {
-    //         NumberFormats::US => Locale::en,
-    //         NumberFormats::DE => Locale::de,
-    //         NumberFormats::FR => Locale::fr,
-    //         NumberFormats::IN => Locale::en_IN,
-    //         NumberFormats::NoSeperator => Locale::,
-    //     }
-    // }
+    pub fn locale(&self) -> Locale {
+        match self {
+            NumberFormats::US => Locale::en,
+            NumberFormats::DE => Locale::de,
+            NumberFormats::FR => Locale::fr,
+            NumberFormats::IN => Locale::en_IN,
+            NumberFormats::NoSeperator => Locale::en,
+        }
+    }
     fn format_example(&self) -> &'static str {
         match self {
             NumberFormats::US => "1,234,567.89",
@@ -61,13 +64,41 @@ impl NumberFormats {
         }
     }
 
+    pub fn decimal_seperator(&self) -> char {
+        match self {
+            NumberFormats::DE | NumberFormats::FR => ',',
+            _ => '.',
+        }
+    }
+
     pub fn label(&self) -> String {
         format!("{:?} ({})", self, self.format_example())
     }
 
-    // pub fn format_number(&self, number: f64) -> String {
-    //     &self.format(&number).to_string()
-    // }
+    pub fn format_number(&self, number: f64, is_integer: bool) -> String {
+        let formatted = format!("{:.2}", number); // Adjust precision as needed
+
+        // Use num_format to format the integer part
+        let parts: Vec<&str> = formatted.split('.').collect();
+        let integer_part = parts[0].parse::<i64>().unwrap_or(0);
+
+        if is_integer {
+            return integer_part.to_formatted_string(&self.locale());
+        }
+        let formatted_integer = integer_part.to_formatted_string(&self.locale());
+
+        // Combine the formatted integer part with the decimal part
+        if parts.len() > 1 {
+            format!(
+                "{}{}{}",
+                formatted_integer,
+                &self.decimal_seperator(),
+                parts[1]
+            )
+        } else {
+            formatted_integer
+        }
+    }
 }
 
 impl fmt::Display for NumberFormats {
@@ -456,6 +487,73 @@ impl TypeValidation {
             TypeValidation::ProgressBar { .. } => "progress_bar".to_string(),
         }
     }
+
+    pub fn format(&self, re: RowElement) -> RowElement {
+        match &self {
+            TypeValidation::Number {
+                is_integer, format, ..
+            } => {
+                let number = match re {
+                    RowElement::Number(IntOrFloat::Int(i)) => i as f64,
+                    RowElement::Number(IntOrFloat::Float(f)) => f,
+                    _ => 0.0,
+                };
+                RowElement::Text(format.format_number(number, *is_integer))
+            }
+            TypeValidation::Percentage { format, .. } => {
+                let number = match re {
+                    RowElement::Number(IntOrFloat::Int(i)) => i as f64,
+                    RowElement::Number(IntOrFloat::Float(f)) => f,
+                    _ => 0.0,
+                };
+                RowElement::Text(format.format_number(number, false))
+            }
+
+            TypeValidation::Text { .. } => re,
+            TypeValidation::Date { format, .. } => {
+                let date = match re {
+                    RowElement::Date(d) => d,
+                    _ => Utc::now().naive_utc().date(),
+                };
+                RowElement::Text(format.format_date(&date))
+            }
+            TypeValidation::DateTime { format, .. }
+            | TypeValidation::CreatedAt { format }
+            | TypeValidation::UpdatedAt { format } => {
+                let datetime = match re {
+                    RowElement::DateTime(d) => d,
+                    _ => Utc::now().naive_utc(),
+                };
+                RowElement::Text(format.format_datetime(&datetime))
+            }
+            TypeValidation::Currency { symbol, format, .. } => {
+                let number = match re {
+                    RowElement::Number(IntOrFloat::Int(i)) => i as f64,
+                    RowElement::Number(IntOrFloat::Float(f)) => f,
+                    _ => 0.0,
+                };
+                RowElement::Text(symbol.clone().map_or_else(
+                    || format.format_number(number, false),
+                    |t| format!("{} {}", t, format.format_number(number, false)),
+                ))
+            }
+            TypeValidation::CreatedBy {} | TypeValidation::LastModifiedBy {} => re,
+            TypeValidation::AutoNumber {} => match re {
+                RowElement::Number(IntOrFloat::Int(i)) => RowElement::Text(i.to_string()),
+                _ => RowElement::Text("invalid".to_string()),
+            },
+
+            TypeValidation::ProgressBar { .. } | TypeValidation::Rating { .. } => {
+                let number = match re {
+                    RowElement::Number(IntOrFloat::Int(i)) => i as f64,
+                    RowElement::Number(IntOrFloat::Float(f)) => f,
+                    _ => 0.0,
+                };
+                RowElement::Text(format!("{}", number))
+            }
+            _ => re,
+        }
+    }
     pub fn get_pg_type(&self) -> String {
         match &self {
             TypeValidation::Number {
@@ -565,6 +663,299 @@ pub struct AppColumn {
     pub table_id: i64,
     pub type_validation: TypeValidation,
     pub display_order: i32,
+    pub is_primary: bool,
     pub inserted_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+}
+
+impl AppColumn {
+    pub fn find_by_table_id(
+        conn: &mut PgConnection,
+        table_id: i64,
+    ) -> Result<Vec<AppColumn>, Error> {
+        app_columns::table
+            .filter(app_columns::table_id.eq(table_id))
+            .load::<AppColumn>(conn)
+    }
+
+    pub fn default_value(&self, current_user_id: i64) -> RowElement {
+        match &self.type_validation {
+            TypeValidation::Number {
+                is_integer,
+                default,
+                ..
+            } => {
+                if *is_integer {
+                    let default = default
+                        .as_ref()
+                        .unwrap_or(&"0".to_string())
+                        .parse::<i64>()
+                        .unwrap_or(0);
+                    RowElement::Number(IntOrFloat::Int(default))
+                } else {
+                    let default = default
+                        .as_ref()
+                        .unwrap_or(&"0.0".to_string())
+                        .parse::<f64>()
+                        .unwrap_or(0.0);
+                    RowElement::Number(IntOrFloat::Float(default))
+                }
+            }
+            TypeValidation::Text { default, .. } => {
+                if default.is_some() {
+                    RowElement::Text(default.clone().unwrap())
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::Email { default } => {
+                if default.is_some() {
+                    RowElement::Text(default.clone().unwrap())
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::Url { default } => {
+                if default.is_some() {
+                    RowElement::Text(default.clone().unwrap())
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::Attachment { default, .. } => {
+                if default.is_some() {
+                    RowElement::Text(default.clone().unwrap())
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::MultipleSelect { default, .. } => {
+                if default.is_some() {
+                    RowElement::ArrayString(default.clone().unwrap())
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::SingleSelect { default, .. } => {
+                if default.is_some() {
+                    RowElement::Text(default.clone().unwrap())
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::PhoneNumber { default } => {
+                if default.is_some() {
+                    RowElement::Text(default.clone().unwrap())
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::Currency { default, .. } => {
+                if default.is_some() {
+                    let default = default
+                        .clone()
+                        .unwrap_or_default()
+                        .parse::<f64>()
+                        .unwrap_or_default();
+                    RowElement::Number(IntOrFloat::Float(default))
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::Percentage { default, .. } => {
+                if default.is_some() {
+                    let default = default
+                        .clone()
+                        .unwrap_or_default()
+                        .parse::<f64>()
+                        .unwrap_or_default();
+                    RowElement::Number(IntOrFloat::Float(default))
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::Checkbox { default, .. } => RowElement::Boolean(*default),
+            TypeValidation::User { default, .. } => {
+                if default.is_some() {
+                    match default.clone().unwrap() {
+                        VecOrSingle::Vec(v) => {
+                            RowElement::ArrayNumber(v.iter().map(|x| IntOrFloat::Int(*x)).collect())
+                        }
+                        VecOrSingle::Single(s) => RowElement::Number(IntOrFloat::Int(s)),
+                    }
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::Rating { default, .. } => {
+                if default.is_some() {
+                    RowElement::Number(IntOrFloat::Int(default.unwrap_or_default() as i64))
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::ProgressBar { default, .. } => {
+                if default.is_some() {
+                    RowElement::Number(IntOrFloat::Int(default.unwrap_or_default() as i64))
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::Date {
+                default_to_current, ..
+            } => {
+                if *default_to_current {
+                    RowElement::Number(IntOrFloat::Int(current_user_id))
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::DateTime {
+                default_to_current, ..
+            } => {
+                if *default_to_current {
+                    RowElement::DateTime(Utc::now().naive_utc())
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::CreatedBy {} => RowElement::Number(IntOrFloat::Int(current_user_id)),
+            TypeValidation::LastModifiedBy {} => {
+                RowElement::Number(IntOrFloat::Int(current_user_id))
+            }
+            TypeValidation::AutoNumber {} => RowElement::None,
+            TypeValidation::Formula { .. } => RowElement::None,
+            TypeValidation::CreatedAt { .. } => RowElement::DateTime(Utc::now().naive_utc()),
+            TypeValidation::UpdatedAt { .. } => RowElement::DateTime(Utc::now().naive_utc()),
+        }
+    }
+}
+
+impl AppColumnView {
+    pub fn default_value(&self) -> RowElement {
+        match &self.type_validation {
+            TypeValidation::Number {
+                is_integer,
+                default,
+                ..
+            } => {
+                if *is_integer {
+                    let default = default
+                        .as_ref()
+                        .unwrap_or(&"0".to_string())
+                        .parse::<i64>()
+                        .unwrap_or(0);
+                    RowElement::Number(IntOrFloat::Int(default))
+                } else {
+                    let default = default
+                        .as_ref()
+                        .unwrap_or(&"0.0".to_string())
+                        .parse::<f64>()
+                        .unwrap_or(0.0);
+                    RowElement::Number(IntOrFloat::Float(default))
+                }
+            }
+            TypeValidation::Text { default, .. } => {
+                if default.is_some() {
+                    RowElement::Text(default.clone().unwrap())
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::Email { default } => {
+                if default.is_some() {
+                    RowElement::Text(default.clone().unwrap())
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::Url { default } => {
+                if default.is_some() {
+                    RowElement::Text(default.clone().unwrap())
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::Attachment { default, .. } => {
+                if default.is_some() {
+                    RowElement::Text(default.clone().unwrap())
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::MultipleSelect { default, .. } => {
+                if default.is_some() {
+                    RowElement::ArrayString(default.clone().unwrap())
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::SingleSelect { default, .. } => {
+                if default.is_some() {
+                    RowElement::Text(default.clone().unwrap())
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::PhoneNumber { default } => {
+                if default.is_some() {
+                    RowElement::Text(default.clone().unwrap())
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::Currency { default, .. } => {
+                if default.is_some() {
+                    let default = default
+                        .clone()
+                        .unwrap_or_default()
+                        .parse::<f64>()
+                        .unwrap_or_default();
+                    RowElement::Number(IntOrFloat::Float(default))
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::Percentage { default, .. } => {
+                if default.is_some() {
+                    let default = default
+                        .clone()
+                        .unwrap_or_default()
+                        .parse::<f64>()
+                        .unwrap_or_default();
+                    RowElement::Number(IntOrFloat::Float(default))
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::Checkbox { default, .. } => RowElement::Boolean(*default),
+            TypeValidation::User { default, .. } => {
+                if default.is_some() {
+                    match default.clone().unwrap() {
+                        VecOrSingle::Vec(v) => {
+                            RowElement::ArrayNumber(v.iter().map(|x| IntOrFloat::Int(*x)).collect())
+                        }
+                        VecOrSingle::Single(s) => RowElement::Number(IntOrFloat::Int(s)),
+                    }
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::Rating { default, .. } => {
+                if default.is_some() {
+                    RowElement::Number(IntOrFloat::Int(default.unwrap_or_default() as i64))
+                } else {
+                    RowElement::None
+                }
+            }
+            TypeValidation::ProgressBar { default, .. } => {
+                if default.is_some() {
+                    RowElement::Number(IntOrFloat::Int(default.unwrap_or_default() as i64))
+                } else {
+                    RowElement::None
+                }
+            }
+            _ => RowElement::None,
+        }
+    }
 }

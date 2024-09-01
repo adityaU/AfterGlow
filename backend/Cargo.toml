@@ -78,6 +78,12 @@ bytes = "1.6.0"
 ring = "0.17.8"
 hex = "0.4.3"
 tera = "1.20.0"
+mysql_async = { version = "0.34.2", features = [
+  "time",
+  "rust_decimal",
+  "default",
+  "chrono",
+] }
 
 # [build-dependencies]
 # pkg-config = "0.3.30"

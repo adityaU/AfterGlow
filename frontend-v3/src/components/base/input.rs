@@ -48,7 +48,7 @@ pub fn Input<T: Clone + ToString + FromStr + Default + IntoAttribute + PartialEq
 
             <input
                 type=input_type
-                value=move || value.get()
+                value=move || value.get().map(|v| v.to_string()).unwrap_or_default()
                 on:input=move |ev| {
                     untrack(|| {
                         let set_value = Rc::clone(&set_value);

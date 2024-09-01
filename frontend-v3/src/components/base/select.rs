@@ -10,6 +10,8 @@ use web_sys::{
     Node,
 };
 
+use crate::helpers::click_outside::hide_on_click_outside;
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct OptionItem<V, L> {
     pub value: V,
@@ -42,40 +44,7 @@ pub fn Select<V: Clone + PartialEq + Default + 'static, L: Clone + ToString + De
     });
 
     // Set up the event listener for document clicks
-    create_effect(move |_| {
-        let element = element_ref.get().unwrap();
-
-        let handle_click_outside = Closure::wrap(Box::new(move |event: web_sys::MouseEvent| {
-            if let Some(target) = event.target() {
-                if let Some(target_node) = target.dyn_into::<Node>().ok() {
-                    if !element.contains(Some(&target_node)) {
-                        set_is_open.set(false);
-                    }
-                }
-            }
-        }) as Box<dyn FnMut(_)>);
-
-        web_sys::window()
-            .unwrap()
-            .add_event_listener_with_callback(
-                "click",
-                handle_click_outside.as_ref().unchecked_ref(),
-            )
-            .unwrap();
-
-        // Cleanup the event listener when the component is destroyed
-        move || {
-            web_sys::window()
-                .unwrap()
-                .remove_event_listener_with_callback(
-                    "click",
-                    handle_click_outside.as_ref().unchecked_ref(),
-                )
-                .unwrap();
-            handle_click_outside.forget();
-        }
-    });
-
+    create_effect(move |_| hide_on_click_outside(&element_ref, set_is_open));
     view! {
         <div class=format!("{} tw-relative", classes) ref=element_ref>
             <label

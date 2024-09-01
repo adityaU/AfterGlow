@@ -42,15 +42,15 @@
             <AGInput v-model:value="databaseLocal.config.password" placeholder="password" type="password" />
 
             <div class="label tw-mt-2">Connection Pool Size</div>
-            <AGInput v-model:value="databaseLocal.config.pool_size" placeholder="default: 10" />
+            <AGInput type="number" v-model:value="databaseLocal.config.pool_size" placeholder="default: 10" />
 
             <div class="label tw-mt-2">
               Connection Checkout Timeout in Seconds
             </div>
-            <AGInput v-model:value="databaseLocal.config.checkout_timeout" placeholder="default: 45" />
+            <AGInput type="number" v-model:value="databaseLocal.config.checkout_timeout" placeholder="default: 45" />
 
             <div class="label tw-mt-2">Query Timeout in Seconds</div>
-            <AGInput v-model:value="databaseLocal.config.query_timeout" placeholder="default: 60" />
+            <AGInput type="number" v-model:value="databaseLocal.config.query_timeout" placeholder="default: 60" />
           </div>
         </div>
       </template>

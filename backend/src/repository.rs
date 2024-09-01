@@ -1,8 +1,12 @@
+use std::{str::FromStr, time::Duration};
+
+use deadpool_postgres::{Manager, ManagerConfig, Pool, RecyclingMethod};
 use diesel::{
     r2d2::{self, ConnectionManager},
     PgConnection,
 };
 use dotenv::dotenv;
+use tokio_postgres::NoTls;
 pub type DBPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 pub struct Database {
@@ -18,6 +22,24 @@ impl Database {
             .build(manager)
             .expect("Failed to create pool.");
         Database { pool }
+    }
+}
+
+pub struct RawConnection {}
+
+impl RawConnection {
+    pub fn make() -> Pool {
+        let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+        let mut pg_config = tokio_postgres::Config::from_str(&database_url).expect("Invalid URL");
+        pg_config.connect_timeout(Duration::from_secs(45));
+        let mgr_config = ManagerConfig {
+            recycling_method: RecyclingMethod::Fast,
+        };
+        let mgr = Manager::from_config(pg_config, NoTls, mgr_config);
+        Pool::builder(mgr)
+            .max_size(20)
+            .build()
+            .expect("Failed to create pool.")
     }
 }
 

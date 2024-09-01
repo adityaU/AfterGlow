@@ -64,14 +64,8 @@ pub struct FormattingSettings {
 }
 
 pub async fn fetch_all() -> Vec<Dashboard> {
-    let response = ApiClient::new().get("/dashboards?limit=5").await;
-    match response {
-        Ok(resp) => {
-            let dashboard_resp: DashboardsResponse =
-                serde_json::from_value(resp.message).unwrap_or_default();
-            dashboard_resp.data
-        }
-        Err(_e) => Vec::new(),
-    }
-    // Convert the response data to a Session struct
+    ApiClient::new()
+        .get::<Vec<Dashboard>>("/dashboards?limit=5")
+        .await
+        .unwrap_or_default()
 }

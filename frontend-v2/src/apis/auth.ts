@@ -8,7 +8,7 @@ const verifyToken = async function (token, onSuccess, onError) {
       { token: token },
       apiConfig(token)
     );
-    return onSuccess(resp.data);
+    return onSuccess(resp.data.data);
   } catch (e) {
     console.log(e);
     onError();

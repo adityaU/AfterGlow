@@ -133,6 +133,10 @@ html {
     @apply tw-text-primary
   }
 
+  .cell_focus {
+    @apply tw-border-primary !tw-border-2
+  }
+
 
 }
 
@@ -177,6 +181,6 @@ body *::-webkit-scrollbar-thumb {
   transition: all 0.3s;
 }
 
-input {
-  @apply tw-bg-secondary tw-border tw-border-secondary/50 tw-rounded tw-py-1 tw-px-2 tw-w-full tw-h-full;
+input.cell_input {
+  @apply tw-bg-secondary tw-border-0 tw-border-secondary/50 tw-rounded tw-py-1 tw-px-2 tw-w-full tw-h-full tw-bg-transparent tw-text-default tw-font-semibold tw-text-sm tw-placeholder-default/50;
 }

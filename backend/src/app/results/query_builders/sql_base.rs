@@ -1,3 +1,4 @@
+use actix_web::middleware::Logger;
 use fancy_regex::Regex;
 
 use diesel::PgConnection;
@@ -94,8 +95,8 @@ pub trait SQlBased {
             return query;
         }
         let prompt = format!(
-            "wrap following {:?} query:\n {} to accomplish following\n{}\n my original query returns following columns:\n{}",
-            db_type, query, prompt.request.unwrap_or_default(), prompt.columns.unwrap_or_default().join(",")
+            "Given {:?} query:\n <{:?}>{}</{:?}>, Rewrite it to accomplish following\n{}\n my original query returns following columns:\n{}.",
+            db_type, db_type,  query, db_type, prompt.request.unwrap_or_default(), prompt.columns.unwrap_or_default().join(",")
         );
         match gen_ai::call(
             conn,
@@ -107,7 +108,10 @@ pub trait SQlBased {
         .await
         {
             Ok(resp) => resp,
-            Err(_err) => query,
+            Err(err) => {
+                println!("Error in gen ai call {:?}", err);
+                query
+            }
         }
     }
     fn new(adapted_payload: AdaptedPayload) -> Self;
@@ -178,10 +182,19 @@ pub trait SQlBased {
 
         render_template(variable_sanitized_query, replacements, query)
     }
+
     fn replace_variables(
         conn: &mut PgConnection,
         query: String,
         variables: &Vec<Variable>,
+    ) -> String {
+        Self::_replace_variables(conn, query, variables, "'".to_string())
+    }
+    fn _replace_variables(
+        conn: &mut PgConnection,
+        query: String,
+        variables: &Vec<Variable>,
+        quote: String,
     ) -> String {
         let query = Self::replace_snippets_and_ques_defs(conn, query.clone());
         let mut replacements = Context::new();
@@ -211,21 +224,21 @@ pub trait SQlBased {
                     if value.is_empty() {
                         None
                     } else {
-                        Some(format!(r#"'{}'"#, value))
+                        Some(format!(r#"{}{}{}"#, &quote, value, &quote))
                     }
                 }
                 VariableType::Integer => {
                     if value.is_empty() {
                         None
                     } else {
-                        Some(format!(r#"'{}'"#, value))
+                        Some(value.to_string())
                     }
                 }
                 VariableType::Date => {
                     if value.is_empty() {
                         None
                     } else {
-                        Some(format!(r#"'{}'"#, value))
+                        Some(format!(r#"{}{}{}"#, &quote, value, &quote))
                     }
                 }
             };

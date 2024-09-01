@@ -44,17 +44,19 @@ pub async fn verify_token(token: String) -> Result<Session, Box<dyn Error>> {
     });
 
     console::log_1(&JsValue::from_str(&format!("Session: loading")));
-    let response = ApiClient::new().post("/verify_token/", body).await;
-    match response {
-        Ok(resp) => {
-            let session = serde_json::from_value(resp.message)?;
-            console::log_1(&JsValue::from_str(&format!("Session: {:?}", session)));
-            Ok(session)
-        }
-        Err(e) => {
-            console::log_1(&JsValue::from_str(&format!("Error session: {:?}", e)));
-            Err(e)
-        }
-    }
+    ApiClient::new()
+        .post::<Session>("/verify_token/", body)
+        .await
+    // match response {
+    //     Ok(resp) => {
+    //         let session = serde_json::from_value(resp.message)?;
+    //         console::log_1(&JsValue::from_str(&format!("Session: {:?}", session)));
+    //         Ok(session)
+    //     }
+    //     Err(e) => {
+    //         console::log_1(&JsValue::from_str(&format!("Error session: {:?}", e)));
+    //         Err(e)
+    //     }
+    // }
     // Convert the response data to a Session struct
 }

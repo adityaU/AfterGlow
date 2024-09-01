@@ -17,6 +17,7 @@ pub struct CreatePayload {
     pub table_id: i64,
     pub description: Option<String>,
     pub display_order: i32,
+    pub is_primary: bool,
     pub type_validation: TypeValidation,
 }
 
@@ -29,6 +30,7 @@ pub fn create_default_columns(conn: &mut PgConnection, table: &AppTable) -> Resu
             real_name: "id".to_owned(),
             type_validation: common::models::app_column::TypeValidation::AutoNumber {},
             display_order: 1,
+            is_primary: true,
             inserted_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
         },
@@ -37,6 +39,7 @@ pub fn create_default_columns(conn: &mut PgConnection, table: &AppTable) -> Resu
             description: Some("Status of the record".to_string()),
             table_id: table.id,
             real_name: "status".to_owned(),
+            is_primary: false,
             type_validation: common::models::app_column::TypeValidation::SingleSelect {
                 options: vec![
                     "Pending".to_string(),
@@ -57,6 +60,7 @@ pub fn create_default_columns(conn: &mut PgConnection, table: &AppTable) -> Resu
             type_validation: common::models::app_column::TypeValidation::CreatedAt {
                 format: DateTimeFormat::UK,
             },
+            is_primary: false,
             display_order: 3,
             inserted_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
@@ -69,6 +73,7 @@ pub fn create_default_columns(conn: &mut PgConnection, table: &AppTable) -> Resu
             type_validation: common::models::app_column::TypeValidation::UpdatedAt {
                 format: DateTimeFormat::UK,
             },
+            is_primary: false,
             display_order: 4,
             inserted_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
@@ -92,6 +97,7 @@ pub fn create(conn: &mut PgConnection, payload: &CreatePayload) -> Result<AppCol
             description: payload.description.clone(),
             table_id: payload.table_id,
             real_name: real_name.clone(),
+            is_primary: payload.is_primary,
             type_validation: payload.type_validation.clone(),
             display_order: payload.display_order,
             inserted_at: Utc::now().naive_utc(),
@@ -116,7 +122,7 @@ pub fn create(conn: &mut PgConnection, payload: &CreatePayload) -> Result<AppCol
             .to_string()
             .find("duplicate key value violates unique constraint")
         {
-            Some(_) => "Table already exists. Choose a different name".to_string(),
+            Some(_) => "Column already exists. Choose a different name".to_string(),
             None => err.to_string(),
         }
     })

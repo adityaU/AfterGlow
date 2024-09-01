@@ -19,6 +19,7 @@ use super::{
     QueryError,
 };
 
+pub mod mysql;
 pub mod postgres;
 pub mod redshift;
 
@@ -125,7 +126,8 @@ impl SupportedDatabases {
         match self {
             SupportedDatabases::Postgres => Arc::new(postgres::PostgresAdapter::new(db_config)),
             SupportedDatabases::Redshift => Arc::new(redshift::RedshiftAdapter::new(db_config)),
-            _ => unimplemented!(),
+            SupportedDatabases::Mysql => Arc::new(mysql::MysqlAdapter::new(db_config)),
+            _ => Arc::new(postgres::PostgresAdapter::new(db_config)),
         }
     }
 }
@@ -145,7 +147,7 @@ pub struct DBTable {
     pub columns: Vec<DBColumn>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct DBColumn {
     pub name: String,
     pub data_type: String,

@@ -1,5 +1,6 @@
 use diesel::PgConnection;
 
+pub mod mysql;
 pub mod postgres;
 pub mod redshift;
 pub mod sql_base;

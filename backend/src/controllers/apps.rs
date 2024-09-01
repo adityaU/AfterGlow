@@ -1,22 +1,30 @@
-use crate::app::apps;
+use crate::app::apps::{self, tables::create_empty_row};
 use crate::controllers::common::ResponseData;
 use crate::errors::AGError;
 use crate::repository::permissions::PermissionNames;
 use crate::repository::permissions::PermissionNames::*;
 use crate::repository::DBPool;
-use actix_web::{web, HttpResponse, Responder};
+use actix_web::{web, HttpRequest, HttpResponse, Responder};
 use actix_web_grants::proc_macro::has_permissions;
 use chrono::Utc;
-use common::models::{app::AppView, app_table::AppTableView};
+use common::models::{app::AppView, app_table::AppTableView, row::RowElement};
+use deadpool_postgres::Pool;
 use serde::Deserialize;
 use std::sync::Arc;
 
 use apps::tables::CreatePayload as TableCreatePayload;
 
+use super::helpers::get_current_user_id;
+
 #[derive(Deserialize)]
 pub struct CreatePayload {
     pub name: String,
     pub description: Option<String>,
+}
+
+#[derive(Deserialize)]
+pub struct CreateNewRowPayload {
+    pub primary_key_value: Option<RowElement>,
 }
 
 #[has_permissions["SettingsAll",type = "PermissionNames"]]
@@ -108,4 +116,26 @@ pub(crate) async fn find_columns_by_table_id(
     apps::columns::find_by_table_id(&mut conn.unwrap(), table_id.into_inner())
         .map(|items| HttpResponse::Ok().json(ResponseData { data: items }))
         .map_err(AGError::<String>::new)
+}
+
+pub(crate) async fn create_new_row(
+    pool: web::Data<Arc<DBPool>>,
+    raw_pool: web::Data<Arc<Pool>>,
+    payload: web::Json<CreateNewRowPayload>,
+    table_id: web::Path<i64>,
+    req: HttpRequest,
+) -> impl Responder {
+    let conn = pool.get();
+    let payload = payload.into_inner();
+    let current_user_id = get_current_user_id(&req);
+    create_empty_row(
+        &mut conn.unwrap(),
+        &**raw_pool,
+        payload.primary_key_value,
+        table_id.into_inner(),
+        current_user_id,
+    )
+    .await
+    .map(|resp| HttpResponse::Created().json(ResponseData { data: resp }))
+    .map_err(AGError::<String>::new)
 }

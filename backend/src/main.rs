@@ -34,7 +34,7 @@ mod controllers;
 pub mod response_text;
 pub mod seeds;
 
-use repository::Database;
+use repository::{Database, RawConnection};
 
 const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
@@ -81,9 +81,11 @@ async fn run_server() -> std::io::Result<()> {
 
     let connection_pools = Arc::new(Mutex::new(app::results::ConnectionPools {
         postgres: HashMap::new(),
+        mysql: HashMap::new(),
     }));
 
     let pool = Arc::new(Database::new().pool);
+    let raw_pool = Arc::new(RawConnection::make());
 
     //setup workers
     let queue = Arc::new(PostgresQueue::new(Database::new().pool));
@@ -102,6 +104,7 @@ async fn run_server() -> std::io::Result<()> {
         App::new()
             .app_data(Data::new(pool.clone()))
             .app_data(Data::new(queue.clone()))
+            .app_data(Data::new(raw_pool.clone()))
             .app_data(Data::new(connection_pools.clone()))
             .data(web::FormConfig::default().limit(1 << 25))
             .wrap(CatchPanic::default())

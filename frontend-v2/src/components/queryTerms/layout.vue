@@ -116,7 +116,7 @@ export default {
       deep: true,
       handler() {
         let genAIPrompt = this.queryTermsLocal?.genai_prompt;
-        if (genAIPrompt?.request && (genAIPrompt?.request != this.queryTermsLocal?.genai_prompt?.request)) {
+        if (genAIPrompt?.request && (genAIPrompt?.request != this.queryTermsLocal?.genai_prompt?.request) || (genAIPrompt?.columns != this.queryTermsLocal?.genai_prompt?.columns)) {
           let request = genAIPrompt.request;
           this.clearQueryTerms()
           this.queryTermsLocal.genai_prompt.request = request;

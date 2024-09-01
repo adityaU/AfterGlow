@@ -300,10 +300,11 @@ pub fn TableDetails(
         table.get(),
         columns.get()
     )));
+    let (rows, set_rows) = create_signal(Vec::new());
     view! {
         {move || {
             if table.get().is_some() {
-                view! { <Table columns=columns table=table set_columns=set_columns/> }.into_view()
+                view! { <Table columns=columns table=table set_columns=set_columns rows=rows set_rows=set_rows/> }.into_view()
             } else {
                 view! {
                     <div class="tw-flex tw-justify-center tw-items-center tw-w-full tw-h-full">

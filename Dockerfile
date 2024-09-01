@@ -29,57 +29,58 @@ RUN apt-get update && apt-get install -y libpq-dev libxml2-dev libxslt1-dev libc
 ENV PREFIX=/usr/local
 
 # Download, build, and install libxml2
-RUN wget http://xmlsoft.org/sources/libxml2-2.9.10.tar.gz && \
-  tar -xvzf libxml2-2.9.10.tar.gz && \
-  cd libxml2-2.9.10 && \
-  ./configure --prefix=${PREFIX} --disable-shared --enable-static && \
-  make && make install && \
-  cd .. && rm -rf libxml2-2.9.10 libxml2-2.9.10.tar.gz
-
-# Download, build, and install libxslt
-RUN wget http://xmlsoft.org/sources/libxslt-1.1.34.tar.gz && \
-  tar -xvzf libxslt-1.1.34.tar.gz && \
-  cd libxslt-1.1.34 && \
-  ./configure --prefix=${PREFIX} --disable-shared --enable-static --with-libxml-prefix=${PREFIX} && \
-  make && make install && \
-  cd .. && rm -rf libxslt-1.1.34 libxslt-1.1.34.tar.gz
-
-# Download, build, and install gssapi_krb5
-RUN wget https://kerberos.org/dist/krb5/1.21/krb5-1.21.3.tar.gz && \
-  tar -xvzf krb5-1.21.3.tar.gz && \
-  cd krb5-1.21.3/src && \
-  ./configure --prefix=${PREFIX} --enable-shared && \
-  make && make install && \
-  ./configure --prefix=${PREFIX} --disable-shared --enable-static && \
-  make && make install && \
-  cd ../.. && rm -rf krb5-1.21.3 krb5-1.21.3.tar.gz
+# RUN wget http://xmlsoft.org/sources/libxml2-2.9.10.tar.gz && \
+#   tar -xvzf libxml2-2.9.10.tar.gz && \
+#   cd libxml2-2.9.10 && \
+#   ./configure --prefix=${PREFIX} --disable-shared --enable-static && \
+#   make && make install && \
+#   cd .. && rm -rf libxml2-2.9.10 libxml2-2.9.10.tar.gz
+#
+# # Download, build, and install libxslt
+# RUN wget http://xmlsoft.org/sources/libxslt-1.1.34.tar.gz && \
+#   tar -xvzf libxslt-1.1.34.tar.gz && \
+#   cd libxslt-1.1.34 && \
+#   ./configure --prefix=${PREFIX} --disable-shared --enable-static --with-libxml-prefix=${PREFIX} && \
+#   make && make install && \
+#   cd .. && rm -rf libxslt-1.1.34 libxslt-1.1.34.tar.gz
+#
+# # Download, build, and install gssapi_krb5
+# RUN wget https://kerberos.org/dist/krb5/1.21/krb5-1.21.3.tar.gz && \
+#   tar -xvzf krb5-1.21.3.tar.gz && \
+#   cd krb5-1.21.3/src && \
+#   ./configure --prefix=${PREFIX} --enable-shared && \
+#   make && make install && \
+#   ./configure --prefix=${PREFIX} --disable-shared --enable-static && \
+#   make && make install && \
+#   cd ../.. && rm -rf krb5-1.21.3 krb5-1.21.3.tar.gz
 
 # Set environment variables for Rust build
 ENV PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig
 ENV LD_LIBRARY_PATH=${PREFIX}/lib
 
 
-WORKDIR /var/app/
+WORKDIR /var/app/backend/
 
 # Copy the Rust project files to the container
 #
 # Copy the Cargo.toml and Cargo.lock files to the container
 #
-RUN mkdir crud_derive && mkdir locals && mkdir migrations && mkdir src && mkdir templates
+RUN mkdir crud_derive && mkdir locals && mkdir migrations && mkdir src && mkdir templates && mkdir ../common
 COPY backend/Cargo.toml backend/Cargo.lock ./
 COPY backend/crud_derive ./crud_derive
 COPY backend/locals ./locals
+COPY common ../common
 COPY backend/crud_derive ./crud_derive
 
 # Create a dummy main.rs file to trick Cargo into compiling the dependencies
-RUN echo "fn main() { println!(\"dummy\"); }" > src/main.rs
+# RUN echo "fn main() { println!(\"dummy\"); }" > src/main.rs
+# #
+# # # Build only the dependencies to cache them
+# #
+# RUN cargo fetch 
 #
-# # Build only the dependencies to cache them
-#
-RUN cargo fetch 
-
-# Remove the dummy main.rs file
-RUN rm -rf  src
+# # Remove the dummy main.rs file
+# RUN rm -rf  src
 #
 COPY backend/diesel.toml ./diesel.toml
 COPY backend/migrations ./migrations
@@ -130,7 +131,7 @@ RUN apt-get update && apt-get install -y libpq-dev libxml2-dev libxslt1-dev libc
 # FROM debian:stable-slim
 WORKDIR /var/app
 RUN mkdir -p /var/app/backend
-COPY --from=builder /var/app/target/release/backend /var/app/backend/backend
+COPY --from=builder /var/app/backend/target/release/backend /var/app/backend/backend
 # WORKDIR /var/app/frontend/
 # COPY frontend/dist/ ./
 WORKDIR /var/app/frontend-v2/dist/spa/
@@ -144,7 +145,7 @@ RUN  rm -rf /usr/lib/llvm-15 /usr/lib/x86_64-linux-gnu/libLLVM-15.so.1
 
 #RUN bundle exec rake assets:precompile
 
-
+ENV AG_LOG_LEVEL=info
 
 EXPOSE 80
 

@@ -10,6 +10,7 @@ diesel::table! {
         #[max_length = 255]
         type_validation -> Jsonb,
         display_order -> Int4,
+        is_primary -> Bool,
         inserted_at -> Timestamp,
         updated_at -> Timestamp,
     }
